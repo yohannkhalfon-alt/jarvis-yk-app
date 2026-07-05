@@ -23,7 +23,7 @@ export const Route = createFileRoute('/ingresos')({
 });
 
 function IngresosPage() {
-  const ingresos = Route.useLoaderData();
+  const ingresos = Route.useLoaderData() as Ingreso[];
   const router = useRouter();
 
   const total = ingresos.filter((i) => i.estado !== 'recibido').reduce((s, i) => s + i.monto, 0);

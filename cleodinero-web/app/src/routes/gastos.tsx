@@ -23,7 +23,7 @@ export const Route = createFileRoute('/gastos')({
 });
 
 function GastosPage() {
-  const gastos = Route.useLoaderData();
+  const gastos = Route.useLoaderData() as Gasto[];
   const router = useRouter();
 
   const total = gastos.filter((g) => g.estado !== 'pagado').reduce((s, g) => s + g.monto, 0);

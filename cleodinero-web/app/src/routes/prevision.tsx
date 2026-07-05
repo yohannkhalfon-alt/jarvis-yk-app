@@ -16,7 +16,7 @@ export const Route = createFileRoute('/prevision')({
 });
 
 function PrevisionPage() {
-  const prevision = Route.useLoaderData();
+  const prevision = Route.useLoaderData() as Prevision;
   const diasConMovimiento = prevision.timeline.filter((p) => p.eventos.length > 0);
 
   return (

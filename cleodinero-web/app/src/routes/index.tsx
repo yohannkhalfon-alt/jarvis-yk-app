@@ -17,7 +17,7 @@ export const Route = createFileRoute('/')({
 
 function PanelPage() {
   const { prevision, ahorroMes, caprichosPendientes, proximosIngresos, proximosGastos } =
-    Route.useLoaderData();
+    Route.useLoaderData() as DatosPanel;
 
   const nivelGlobal: NivelRiesgo = prevision.alertas.some((a) => a.nivel === 'rojo')
     ? 'rojo'

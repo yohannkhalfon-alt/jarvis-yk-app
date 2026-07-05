@@ -24,7 +24,11 @@ export const Route = createFileRoute('/ajustes')({
 });
 
 function AjustesPage() {
-  const { saldoActual, margenSeguridad, reglas } = Route.useLoaderData();
+  const { saldoActual, margenSeguridad, reglas } = Route.useLoaderData() as {
+    saldoActual: number;
+    margenSeguridad: number;
+    reglas: ReglaCategoria[];
+  };
   const router = useRouter();
   const [guardado, setGuardado] = useState(false);
 

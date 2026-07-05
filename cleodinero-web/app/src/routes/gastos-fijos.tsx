@@ -22,7 +22,7 @@ export const Route = createFileRoute('/gastos-fijos')({
 });
 
 function GastosFijosPage() {
-  const cargas = Route.useLoaderData();
+  const cargas = Route.useLoaderData() as CargaFija[];
   const router = useRouter();
 
   const totalMensual = cargas

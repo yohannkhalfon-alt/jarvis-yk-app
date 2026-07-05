@@ -24,7 +24,7 @@ export const Route = createFileRoute('/caprichos')({
 });
 
 function CaprichosPage() {
-  const { analisis, historial } = Route.useLoaderData();
+  const { analisis, historial } = Route.useLoaderData() as CaprichosConAnalisis;
   const router = useRouter();
 
   const enviar = async (e: FormEvent<HTMLFormElement>) => {
