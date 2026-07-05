@@ -8,77 +8,247 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as rootRouteImport } from "./routes/__root"
+import { Route as SitemapDotxmlRouteImport } from "./routes/sitemap[.]xml"
+import { Route as RobotsDottxtRouteImport } from "./routes/robots[.]txt"
+import { Route as PrevisionRouteImport } from "./routes/prevision"
+import { Route as IngresosRouteImport } from "./routes/ingresos"
+import { Route as ImportarRouteImport } from "./routes/importar"
+import { Route as GastosFijosRouteImport } from "./routes/gastos-fijos"
+import { Route as GastosRouteImport } from "./routes/gastos"
+import { Route as CaprichosRouteImport } from "./routes/caprichos"
+import { Route as AjustesRouteImport } from "./routes/ajustes"
+import { Route as AccesoRouteImport } from "./routes/acceso"
+import { Route as IndexRouteImport } from "./routes/index"
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
+  id: "/sitemap.xml",
+  path: "/sitemap.xml",
   getParentRoute: () => rootRouteImport,
 } as any)
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
-  id: '/robots.txt',
-  path: '/robots.txt',
+  id: "/robots.txt",
+  path: "/robots.txt",
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrevisionRoute = PrevisionRouteImport.update({
+  id: "/prevision",
+  path: "/prevision",
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IngresosRoute = IngresosRouteImport.update({
+  id: "/ingresos",
+  path: "/ingresos",
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImportarRoute = ImportarRouteImport.update({
+  id: "/importar",
+  path: "/importar",
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GastosFijosRoute = GastosFijosRouteImport.update({
+  id: "/gastos-fijos",
+  path: "/gastos-fijos",
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GastosRoute = GastosRouteImport.update({
+  id: "/gastos",
+  path: "/gastos",
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CaprichosRoute = CaprichosRouteImport.update({
+  id: "/caprichos",
+  path: "/caprichos",
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AjustesRoute = AjustesRouteImport.update({
+  id: "/ajustes",
+  path: "/ajustes",
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccesoRoute = AccesoRouteImport.update({
+  id: "/acceso",
+  path: "/acceso",
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/robots.txt': typeof RobotsDottxtRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
+  "/": typeof IndexRoute
+  "/acceso": typeof AccesoRoute
+  "/ajustes": typeof AjustesRoute
+  "/caprichos": typeof CaprichosRoute
+  "/gastos": typeof GastosRoute
+  "/gastos-fijos": typeof GastosFijosRoute
+  "/importar": typeof ImportarRoute
+  "/ingresos": typeof IngresosRoute
+  "/prevision": typeof PrevisionRoute
+  "/robots.txt": typeof RobotsDottxtRoute
+  "/sitemap.xml": typeof SitemapDotxmlRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/robots.txt': typeof RobotsDottxtRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
+  "/": typeof IndexRoute
+  "/acceso": typeof AccesoRoute
+  "/ajustes": typeof AjustesRoute
+  "/caprichos": typeof CaprichosRoute
+  "/gastos": typeof GastosRoute
+  "/gastos-fijos": typeof GastosFijosRoute
+  "/importar": typeof ImportarRoute
+  "/ingresos": typeof IngresosRoute
+  "/prevision": typeof PrevisionRoute
+  "/robots.txt": typeof RobotsDottxtRoute
+  "/sitemap.xml": typeof SitemapDotxmlRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/robots.txt': typeof RobotsDottxtRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
+  "/": typeof IndexRoute
+  "/acceso": typeof AccesoRoute
+  "/ajustes": typeof AjustesRoute
+  "/caprichos": typeof CaprichosRoute
+  "/gastos": typeof GastosRoute
+  "/gastos-fijos": typeof GastosFijosRoute
+  "/importar": typeof ImportarRoute
+  "/ingresos": typeof IngresosRoute
+  "/prevision": typeof PrevisionRoute
+  "/robots.txt": typeof RobotsDottxtRoute
+  "/sitemap.xml": typeof SitemapDotxmlRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/robots.txt' | '/sitemap.xml'
+  fullPaths:
+    | "/"
+    | "/acceso"
+    | "/ajustes"
+    | "/caprichos"
+    | "/gastos"
+    | "/gastos-fijos"
+    | "/importar"
+    | "/ingresos"
+    | "/prevision"
+    | "/robots.txt"
+    | "/sitemap.xml"
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/robots.txt' | '/sitemap.xml'
-  id: '__root__' | '/' | '/robots.txt' | '/sitemap.xml'
+  to:
+    | "/"
+    | "/acceso"
+    | "/ajustes"
+    | "/caprichos"
+    | "/gastos"
+    | "/gastos-fijos"
+    | "/importar"
+    | "/ingresos"
+    | "/prevision"
+    | "/robots.txt"
+    | "/sitemap.xml"
+  id:
+    | "__root__"
+    | "/"
+    | "/acceso"
+    | "/ajustes"
+    | "/caprichos"
+    | "/gastos"
+    | "/gastos-fijos"
+    | "/importar"
+    | "/ingresos"
+    | "/prevision"
+    | "/robots.txt"
+    | "/sitemap.xml"
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccesoRoute: typeof AccesoRoute
+  AjustesRoute: typeof AjustesRoute
+  CaprichosRoute: typeof CaprichosRoute
+  GastosRoute: typeof GastosRoute
+  GastosFijosRoute: typeof GastosFijosRoute
+  ImportarRoute: typeof ImportarRoute
+  IngresosRoute: typeof IngresosRoute
+  PrevisionRoute: typeof PrevisionRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
+    "/sitemap.xml": {
+      id: "/sitemap.xml"
+      path: "/sitemap.xml"
+      fullPath: "/sitemap.xml"
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/robots.txt': {
-      id: '/robots.txt'
-      path: '/robots.txt'
-      fullPath: '/robots.txt'
+    "/robots.txt": {
+      id: "/robots.txt"
+      path: "/robots.txt"
+      fullPath: "/robots.txt"
       preLoaderRoute: typeof RobotsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
+    "/prevision": {
+      id: "/prevision"
+      path: "/prevision"
+      fullPath: "/prevision"
+      preLoaderRoute: typeof PrevisionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/ingresos": {
+      id: "/ingresos"
+      path: "/ingresos"
+      fullPath: "/ingresos"
+      preLoaderRoute: typeof IngresosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/importar": {
+      id: "/importar"
+      path: "/importar"
+      fullPath: "/importar"
+      preLoaderRoute: typeof ImportarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/gastos-fijos": {
+      id: "/gastos-fijos"
+      path: "/gastos-fijos"
+      fullPath: "/gastos-fijos"
+      preLoaderRoute: typeof GastosFijosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/gastos": {
+      id: "/gastos"
+      path: "/gastos"
+      fullPath: "/gastos"
+      preLoaderRoute: typeof GastosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/caprichos": {
+      id: "/caprichos"
+      path: "/caprichos"
+      fullPath: "/caprichos"
+      preLoaderRoute: typeof CaprichosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/ajustes": {
+      id: "/ajustes"
+      path: "/ajustes"
+      fullPath: "/ajustes"
+      preLoaderRoute: typeof AjustesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/acceso": {
+      id: "/acceso"
+      path: "/acceso"
+      fullPath: "/acceso"
+      preLoaderRoute: typeof AccesoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/": {
+      id: "/"
+      path: "/"
+      fullPath: "/"
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -87,19 +257,17 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccesoRoute: AccesoRoute,
+  AjustesRoute: AjustesRoute,
+  CaprichosRoute: CaprichosRoute,
+  GastosRoute: GastosRoute,
+  GastosFijosRoute: GastosFijosRoute,
+  ImportarRoute: ImportarRoute,
+  IngresosRoute: IngresosRoute,
+  PrevisionRoute: PrevisionRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
