@@ -1,0 +1,73 @@
+/*
+ * Higgsfield theme for HeroUI fallback components (designer-authored, exported
+ * from the HeroUI theme editor; values match the Quanta dark palette — lime
+ * #D1FE17 accent on cool-grey surfaces).
+ *
+ * Apps are permanently DARK (`data-theme="default-dark"` is pinned on <html>),
+ * so the dark values are applied at :root — HeroUI's own `.dark` selector
+ * never matches our theme attribute, and there is no light mode to preserve.
+ *
+ * HeroUI is the FALLBACK for components Quanta lacks (see AGENTS.md): install
+ * the specific package on demand (`bun add @heroui/<component>`) and import
+ * its structural CSS in styles.css:
+ *   @import "@heroui/styles/components/<component>.css" layer(components);
+ * Never restyle HeroUI beyond this file, and never use HeroUI where a Quanta
+ * component exists.
+ *
+ * The one deliberate divergence from the export: --font-sans is Inter (the
+ * template body font) rather than Space Grotesk — Space Grotesk is for
+ * headings/accents via Quanta typography utilities.
+ */
+:root,
+[data-theme="default-dark"],
+.dark {
+  color-scheme: dark;
+
+  /* Theme Colors */
+  --background: oklch(19.1% 0.0043 264.47);
+  --foreground: oklch(100% 0 0);
+  --muted: oklch(60.66% 0 0);
+  --scrollbar: oklch(70.5% 0 121.88);
+  --surface: oklch(23.42% 0.0065 258.36);
+  --surface-foreground: oklch(100% 0 0);
+  --surface-secondary: oklch(26.72% 0.0086 255.58);
+  --surface-secondary-foreground: oklch(100% 0 0);
+  --surface-tertiary: oklch(29.62% 0.01 260.71);
+  --surface-tertiary-foreground: oklch(100% 0 0);
+  --overlay: oklch(26.72% 0.0086 255.58);
+  --overlay-foreground: oklch(100% 0 0);
+  --default: oklch(26.72% 0.0086 255.58);
+  --default-foreground: oklch(100% 0 0);
+  --accent: oklch(93.21% 0.2225 121.87);
+  --accent-foreground: oklch(21.78% 0 0);
+  --success: oklch(68.69% 0.1948 145.32);
+  --success-foreground: oklch(21.78% 0 0);
+  --warning: oklch(76.79% 0.157 86.52);
+  --warning-foreground: oklch(21.78% 0 0);
+  --danger: oklch(61.94% 0.2527 27.42);
+  --danger-foreground: oklch(100% 0 0);
+  --field-background: oklch(100% 0 0 / 0.05);
+  --field-foreground: oklch(100% 0 0);
+  --field-placeholder: oklch(100% 0 0 / 0.5);
+  --field-border: oklch(28% 0 121.88);
+  --segment: oklch(26.72% 0.0086 255.58);
+  --segment-foreground: oklch(100% 0 0);
+  --border: oklch(100% 0 0 / 0.1);
+  --separator: oklch(100% 0 0 / 0.05);
+  --focus: oklch(93.21% 0.2225 121.87);
+  --link: oklch(93.21% 0.2225 121.87);
+  --backdrop: oklch(0% 0 0 / 0.5);
+
+  /* Font: Inter for UI text (template divergence — see header comment) */
+  --font-sans: var(--hf-type-family-secondary);
+
+  /* Misc */
+  --disabled-opacity: 0.5;
+}
+
+/* Brand shape: moderate radii, never pills. HeroUI hardcodes a near-pill
+ * radius on buttons; align them with the quanta button radius (12px). */
+[data-theme="default-dark"] .button,
+.dark .button {
+  border-radius: 0.75rem; /* = quanta button radius */
+}
