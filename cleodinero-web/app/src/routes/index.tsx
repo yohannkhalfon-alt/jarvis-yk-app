@@ -3,6 +3,7 @@ import { createFileRoute, Link, redirect } from '@tanstack/react-router';
 import { Shell } from '../components/cleo/Shell';
 import { BalanceChart } from '../components/cleo/BalanceChart';
 import { ChipRiesgo } from '../components/cleo/ui';
+import { Doble } from '../components/cleo/moneda';
 import { euros, type NivelRiesgo } from '../lib/cleo/motor';
 import { getPanel, sesionValida, type DatosPanel } from '../lib/api/cleo.functions';
 
@@ -37,14 +38,14 @@ function PanelPage() {
         <section className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
           <div className="tarjeta col-span-2 border-barbie-300 bg-gradient-to-br from-barbie-500 to-barbie-400 md:col-span-1">
             <p className="text-xs font-semibold uppercase tracking-wide text-white/80">Saldo actual</p>
-            <p className="mt-1 font-display text-3xl font-bold text-white">{euros(prevision.saldoActual)}</p>
+            <p className="mt-1 font-display text-3xl font-bold text-white"><Doble n={prevision.saldoActual} /></p>
             <p className="mt-1 text-[11px] text-white/70">Hoy, en tu reino 💖</p>
           </div>
 
           <div className="tarjeta">
             <p className="text-xs font-semibold uppercase tracking-wide text-gold-600">Ahorro del mes</p>
             <p className={`mt-1 font-display text-2xl font-bold ${ahorroMes >= 0 ? 'text-gold-600' : 'text-gasto'}`}>
-              {euros(ahorroMes)}
+              <Doble n={ahorroMes} />
             </p>
             <p className="mt-1 text-[11px] text-tinta/50">
               {ahorroMes >= 0 ? 'Tu objetivo de ahorro va por buen camino 🌟' : 'Este mes pide un poco de mimo 💕'}
@@ -88,7 +89,7 @@ function PanelPage() {
               <div key={plazo} className="tarjeta-suave text-center">
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-tinta/50">{plazo}</p>
                 <p className={`font-display text-lg font-bold ${valor >= 0 ? 'text-ingreso' : 'text-gasto'}`}>
-                  {euros(valor)}
+                  <Doble n={valor} />
                 </p>
               </div>
             ))}
@@ -97,13 +98,13 @@ function PanelPage() {
             <div className="rounded-2xl bg-emerald-50/70 p-3">
               <p className="text-[11px] font-semibold uppercase text-ingreso">Entradas previstas (90 d)</p>
               <p className="font-display text-lg font-bold text-ingreso">
-                +{euros(prevision.totalIngresosPrevistos)}
+                <Doble n={prevision.totalIngresosPrevistos} signo="+" />
               </p>
             </div>
             <div className="rounded-2xl bg-red-50/70 p-3">
               <p className="text-[11px] font-semibold uppercase text-gasto">Salidas previstas (90 d)</p>
               <p className="font-display text-lg font-bold text-gasto">
-                −{euros(prevision.totalGastosPrevistos)}
+                <Doble n={prevision.totalGastosPrevistos} signo="−" />
               </p>
             </div>
           </div>
@@ -155,7 +156,7 @@ function PanelPage() {
                 className="flex items-center justify-between border-b border-barbie-50 py-2 text-sm last:border-0"
               >
                 <span className="truncate">{i.nombre}</span>
-                <span className="font-semibold text-ingreso">+{euros(i.monto)}</span>
+                <span className="font-semibold text-ingreso"><Doble n={i.monto} signo="+" /></span>
               </div>
             ))}
           </div>
@@ -173,7 +174,7 @@ function PanelPage() {
                 className="flex items-center justify-between border-b border-barbie-50 py-2 text-sm last:border-0"
               >
                 <span className="truncate">{g.nombre}</span>
-                <span className="font-semibold text-gasto">−{euros(g.monto)}</span>
+                <span className="font-semibold text-gasto"><Doble n={g.monto} signo="−" /></span>
               </div>
             ))}
           </div>

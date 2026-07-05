@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from '@tanstack/react-router';
 
 import { Shell } from '../components/cleo/Shell';
 import { BalanceChart } from '../components/cleo/BalanceChart';
+import { Doble } from '../components/cleo/moneda';
 import { euros, formatearFechaLarga, type Prevision } from '../lib/cleo/motor';
 import { getPrevision, sesionValida } from '../lib/api/cleo.functions';
 
@@ -40,7 +41,7 @@ function PrevisionPage() {
             <div key={plazo} className="tarjeta p-4 text-center">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-tinta/50">En {plazo}</p>
               <p className={`font-display text-xl font-bold ${valor >= 0 ? 'text-ingreso' : 'text-gasto'}`}>
-                {euros(valor)}
+                <Doble n={valor} />
               </p>
             </div>
           ))}
@@ -96,7 +97,7 @@ function PrevisionPage() {
                       p.saldo >= 0 ? 'text-ingreso' : 'text-gasto'
                     }`}
                   >
-                    {euros(p.saldo)}
+                    <Doble n={p.saldo} />
                     {p.saldo < 0 && <span title="Saldo negativo"> 🚨</span>}
                   </td>
                 </tr>

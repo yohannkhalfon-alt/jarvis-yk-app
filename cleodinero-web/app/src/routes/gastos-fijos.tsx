@@ -2,7 +2,8 @@ import { createFileRoute, redirect, useRouter } from '@tanstack/react-router';
 import type { FormEvent } from 'react';
 
 import { Shell } from '../components/cleo/Shell';
-import { euros, CATEGORIAS_CARGA_FIJA, MEDIOS_PAGO, type CargaFija } from '../lib/cleo/motor';
+import { Doble } from '../components/cleo/moneda';
+import { CATEGORIAS_CARGA_FIJA, MEDIOS_PAGO, type CargaFija } from '../lib/cleo/motor';
 import {
   alternarCargaFija,
   crearCargaFija,
@@ -56,7 +57,7 @@ function GastosFijosPage() {
           <h1 className="titulo-pagina">Gastos fijos 📌</h1>
           <p className="text-sm text-tinta/60">
             Tus compromisos del mes, bajo control:{' '}
-            <span className="font-bold text-gasto">−{euros(totalMensual)}/mes</span>
+            <Doble n={totalMensual} signo="−" inline className="font-bold text-gasto" />
           </p>
         </header>
 
@@ -115,7 +116,7 @@ function GastosFijosPage() {
                   Día {c.dia_cargo} · {c.recurrencia} · {c.medio_pago} · {c.categoria}
                 </p>
               </div>
-              <span className="font-display text-lg font-bold text-gasto">−{euros(c.monto)}</span>
+              <span className="font-display text-lg font-bold text-gasto"><Doble n={c.monto} signo="−" /></span>
               <span
                 className={`chip ${
                   c.activa

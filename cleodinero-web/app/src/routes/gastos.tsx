@@ -3,7 +3,8 @@ import type { FormEvent } from 'react';
 
 import { Shell } from '../components/cleo/Shell';
 import { ChipEstado, ChipPrioridad } from '../components/cleo/ui';
-import { euros, formatearFechaLarga, hoyIso, CATEGORIAS_GASTO, type Gasto } from '../lib/cleo/motor';
+import { Doble } from '../components/cleo/moneda';
+import { formatearFechaLarga, hoyIso, CATEGORIAS_GASTO, type Gasto } from '../lib/cleo/motor';
 import {
   cambiarEstadoGasto,
   crearGasto,
@@ -57,7 +58,7 @@ function GastosPage() {
           <h1 className="titulo-pagina">Gastos 💸</h1>
           <p className="text-sm text-tinta/60">
             Gastar con cabeza también es quererse 💕 Pendiente de pagar:{' '}
-            <span className="font-bold text-gasto">−{euros(total)}</span>
+            <Doble n={total} signo="−" inline className="font-bold text-gasto" />
           </p>
         </header>
 
@@ -132,7 +133,7 @@ function GastosPage() {
                   {g.comentario && ` · ${g.comentario}`}
                 </p>
               </div>
-              <span className="font-display text-lg font-bold text-gasto">−{euros(g.monto)}</span>
+              <span className="font-display text-lg font-bold text-gasto"><Doble n={g.monto} signo="−" /></span>
               <ChipPrioridad prioridad={g.prioridad} />
               <ChipEstado estado={g.estado} />
               <div className="flex gap-1.5">

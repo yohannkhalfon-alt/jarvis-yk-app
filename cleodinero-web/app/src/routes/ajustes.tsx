@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { useState } from 'react';
 
 import { Shell } from '../components/cleo/Shell';
+import { cop, useTasa } from '../components/cleo/moneda';
 import { CATEGORIAS_GASTO, CATEGORIAS_INGRESO, type ReglaCategoria } from '../lib/cleo/motor';
 import {
   crearRegla,
@@ -24,6 +25,7 @@ export const Route = createFileRoute('/ajustes')({
 });
 
 function AjustesPage() {
+  const tasa = useTasa();
   const { saldoActual, margenSeguridad, reglas } = Route.useLoaderData() as {
     saldoActual: number;
     margenSeguridad: number;
@@ -70,6 +72,19 @@ function AjustesPage() {
           <h1 className="titulo-pagina">Ajustes ⚙️</h1>
           <p className="text-sm text-tinta/60">Tu app, tus reglas, reina 👑</p>
         </header>
+
+        {tasa != null && (
+          <div className="tarjeta flex items-center gap-3 p-4">
+            <span className="text-2xl" aria-hidden>💱</span>
+            <div>
+              <p className="font-display text-sm font-bold">Tipo de cambio en vivo</p>
+              <p className="text-xs text-tinta/70">
+                1 € ≈ <b className="text-gold-600">{cop(tasa)}</b> — se actualiza automáticamente varias
+                veces al día. Tú envías en euros, ella lo ve en pesos 💕
+              </p>
+            </div>
+          </div>
+        )}
 
         <form onSubmit={enviarAjustes} className="tarjeta grid gap-3 md:grid-cols-3">
           <div>

@@ -3,7 +3,8 @@ import type { FormEvent } from 'react';
 
 import { Shell } from '../components/cleo/Shell';
 import { ChipEstado } from '../components/cleo/ui';
-import { euros, formatearFechaLarga, hoyIso, CATEGORIAS_INGRESO, type Ingreso } from '../lib/cleo/motor';
+import { Doble } from '../components/cleo/moneda';
+import { formatearFechaLarga, hoyIso, CATEGORIAS_INGRESO, type Ingreso } from '../lib/cleo/motor';
 import {
   cambiarEstadoIngreso,
   crearIngreso,
@@ -56,7 +57,7 @@ function IngresosPage() {
           <h1 className="titulo-pagina">Ingresos 💚</h1>
           <p className="text-sm text-tinta/60">
             Cada entrada te acerca a tus sueños ✨ Pendiente de recibir:{' '}
-            <span className="font-bold text-ingreso">+{euros(total)}</span>
+            <Doble n={total} signo="+" inline className="font-bold text-ingreso" />
           </p>
         </header>
 
@@ -123,7 +124,7 @@ function IngresosPage() {
                   {i.comentario && ` · ${i.comentario}`}
                 </p>
               </div>
-              <span className="font-display text-lg font-bold text-ingreso">+{euros(i.monto)}</span>
+              <span className="font-display text-lg font-bold text-ingreso"><Doble n={i.monto} signo="+" /></span>
               <ChipEstado estado={i.estado} />
               <div className="flex gap-1.5">
                 {i.estado !== 'recibido' && (

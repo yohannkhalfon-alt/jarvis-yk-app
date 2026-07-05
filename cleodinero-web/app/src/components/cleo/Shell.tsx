@@ -2,6 +2,7 @@ import { Link, useRouter, useRouterState } from '@tanstack/react-router';
 import { useEffect, type ReactNode } from 'react';
 
 import { salir } from '../../lib/api/cleo.functions';
+import { ProveedorTasa } from './moneda';
 
 const enlaces = [
   { href: '/', emoji: '🏠', nombre: 'Panel' },
@@ -51,6 +52,7 @@ export function Shell({ children }: { children: ReactNode }) {
   };
 
   return (
+    <ProveedorTasa>
     <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col md:flex-row">
       {/* Barra lateral — escritorio */}
       <aside className="sticky top-0 hidden h-screen w-56 flex-none flex-col gap-1 border-r border-barbie-100 bg-white/60 p-4 backdrop-blur-md md:flex">
@@ -114,5 +116,6 @@ export function Shell({ children }: { children: ReactNode }) {
         })}
       </nav>
     </div>
+    </ProveedorTasa>
   );
 }

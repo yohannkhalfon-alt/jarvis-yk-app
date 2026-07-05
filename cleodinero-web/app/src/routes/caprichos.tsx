@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 
 import { Shell } from '../components/cleo/Shell';
 import { ChipEstado, ChipRiesgo } from '../components/cleo/ui';
+import { Doble } from '../components/cleo/moneda';
 import { euros, formatearFechaLarga, hoyIso } from '../lib/cleo/motor';
 import {
   cambiarEstadoCapricho,
@@ -123,7 +124,7 @@ function CaprichosPage() {
               <div className="min-w-0 flex-1">
                 <p className="font-display text-lg font-bold">{a.capricho.nombre}</p>
                 <p className="text-xs text-tinta/60">
-                  {euros(a.capricho.monto)} · deseado el {formatearFechaLarga(a.capricho.fecha_deseada)} · emoción{' '}
+                  <Doble n={a.capricho.monto} inline /> · deseado el {formatearFechaLarga(a.capricho.fecha_deseada)} · emoción{' '}
                   {a.capricho.prioridad_emocional} · utilidad {a.capricho.utilidad_real} ·{' '}
                   {a.capricho.puede_esperar ? 'puede esperar' : 'urgente para ti'}
                 </p>
@@ -152,7 +153,7 @@ function CaprichosPage() {
                 <div key={etiqueta} className="tarjeta-suave">
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-tinta/50">{etiqueta}</p>
                   <p className={`font-display text-base font-bold ${valor >= 0 ? 'text-ingreso' : 'text-gasto'}`}>
-                    {euros(valor)}
+                    <Doble n={valor} />
                   </p>
                   <p className="text-[10px] text-tinta/40">saldo mínimo proyectado</p>
                 </div>
@@ -189,7 +190,7 @@ function CaprichosPage() {
             {historial.map((c) => (
               <div key={c.id} className="tarjeta flex items-center gap-3 p-3 text-sm">
                 <span className="min-w-0 flex-1 truncate">{c.nombre}</span>
-                <span className="font-semibold">{euros(c.monto)}</span>
+                <span className="font-semibold"><Doble n={c.monto} /></span>
                 <ChipEstado estado={c.estado} />
                 <button className="boton-suave text-gasto" onClick={() => eliminar(c.id)}>
                   🗑

@@ -457,6 +457,38 @@ export const eliminarRegla = createServerFn({ method: 'POST' })
     return { ok: true };
   });
 
+// ——— Tipo de cambio EUR → COP ———
+
+export const getTasaCop = createServerFn({ method: 'POST' }).handler(async () => {
+  await exigirSesion();
+  const ahora = Date.now();
+  const [tasaStr, tsStr] = await Promise.all([
+    leerAjuste('tasa_eur_cop', ''),
+    leerAjuste('tasa_eur_cop_ts', '0'),
+  ]);
+  const ts = parseInt(tsStr, 10) || 0;
+  let tasa = parseFloat(tasaStr) || 0;
+
+  // Refresca si no hay tasa o si tiene más de 6 horas (fuente: open.er-api.com, sin clave)
+  if (!tasa || ahora - ts > 6 * 60 * 60 * 1000) {
+    try {
+      const res = await fetch('https://open.er-api.com/v6/latest/EUR');
+      const json = (await res.json()) as { rates?: Record<string, number> };
+      const nueva = json.rates?.COP;
+      if (nueva && nueva > 0) {
+        tasa = nueva;
+        await guardarAjuste('tasa_eur_cop', String(nueva));
+        await guardarAjuste('tasa_eur_cop_ts', String(ahora));
+      }
+    } catch {
+      // sin red: se conserva la última tasa guardada
+    }
+  }
+
+  if (!tasa) tasa = 4500; // valor de respaldo razonable EUR→COP
+  return { tasa, actualizada: ts };
+});
+
 // ——— Import CSV ———
 
 export const importarCsv = createServerFn({ method: 'POST' })
