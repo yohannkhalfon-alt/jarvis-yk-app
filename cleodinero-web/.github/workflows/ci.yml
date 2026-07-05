@@ -1,0 +1,36 @@
+name: Template CI
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: arc-runners-frontend
+    name: Validate template
+    # The app project lives in app/ (ci/ holds the deploy config, AGENTS.md +
+    # skills/ stay at root). Every build step runs there.
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Build
+        run: bun run build
+
+      - name: Build design preview
+        run: bun run build:design
+
+      - name: Package tests
+        run: bun run test:packages
