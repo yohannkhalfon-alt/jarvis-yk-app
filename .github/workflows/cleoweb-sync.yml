@@ -49,7 +49,15 @@ jobs:
           else
             rsync -a --delete --exclude='.git' cleodinero-web/ /tmp/website/
             cd /tmp/website
+            git config user.name "cleodinero-sync"
+            git config user.email "cleodinero-sync@users.noreply.github.com"
             git add -A
-            git commit -m "Deploy CleoDinero" || echo "rien a committer"
-            git -c http.extraHeader="Authorization: token ${TOKEN}" push origin main
+            if git diff --cached --quiet; then
+              echo "rien a committer"
+            else
+              git commit -m "Deploy CleoDinero"
+              git -c http.extraHeader="Authorization: token ${TOKEN}" push origin main
+            fi
+            echo "--- dernier commit du depot du site ---"
+            git log -1 --stat | head -30
           fi
