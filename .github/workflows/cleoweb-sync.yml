@@ -1,0 +1,55 @@
+name: cleoweb-sync
+
+# Pont de synchronisation entre ce dépôt et le dépôt de déploiement du site
+# CleoDinero (l'environnement Claude ne peut pas joindre ce dépôt directement,
+# GitHub Actions oui).
+#   - mode "import" : copie le template du site vers cleodinero-web/ (cette branche)
+#   - mode "export" : copie cleodinero-web/ vers le dépôt de déploiement (main)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "import (template -> ce repo) ou export (ce repo -> site)"
+        required: true
+        default: import
+      repo_url:
+        description: "URL git https du dépôt du site (sans identifiants)"
+        required: true
+      repo_token:
+        description: "Token git scopé du dépôt du site"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Synchroniser
+        env:
+          TOKEN: ${{ github.event.inputs.repo_token }}
+          REPO: ${{ github.event.inputs.repo_url }}
+          MODE: ${{ github.event.inputs.mode }}
+        run: |
+          set -euo pipefail
+          git config user.name "cleodinero-sync"
+          git config user.email "cleodinero-sync@users.noreply.github.com"
+          git -c http.extraHeader="Authorization: token ${TOKEN}" clone --depth 1 "${REPO}" /tmp/website
+          if [ "${MODE}" = "import" ]; then
+            rm -rf cleodinero-web
+            mkdir -p cleodinero-web
+            rsync -a --exclude='.git' /tmp/website/ cleodinero-web/
+            git add -A cleodinero-web
+            git commit -m "Import du template du site pour le deploiement CleoDinero" || echo "rien a committer"
+            git push origin HEAD
+          else
+            rsync -a --delete --exclude='.git' cleodinero-web/ /tmp/website/
+            cd /tmp/website
+            git add -A
+            git commit -m "Deploy CleoDinero" || echo "rien a committer"
+            git -c http.extraHeader="Authorization: token ${TOKEN}" push origin main
+          fi
