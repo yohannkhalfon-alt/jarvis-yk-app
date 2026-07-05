@@ -2,7 +2,7 @@ import { createFileRoute, redirect, useRouter } from '@tanstack/react-router';
 import type { FormEvent } from 'react';
 
 import { Shell } from '../components/cleo/Shell';
-import { euros, CATEGORIAS_CARGA_FIJA, MEDIOS_PAGO } from '../lib/cleo/motor';
+import { euros, CATEGORIAS_CARGA_FIJA, MEDIOS_PAGO, type CargaFija } from '../lib/cleo/motor';
 import {
   alternarCargaFija,
   crearCargaFija,
@@ -16,7 +16,7 @@ export const Route = createFileRoute('/gastos-fijos')({
     const { ok } = await sesionValida();
     if (!ok) throw redirect({ to: '/acceso' });
   },
-  loader: () => getCargasFijas(),
+  loader: async (): Promise<CargaFija[]> => getCargasFijas(),
   head: () => ({ meta: [{ title: 'CleoDinero ✨ — Gastos fijos' }] }),
   component: GastosFijosPage,
 });

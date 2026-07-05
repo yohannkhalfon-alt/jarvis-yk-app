@@ -10,6 +10,7 @@ import {
   eliminarCapricho,
   getCaprichos,
   sesionValida,
+  type CaprichosConAnalisis,
 } from '../lib/api/cleo.functions';
 
 export const Route = createFileRoute('/caprichos')({
@@ -17,7 +18,7 @@ export const Route = createFileRoute('/caprichos')({
     const { ok } = await sesionValida();
     if (!ok) throw redirect({ to: '/acceso' });
   },
-  loader: () => getCaprichos(),
+  loader: async (): Promise<CaprichosConAnalisis> => getCaprichos(),
   head: () => ({ meta: [{ title: 'CleoDinero ✨ — Caprichos' }] }),
   component: CaprichosPage,
 });

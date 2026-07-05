@@ -3,7 +3,7 @@ import type { FormEvent } from 'react';
 import { useState } from 'react';
 
 import { Shell } from '../components/cleo/Shell';
-import { CATEGORIAS_GASTO, CATEGORIAS_INGRESO } from '../lib/cleo/motor';
+import { CATEGORIAS_GASTO, CATEGORIAS_INGRESO, type ReglaCategoria } from '../lib/cleo/motor';
 import {
   crearRegla,
   eliminarRegla,
@@ -17,7 +17,8 @@ export const Route = createFileRoute('/ajustes')({
     const { ok } = await sesionValida();
     if (!ok) throw redirect({ to: '/acceso' });
   },
-  loader: () => getAjustes(),
+  loader: async (): Promise<{ saldoActual: number; margenSeguridad: number; reglas: ReglaCategoria[] }> =>
+    getAjustes(),
   head: () => ({ meta: [{ title: 'CleoDinero ✨ — Ajustes' }] }),
   component: AjustesPage,
 });

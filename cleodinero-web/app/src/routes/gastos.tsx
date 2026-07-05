@@ -3,7 +3,7 @@ import type { FormEvent } from 'react';
 
 import { Shell } from '../components/cleo/Shell';
 import { ChipEstado, ChipPrioridad } from '../components/cleo/ui';
-import { euros, formatearFechaLarga, hoyIso, CATEGORIAS_GASTO } from '../lib/cleo/motor';
+import { euros, formatearFechaLarga, hoyIso, CATEGORIAS_GASTO, type Gasto } from '../lib/cleo/motor';
 import {
   cambiarEstadoGasto,
   crearGasto,
@@ -17,7 +17,7 @@ export const Route = createFileRoute('/gastos')({
     const { ok } = await sesionValida();
     if (!ok) throw redirect({ to: '/acceso' });
   },
-  loader: () => getGastos(),
+  loader: async (): Promise<Gasto[]> => getGastos(),
   head: () => ({ meta: [{ title: 'CleoDinero ✨ — Gastos' }] }),
   component: GastosPage,
 });

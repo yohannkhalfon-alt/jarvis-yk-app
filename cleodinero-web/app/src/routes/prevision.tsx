@@ -2,7 +2,7 @@ import { createFileRoute, redirect } from '@tanstack/react-router';
 
 import { Shell } from '../components/cleo/Shell';
 import { BalanceChart } from '../components/cleo/BalanceChart';
-import { euros, formatearFechaLarga } from '../lib/cleo/motor';
+import { euros, formatearFechaLarga, type Prevision } from '../lib/cleo/motor';
 import { getPrevision, sesionValida } from '../lib/api/cleo.functions';
 
 export const Route = createFileRoute('/prevision')({
@@ -10,7 +10,7 @@ export const Route = createFileRoute('/prevision')({
     const { ok } = await sesionValida();
     if (!ok) throw redirect({ to: '/acceso' });
   },
-  loader: () => getPrevision(),
+  loader: async (): Promise<Prevision> => getPrevision(),
   head: () => ({ meta: [{ title: 'CleoDinero ✨ — Previsión' }] }),
   component: PrevisionPage,
 });

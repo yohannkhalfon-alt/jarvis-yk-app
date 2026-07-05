@@ -4,14 +4,14 @@ import { Shell } from '../components/cleo/Shell';
 import { BalanceChart } from '../components/cleo/BalanceChart';
 import { ChipRiesgo } from '../components/cleo/ui';
 import { euros, type NivelRiesgo } from '../lib/cleo/motor';
-import { getPanel, sesionValida } from '../lib/api/cleo.functions';
+import { getPanel, sesionValida, type DatosPanel } from '../lib/api/cleo.functions';
 
 export const Route = createFileRoute('/')({
   beforeLoad: async () => {
     const { ok } = await sesionValida();
     if (!ok) throw redirect({ to: '/acceso' });
   },
-  loader: () => getPanel(),
+  loader: async (): Promise<DatosPanel> => getPanel(),
   component: PanelPage,
 });
 
