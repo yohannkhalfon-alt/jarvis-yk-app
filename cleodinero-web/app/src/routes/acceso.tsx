@@ -1,9 +1,13 @@
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router';
-import { useState, type FormEvent, type ChangeEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 
 import { entrar, sesionValida } from '../lib/api/cleo.functions';
 
 export const Route = createFileRoute('/acceso')({
+  // Enlace mágico: /acceso?codigo=XXXX entra automáticamente
+  validateSearch: (search: Record<string, unknown>) => ({
+    codigo: typeof search.codigo === 'string' ? search.codigo : undefined,
+  }),
   beforeLoad: async () => {
     const { ok } = await sesionValida();
     if (ok) throw redirect({ to: '/' });
@@ -14,16 +18,16 @@ export const Route = createFileRoute('/acceso')({
 
 function AccesoPage() {
   const router = useRouter();
+  const { codigo: codigoEnlace } = Route.useSearch();
   const [codigo, setCodigo] = useState('');
   const [error, setError] = useState(false);
   const [cargando, setCargando] = useState(false);
 
-  const enviar = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!codigo.trim()) return;
+  const intentar = async (valor: string) => {
+    if (!valor.trim()) return;
     setCargando(true);
     setError(false);
-    const { ok } = await entrar({ data: { codigo } });
+    const { ok } = await entrar({ data: { codigo: valor } });
     setCargando(false);
     if (ok) {
       await router.invalidate();
@@ -31,6 +35,16 @@ function AccesoPage() {
     } else {
       setError(true);
     }
+  };
+
+  useEffect(() => {
+    if (codigoEnlace) void intentar(codigoEnlace);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [codigoEnlace]);
+
+  const enviar = async (e: FormEvent) => {
+    e.preventDefault();
+    await intentar(codigo);
   };
 
   return (
