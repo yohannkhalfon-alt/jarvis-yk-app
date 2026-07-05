@@ -8,8 +8,6 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
-import { button } from "@higgsfield/quanta/button";
-import { NotFound } from "@higgsfield/quanta/not-found";
 
 import appCss from "../styles.css?url";
 import { reportHiggsfieldError } from "../lib/higgsfield-error-reporting";
@@ -95,6 +93,12 @@ function buildHead(meta: AppMeta) {
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Poppins:wght@400;500;600;700&display=swap",
+      },
       ...(favicon ? [{ rel: "icon", href: favicon }] : []),
     ],
   };
@@ -102,17 +106,17 @@ function buildHead(meta: AppMeta) {
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-q-background-primary px-4">
-      <NotFound
-        className="mx-auto max-w-md"
-        icon={<span className="text-q-title-md-semi-bold text-q-text-primary">404</span>}
-        title="Page not found"
-        subtitle="The page you're looking for doesn't exist or has been moved."
-      >
-        <Link to="/" className={button({ variant: "primary", size: "md" }, "mt-3")}>
-          Go home
+    <div className="flex min-h-dvh items-center justify-center px-4">
+      <div className="tarjeta max-w-md text-center">
+        <p className="font-display text-4xl font-bold text-barbie-500">404 💔</p>
+        <h1 className="mt-2 font-display text-lg font-bold text-tinta">Esta página no existe</h1>
+        <p className="mt-1 text-sm text-tinta/60">
+          El enlace que buscas no existe o se ha movido.
+        </p>
+        <Link to="/" className="boton-brillante mt-4">
+          Volver al panel ✨
         </Link>
-      </NotFound>
+      </div>
     </div>
   );
 }
@@ -125,11 +129,11 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   }, [error]);
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-q-background-primary px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-q-title-lg-semi-bold text-q-text-primary">This page didn't load</h1>
-        <p className="mt-2 text-q-body-sm-regular text-q-text-secondary">
-          Something went wrong on our end. You can try refreshing or head back home.
+    <div className="flex min-h-dvh items-center justify-center px-4">
+      <div className="tarjeta max-w-md text-center">
+        <h1 className="font-display text-lg font-bold text-tinta">Esta página no se cargó 💔</h1>
+        <p className="mt-2 text-sm text-tinta/60">
+          Algo salió mal por nuestro lado. Puedes reintentar o volver al panel.
         </p>
         <div className="mt-4 flex flex-wrap justify-center gap-2">
           <button
@@ -137,12 +141,12 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
               router.invalidate();
               reset();
             }}
-            className={button({ variant: "primary", size: "md" })}
+            className="boton-brillante"
           >
-            Try again
+            Reintentar
           </button>
-          <a href="/" className={button({ variant: "outline", size: "md" })}>
-            Go home
+          <a href="/" className="boton-suave">
+            Volver al panel
           </a>
         </div>
       </div>
@@ -161,14 +165,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" data-theme="default-dark" style={{ colorScheme: "dark" }}>
-      {/* Marketplace apps are permanently dark: data-theme is pinned on <html>
-          above. Do not add quanta's bootstrapScript/ThemeController, a theme
-          toggle, or a light mode. */}
+    <html lang="es" style={{ colorScheme: "light" }}>
       <head>
         <HeadContent />
       </head>
-      <body className="bg-q-background-primary text-q-text-primary">
+      <body className="fondo-cleo font-body text-tinta antialiased">
         {children}
         <Scripts />
       </body>

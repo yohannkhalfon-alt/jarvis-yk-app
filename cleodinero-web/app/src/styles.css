@@ -106,3 +106,86 @@
     border-color: var(--hf-color-border-default);
   }
 }
+
+/* ============================================================
+ * CleoDinero ✨ — tema rosa Barbie + dorado (marca propia)
+ * ============================================================ */
+
+@theme {
+  --color-barbie-50: #fff0f7;
+  --color-barbie-100: #ffe1ef;
+  --color-barbie-200: #ffc2df;
+  --color-barbie-300: #ff94c6;
+  --color-barbie-400: #ff5ca8;
+  --color-barbie-500: #f5308f;
+  --color-barbie-600: #e6318f;
+  --color-barbie-700: #c01c72;
+  --color-barbie-800: #9a1a5d;
+  --color-barbie-900: #7a1a4c;
+  --color-gold-100: #fbf3dc;
+  --color-gold-200: #f3e2ae;
+  --color-gold-300: #e8cc77;
+  --color-gold-400: #d9b14a;
+  --color-gold-500: #c9a227;
+  --color-gold-600: #a87900;
+  --color-gold-700: #8a6400;
+  --color-ingreso: #12894f;
+  --color-gasto: #d92d20;
+  --color-alerta: #e8730c;
+  --color-crema: #fff5fa;
+  --color-tinta: #3d2438;
+  --font-display: "Quicksand", "Poppins", ui-rounded, system-ui, sans-serif;
+  --font-body: "Poppins", system-ui, sans-serif;
+  --shadow-glow: 0 4px 24px -4px rgba(230, 49, 143, 0.25);
+  --shadow-glow-gold: 0 4px 24px -4px rgba(201, 162, 39, 0.35);
+  --shadow-card: 0 2px 16px -2px rgba(122, 26, 76, 0.1);
+}
+
+.fondo-cleo {
+  background:
+    radial-gradient(ellipse 70% 40% at 20% -5%, rgba(255, 92, 168, 0.14), transparent),
+    radial-gradient(ellipse 60% 40% at 90% 0%, rgba(201, 162, 39, 0.12), transparent),
+    #fff5fa;
+  min-height: 100vh;
+}
+
+@layer components {
+  .tarjeta {
+    @apply border border-white/70 bg-white/70 p-5 shadow-card backdrop-blur-md;
+    border-radius: 1.5rem;
+  }
+
+  .boton-brillante {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-barbie-500 to-barbie-400 px-6 py-3 font-display text-sm font-bold text-white shadow-glow transition hover:from-barbie-600 hover:to-barbie-500 active:scale-95;
+  }
+
+  .boton-dorado {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-gold-500 to-gold-400 px-5 py-2.5 font-display text-sm font-bold text-white shadow-glow-gold transition hover:brightness-105 active:scale-95;
+  }
+
+  .boton-suave {
+    @apply inline-flex items-center justify-center gap-1 rounded-full border border-barbie-200 bg-white/80 px-3 py-1.5 text-xs font-semibold text-barbie-700 transition hover:bg-barbie-50;
+  }
+
+  .campo {
+    @apply w-full border border-barbie-200 bg-white/90 px-4 py-2.5 text-sm text-tinta outline-none transition placeholder:text-barbie-300 focus:border-barbie-400 focus:ring-2 focus:ring-barbie-200;
+    border-radius: 1rem;
+  }
+
+  .etiqueta {
+    @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-barbie-700;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold;
+  }
+
+  .titulo-pagina {
+    @apply font-display text-2xl font-bold text-tinta;
+  }
+
+  .tarjeta-suave {
+    @apply border border-barbie-100 bg-white/60 p-3;
+    border-radius: 1rem;
+  }
+}
