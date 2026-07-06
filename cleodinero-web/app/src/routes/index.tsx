@@ -38,7 +38,7 @@ function PanelPage() {
         <section className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
           <div className="tarjeta col-span-2 border-barbie-300 bg-gradient-to-br from-barbie-500 to-barbie-400 md:col-span-1">
             <p className="text-xs font-semibold uppercase tracking-wide text-white/80">Saldo actual</p>
-            <p className="mt-1 font-display text-3xl font-bold text-white"><Doble n={prevision.saldoActual} /></p>
+            <p className="mt-1 font-display text-2xl font-bold leading-tight text-white md:text-xl lg:text-2xl"><Doble n={prevision.saldoActual} /></p>
             <p className="mt-1 text-[11px] text-white/70">Hoy, en tu reino 💖</p>
           </div>
 

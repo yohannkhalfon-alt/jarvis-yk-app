@@ -40,8 +40,10 @@ export function cop(n: number): string {
 }
 
 /**
- * Muestra un monto en euros con su equivalente en pesos debajo (columna) o
- * al lado entre paréntesis (inline). El color se hereda del contenedor.
+ * Muestra un monto con el PESO COLOMBIANO como moneda principal y el euro
+ * como referencia pequeña (columna) o entre paréntesis (inline). Los montos
+ * se guardan en euros; la tasa convierte al vuelo. Mientras la tasa carga,
+ * se muestra el euro para no dejar el hueco vacío.
  */
 export function Doble({
   n,
@@ -56,12 +58,21 @@ export function Doble({
 }) {
   const tasa = useTasa();
 
-  if (inline) {
+  if (tasa == null) {
     return (
       <span className={className}>
         {signo}
         {euros(n)}
-        {tasa != null && <span className="opacity-70"> (≈ {cop(n * tasa)})</span>}
+      </span>
+    );
+  }
+
+  if (inline) {
+    return (
+      <span className={className}>
+        {signo}
+        {cop(n * tasa)}
+        <span className="opacity-70"> (≈ {signo}{euros(n)})</span>
       </span>
     );
   }
@@ -70,14 +81,12 @@ export function Doble({
     <span className={`inline-flex flex-col ${className}`}>
       <span>
         {signo}
+        {cop(n * tasa)}
+      </span>
+      <span className="text-[10px] font-medium leading-tight opacity-70">
+        ≈ {signo}
         {euros(n)}
       </span>
-      {tasa != null && (
-        <span className="text-[10px] font-medium leading-tight opacity-70">
-          ≈ {signo}
-          {cop(n * tasa)}
-        </span>
-      )}
     </span>
   );
 }
