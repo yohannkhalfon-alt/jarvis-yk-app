@@ -369,6 +369,22 @@
   .card.link { cursor: pointer; transition: border-color .15s, transform .15s; }
   .card.link:hover { border-color: var(--gold); transform: translateY(-2px); }
 
+  /* ============ easter egg Sirius ✦ ============ */
+  #siriusHit { position: fixed; left: 76vw; top: 11.5vh; width: 70px; height: 70px;
+    transform: translate(-50%, -50%); border-radius: 50%; z-index: 6; cursor: pointer;
+    background: transparent; border: 0; -webkit-tap-highlight-color: transparent; }
+  #eggMsg { position: fixed; inset: 0; z-index: 90; display: none; align-items: center; justify-content: center;
+    flex-direction: column; text-align: center; pointer-events: none; padding: 40px 28px;
+    background: radial-gradient(60% 45% at 50% 46%, rgba(7,9,18,.88), rgba(7,9,18,.45) 70%, transparent); }
+  #eggMsg.on { display: flex; animation: eggfade 7.5s ease forwards; }
+  .egg1 { font-size: 12.5px; letter-spacing: 7px; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+  .egg2 { margin-top: 18px; font-family: 'Outfit', system-ui, sans-serif; font-weight: 300; font-size: clamp(19px, 5vw, 27px);
+    color: #eef4ff; line-height: 1.55; max-width: 480px; letter-spacing: .5px;
+    text-shadow: 0 0 22px rgba(205,225,255,.45), 0 0 60px rgba(139,123,255,.3); }
+  .egg2 i { font-style: normal; color: #f4e3b6; }
+  @keyframes eggfade { 0% { opacity: 0; } 10% { opacity: 1; } 78% { opacity: 1; } 100% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { #eggMsg.on { animation: none; opacity: 1; } }
+
   /* ============ modale image story ============ */
   #imgModal { position: fixed; inset: 0; z-index: 400; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 14px; background: rgba(4,5,12,.9); padding: 20px; }
   #imgModal.on { display: flex; }
@@ -392,6 +408,11 @@
 
 <canvas id="stars" aria-hidden="true"></canvas>
 <div class="aurora" aria-hidden="true"></div>
+<button id="siriusHit" aria-label="✦" title="✦"></button>
+<div id="eggMsg" aria-hidden="true">
+  <div class="egg1">ERES..MultiS...Para VirgioSA</div>
+  <div class="egg2">La estrella más brillante <i>nunca estuvo en el cielo</i>.</div>
+</div>
 
 <header>
   <div class="logo display">AStrologIA</div>
@@ -561,6 +582,7 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>'
 
 applyStaticI18n();
 document.querySelectorAll('.langs button').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
+$('#siriusHit').addEventListener('click', () => window.triggerSiriusEgg && window.triggerSiriusEgg());
 
 let PARSED = null, YOU = null, OTHER = null, LAST_STATS = null;
 let ASTRO = null;            // { you:{sign...}, other:{...}, compat, ... }
@@ -570,6 +592,7 @@ let GRID_RENDERED = false;
 function show(id){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
   $('#'+id).classList.add('on');
+  $('#siriusHit').style.display = id === 'scr-home' ? '' : 'none';  // Sirius ne s'écoute que depuis l'accueil
   window.scrollTo({top:0});
 }
 
@@ -577,7 +600,30 @@ function show(id){
 (function stars(){
   const cv = $('#stars'), ctx = cv.getContext('2d');
   let pts = [];
+  let eggUntil = 0, shoots = [];
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // easter egg ✦ : le triangle s'embrase et des étoiles filantes traversent le ciel
+  window.triggerSiriusEgg = function(){
+    const now = performance.now();
+    if (now < eggUntil) return;
+    eggUntil = now + 7000;
+    if (!reduced){
+      shoots = Array.from({length: 5}, (_, i) => ({
+        delay: now + 300 + i * 900,
+        x: cv.width * (.05 + Math.random() * .55),
+        y: cv.height * (.05 + Math.random() * .3),
+        vx: (5 + Math.random() * 3) * devicePixelRatio,
+        vy: (2.2 + Math.random() * 1.6) * devicePixelRatio,
+        life: 0,
+      }));
+    }
+    const m = $('#eggMsg');
+    m.classList.remove('on');
+    void m.offsetWidth;                    // relance l'animation CSS
+    m.classList.add('on');
+    setTimeout(() => m.classList.remove('on'), 7600);
+    if (reduced) draw(performance.now());
+  };
   function resize(){
     cv.width = innerWidth * devicePixelRatio; cv.height = innerHeight * devicePixelRatio;
     cv.style.width = innerWidth+'px'; cv.style.height = innerHeight+'px';
@@ -597,15 +643,34 @@ function show(id){
     }
     // constellation-triangle avec Sirius au sommet — 💫 pour Shelly
     const dpr = devicePixelRatio;
+    const egg = t < eggUntil;
     const ax = cv.width*.76, ay = cv.height*.115;          // Sirius (sommet)
     const bx = cv.width*.655, by = cv.height*.245;
     const cx2 = cv.width*.865, cy2 = cv.height*.225;
-    ctx.globalAlpha = .13; ctx.strokeStyle = '#8b7bff'; ctx.lineWidth = 1*dpr;
+    ctx.globalAlpha = egg ? .55 : .13;
+    ctx.strokeStyle = egg ? '#e8c56b' : '#8b7bff';
+    ctx.lineWidth = (egg ? 1.6 : 1)*dpr;
+    if (egg){ ctx.shadowColor = 'rgba(232,197,107,.8)'; ctx.shadowBlur = 12*dpr; }
     ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx,by); ctx.lineTo(cx2,cy2); ctx.closePath(); ctx.stroke();
+    ctx.shadowBlur = 0;
+    // étoiles filantes de l'easter egg
+    if (egg && shoots.length){
+      for (const s of shoots){
+        if (t < s.delay) continue;
+        s.x += s.vx; s.y += s.vy; s.life++;
+        if (s.life > 90) continue;
+        const tail = 26;
+        const grad = ctx.createLinearGradient(s.x, s.y, s.x - s.vx*tail, s.y - s.vy*tail);
+        grad.addColorStop(0, 'rgba(238,244,255,.9)'); grad.addColorStop(1, 'rgba(139,123,255,0)');
+        ctx.globalAlpha = Math.max(0, 1 - s.life/90);
+        ctx.strokeStyle = grad; ctx.lineWidth = 1.6*dpr;
+        ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x - s.vx*tail, s.y - s.vy*tail); ctx.stroke();
+      }
+    }
     ctx.globalAlpha = .5; ctx.fillStyle = '#cdd3ff';
     ctx.beginPath(); ctx.arc(bx,by,1.4*dpr,0,7); ctx.fill();
     ctx.beginPath(); ctx.arc(cx2,cy2,1.4*dpr,0,7); ctx.fill();
-    const pulse = reduced ? .8 : .55 + .45*Math.sin(t/900);
+    const pulse = egg ? 1 : reduced ? .8 : .55 + .45*Math.sin(t/900);
     const gl = ctx.createRadialGradient(ax,ay,0, ax,ay,14*dpr);
     gl.addColorStop(0,'rgba(205,225,255,'+(.85*pulse)+')'); gl.addColorStop(1,'rgba(139,123,255,0)');
     ctx.globalAlpha = 1; ctx.fillStyle = gl;
