@@ -4,8 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#070912" />
-<meta name="description" content="AnalyzeMe — ta conversation WhatsApp passée aux rayons X : stats, red flags, compatibilité astrale vs réalité des messages, archétypes. 100% privé, tout se passe dans ton navigateur." />
-<title>AnalyzeMe ✨ — Vos messages vs les astres</title>
+<meta name="description" content="AStrologIA — ta conversation WhatsApp passée aux rayons X : stats, red flags, compatibilité astrale vs réalité des messages, archétypes. 100% privé, tout se passe dans ton navigateur." />
+<title>AStrologIA ✨ — Vos messages vs les astres</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
@@ -363,7 +363,7 @@
 <div class="aurora" aria-hidden="true"></div>
 
 <header>
-  <div class="logo display">AnalyzeMe</div>
+  <div class="logo display">AStrologIA</div>
   <small>astro × data</small>
 </header>
 
@@ -375,7 +375,7 @@
   <section id="scr-home" class="screen on">
     <div class="hero">
       <h1>Vos messages face aux <em>astres</em>.<br/>Un seul dira la vérité.</h1>
-      <p class="lead">Importe ta conversation WhatsApp : AnalyzeMe croise la compatibilité astrale avec la réalité brutale de vos messages — temps de réponse, red flags, niveau d'intérêt, archétypes. Verdict en story, façon Wrapped.</p>
+      <p class="lead">Importe ta conversation WhatsApp : AStrologIA croise la compatibilité astrale avec la réalité brutale de vos messages — temps de réponse, red flags, niveau d'intérêt, archétypes. Verdict en story, façon Wrapped.</p>
       <div class="privacy">🔒 100% privé — l'analyse tourne dans ton navigateur, rien n'est envoyé</div>
     </div>
 
@@ -492,14 +492,14 @@
 </div>
 
 <footer>
-  <b>AnalyzeMe</b> — pour le fun, pas pour un diagnostic (ni un thème astral certifié). 😉<br/>
+  <b>AStrologIA</b> — pour le fun, pas pour un diagnostic (ni un thème astral certifié). 😉<br/>
   Aucune donnée collectée · aucun cookie · l'analyse tourne entièrement dans ton navigateur.
 </footer>
 
 <script>
 "use strict";
 /* =========================================================
-   AnalyzeMe — astro × data, 100% client-side
+   AStrologIA — astro × data, 100% client-side
    ========================================================= */
 
 const $ = (s, el=document) => el.querySelector(s);
@@ -1110,7 +1110,7 @@ function buildSlides(S, A){
     `<div class="prono reveal d3 ${guess === actual ? 'win' : 'lose'}">${guess === actual ? '✅ Ton prono était bon' : '❌ Ton prono : « ' + esc(labels[guess]) + ' »'}</div>`;
 
   // 1 — intro
-  sl.push(`<p class="kicker reveal">AnalyzeMe présente</p>
+  sl.push(`<p class="kicker reveal">AStrologIA présente</p>
     <h2 class="reveal d1">Toi <em>&</em> ${oFull}</h2>
     <p class="sub reveal d2"><b>${fmtN(S.total)}</b> messages · <b>${fmtN(S.daysSpan)}</b> jours · <b>${fmtN(S.convos)}</b> conversations.<br/>Les astres ont parlé. Vos messages aussi. Ils ne disent pas la même chose.</p>
     <div class="fact reveal d4">${FACTS[4]}</div>`);
@@ -1524,7 +1524,7 @@ function downloadStoryImage(){
   c.globalAlpha = 1;
   const center = (txt, y, font, color) => { c.font = font; c.fillStyle = color; c.textAlign = 'center'; c.fillText(txt, 540, y); };
 
-  center('🔮 AnalyzeMe', 150, '700 52px Unbounded, Outfit, sans-serif', '#a99bff');
+  center('🔮 AStrologIA', 150, '700 52px Unbounded, Outfit, sans-serif', '#a99bff');
   center('ASTRO × DATA', 200, '600 26px Outfit, sans-serif', '#6b70a0');
   const oShort = S.other.length > 14 ? S.other.slice(0, 13) + '…' : S.other;
   center(`Toi ${A.you.sign.g}  ×  ${oShort} ${A.other.sign.g}`, 320, '700 54px Outfit, sans-serif', '#eef0ff');
@@ -1564,7 +1564,7 @@ function downloadStoryImage(){
   center('analyse la tienne — gratuit & 100% privé', 1840, '600 28px Outfit, sans-serif', '#8b7bff');
 
   const a = document.createElement('a');
-  a.download = 'analyzeme-story.png';
+  a.download = 'astrologia-story.png';
   a.href = cv.toDataURL('image/png');
   a.click();
 }
@@ -1720,7 +1720,7 @@ $('#btnReplay').addEventListener('click', openStory);
 $('#btnImage').addEventListener('click', downloadStoryImage);
 $('#btnShare').addEventListener('click', async () => {
   const S = LAST_STATS; if (!S) return;
-  const txt = `🔮 AnalyzeMe — Toi & ${S.other}\n` +
+  const txt = `🔮 AStrologIA — Toi & ${S.other}\n` +
     `✨ Astro : ${ASTRO.compat}% · 📊 Vos messages : ${S.score}%\n` +
     `${ASTRO.you.sign.g} ${ASTRO.you.sign.n} × ${ASTRO.other.sign.g} ${ASTRO.other.sign.n}\n` +
     `🃏 ${S.archYou.name} × ${S.archOther.name}\n` +
