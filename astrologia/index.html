@@ -70,6 +70,7 @@
   .langs button { background: none; border: 1px solid transparent; border-radius: 8px; color: var(--faint); font-family: 'Outfit', system-ui, sans-serif; font-weight: 800; font-size: 11px; padding: 5px 7px; cursor: pointer; }
   .langs button.cur { color: var(--ink); border-color: var(--line); background: var(--glass); }
   .langs button:hover { color: var(--ink); }
+  @media (max-width: 560px){ header small { display: none; } }
 
   .wrap { position: relative; z-index: 1; max-width: 1060px; margin: 0 auto; padding: 22px 16px 90px; }
   .screen { display: none; }
@@ -194,6 +195,13 @@
   .slide .sub { margin-top: 14px; color: var(--dim); font-size: 15.5px; line-height: 1.65; max-width: 480px; font-weight: 500; }
   .slide .sub b { color: var(--ink); }
   .fact { position: absolute; bottom: calc(26px + env(safe-area-inset-bottom)); left: 26px; right: 26px; font-size: 12px; color: var(--faint); line-height: 1.55; z-index: 2; }
+  /* halo doré derrière les grands glyphes (planète, lune) */
+  .orb { position: relative; }
+  .orb::before { content: ''; position: absolute; left: 50%; top: 50%; width: 240px; height: 240px;
+    transform: translate(-50%, -50%); border-radius: 50%; z-index: -1;
+    background: radial-gradient(circle, rgba(232,197,107,.30), rgba(139,123,255,.10) 55%, transparent 72%); }
+  /* aurores derrière les slides de la story */
+  .s-aurora { position: absolute !important; z-index: 1; }
   .fact b { color: var(--dim); }
   .reveal { opacity: 0; transform: translateY(16px); }
   .slide.on .reveal { animation: rv .55s cubic-bezier(.2,.7,.2,1) forwards; }
@@ -351,6 +359,16 @@
   .actions .btn { box-shadow: 0 8px 26px rgba(0,0,0,.5); }
   @media (max-width: 480px){ .actions .btn { padding: 11px 15px; font-size: 13px; } }
 
+  /* ============ horoscope mensuel ============ */
+  .horolist { max-width: 620px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+  .horolist .card { opacity: 1; transform: none; }
+  .skynow { display: flex; flex-wrap: wrap; gap: 8px; }
+  .skynow span { background: rgba(0,0,0,.28); border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; font-size: 12.5px; font-weight: 700; color: var(--dim); }
+  .htrend { display: inline-block; background: linear-gradient(120deg, rgba(232,197,107,.18), rgba(232,197,107,.06)); border: 1px solid rgba(232,197,107,.45); color: var(--gold); border-radius: 999px; padding: 9px 16px; font-size: 13px; font-weight: 800; }
+  .card.link { cursor: pointer; transition: border-color .15s, transform .15s; }
+  .card.link:hover { border-color: var(--gold); transform: translateY(-2px); }
+  .hnext { text-align: center; color: var(--faint); font-size: 12.5px; margin-top: 6px; line-height: 1.6; }
+
   footer { position: relative; z-index: 1; text-align: center; padding: 30px 16px 40px; color: var(--faint); font-size: 12.5px; line-height: 1.7; }
   footer b { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
@@ -479,10 +497,24 @@
     </div>
   </section>
 
+  <!-- ================= HOROSCOPE DU MOIS ================= -->
+  <section id="scr-horo" class="screen">
+    <div class="duo">
+      <h2 class="display" id="horoTitle"></h2>
+      <p id="horoSub"></p>
+    </div>
+    <div class="horolist" id="horoCards"></div>
+    <div class="actions">
+      <button class="btn gold" id="btnHoroShare"></button>
+      <button class="btn ghost" id="btnHoroBack"></button>
+    </div>
+  </section>
+
 </div>
 
 <!-- ================= STORY ================= -->
 <div id="story" aria-live="polite">
+  <div class="aurora s-aurora" aria-hidden="true"></div>
   <div class="sprog" id="sprog"></div>
   <button class="sclose" id="sclose" aria-label="Fermer la story">✕</button>
   <div id="slides"></div>
@@ -543,6 +575,25 @@ function show(id){
       ctx.fillStyle = '#cdd3ff';
       ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 7); ctx.fill();
     }
+    // constellation-triangle avec Sirius au sommet — 💫 pour Shelly
+    const dpr = devicePixelRatio;
+    const ax = cv.width*.76, ay = cv.height*.115;          // Sirius (sommet)
+    const bx = cv.width*.655, by = cv.height*.245;
+    const cx2 = cv.width*.865, cy2 = cv.height*.225;
+    ctx.globalAlpha = .13; ctx.strokeStyle = '#8b7bff'; ctx.lineWidth = 1*dpr;
+    ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx,by); ctx.lineTo(cx2,cy2); ctx.closePath(); ctx.stroke();
+    ctx.globalAlpha = .5; ctx.fillStyle = '#cdd3ff';
+    ctx.beginPath(); ctx.arc(bx,by,1.4*dpr,0,7); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx2,cy2,1.4*dpr,0,7); ctx.fill();
+    const pulse = reduced ? .8 : .55 + .45*Math.sin(t/900);
+    const gl = ctx.createRadialGradient(ax,ay,0, ax,ay,14*dpr);
+    gl.addColorStop(0,'rgba(205,225,255,'+(.85*pulse)+')'); gl.addColorStop(1,'rgba(139,123,255,0)');
+    ctx.globalAlpha = 1; ctx.fillStyle = gl;
+    ctx.beginPath(); ctx.arc(ax,ay,14*dpr,0,7); ctx.fill();
+    ctx.fillStyle = '#eef4ff'; ctx.globalAlpha = .9*pulse + .1;
+    ctx.beginPath(); ctx.arc(ax,ay,2.2*dpr,0,7); ctx.fill();
+    ctx.globalAlpha = .55*pulse; ctx.strokeStyle = '#eef4ff'; ctx.lineWidth = .8*dpr;
+    ctx.beginPath(); ctx.moveTo(ax-7*dpr,ay); ctx.lineTo(ax+7*dpr,ay); ctx.moveTo(ax,ay-7*dpr); ctx.lineTo(ax,ay+7*dpr); ctx.stroke();
     if (!reduced) requestAnimationFrame(draw);
   }
   addEventListener('resize', resize);
@@ -836,42 +887,42 @@ function analyze(messages, you, other){
   const py = P[you], po = P[other];
   const oShort = other.split(' ')[0];
   if (po.respMedian != null && po.respMedian > 3*3600e3)
-    flags.push(['🐌', t('rf.slow', { name: oShort, dur: fmtDur(po.respMedian) })]);
+    flags.push(['🐌', t('rf.slow', { name: oShort, dur: fmtDur(po.respMedian) }), 'slow']);
   if (po.dry / Math.max(1,po.msgs) > .28)
-    flags.push(['🏜️', t('rf.dry', { p: Math.round(po.dry/po.msgs*100) })]);
+    flags.push(['🏜️', t('rf.dry', { p: Math.round(po.dry/po.msgs*100) }), 'dry']);
   if (py.starts / totalStarts > .7)
-    flags.push(['📣', t('rf.starts', { p: Math.round(py.starts/totalStarts*100) })]);
+    flags.push(['📣', t('rf.starts', { p: Math.round(py.starts/totalStarts*100) }), 'starts']);
   if (po.ghosted >= 2)
-    flags.push(['👻', t('rf.ghost', { name: oShort, n: po.ghosted })]);
+    flags.push(['👻', t('rf.ghost', { name: oShort, n: po.ghosted }), 'ghost']);
   if (po.deleted >= 5 || po.deleted / Math.max(1,po.msgs) > .02)
-    flags.push(['🗑️', t('rf.del', { n: fmtN(po.deleted) })]);
+    flags.push(['🗑️', t('rf.del', { n: fmtN(po.deleted) }), 'del']);
   if (py.avgWords > 0 && po.avgWords > 0 && py.avgWords / po.avgWords > 2.2)
-    flags.push(['📏', t('rf.len', { r: (py.avgWords/po.avgWords).toFixed(1) })]);
+    flags.push(['📏', t('rf.len', { r: (py.avgWords/po.avgWords).toFixed(1) }), 'len']);
   if (py.questions >= 10 && py.questions > 3 * Math.max(1, po.questions))
-    flags.push(['❓', t('rf.q', { a: fmtN(py.questions), b: fmtN(po.questions), name: oShort })]);
+    flags.push(['❓', t('rf.q', { a: fmtN(py.questions), b: fmtN(po.questions), name: oShort }), 'q']);
   if (po.okOnly / Math.max(1,po.msgs) > .15)
-    flags.push(['🧊', t('rf.ok', { n: fmtN(po.okOnly) })]);
+    flags.push(['🧊', t('rf.ok', { n: fmtN(po.okOnly) }), 'ok']);
   if (po.late / Math.max(1,po.msgs) > .4 && po.msgs > 20)
-    flags.push(['🌙', t('rf.late', { p: Math.round(po.late/po.msgs*100) })]);
+    flags.push(['🌙', t('rf.late', { p: Math.round(po.late/po.msgs*100) }), 'late']);
   if (py.doubleTexts / Math.max(1,py.msgs) > .12)
-    flags.push(['📱', t('rf.dt', { n: fmtN(py.doubleTexts) })]);
+    flags.push(['📱', t('rf.dt', { n: fmtN(py.doubleTexts) }), 'dt']);
 
   if (py.respMedian != null && po.respMedian != null && py.respMedian < 30*60000 && po.respMedian < 30*60000)
-    greens.push(['⚡', t('gf.fast')]);
+    greens.push(['⚡', t('gf.fast'), 'fast']);
   const initBalance = py.starts / totalStarts;
   if (initBalance >= .4 && initBalance <= .6)
-    greens.push(['⚖️', t('gf.bal')]);
+    greens.push(['⚖️', t('gf.bal'), 'bal']);
   if (py.love >= 5 && po.love >= 5)
-    greens.push(['💌', t('gf.love', { n: fmtN(py.love + po.love) })]);
+    greens.push(['💌', t('gf.love', { n: fmtN(py.love + po.love) }), 'love']);
   if (py.questions / Math.max(1,py.msgs) > .08 && po.questions / Math.max(1,po.msgs) > .08)
-    greens.push(['🎙️', t('gf.q')]);
+    greens.push(['🎙️', t('gf.q'), 'q']);
   if (S.streak >= 14)
-    greens.push(['🔥', t('gf.streak', { n: S.streak })]);
+    greens.push(['🔥', t('gf.streak', { n: S.streak }), 'streak']);
   const volShare = py.msgs / S.total;
   if (volShare >= .45 && volShare <= .55)
-    greens.push(['🤝', t('gf.vol')]);
+    greens.push(['🤝', t('gf.vol'), 'vol']);
   if (py.laughs + po.laughs > S.total * .1)
-    greens.push(['😂', t('gf.laugh', { n: fmtN(py.laughs + po.laughs) })]);
+    greens.push(['😂', t('gf.laugh', { n: fmtN(py.laughs + po.laughs) }), 'laugh']);
 
   S.flags = flags; S.greens = greens;
 
@@ -1156,7 +1207,7 @@ function buildSlides(S, A){
   const planet = dominantPlanet(S);
   sl.push(`<p class="kicker reveal">${t('s.planet.k')}</p>
     <h2 class="reveal d1">${t('s.planet.h')}</h2>
-    <div class="giant reveal d2" style="font-size:clamp(60px,20vw,110px);">${planet.g}</div>
+    <div class="giant orb reveal d2" style="font-size:clamp(60px,20vw,110px); color:#f4e3b6;">${planet.g}</div>
     <h2 class="reveal d3" style="margin-top:6px;"><span class="goldy">${planet.n}</span></h2>
     <p class="sub reveal d4">${t('s.planet.sub', { d: esc(planet.d) })}</p>`);
 
@@ -1166,7 +1217,7 @@ function buildSlides(S, A){
   const firstPhase = moonPhase(S.first.d);
   sl.push(`<p class="kicker reveal">${t('s.moon.k')}</p>
     <h2 class="reveal d1">${t('s.moon.h')}</h2>
-    <div class="giant reveal d2" style="font-size:clamp(50px,16vw,90px);">${firstPhase.emoji}</div>
+    <div class="giant orb reveal d2" style="font-size:clamp(50px,16vw,90px);">${firstPhase.emoji}</div>
     <p class="sub reveal d3">${t('s.moon.first', { p: firstPhase.name, d: fmtDate(S.first.d) })}</p>
     <p class="sub reveal d4">${fmShare > fmExpected * 1.3 ? t('s.moon.wolf', { p: Math.round(fmShare*100) }) : t('s.moon.sci')}</p>
     <div class="fact reveal d4">${FACTS[5]}</div>`);
@@ -1174,7 +1225,7 @@ function buildSlides(S, A){
   // 11 — red flags interactifs
   const rf = S.flags.slice(0, 5);
   sl.push(`<p class="kicker reveal">${t('s.rf.k')}</p>
-    <h2 class="reveal d1">${rf.length ? t('s.rf.h', { n: fmtN(S.flags.length) }) : t('s.rf.zero')}</h2>
+    <h2 class="reveal d1">${rf.length ? t(S.flags.length > 1 ? 's.rf.h.pl' : 's.rf.h.sg', { n: fmtN(S.flags.length) }) : t('s.rf.zero')}</h2>
     ${rf.length
       ? `<div class="flipwrap no-adv">${rf.map((f,i)=>`
           <div class="flip no-adv" data-flip><div class="flipin">
@@ -1186,7 +1237,7 @@ function buildSlides(S, A){
 
   // 12 — green flags
   sl.push(`<p class="kicker reveal">${t('s.gf.k')}</p>
-    <h2 class="reveal d1">${S.greens.length ? t('s.gf.h', { n: fmtN(S.greens.length) }) : t('s.gf.zero')}</h2>
+    <h2 class="reveal d1">${S.greens.length ? t(S.greens.length > 1 ? 's.gf.h.pl' : 's.gf.h.sg', { n: fmtN(S.greens.length) }) : t('s.gf.zero')}</h2>
     ${S.greens.length
       ? `<div class="flipwrap no-adv">${S.greens.slice(0,5).map(f=>`
           <div class="flip onf"><div class="flipin">
@@ -1229,7 +1280,8 @@ function buildSlides(S, A){
   // 17 — fin
   sl.push(`<h2 class="reveal">${t('s.end.h')}</h2>
     <div class="endbtns no-adv">
-      <button class="btn gold no-adv" data-act="image">${t('s.end.img')}</button>
+      <button class="btn gold no-adv" data-act="horo">${t('h.btn.story')}</button>
+      <button class="btn primary no-adv" data-act="image">${t('s.end.img')}</button>
       <button class="btn primary no-adv" data-act="grid">${t('s.end.grid')}</button>
       <button class="btn ghost no-adv" data-act="close">${t('s.end.new')}</button>
     </div>`);
@@ -1291,6 +1343,7 @@ $('#slides').addEventListener('click', e => {
   if (!act) return;
   if (act.dataset.act === 'image') downloadStoryImage();
   if (act.dataset.act === 'grid') closeStory(true);
+  if (act.dataset.act === 'horo'){ closeStory(true); openHoro(); }
   if (act.dataset.act === 'close'){ closeStory(false); resetAll(); }
 });
 
@@ -1333,6 +1386,14 @@ function renderGrid(S){
        <div class="vbox data" style="padding:14px 18px;"><div class="vt">${t('g.msgs')}</div><div class="vn" style="font-size:34px;" data-count="${S.score}">0</div></div>
      </div>
      <p class="quip">${A.you.sign.g} ${signName(A.you.sign)} × ${A.other.sign.g} ${signName(A.other.sign)} — ${Math.abs(A.compat-S.score) <= 12 ? t('g.duel.right') : A.compat > S.score ? t('g.duel.opt') : t('g.duel.beat')}</p>`));
+
+  // lien vers l'horoscope mensuel personnalisé
+  const NOW_M = MONTHS_L[new Date().getMonth()];
+  html.push(`<article class="card astro link" id="cardHoro" role="button" tabindex="0">
+    <h3>${t('h.link.grid')}</h3>
+    <p class="quip" style="margin-top:0;">${t('h.link.teaser', { m: NOW_M })}</p>
+    <div style="margin-top:14px;"><span class="btn gold" style="display:inline-block; padding:11px 18px; font-size:13px;">${t('h.link.open')}</span></div>
+  </article>`);
 
   html.push(card('astro', t('g.planet.h'),
     `<div class="bignum" style="font-size:40px;">${planet.g}</div>
@@ -1452,6 +1513,9 @@ function renderGrid(S){
   drawTimeline(S);
   drawHeatmap(S);
   animateIn();
+  const ch = $('#cardHoro');
+  ch.addEventListener('click', openHoro);
+  ch.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openHoro(); });
 
   const sl = $('#mslider');
   if (sl){
@@ -1471,6 +1535,131 @@ function renderGrid(S){
     upd();
   }
 }
+
+/* =========================================================
+   HOROSCOPE MENSUEL PERSONNALISÉ
+   moteur céleste local : saison solaire réelle, phase de lune
+   du jour, rétrogradations de Mercure, éclipses 2025-2027 —
+   croisé avec les stats réelles de la conversation.
+   ========================================================= */
+const MERCURY_RETRO = [
+  ['2025-03-15','2025-04-07'], ['2025-07-18','2025-08-11'], ['2025-11-09','2025-11-29'],
+  ['2026-02-26','2026-03-20'], ['2026-06-29','2026-07-23'], ['2026-10-24','2026-11-13'],
+  ['2027-02-09','2027-03-03'], ['2027-06-10','2027-07-04'], ['2027-10-07','2027-10-28'],
+];
+const ECLIPSES = [
+  ['2025-03-14','lunar'], ['2025-03-29','solar'], ['2025-09-07','lunar'], ['2025-09-21','solar'],
+  ['2026-02-17','solar'], ['2026-03-03','lunar'], ['2026-08-12','solar'], ['2026-08-28','lunar'],
+  ['2027-02-06','solar'], ['2027-08-02','solar'],
+];
+const isMercuryRetro = d => MERCURY_RETRO.some(([a,b]) => d >= new Date(a+'T00:00:00') && d <= new Date(b+'T23:59:59'));
+function nextMoonEvents(from){
+  let newMoon = null, fullMoon = null;
+  for (let i = 0; i <= 32 && (!newMoon || !fullMoon); i++){
+    const d = new Date(from.getFullYear(), from.getMonth(), from.getDate() + i, 12);
+    const age = moonAge(d);
+    if (!newMoon && (age < .75 || age > SYNODIC - .75)) newMoon = d;
+    if (!fullMoon && Math.abs(age - SYNODIC/2) < .75) fullMoon = d;
+  }
+  let venus = null;
+  if (newMoon){
+    venus = new Date(newMoon);
+    do { venus.setDate(venus.getDate() + 1); } while (venus.getDay() !== 5);
+  }
+  return { newMoon, fullMoon, venus };
+}
+function personReading(sign, seasonSign, retro){
+  const rel = sign.el === seasonSign.el ? 'h.rel.same'
+    : (EL_COMPAT[sign.el + '-' + seasonSign.el] || 0) >= 80 ? 'h.rel.comp' : 'h.rel.tense';
+  return [
+    t(rel, { season: signName(seasonSign), sign: signName(sign), el: t('el.'+sign.el) }),
+    t('h.mod.' + sign.mod),
+    t(retro ? 'h.retro.warn' : 'h.retro.ok'),
+  ];
+}
+function openHoro(){
+  const S = LAST_STATS, A = ASTRO;
+  if (!S || !A) return;
+  const NOW = new Date();
+  const monthName = MONTHS_L[NOW.getMonth()];
+  const nextMonthName = MONTHS_L[(NOW.getMonth()+1) % 12];
+  const seasonSign = zodiac(NOW);
+  const retro = isMercuryRetro(NOW);
+  const phaseNow = moonPhase(NOW);
+  const { newMoon, fullMoon, venus } = nextMoonEvents(NOW);
+  const fmtDay = d => d ? d.toLocaleDateString(LOCALE, { weekday:'long', day:'numeric', month:'long' }) : '—';
+  const oShort = esc(S.other.split(' ')[0]);
+  const YOU_W = t('word.you');
+
+  // tendance du mois : flags vs greens, ajustée par Mercure rétrograde
+  const trendKey = (S.greens.length >= S.flags.length && !retro) ? 'h.trend.up'
+    : (S.flags.length > S.greens.length && retro) ? 'h.trend.down' : 'h.trend.flat';
+
+  // vigilances et atouts du mois, depuis les VRAIS flags de la conversation
+  const warns = S.flags.slice(0, 3).map(f => ['hw.' + f[2], f[0]]);
+  const pluses = S.greens.slice(0, 3).map(f => ['hp.' + f[2], f[0]]);
+  const advice = t(S.score >= 65 ? 'h.advice.hi' : S.score >= 40 ? 'h.advice.mid' : 'h.advice.lo');
+  const eclipse = ECLIPSES.find(([iso]) => { const d = new Date(iso+'T12:00:00'); return d.getFullYear() === NOW.getFullYear() && d.getMonth() === NOW.getMonth() && d >= NOW; });
+
+  $('#horoTitle').textContent = t('h.title', { m: monthName });
+  $('#horoSub').textContent = t('h.sub', { a: `${A.you.sign.g} ${signName(A.you.sign)}`, b: `${A.other.sign.g} ${signName(A.other.sign)}` });
+
+  const secs = [];
+  secs.push(`<article class="card astro"><h3>${t('h.now.title')}</h3>
+    <div class="skynow">
+      <span>${t('h.now.sun', { s: signName(seasonSign) })}</span>
+      <span>${phaseNow.emoji} ${esc(phaseNow.name)}</span>
+      <span>${t(retro ? 'h.now.retro' : 'h.now.direct')}</span>
+    </div>
+    <div style="margin-top:14px;"><span class="htrend">${t(trendKey)}</span></div>
+    ${eclipse ? `<p class="quip">${t('h.eclipse.' + eclipse[1], { d: fmtDay(new Date(eclipse[0]+'T12:00:00')) })}</p>` : ''}</article>`);
+
+  secs.push(`<article class="card"><h3><span class="plabel you">${YOU_W}</span> · ${A.you.sign.g} ${signName(A.you.sign)}</h3>
+    <ul class="flags">${personReading(A.you.sign, seasonSign, retro).map(x => `<li><span class="fe">✦</span><span>${esc(x)}</span></li>`).join('')}</ul></article>`);
+  secs.push(`<article class="card"><h3><span class="plabel other">${oShort}</span> · ${A.other.sign.g} ${signName(A.other.sign)}</h3>
+    <ul class="flags">${personReading(A.other.sign, seasonSign, retro).map(x => `<li><span class="fe">✦</span><span>${esc(x)}</span></li>`).join('')}</ul></article>`);
+
+  secs.push(`<article class="card"><h3 class="red">${t('h.sec.couple.warn')}</h3>
+    ${warns.length
+      ? `<ul class="flags">${warns.map(([k, e]) => `<li><span class="fe">${e}</span><span>${esc(t(k, { name: oShort }))}</span></li>`).join('')}</ul>`
+      : `<p class="quip" style="margin-top:0;">${t('h.warn.none')}</p>`}</article>`);
+  secs.push(`<article class="card"><h3 class="greenf">${t('h.sec.couple.plus')}</h3>
+    ${pluses.length
+      ? `<ul class="flags">${pluses.map(([k, e]) => `<li><span class="fe">${e}</span><span>${esc(t(k, { name: oShort }))}</span></li>`).join('')}</ul>`
+      : `<p class="quip" style="margin-top:0;">${t('h.plus.none')}</p>`}</article>`);
+
+  secs.push(`<article class="card astro"><h3>${t('h.sec.advice')}</h3>
+    <p class="quip" style="margin-top:0; font-size:14px;">${esc(advice)}</p></article>`);
+
+  secs.push(`<article class="card"><h3>${t('h.sec.days')}</h3>
+    <ul class="flags">
+      ${newMoon ? `<li><span class="fe">🌑</span><span>${esc(t('h.day.new', { d: fmtDay(newMoon) }))}</span></li>` : ''}
+      ${fullMoon ? `<li><span class="fe">🌕</span><span>${esc(t('h.day.full', { d: fmtDay(fullMoon) }))}</span></li>` : ''}
+      ${venus ? `<li><span class="fe">💘</span><span>${esc(t('h.day.venus', { d: fmtDay(venus) }))}</span></li>` : ''}
+    </ul></article>`);
+
+  secs.push(`<p class="hnext">${t('h.next', { m: nextMonthName })}<br/>${t('h.disc')}</p>`);
+  $('#horoCards').innerHTML = secs.join('');
+  $('#btnHoroShare').textContent = t('h.share');
+  $('#btnHoroBack').textContent = t('h.back');
+  HORO_SHARE = t('h.share.txt', {
+    m: monthName,
+    a: `${A.you.sign.g} ${signName(A.you.sign)}`, b: `${A.other.sign.g} ${signName(A.other.sign)}`,
+    trend: t(trendKey),
+    w: warns.length ? t(warns[0][0], { name: S.other.split(' ')[0] }) : t('h.warn.none'),
+    p: pluses.length ? t(pluses[0][0], { name: S.other.split(' ')[0] }) : t('h.plus.none'),
+    url: location.href,
+  });
+  show('scr-horo');
+}
+let HORO_SHARE = '';
+$('#btnHoroBack').addEventListener('click', () => show('scr-results'));
+$('#btnHoroShare').addEventListener('click', async () => {
+  try {
+    if (navigator.share) await navigator.share({ text: HORO_SHARE });
+    else { await navigator.clipboard.writeText(HORO_SHARE); tipShow(t('copy.done'), innerWidth/2, innerHeight/2); setTimeout(tipHide, 1600); }
+  } catch(e){ /* partage annulé */ }
+});
 
 /* =========================================================
    IMAGE STORY 1080×1920
