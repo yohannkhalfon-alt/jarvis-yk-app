@@ -66,6 +66,10 @@
     background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .logo::before { content: '🔮 '; -webkit-text-fill-color: initial; }
   header small { font-size: 9px; font-weight: 700; color: var(--faint); letter-spacing: 3px; text-transform: uppercase; align-self: flex-end; margin-bottom: 2px; }
+  .langs { position: absolute; right: 12px; display: flex; gap: 3px; }
+  .langs button { background: none; border: 1px solid transparent; border-radius: 8px; color: var(--faint); font-family: 'Outfit', system-ui, sans-serif; font-weight: 800; font-size: 11px; padding: 5px 7px; cursor: pointer; }
+  .langs button.cur { color: var(--ink); border-color: var(--line); background: var(--glass); }
+  .langs button:hover { color: var(--ink); }
 
   .wrap { position: relative; z-index: 1; max-width: 1060px; margin: 0 auto; padding: 22px 16px 90px; }
   .screen { display: none; }
@@ -365,6 +369,9 @@
 <header>
   <div class="logo display">AStrologIA</div>
   <small>astro × data</small>
+  <nav class="langs" aria-label="Language">
+    <button data-lang="fr">FR</button><button data-lang="en">EN</button><button data-lang="es">ES</button>
+  </nav>
 </header>
 
 <div id="tip" role="status"></div>
@@ -374,93 +381,85 @@
   <!-- ================= ACCUEIL ================= -->
   <section id="scr-home" class="screen on">
     <div class="hero">
-      <h1>Vos messages face aux <em>astres</em>.<br/>Un seul dira la vérité.</h1>
-      <p class="lead">Importe ta conversation WhatsApp : AStrologIA croise la compatibilité astrale avec la réalité brutale de vos messages — temps de réponse, red flags, niveau d'intérêt, archétypes. Verdict en story, façon Wrapped.</p>
-      <div class="privacy">🔒 100% privé — l'analyse tourne dans ton navigateur, rien n'est envoyé</div>
+      <h1 data-i18n="hero.h"></h1>
+      <p class="lead" data-i18n="hero.lead"></p>
+      <div class="privacy" data-i18n="hero.priv"></div>
     </div>
 
-    <div class="drop" id="drop" role="button" tabindex="0" aria-label="Importer un fichier de conversation">
+    <div class="drop" id="drop" role="button" tabindex="0">
       <div class="big">🌠</div>
-      <h3>Dépose ton export WhatsApp ici</h3>
-      <p>ou clique pour choisir le fichier <code>.txt</code> (export « sans les médias »)</p>
+      <h3 data-i18n="drop.h"></h3>
+      <p data-i18n="drop.p"></p>
       <input type="file" id="file" accept=".txt,text/plain" hidden />
     </div>
     <div class="err" id="err"></div>
 
     <div class="row-alt">
-      <button class="btn ghost" id="btnPaste">📋 Coller le texte</button>
-      <button class="btn primary" id="btnDemo">✨ Essayer avec une démo</button>
+      <button class="btn ghost" id="btnPaste" data-i18n="btn.paste"></button>
+      <button class="btn primary" id="btnDemo" data-i18n="btn.demo"></button>
     </div>
 
     <details class="helper">
-      <summary>Comment exporter ma conversation WhatsApp ?</summary>
-      <div class="inner">
-        <ol>
-          <li>Ouvre la conversation dans WhatsApp</li>
-          <li>Appuie sur <b>⋮</b> (Android) ou le nom du contact (iPhone)</li>
-          <li>Choisis <b>Plus → Exporter la discussion</b></li>
-          <li>Sélectionne <b>« Sans les médias »</b></li>
-          <li>Envoie-toi le fichier <code>.txt</code> et dépose-le ici</li>
-        </ol>
-      </div>
+      <summary data-i18n="help1.s"></summary>
+      <div class="inner" data-i18n="help1.b"></div>
     </details>
 
     <details class="helper" id="pasteWrap">
-      <summary>Ou colle directement le contenu de l'export</summary>
+      <summary data-i18n="help2.s"></summary>
       <div class="inner">
-        <textarea id="pasteBox" placeholder="12/03/2025, 21:45 - Alex: Salut ça va ?&#10;12/03/2025, 21:52 - Toi: Oui et toi ?&#10;…"></textarea>
+        <textarea id="pasteBox" data-i18n-ph="paste.ph"></textarea>
         <div style="margin-top:10px; text-align:right;">
-          <button class="btn primary" id="btnAnalyzePaste">Analyser</button>
+          <button class="btn primary" id="btnAnalyzePaste" data-i18n="btn.analyze"></button>
         </div>
       </div>
     </details>
 
     <div class="homegrid">
-      <div class="why"><div class="e">🔭</div><h4>Astro vs réalité</h4><p>La compatibilité des signes confrontée à celle de vos vrais messages. Ça pique.</p></div>
-      <div class="why"><div class="e">📖</div><h4>Story façon Wrapped</h4><p>Tes stats révélées une à une, plein écran, avec pronostics à deviner.</p></div>
-      <div class="why"><div class="e">🃏</div><h4>Archétypes tarot</h4><p>Ta carte d'identité amoureuse, générée en image prête à poster en story.</p></div>
-      <div class="why"><div class="e">🔒</div><h4>Zéro serveur</h4><p>Tes messages ne quittent jamais ton appareil. Gratuit, sans compte, sans pub.</p></div>
+      <div class="why"><div class="e">🔭</div><h4 data-i18n="why1.h"></h4><p data-i18n="why1.p"></p></div>
+      <div class="why"><div class="e">📖</div><h4 data-i18n="why2.h"></h4><p data-i18n="why2.p"></p></div>
+      <div class="why"><div class="e">🃏</div><h4 data-i18n="why3.h"></h4><p data-i18n="why3.p"></p></div>
+      <div class="why"><div class="e">🔒</div><h4 data-i18n="why4.h"></h4><p data-i18n="why4.p"></p></div>
     </div>
   </section>
 
   <!-- ================= QUI ES-TU ================= -->
   <section id="scr-setup" class="screen">
     <div class="setup">
-      <h2 class="display">C'est qui, toi ? 👀</h2>
-      <p>Touche ton nom pour qu'on sache qui analyse qui.</p>
+      <h2 class="display" data-i18n="setup.h"></h2>
+      <p data-i18n="setup.p"></p>
       <div class="people" id="peopleList"></div>
       <p class="note" id="setupNote"></p>
-      <p class="note"><button class="btn ghost" id="btnBackHome">← Revenir</button></p>
+      <p class="note"><button class="btn ghost" id="btnBackHome" data-i18n="btn.back"></button></p>
     </div>
   </section>
 
   <!-- ================= ASTRO ================= -->
   <section id="scr-astro" class="screen">
     <div class="setup">
-      <h2 class="display">Alignons les astres 🌙</h2>
-      <p>Vos dates de naissance — pour calculer vos signes et la compatibilité que le cosmos avait prévue. On la confrontera à vos messages.</p>
+      <h2 class="display" data-i18n="astro.h"></h2>
+      <p data-i18n="astro.p"></p>
       <div class="birthrow">
         <div class="birth">
-          <label for="bdYou">Ta date de naissance</label>
+          <label for="bdYou" data-i18n="astro.lyou"></label>
           <input type="date" id="bdYou" min="1930-01-01" />
           <div class="sign-live" id="signYou"></div>
         </div>
         <div class="birth">
-          <label for="bdOther" id="bdOtherLabel">Sa date de naissance</label>
+          <label for="bdOther" id="bdOtherLabel"></label>
           <input type="date" id="bdOther" min="1930-01-01" />
           <div class="sign-live" id="signOther"></div>
         </div>
       </div>
-      <p class="note">Pas sûr·e de sa date exacte ? Le jour et le mois suffisent pour le signe — mets une année approximative.</p>
-      <button class="btn gold" id="btnAstroGo" style="margin-top:20px;">🔮 Consulter les astres</button>
+      <p class="note" data-i18n="astro.note"></p>
+      <button class="btn gold" id="btnAstroGo" style="margin-top:20px;" data-i18n="astro.go"></button>
     </div>
   </section>
 
   <!-- ================= QUIZ ================= -->
   <section id="scr-quiz" class="screen">
     <div class="setup">
-      <h2 class="display">Tes pronostics 🎯</h2>
-      <p>Avant la vérité, tes intuitions. On vérifiera dans la story.</p>
+      <h2 class="display" data-i18n="quiz.h"></h2>
+      <p data-i18n="quiz.p"></p>
       <div id="quizBox"></div>
     </div>
   </section>
@@ -468,15 +467,15 @@
   <!-- ================= RAPPORT COMPLET ================= -->
   <section id="scr-results" class="screen">
     <div class="duo">
-      <h2 class="display"><span class="you">Toi</span> &amp; <span class="other" id="otherName"></span></h2>
+      <h2 class="display"><span class="you" data-i18n="res.you"></span> &amp; <span class="other" id="otherName"></span></h2>
       <p id="periodLine"></p>
-      <button class="btn primary" id="btnReplay">📖 Revoir la story</button>
+      <button class="btn primary" id="btnReplay" data-i18n="btn.replay"></button>
     </div>
     <div class="cards" id="cards"></div>
     <div class="actions">
-      <button class="btn gold" id="btnImage">📸 Image story</button>
-      <button class="btn primary" id="btnShare">📤 Partager</button>
-      <button class="btn ghost" id="btnReset">🔁 Autre conversation</button>
+      <button class="btn gold" id="btnImage" data-i18n="btn.image"></button>
+      <button class="btn primary" id="btnShare" data-i18n="btn.share"></button>
+      <button class="btn ghost" id="btnReset" data-i18n="btn.reset"></button>
     </div>
   </section>
 
@@ -488,14 +487,15 @@
   <button class="sclose" id="sclose" aria-label="Fermer la story">✕</button>
   <div id="slides"></div>
   <div class="tapzones"><div class="tz-l" id="tzL"></div><div class="tz-r" id="tzR"></div></div>
-  <div class="taphint">touche à droite pour continuer · à gauche pour revenir</div>
+  <div class="taphint" data-i18n="taphint"></div>
 </div>
 
 <footer>
-  <b>AStrologIA</b> — pour le fun, pas pour un diagnostic (ni un thème astral certifié). 😉<br/>
-  Aucune donnée collectée · aucun cookie · l'analyse tourne entièrement dans ton navigateur.
+  <span data-i18n="footer.l1"></span><br/>
+  <span data-i18n="footer.l2"></span>
 </footer>
 
+<script src="i18n.js"></script>
 <script>
 "use strict";
 /* =========================================================
@@ -504,8 +504,11 @@
 
 const $ = (s, el=document) => el.querySelector(s);
 const NBSP = ' ';
-const fmtN = n => n.toLocaleString('fr-FR');
+const fmtN = n => n.toLocaleString(LOCALE);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+applyStaticI18n();
+document.querySelectorAll('.langs button').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
 
 let PARSED = null, YOU = null, OTHER = null, LAST_STATS = null;
 let ASTRO = null;            // { you:{sign...}, other:{...}, compat, ... }
@@ -548,9 +551,9 @@ function show(id){
 
 /* ---------------------- parsing WhatsApp ---------------------- */
 const LINE_RE = /^[‎‏﻿\s]*\[?(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})(?:[,\s]+|\s+à\s+)(\d{1,2})[:h](\d{2})(?::(\d{2}))?\s*([APap])?\.?\s*[Mm]?\.?\]?\s*(?:-|–|—)?\s*(.*)$/;
-const MEDIA_RE = /<\s*(médias?\s+omis|media omitted|image absente|vidéo absente)\s*>|(image|video|vidéo|audio|sticker|gif|document|photo|contact card)\s+(omitted|omise?|absente?)|\((fichier joint|file attached)\)/i;
-const DELETED_RE = /ce message a été supprimé|vous avez supprimé ce message|this message was deleted|you deleted this message/i;
-const SYSTEM_RE = /chiffr(é|ée|és)s? de bout en bout|end-to-end encrypted|a créé le groupe|created group|a changé (le sujet|l'icône|la description)|changed the (subject|group)|vous avez (rejoint|ajouté)|a ajouté|a quitté|left the group|code de sécurité|security code|a changé de numéro|changed their phone number|messages éphémères|disappearing messages/i;
+const MEDIA_RE = /<\s*(médias?\s+omis|media omitted|multimedia omitido|image absente|vidéo absente)\s*>|(image|video|vidéo|audio|sticker|gif|document|photo|contact card|imagen|documento)\s+(omitted|omise?|absente?|omitido|omitida)|\((fichier joint|file attached|archivo adjunto)\)/i;
+const DELETED_RE = /ce message a été supprimé|vous avez supprimé ce message|this message was deleted|you deleted this message|este mensaje fue eliminado|se eliminó este mensaje|eliminaste este mensaje/i;
+const SYSTEM_RE = /chiffr(é|ée|és)s? de bout en bout|end-to-end encrypted|cifrados de extremo a extremo|a créé le groupe|created group|creó el grupo|a changé (le sujet|l'icône|la description)|changed the (subject|group)|cambió el (asunto|ícono)|vous avez (rejoint|ajouté)|a ajouté|a quitté|left the group|añadió a|salió del grupo|code de sécurité|security code|código de seguridad|a changé de numéro|changed their phone number|cambió su número|messages éphémères|disappearing messages|mensajes temporales/i;
 
 function parseChat(text){
   const lines = text.split(/\r?\n/);
@@ -598,23 +601,8 @@ function buildDemo(){
   let seed = 421;
   const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
   const pick = a => a[Math.floor(rnd()*a.length)];
-  const YOU_TXT = [
-    "Coucou ! T'as passé une bonne journée ? Raconte-moi tout 😊",
-    "J'ai pensé à toi en voyant ça mdrr", "On se voit quand ?? Tu me manques",
-    "T'as vu le dernier épisode ?? Faut qu'on en parle absolument, c'était incroyable je m'y attendais pas du tout",
-    "Bonne nuit 😘", "Bonjour toi ☀️ bien dormi ?", "Tu fais quoi ce weekend ?",
-    "J'ai trouvé un resto qui a l'air trop bien, ça te dit ?", "Tu me réponds plus ? 🥲",
-    "Haha t'es bête 😂", "Je t'aime fort ❤️", "T'es libre demain soir ?",
-    "J'ai eu ma réunion, ça s'est super bien passé !! Trop contente, je te raconterai les détails",
-    "??", "Alloooo", "Tu penses quoi de ça ?", "On s'appelle ce soir ?",
-    "Franchement j'ai passé une super soirée avec toi 🥰", "Dis-moi quand t'es dispo",
-  ];
-  const OTHER_TXT = [
-    "slt", "ok", "oui", "mdr", "jsp", "tranquille et toi", "on verra",
-    "j'étais occupé", "ah", "ouais ouais", "la flemme", "😅", "peut-être",
-    "je te redis", "chui crevé", "nickel", "lol", "pas mal", "cool",
-    "désolé j'avais pas vu", "t'inquiète", "grave", "bonne nuit", "toi aussi 😌",
-  ];
+  const YOU_TXT = DEMO_TXT[L].you, OTHER_TXT = DEMO_TXT[L].other_txt;
+  const DEMO_YOU = t('demo.you'), DEMO_OTHER = DEMO_TXT[L].other;
   const msgs = [];
   const start = new Date(2026, 0, 5);
   for (let day = 0; day < 180; day++){
@@ -629,7 +617,7 @@ function buildDemo(){
       let who = youStarts ? 'you' : 'other';
       for (let i = 0; i < n; i++){
         const you = who === 'you';
-        const author = you ? 'Toi' : 'Alex 💫';
+        const author = you ? DEMO_YOU : DEMO_OTHER;
         const deleted = !you && rnd() < 0.03;
         const media = rnd() < 0.05;
         msgs.push({ d: new Date(t), author, text: (deleted||media) ? '' : pick(you ? YOU_TXT : OTHER_TXT), media, deleted });
@@ -648,38 +636,41 @@ function buildDemo(){
 
 /* ---------------------- astro ---------------------- */
 const SIGNS = [
-  { n:'Capricorne', g:'♑', el:'terre', mod:'cardinal', from:[12,22] },
-  { n:'Verseau',    g:'♒', el:'air',   mod:'fixe',     from:[1,20] },
-  { n:'Poissons',   g:'♓', el:'eau',   mod:'mutable',  from:[2,19] },
-  { n:'Bélier',     g:'♈', el:'feu',   mod:'cardinal', from:[3,21] },
-  { n:'Taureau',    g:'♉', el:'terre', mod:'fixe',     from:[4,20] },
-  { n:'Gémeaux',    g:'♊', el:'air',   mod:'mutable',  from:[5,21] },
-  { n:'Cancer',     g:'♋', el:'eau',   mod:'cardinal', from:[6,21] },
-  { n:'Lion',       g:'♌', el:'feu',   mod:'fixe',     from:[7,23] },
-  { n:'Vierge',     g:'♍', el:'terre', mod:'mutable',  from:[8,23] },
-  { n:'Balance',    g:'♎', el:'air',   mod:'cardinal', from:[9,23] },
-  { n:'Scorpion',   g:'♏', el:'eau',   mod:'fixe',     from:[10,23] },
-  { n:'Sagittaire', g:'♐', el:'feu',   mod:'mutable',  from:[11,22] },
+  { k:'cap', g:'♑', el:'earth', mod:'fix'  },
+  { k:'aqu', g:'♒', el:'air',   mod:'fix'  },
+  { k:'pis', g:'♓', el:'water', mod:'mut'  },
+  { k:'ari', g:'♈', el:'fire',  mod:'card' },
+  { k:'tau', g:'♉', el:'earth', mod:'fix'  },
+  { k:'gem', g:'♊', el:'air',   mod:'mut'  },
+  { k:'can', g:'♋', el:'water', mod:'card' },
+  { k:'leo', g:'♌', el:'fire',  mod:'fix'  },
+  { k:'vir', g:'♍', el:'earth', mod:'mut'  },
+  { k:'lib', g:'♎', el:'air',   mod:'card' },
+  { k:'sco', g:'♏', el:'water', mod:'fix'  },
+  { k:'sag', g:'♐', el:'fire',  mod:'mut'  },
 ];
-const EL_EMOJI = { feu:'🔥', terre:'🌱', air:'🌬️', eau:'🌊' };
-const ZBOUND = [[119,'Capricorne'],[218,'Verseau'],[320,'Poissons'],[419,'Bélier'],[520,'Taureau'],[620,'Gémeaux'],[722,'Cancer'],[822,'Lion'],[922,'Vierge'],[1022,'Balance'],[1121,'Scorpion'],[1221,'Sagittaire'],[1231,'Capricorne']];
+SIGNS[0].mod = 'card'; // Capricorne est cardinal
+const EL_EMOJI = { fire:'🔥', earth:'🌱', air:'🌬️', water:'🌊' };
+const signName = s => t('z.' + s.k);
+const signFull = s => `${s.g} ${signName(s)}`;
+const ZBOUND = [[119,'cap'],[218,'aqu'],[320,'pis'],[419,'ari'],[520,'tau'],[620,'gem'],[722,'can'],[822,'leo'],[922,'vir'],[1022,'lib'],[1121,'sco'],[1221,'sag'],[1231,'cap']];
 function zodiac(date){
   const md = (date.getMonth()+1)*100 + date.getDate();
-  const name = ZBOUND.find(b => md <= b[0])[1];
-  return SIGNS.find(s => s.n === name);
+  const key = ZBOUND.find(b => md <= b[0])[1];
+  return SIGNS.find(s => s.k === key);
 }
 const EL_COMPAT = {
-  'feu-feu':78, 'terre-terre':80, 'air-air':76, 'eau-eau':82,
-  'feu-air':88, 'air-feu':88, 'terre-eau':86, 'eau-terre':86,
-  'feu-terre':52, 'terre-feu':52, 'feu-eau':48, 'eau-feu':48,
-  'air-terre':50, 'terre-air':50, 'air-eau':54, 'eau-air':54,
+  'fire-fire':78, 'earth-earth':80, 'air-air':76, 'water-water':82,
+  'fire-air':88, 'air-fire':88, 'earth-water':86, 'water-earth':86,
+  'fire-earth':52, 'earth-fire':52, 'fire-water':48, 'water-fire':48,
+  'air-earth':50, 'earth-air':50, 'air-water':54, 'water-air':54,
 };
 function astroCompat(a, b){
   let score = EL_COMPAT[a.el + '-' + b.el] ?? 60;
-  if (a.mod === b.mod) score += (a.mod === 'mutable' ? 4 : a.mod === 'fixe' ? -8 : -6);
+  if (a.mod === b.mod) score += (a.mod === 'mut' ? 4 : a.mod === 'fix' ? -8 : -6);
   else score += 3;
-  if (a.n === b.n) score += 6;
-  const ia = SIGNS.findIndex(s=>s.n===a.n), ib = SIGNS.findIndex(s=>s.n===b.n);
+  if (a.k === b.k) score += 6;
+  const ia = SIGNS.findIndex(s=>s.k===a.k), ib = SIGNS.findIndex(s=>s.k===b.k);
   score += ((ia*7 + ib*13) % 9) - 4;         // variation déterministe par paire
   return Math.max(25, Math.min(98, score));
 }
@@ -694,14 +685,15 @@ function moonAge(d){
 function moonPhase(d){
   const age = moonAge(d);
   const idx = Math.floor((age / SYNODIC) * 8 + .5) % 8;
-  return { emoji:['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'][idx],
-           name:['nouvelle lune','premier croissant','premier quartier','lune gibbeuse','pleine lune','lune disséminante','dernier quartier','dernier croissant'][idx] };
+  return { emoji:['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'][idx], name: t('moon.' + idx) };
 }
 
 /* ---------------------- analyse ---------------------- */
-const STOPWORDS = new Set(("le la les un une des de du au aux et ou où mais donc or ni car que qui quoi dont quand comme si pour par avec sans sous sur dans chez vers entre pas plus moins très trop peu tout tous toute toutes rien jamais toujours aussi alors ainsi apres après avant bien encore deja déjà cette ce cet ces mon ma mes ton ta tes son sa ses notre votre leur nos vos leurs je tu il elle on nous vous ils elles moi toi lui eux se me te en y ne est es suis sommes etes êtes sont etait était etais étais ete été etre être avoir ai as a avons avez ont avais avait aura auras fait faire fais faisait vais vas va allez vont aller peux peut pouvez peuvent pouvait veux veut voulez veulent voulait dois doit devez doivent sais sait savez savent dit dire dis c'est cest j'ai jai t'es tes n'est nest qu'il quil qu'elle quelle d'un dun d'une dune l'ai lai m'a t'a s'est sest n'a na y'a ya ptn mdr mdrr mdrrr lol ptdr oui non ok okay oue ouais ouai nan si ça ca cela ceci celui celle the and you for was are with this that have from not just".split(/\s+/)));
-const LOVE_RE = /je\s*t'?aime|jtm|tu me manques|vous me manquez|mon c(?:œ|oe)ur|mon amour|ma vie|mon bb|bébé|❤|🧡|💛|💚|💙|💜|🖤|🤍|💕|💞|💓|💗|💖|💘|💝|😍|🥰|😘/gi;
-const LAUGH_RE = /\bmdr+\b|\bptdr+\b|\blo+l\b|haha+|ahah+|😂|🤣/gi;
+const STOPWORDS = new Set(("le la les un une des de du au aux et ou où mais donc or ni car que qui quoi dont quand comme si pour par avec sans sous sur dans chez vers entre pas plus moins très trop peu tout tous toute toutes rien jamais toujours aussi alors ainsi apres après avant bien encore deja déjà cette ce cet ces mon ma mes ton ta tes son sa ses notre votre leur nos vos leurs je tu il elle on nous vous ils elles moi toi lui eux se me te en y ne est es suis sommes etes êtes sont etait était etais étais ete été etre être avoir ai as a avons avez ont avais avait aura auras fait faire fais faisait vais vas va allez vont aller peux peut pouvez peuvent pouvait veux veut voulez veulent voulait dois doit devez doivent sais sait savez savent dit dire dis c'est cest j'ai jai t'es tes n'est nest qu'il quil qu'elle quelle d'un dun d'une dune l'ai lai m'a t'a s'est sest n'a na y'a ya ptn mdr mdrr mdrrr lol ptdr oui non ok okay oue ouais ouai nan si ça ca cela ceci celui celle " +
+"the and you for was are with this that have from not just but they what when your can out get got like know did don't dont i'm im it's its will would there here about because been being over then them these those she he him her his who how all any some more much than too very had has do does i've ive you're youre we're were can't cant didn't didnt that's thats going want yeah okay really think right one only now see say said tell time good well make made still even also should could our their let need am was " +
+"el la los las un una unos unas de del al y o u pero sino porque como cuando donde que quien cual cuyo para por con sin sobre entre hacia hasta desde muy mas más menos mucho poco todo toda todos todas nada nunca siempre tambien también entonces asi así antes despues después bien aun aún este esta estos estas ese esa esos esas aquel aquella mi mis tu tus su sus nuestro vuestra yo me te se nos os le les lo ella ellos ellas usted ustedes soy eres es somos sois son era eras fui fue estoy estas está estamos estan están estaba estar ser tengo tienes tiene tenemos teneis tienen tenia tenía hay habia había he has ha hemos han hago haces hace hacemos hacen hice hizo voy vas va vamos vais van iba ir puedo puedes puede podemos pueden podia podía quiero quieres quiere queremos quieren queria quería debo debes debe sé sabes sabe digo dices dice decimos dicen dije dijo jaja jajaja jeje sí si vale nada pues bueno").split(/\s+/));
+const LOVE_RE = /je\s*t'?aime|jtm|tu me manques|vous me manquez|mon c(?:œ|oe)ur|mon amour|ma vie|mon bb|bébé|i love you|love you|i miss you|miss you|my love|babe|sweetheart|te quiero|te amo|te extraño|te echo de menos|mi amor|mi vida|cariño|❤|🧡|💛|💚|💙|💜|🖤|🤍|💕|💞|💓|💗|💖|💘|💝|😍|🥰|😘/gi;
+const LAUGH_RE = /\bmdr+\b|\bptdr+\b|\blo+l\b|\blmaoo*\b|\blmfao\b|\brofl\b|haha+|ahah+|jaja+|jeje+|😂|🤣/gi;
 const EMOJI_RE = /\p{Extended_Pictographic}(?:️)?(?:‍\p{Extended_Pictographic}(?:️)?)*/gu;
 const CONVO_GAP = 3 * 3600e3, RESP_MAX = 12 * 3600e3, GHOST_GAP = 72 * 3600e3;
 
@@ -714,14 +706,14 @@ function median(arr){
 function fmtDur(ms){
   if (ms == null) return '—';
   const m = Math.round(ms/60000);
-  if (m < 1) return "moins d'une minute";
+  if (m < 1) return t('dur.lt1');
   if (m < 60) return m + NBSP + 'min';
   const h = Math.floor(m/60), rm = m % 60;
   if (h < 24) return h + NBSP + 'h' + (rm ? NBSP + String(rm).padStart(2,'0') : '');
   const dd = Math.floor(h/24);
-  return dd + NBSP + 'jour' + (dd>1?'s':'') + (h%24 ? ' et ' + (h%24) + NBSP + 'h' : '');
+  return dd + NBSP + (dd>1 ? t('dur.days') : t('dur.day')) + (h%24 ? ' ' + t('dur.and') + ' ' + (h%24) + NBSP + 'h' : '');
 }
-function fmtDate(d){ return d.toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' }); }
+function fmtDate(d){ return d.toLocaleDateString(LOCALE, { day:'numeric', month:'long', year:'numeric' }); }
 
 function personShell(){
   return { msgs:0, words:0, chars:0, media:0, deleted:0, questions:0, emojis:0,
@@ -754,7 +746,7 @@ function analyze(messages, you, other){
       }
       if (t.includes('?')) p.questions++;
       if (t.length < 5) p.dry++;
-      if (/^(ok+|oui|non|ouais?|k|lol|mdr+|😂|👍)$/i.test(t.trim())) p.okOnly++;
+      if (/^(ok+|okay|oui|non|ouais?|k|kk|yes|yeah?|nah|no|sí|si|vale|ya|lol|lmao|mdr+|jaja+|😂|👍)$/i.test(t.trim())) p.okOnly++;
       const loves = t.match(LOVE_RE); if (loves) p.love += loves.length;
       const laughs = t.match(LAUGH_RE); if (laughs) p.laughs += laughs.length;
       const ems = t.match(EMOJI_RE);
@@ -830,13 +822,13 @@ function analyze(messages, you, other){
     const dtRate = p.doubleTexts / Math.max(1, p.msgs);
     const dryRate = p.dry / Math.max(1, p.msgs);
     if (initShare > .62 && (dtRate > .06 || fast))
-      p.attach = { label:'Anxieux·se 🌀', desc:"Relance, double-texte, répond vite : le silence de l'autre est une petite torture." };
+      p.attach = { label: t('att.anx.l'), desc: t('att.anx.d') };
     else if (!fast && (dryRate > .3 || initShare < .35))
-      p.attach = { label:'Évitant·e 🧊', desc:"Répond tard, messages courts, ne relance jamais. La distance, c'est confortable." };
+      p.attach = { label: t('att.avo.l'), desc: t('att.avo.d') };
     else if (fast && initShare >= .45 && dtRate > .05)
-      p.attach = { label:'Fusionnel·le 🔥', desc:"Toujours là, toujours partant·e, toujours en train d'écrire. Intensité maximale." };
+      p.attach = { label: t('att.fus.l'), desc: t('att.fus.d') };
     else
-      p.attach = { label:'Sécure 🌱', desc:"Répond, initie, s'exprime — sans dépendre de l'autre. L'équilibre existe, la preuve." };
+      p.attach = { label: t('att.sec.l'), desc: t('att.sec.d') };
   }
 
   // -------- red / green flags --------
@@ -844,54 +836,49 @@ function analyze(messages, you, other){
   const py = P[you], po = P[other];
   const oShort = other.split(' ')[0];
   if (po.respMedian != null && po.respMedian > 3*3600e3)
-    flags.push(['🐌', `${oShort} met en médiane ${fmtDur(po.respMedian)} à te répondre. Son téléphone est dans sa main, on le sait.`]);
+    flags.push(['🐌', t('rf.slow', { name: oShort, dur: fmtDur(po.respMedian) })]);
   if (po.dry / Math.max(1,po.msgs) > .28)
-    flags.push(['🏜️', `${Math.round(po.dry/po.msgs*100)}% de ses messages font moins de 5 caractères. Aride.`]);
+    flags.push(['🏜️', t('rf.dry', { p: Math.round(po.dry/po.msgs*100) })]);
   if (py.starts / totalStarts > .7)
-    flags.push(['📣', `Tu démarres ${Math.round(py.starts/totalStarts*100)}% des conversations. Le vide te répond parfois.`]);
+    flags.push(['📣', t('rf.starts', { p: Math.round(py.starts/totalStarts*100) })]);
   if (po.ghosted >= 2)
-    flags.push(['👻', `${oShort} t'a laissé·e ${po.ghosted} fois sans réponse pendant plus de 3 jours.`]);
+    flags.push(['👻', t('rf.ghost', { name: oShort, n: po.ghosted })]);
   if (po.deleted >= 5 || po.deleted / Math.max(1,po.msgs) > .02)
-    flags.push(['🗑️', `${fmtN(po.deleted)} messages supprimés de son côté. Qu'est-ce qu'on efface, exactement ?`]);
+    flags.push(['🗑️', t('rf.del', { n: fmtN(po.deleted) })]);
   if (py.avgWords > 0 && po.avgWords > 0 && py.avgWords / po.avgWords > 2.2)
-    flags.push(['📏', `Tes messages sont ${(py.avgWords/po.avgWords).toFixed(1)}× plus longs que les siens. Tu écris un roman, il/elle rend une copie blanche.`]);
+    flags.push(['📏', t('rf.len', { r: (py.avgWords/po.avgWords).toFixed(1) })]);
   if (py.questions >= 10 && py.questions > 3 * Math.max(1, po.questions))
-    flags.push(['❓', `Tu as posé ${fmtN(py.questions)} questions, ${oShort} en a posé ${fmtN(po.questions)}. C'est un interrogatoire unilatéral.`]);
+    flags.push(['❓', t('rf.q', { a: fmtN(py.questions), b: fmtN(po.questions), name: oShort })]);
   if (po.okOnly / Math.max(1,po.msgs) > .15)
-    flags.push(['🧊', `${fmtN(po.okOnly)} réponses du type « ok / oui / mdr ». L'enthousiasme incarné.`]);
+    flags.push(['🧊', t('rf.ok', { n: fmtN(po.okOnly) })]);
   if (po.late / Math.max(1,po.msgs) > .4 && po.msgs > 20)
-    flags.push(['🌙', `${Math.round(po.late/po.msgs*100)}% de ses messages arrivent après 23h. On sait ce que ça veut dire.`]);
+    flags.push(['🌙', t('rf.late', { p: Math.round(po.late/po.msgs*100) })]);
   if (py.doubleTexts / Math.max(1,py.msgs) > .12)
-    flags.push(['📱', `Tu double-textes beaucoup (${fmtN(py.doubleTexts)} fois). Respire entre deux messages.`]);
+    flags.push(['📱', t('rf.dt', { n: fmtN(py.doubleTexts) })]);
 
   if (py.respMedian != null && po.respMedian != null && py.respMedian < 30*60000 && po.respMedian < 30*60000)
-    greens.push(['⚡', 'Vous répondez tous les deux en moins de 30 minutes. Connexion établie.']);
+    greens.push(['⚡', t('gf.fast')]);
   const initBalance = py.starts / totalStarts;
   if (initBalance >= .4 && initBalance <= .6)
-    greens.push(['⚖️', 'Les conversations démarrent des deux côtés. Personne ne court après personne.']);
+    greens.push(['⚖️', t('gf.bal')]);
   if (py.love >= 5 && po.love >= 5)
-    greens.push(['💌', `${fmtN(py.love + po.love)} mots doux échangés. C'est mignon, on valide.`]);
+    greens.push(['💌', t('gf.love', { n: fmtN(py.love + po.love) })]);
   if (py.questions / Math.max(1,py.msgs) > .08 && po.questions / Math.max(1,po.msgs) > .08)
-    greens.push(['🎙️', 'Vous vous posez mutuellement des questions. De la vraie curiosité, pas un monologue.']);
+    greens.push(['🎙️', t('gf.q')]);
   if (S.streak >= 14)
-    greens.push(['🔥', `${S.streak} jours d'affilée avec des messages. Une vraie routine à deux.`]);
+    greens.push(['🔥', t('gf.streak', { n: S.streak })]);
   const volShare = py.msgs / S.total;
   if (volShare >= .45 && volShare <= .55)
-    greens.push(['🤝', 'Volume de messages quasi parfaitement équilibré. 50/50, comme l’addition.']);
+    greens.push(['🤝', t('gf.vol')]);
   if (py.laughs + po.laughs > S.total * .1)
-    greens.push(['😂', `${fmtN(py.laughs + po.laughs)} rires détectés. Au moins, on se marre.`]);
+    greens.push(['😂', t('gf.laugh', { n: fmtN(py.laughs + po.laughs) })]);
 
   S.flags = flags; S.greens = greens;
 
   let score = Math.round((py.interest + po.interest) / 2 + greens.length * 3 - flags.length * 4);
   score = Math.max(3, Math.min(99, score));
   S.score = score;
-  S.verdictPhrase =
-    score >= 80 ? "C'est l'amour fou (ou une folie à deux). Foncez." :
-    score >= 65 ? "Ça matche fort. Il y a un vrai truc entre vous." :
-    score >= 50 ? "Y'a du potentiel, mais quelqu'un freine des quatre fers." :
-    score >= 35 ? "Situation-ship détectée. Tu mérites des réponses, pas des « ok »." :
-    "Les données ont parlé : cours. Vite. Loin.";
+  S.verdictPhrase = t(score >= 80 ? 'verd.80' : score >= 65 ? 'verd.65' : score >= 50 ? 'verd.50' : score >= 35 ? 'verd.35' : 'verd.0');
 
   // -------- archétypes --------
   S.archYou = archetype(py, po, totalStarts);
@@ -905,19 +892,14 @@ function archetype(p, o, totalStarts){
   const dryRate = p.dry / Math.max(1, p.msgs);
   const loveRate = p.love / Math.max(1, p.msgs);
   const lateRate = p.late / Math.max(1, p.msgs);
-  if (p.ghosted >= 2 || (!fast && initShare < .3))
-    return { num:'XIII', g:'👻', name:'Le Fantôme Élégant', tag:"Apparaît, illumine, disparaît. Les astronomes l'appellent une comète ; toi, tu l'appelles encore." };
-  if (dryRate > .3)
-    return { num:'VII', g:'🪨', name:'Le Sec Mystique', tag:"Trois lettres par message, maximum. Chaque « ok » est un koan à méditer pendant des heures." };
-  if (initShare > .62 && p.doubleTexts / Math.max(1,p.msgs) > .06)
-    return { num:'II', g:'🌀', name:"L'Anxieux Romantique", tag:"Double-texte, triple-relance, cœur en alerte permanente. Aime fort, angoisse encore plus fort." };
-  if (loveRate > .05 && fast)
-    return { num:'XIX', g:'☀️', name:'La Flamme Solaire', tag:"Répond en orbite basse, distribue les cœurs comme des météores. Impossible à ignorer." };
-  if (p.avgWords > 14 && loveRate > .01)
-    return { num:'XVIII', g:'🌙', name:'Le Poète Lunaire', tag:"Des pavés au clair de lune, des sentiments en prose. Écrit plus qu'il ne vit, mais quel style." };
-  if (lateRate > .35)
-    return { num:'XV', g:'🦇', name:'Le Noctambule de Vénus', tag:"Ne s'active qu'après 23h. Le soleil l'affaiblit, le « t'es réveillé·e ? » le régénère." };
-  return { num:'XI', g:'⚖️', name:"L'Équilibriste Céleste", tag:"Répond, initie, dose. Ni trop, ni trop peu — l'alignement rare que tout le monde prétend avoir." };
+  const mk = (num, g, key) => ({ num, g, name: t('arch.'+key+'.n'), tag: t('arch.'+key+'.t') });
+  if (p.ghosted >= 2 || (!fast && initShare < .3)) return mk('XIII','👻','ghost');
+  if (dryRate > .3) return mk('VII','🪨','dry');
+  if (initShare > .62 && p.doubleTexts / Math.max(1,p.msgs) > .06) return mk('II','🌀','anx');
+  if (loveRate > .05 && fast) return mk('XIX','☀️','sun');
+  if (p.avgWords > 14 && loveRate > .01) return mk('XVIII','🌙','poet');
+  if (lateRate > .35) return mk('XV','🦇','noct');
+  return mk('XI','⚖️','bal');
 }
 
 /* ---------------------- planète dominante & horoscope ---------------------- */
@@ -925,36 +907,30 @@ function dominantPlanet(S){
   const { P, you, other } = S;
   const py = P[you], po = P[other];
   const per100 = v => v / Math.max(1, S.total) * 100;
+  const P_ = k => ({ n: t('pl.'+k+'.n'), d: t('pl.'+k+'.d') });
   const cand = [
-    { n:'Mercure', g:'☿', v: Math.min(100, (py.words + po.words) / Math.max(1, S.daysSpan) / 2),
-      d:"la planète du blabla — vous ne vous arrêtez jamais d'écrire" },
-    { n:'Vénus', g:'♀', v: per100(py.love + po.love) * 12,
-      d:'la planète de l’amour — les cœurs pleuvent dans cette conversation' },
-    { n:'Mars', g:'♂', v: per100(py.doubleTexts + po.doubleTexts) * 14,
-      d:'la planète de l’ardeur — relances, impatience, feu aux poudres' },
-    { n:'Jupiter', g:'♃', v: per100(py.laughs + po.laughs) * 8,
-      d:'la planète de la joie — cette conversation est un stand-up permanent' },
-    { n:'Saturne', g:'♄', v: (po.respMedian ?? 0) / 3600e3 * 9 + (py.ghosted + po.ghosted) * 18,
-      d:'la planète des silences — le temps s’étire entre vos messages' },
-    { n:'la Lune', g:'☾', v: per100(py.late + po.late) * 2.2,
-      d:'l’astre de la nuit — vos vraies conversations commencent après 23h' },
-    { n:'Pluton', g:'♇', v: per100(py.deleted + po.deleted) * 30,
-      d:'la planète des secrets — beaucoup de messages disparaissent ici' },
+    { ...P_('mer'), g:'☿', v: Math.min(100, (py.words + po.words) / Math.max(1, S.daysSpan) / 2) },
+    { ...P_('ven'), g:'♀', v: per100(py.love + po.love) * 12 },
+    { ...P_('mar'), g:'♂', v: per100(py.doubleTexts + po.doubleTexts) * 14 },
+    { ...P_('jup'), g:'♃', v: per100(py.laughs + po.laughs) * 8 },
+    { ...P_('sat'), g:'♄', v: (po.respMedian ?? 0) / 3600e3 * 9 + (py.ghosted + po.ghosted) * 18 },
+    { ...P_('moon'), g:'☾', v: per100(py.late + po.late) * 2.2 },
+    { ...P_('plu'), g:'♇', v: per100(py.deleted + po.deleted) * 30 },
   ];
   cand.sort((a,b)=>b.v-a.v);
   return cand[0];
 }
 function coupleHoroscope(S, A){
-  const { P, you, other } = S;
-  const po = P[other];
-  const oShort = other.split(' ')[0];
-  const s1 = `${A.you.sign.n} et ${A.other.sign.n} : le cosmos annonçait ${A.compat >= 70 ? 'une évidence' : A.compat >= 50 ? 'un terrain jouable' : 'du sport'}.`;
+  const po = S.P[S.other];
+  const oShort = S.other.split(' ')[0];
+  const s1 = t('horo.s1', { a: signName(A.you.sign), b: signName(A.other.sign),
+    x: t(A.compat >= 70 ? 'horo.s1.hi' : A.compat >= 50 ? 'horo.s1.mid' : 'horo.s1.lo') });
   const s2 = po.respMedian != null && po.respMedian > 2*3600e3
-    ? `Mais Mercure doit être rétrograde en permanence chez ${oShort}, vu ses ${fmtDur(po.respMedian)} de temps de réponse.`
-    : `Et Mercure circule bien : les réponses fusent des deux côtés.`;
+    ? t('horo.s2slow', { name: oShort, dur: fmtDur(po.respMedian) })
+    : t('horo.s2fast');
   const s3 = S.flags.length > S.greens.length
-    ? `Saturne pèse sur cette relation (${S.flags.length} red flags au compteur) — les astres conseillent une mise au point, ou une mise à distance.`
-    : `Vénus veille sur vous (${S.greens.length} green flags) — les astres conseillent de ne pas tout gâcher en regardant les stories de son ex.`;
+    ? t('horo.s3bad', { n: S.flags.length })
+    : t('horo.s3good', { n: S.greens.length });
   return `${s1} ${s2} ${s3}`;
 }
 
@@ -973,7 +949,7 @@ function drawTimeline(S){
   const wrap = $('#chartTime'); if (!wrap) return;
   const { you, other } = S;
   const keys = [...S.byMonth.keys()].sort();
-  if (keys.length < 2){ wrap.innerHTML = '<p class="quip">Pas assez de recul temporel pour un graphique — revenez dans un mois. 😄</p>'; return; }
+  if (keys.length < 2){ wrap.innerHTML = `<p class="quip">${t('g.time.short')}</p>`; return; }
   const data = keys.map(k => ({ k, y: S.byMonth.get(k)[you]||0, o: S.byMonth.get(k)[other]||0 }));
   const max = Math.max(...data.map(d => Math.max(d.y, d.o)), 1);
   const W = 600, H = 240, padL = 36, padR = 14, padT = 12, padB = 28;
@@ -981,15 +957,15 @@ function drawTimeline(S){
   const X = i => padL + i * iw / (keys.length - 1);
   const Y = v => padT + ih - v / max * ih;
   const line = f => data.map((d,i) => `${i?'L':'M'}${X(i).toFixed(1)},${Y(f(d)).toFixed(1)}`).join('');
-  const monthLabel = k => { const [y,m] = k.split('-'); return ['jan','fév','mar','avr','mai','juin','juil','août','sep','oct','nov','déc'][+m-1] + ' ' + y.slice(2); };
+  const monthLabel = k => { const [y,m] = k.split('-'); return MONTHS_S[+m-1] + ' ' + y.slice(2); };
   const tickEvery = Math.max(1, Math.ceil(keys.length / 6));
   const yTicks = [0, Math.round(max/2), max];
   const cy = getComputedStyle(document.documentElement).getPropertyValue('--s-you').trim();
   const co = getComputedStyle(document.documentElement).getPropertyValue('--s-other').trim();
 
   wrap.innerHTML = `
-    <div class="legend" style="margin:0 0 10px;"><span class="ky"><i></i>toi</span><span class="ko"><i></i>${esc(other)}</span></div>
-    <svg class="chart" viewBox="0 0 ${W} ${H}" aria-label="Messages par mois">
+    <div class="legend" style="margin:0 0 10px;"><span class="ky"><i></i>${t('word.you')}</span><span class="ko"><i></i>${esc(other)}</span></div>
+    <svg class="chart" viewBox="0 0 ${W} ${H}" aria-label="${t('chart.aria')}">
       ${yTicks.map(v => `<line x1="${padL}" y1="${Y(v)}" x2="${W-padR}" y2="${Y(v)}" stroke="var(--grid)" stroke-width="1"/><text class="axis-t" x="${padL-6}" y="${Y(v)+3}" text-anchor="end">${fmtN(v)}</text>`).join('')}
       ${data.map((d,i) => i % tickEvery ? '' : `<text class="axis-t" x="${X(i)}" y="${H-8}" text-anchor="middle">${monthLabel(d.k)}</text>`).join('')}
       <path d="${line(d=>d.y)}" fill="none" stroke="${cy}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
@@ -999,8 +975,8 @@ function drawTimeline(S){
       <line id="xhair" x1="0" y1="${padT}" x2="0" y2="${padT+ih}" stroke="var(--faint)" stroke-width="1" visibility="hidden"/>
       <rect id="hitzone" x="${padL}" y="0" width="${iw}" height="${H}" fill="transparent"/>
     </svg>
-    <details class="tbl"><summary>Voir les données</summary>
-      <table><thead><tr><th>Mois</th><th>toi</th><th>${esc(other)}</th></tr></thead><tbody>
+    <details class="tbl"><summary>${t('g.tbl')}</summary>
+      <table><thead><tr><th>${t('g.tbl.month')}</th><th>${t('word.you')}</th><th>${esc(other)}</th></tr></thead><tbody>
       ${data.map(d => `<tr><td>${monthLabel(d.k)}</td><td>${fmtN(d.y)}</td><td>${fmtN(d.o)}</td></tr>`).join('')}
       </tbody></table>
     </details>`;
@@ -1013,7 +989,7 @@ function drawTimeline(S){
     const p = pt.matrixTransform(svg.getScreenCTM().inverse());
     const i = Math.max(0, Math.min(keys.length-1, Math.round((p.x - padL) / (iw / (keys.length-1)))));
     xh.setAttribute('x1', X(i)); xh.setAttribute('x2', X(i)); xh.setAttribute('visibility','visible');
-    tipShow(`<b>${monthLabel(keys[i])}</b><br/>toi : ${fmtN(data[i].y)}<br/>${esc(other)} : ${fmtN(data[i].o)}`, e.clientX, e.clientY);
+    tipShow(`<b>${monthLabel(keys[i])}</b><br/>${t('word.you')} : ${fmtN(data[i].y)}<br/>${esc(other)} : ${fmtN(data[i].o)}`, e.clientX, e.clientY);
   };
   hz.addEventListener('mousemove', move);
   hz.addEventListener('touchstart', move, {passive:true});
@@ -1025,7 +1001,7 @@ function drawTimeline(S){
 function drawHeatmap(S){
   const wrap = $('#chartHeat'); if (!wrap) return;
   const ramp = RAMP_DARK;
-  const days = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  const days = DAYS_S;
   const max = Math.max(1, ...S.heat.flat());
   let cells = '';
   for (let d = 0; d < 7; d++){
@@ -1046,16 +1022,16 @@ function drawHeatmap(S){
     <div class="heat">${cells}</div>
     <div class="heat-hours"><span></span>${hourLabels}</div>
     <div class="heat-scale"><span>0</span><div class="grad" style="background:linear-gradient(90deg, ${ramp.join(',')});"></div><span>${fmtN(max)}</span></div>
-    <p class="quip">Votre pic : le <b>${['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'][busiest]}</b> autour de <b>${peakHour}h</b>.</p>
-    <details class="tbl"><summary>Voir les données</summary>
-      <table><thead><tr><th>Jour</th><th>Messages</th></tr></thead><tbody>
+    <p class="quip">${t('g.heat.peak', { d: DAYS_L[busiest], h: peakHour })}</p>
+    <details class="tbl"><summary>${t('g.tbl')}</summary>
+      <table><thead><tr><th>${t('g.tbl.day')}</th><th>${t('g.tbl.msgs')}</th></tr></thead><tbody>
       ${days.map((d,i)=>`<tr><td>${d}</td><td>${fmtN(perDay[i])}</td></tr>`).join('')}
       </tbody></table>
     </details>`;
 
   wrap.querySelector('.heat').addEventListener('mousemove', ev => {
     const c = ev.target.closest('.cell'); if (!c){ tipHide(); return; }
-    tipShow(`<b>${days[+c.dataset.d]} ${c.dataset.h}h</b> — ${fmtN(+c.dataset.v)} message${+c.dataset.v>1?'s':''}`, ev.clientX, ev.clientY);
+    tipShow(`<b>${days[+c.dataset.d]} ${c.dataset.h}h</b> — ${fmtN(+c.dataset.v)} ${t('g.msgs')}`, ev.clientX, ev.clientY);
   });
   wrap.querySelector('.heat').addEventListener('mouseleave', tipHide);
 }
@@ -1088,14 +1064,7 @@ function animateIn(root=document){
 /* =========================================================
    STORY ENGINE
    ========================================================= */
-const FACTS = [
-  "<b>Le savais-tu ?</b> En psycho de la communication, répondre vite est un « signal d'investissement » : ça coûte de l'attention, donc ça dit l'intérêt mieux que les mots.",
-  "<b>Le savais-tu ?</b> Le « double texting » est jugé négativement… surtout par les personnes évitantes. Les anxieuses y voient juste de l'enthousiasme.",
-  "<b>Le savais-tu ?</b> Poser des questions est le meilleur prédicteur d'un second rendez-vous selon une étude de Harvard sur le speed dating.",
-  "<b>Le savais-tu ?</b> Les couples qui rient ensemble par écrit (« mdr » compte) déclarent une satisfaction relationnelle plus élevée.",
-  "<b>Le savais-tu ?</b> Aucune étude sérieuse ne valide la compatibilité astrale. Mais aucune n'a testé VOTRE conversation. 😏",
-  "<b>Le savais-tu ?</b> L'effet « pleine lune » sur le comportement est un mythe statistique. Vos messages de 2h du matin, en revanche, sont bien réels.",
-];
+const FACTS = [t('fact1'), t('fact2'), t('fact3'), t('fact4'), t('fact5'), t('fact6')];
 let SLIDES = [], sIdx = 0;
 
 function buildSlides(S, A){
@@ -1105,163 +1074,164 @@ function buildSlides(S, A){
   const oFull = esc(other);
   const totalStarts = py.starts + po.starts || 1;
   const pyPct = Math.round(py.starts/totalStarts*100);
+  const YOU_W = t('word.you');
   const sl = [];
   const prono = (guess, actual, labels) => guess == null ? '' :
-    `<div class="prono reveal d3 ${guess === actual ? 'win' : 'lose'}">${guess === actual ? '✅ Ton prono était bon' : '❌ Ton prono : « ' + esc(labels[guess]) + ' »'}</div>`;
+    `<div class="prono reveal d3 ${guess === actual ? 'win' : 'lose'}">${guess === actual ? t('prono.win') : t('prono.lose', { g: esc(labels[guess]) })}</div>`;
 
   // 1 — intro
-  sl.push(`<p class="kicker reveal">AStrologIA présente</p>
-    <h2 class="reveal d1">Toi <em>&</em> ${oFull}</h2>
-    <p class="sub reveal d2"><b>${fmtN(S.total)}</b> messages · <b>${fmtN(S.daysSpan)}</b> jours · <b>${fmtN(S.convos)}</b> conversations.<br/>Les astres ont parlé. Vos messages aussi. Ils ne disent pas la même chose.</p>
+  sl.push(`<p class="kicker reveal">${t('s.intro.k')}</p>
+    <h2 class="reveal d1">${t('s.intro.h', { name: oFull })}</h2>
+    <p class="sub reveal d2">${t('s.intro.sub', { n: fmtN(S.total), d: fmtN(S.daysSpan), c: fmtN(S.convos) })}</p>
     <div class="fact reveal d4">${FACTS[4]}</div>`);
 
   // 2 — volume + prono
   const volWinner = py.msgs === po.msgs ? 'equal' : (py.msgs > po.msgs ? 'you' : 'other');
-  sl.push(`<p class="kicker reveal">Round 1 — le volume</p>
+  sl.push(`<p class="kicker reveal">${t('s.vol.k')}</p>
     <div class="duo-nums">
-      <div class="reveal d1"><div class="plabel you">toi</div><div class="n" data-scount="${py.msgs}">0</div><div class="s">${fmtN(py.words)} mots</div></div>
-      <div class="reveal d2"><div class="plabel other">${oShort}</div><div class="n" data-scount="${po.msgs}">0</div><div class="s">${fmtN(po.words)} mots</div></div>
+      <div class="reveal d1"><div class="plabel you">${YOU_W}</div><div class="n" data-scount="${py.msgs}">0</div><div class="s">${t('s.vol.words', { n: fmtN(py.words) })}</div></div>
+      <div class="reveal d2"><div class="plabel other">${oShort}</div><div class="n" data-scount="${po.msgs}">0</div><div class="s">${t('s.vol.words', { n: fmtN(po.words) })}</div></div>
     </div>
-    ${prono(QUIZ.vol, volWinner, {you:'moi', other:oShort, equal:'égalité'})}
-    <p class="sub reveal d4">${volWinner === 'you' ? 'Tu portes cette conversation à bout de bras.' : volWinner === 'other' ? `${oShort} écrit plus que toi. Rare. Précieux.` : 'Égalité parfaite. Suspect.'}</p>`);
+    ${prono(QUIZ.vol, volWinner, { you: t('quiz.q1.you'), other: oShort, equal: t('quiz.q1.eq') })}
+    <p class="sub reveal d4">${volWinner === 'you' ? t('s.vol.you') : volWinner === 'other' ? t('s.vol.other', { name: oShort }) : t('s.vol.eq')}</p>`);
 
   // 3 — temps de réponse + prono
   const respBucket = ms => ms == null ? 'slow' : ms < 15*60000 ? 'fast' : ms < 2*3600e3 ? 'mid' : 'slow';
-  sl.push(`<p class="kicker reveal">Round 2 — la vitesse</p>
-    <h2 class="reveal d1">Temps de réponse</h2>
+  sl.push(`<p class="kicker reveal">${t('s.resp.k')}</p>
+    <h2 class="reveal d1">${t('s.resp.h')}</h2>
     <div class="duo-nums">
-      <div class="reveal d2"><div class="plabel you">toi</div><div class="n" style="font-size:clamp(24px,7vw,44px);">${fmtDur(py.respMedian)}</div></div>
+      <div class="reveal d2"><div class="plabel you">${YOU_W}</div><div class="n" style="font-size:clamp(24px,7vw,44px);">${fmtDur(py.respMedian)}</div></div>
       <div class="reveal d2"><div class="plabel other">${oShort}</div><div class="n" style="font-size:clamp(24px,7vw,44px);">${fmtDur(po.respMedian)}</div></div>
     </div>
-    ${prono(QUIZ.resp, respBucket(py.respMedian), {fast:'moins de 15 min', mid:'15 min à 2h', slow:'plus de 2h'})}
-    <p class="sub reveal d4">${(po.respMedian??0) > (py.respMedian??1)*3 ? `Tu réponds ${Math.max(2,Math.round((po.respMedian??1)/(py.respMedian||1)))}× plus vite que ${oShort}. L'un de vous deux a des priorités.` : 'Des vitesses comparables. Ça se répond, ici.'}</p>
+    ${prono(QUIZ.resp, respBucket(py.respMedian), { fast: t('quiz.q2.fast'), mid: t('quiz.q2.mid'), slow: t('quiz.q2.slow') })}
+    <p class="sub reveal d4">${(po.respMedian??0) > (py.respMedian??1)*3 ? t('s.resp.fast', { x: Math.max(2,Math.round((po.respMedian??1)/(py.respMedian||1))), name: oShort }) : t('s.resp.even')}</p>
     <div class="fact reveal d4">${FACTS[0]}</div>`);
 
   // 4 — qui démarre + prono
   const startWinner = pyPct > 55 ? 'you' : pyPct < 45 ? 'other' : 'equal';
-  sl.push(`<p class="kicker reveal">Round 3 — l'initiative</p>
-    <h2 class="reveal d1">Qui démarre les convos ?</h2>
-    <div class="giant reveal d2">${pyPct}<small>% toi</small></div>
-    ${prono(QUIZ.start, startWinner, {you:'moi', other:oShort, equal:'moitié-moitié'})}
-    <p class="sub reveal d4">${pyPct > 70 ? 'Sans toi, ce fil de discussion serait une nature morte.' : pyPct < 30 ? `C'est ${oShort} qui vient te chercher. Savoure.` : 'Un bel équilibre des relances.'}</p>`);
+  sl.push(`<p class="kicker reveal">${t('s.start.k')}</p>
+    <h2 class="reveal d1">${t('s.start.h')}</h2>
+    <div class="giant reveal d2">${pyPct}<small>${t('s.start.unit')}</small></div>
+    ${prono(QUIZ.start, startWinner, { you: t('quiz.q3.you'), other: oShort, equal: t('quiz.q3.eq') })}
+    <p class="sub reveal d4">${pyPct > 70 ? t('s.start.dead') : pyPct < 30 ? t('s.start.hunt', { name: oShort }) : t('s.start.bal')}</p>`);
 
   // 5 — intérêt
-  sl.push(`<p class="kicker reveal">Le thermomètre</p>
-    <h2 class="reveal d1">Niveau d'intérêt</h2>
-    <div class="smeter you reveal d2"><div class="mrow"><span>toi</span><span>${py.interest}/100</span></div><div class="track"><div class="fill" data-sw="${py.interest}"></div></div></div>
+  sl.push(`<p class="kicker reveal">${t('s.int.k')}</p>
+    <h2 class="reveal d1">${t('s.int.h')}</h2>
+    <div class="smeter you reveal d2"><div class="mrow"><span>${YOU_W}</span><span>${py.interest}/100</span></div><div class="track"><div class="fill" data-sw="${py.interest}"></div></div></div>
     <div class="smeter other reveal d3"><div class="mrow"><span>${oShort}</span><span>${po.interest}/100</span></div><div class="track"><div class="fill" data-sw="${po.interest}"></div></div></div>
-    <p class="sub reveal d4">${Math.abs(py.interest-po.interest) > 25 ? "L'écart est… mesurable. Et il n'est pas en ta faveur." : 'Vous êtes à peu près sur la même longueur d’onde.'}</p>`);
+    <p class="sub reveal d4">${Math.abs(py.interest-po.interest) > 25 ? t('s.int.gap') : t('s.int.same')}</p>`);
 
   // 6 — grand silence
   if (S.longestSilence){
     const ls = S.longestSilence;
-    sl.push(`<p class="kicker reveal">Le trou noir</p>
-      <h2 class="reveal d1">Le grand silence</h2>
+    sl.push(`<p class="kicker reveal">${t('s.sil.k')}</p>
+      <h2 class="reveal d1">${t('s.sil.h')}</h2>
       <div class="giant reveal d2" style="font-size:clamp(34px,9vw,64px);">${fmtDur(ls.gap)}</div>
-      <p class="sub reveal d3">du ${fmtDate(ls.from)} au ${fmtDate(ls.to)}.<br/>C'est <b>${ls.broken === you ? 'toi' : oShort}</b> qui a craqué et réécrit en premier.</p>
-      ${po.ghosted ? `<p class="sub reveal d4">${oShort} t'a laissé·e <b>${po.ghosted} fois</b> sans réponse plus de 3 jours. 👻</p>` : ''}`);
+      <p class="sub reveal d3">${t('s.sil.sub', { a: fmtDate(ls.from), b: fmtDate(ls.to), w: ls.broken === you ? YOU_W : oShort })}</p>
+      ${po.ghosted ? `<p class="sub reveal d4">${t('s.sil.ghost', { name: oShort, n: po.ghosted })}</p>` : ''}`);
   }
 
   // 7 — signes astro
-  sl.push(`<p class="kicker reveal">Passons aux astres</p>
-    <h2 class="reveal d1">Vos signes</h2>
+  sl.push(`<p class="kicker reveal">${t('s.sign.k')}</p>
+    <h2 class="reveal d1">${t('s.sign.h')}</h2>
     <div class="zodiac-duo">
-      <div class="zcard reveal d2"><div class="g">${A.you.sign.g}</div><div class="zn">${A.you.sign.n}</div><div class="ze">${EL_EMOJI[A.you.sign.el]} ${A.you.sign.el} · ${A.you.sign.mod}</div></div>
-      <div class="zcard reveal d3"><div class="g">${A.other.sign.g}</div><div class="zn">${A.other.sign.n}</div><div class="ze">${EL_EMOJI[A.other.sign.el]} ${A.other.sign.el} · ${A.other.sign.mod}</div></div>
+      <div class="zcard reveal d2"><div class="g">${A.you.sign.g}</div><div class="zn">${signName(A.you.sign)}</div><div class="ze">${EL_EMOJI[A.you.sign.el]} ${t('el.'+A.you.sign.el)} · ${t('mod.'+A.you.sign.mod)}</div></div>
+      <div class="zcard reveal d3"><div class="g">${A.other.sign.g}</div><div class="zn">${signName(A.other.sign)}</div><div class="ze">${EL_EMOJI[A.other.sign.el]} ${t('el.'+A.other.sign.el)} · ${t('mod.'+A.other.sign.mod)}</div></div>
     </div>
-    <p class="sub reveal d4">${A.you.sign.el === A.other.sign.el ? 'Même élément : le cosmos vous voit jumeaux cosmiques.' : (EL_COMPAT[A.you.sign.el+'-'+A.other.sign.el]||0) >= 80 ? 'Éléments complémentaires : sur le papier, ça s’alimente.' : 'Éléments frontaux : sur le papier, ça frotte.'}</p>`);
+    <p class="sub reveal d4">${A.you.sign.el === A.other.sign.el ? t('s.sign.same') : (EL_COMPAT[A.you.sign.el+'-'+A.other.sign.el]||0) >= 80 ? t('s.sign.comp') : t('s.sign.clash')}</p>`);
 
   // 8 — LE DUEL (slide signature)
-  sl.push(`<p class="kicker reveal">Le moment de vérité</p>
-    <h2 class="reveal d1"><span class="goldy">L'astro</span> vs <em>vos messages</em></h2>
+  sl.push(`<p class="kicker reveal">${t('s.duel.k')}</p>
+    <h2 class="reveal d1">${t('s.duel.h')}</h2>
     <div class="versus">
-      <div class="vbox astro reveal d2"><div class="vt">🔮 les astres disent</div><div class="vn" data-scount="${A.compat}">0</div></div>
+      <div class="vbox astro reveal d2"><div class="vt">${t('s.duel.a')}</div><div class="vn" data-scount="${A.compat}">0</div></div>
       <div class="vs-sep reveal d3">VS</div>
-      <div class="vbox data reveal d3"><div class="vt">📊 vos messages disent</div><div class="vn" data-scount="${S.score}">0</div></div>
+      <div class="vbox data reveal d3"><div class="vt">${t('s.duel.d')}</div><div class="vn" data-scount="${S.score}">0</div></div>
     </div>
-    <p class="sub reveal d4"><b>${Math.abs(A.compat - S.score) <= 12 ? 'Les astres avaient raison. Ça arrive.' : A.compat > S.score ? 'Quelqu’un ment. Et ce ne sont pas les données.' : 'Vous battez votre propre horoscope. Respect.'}</b></p>
+    <p class="sub reveal d4"><b>${Math.abs(A.compat - S.score) <= 12 ? t('s.duel.right') : A.compat > S.score ? t('s.duel.lie') : t('s.duel.beat')}</b></p>
     <div class="fact reveal d4">${FACTS[4]}</div>`);
 
   // 9 — planète dominante
   const planet = dominantPlanet(S);
-  sl.push(`<p class="kicker reveal">Votre ciel intérieur</p>
-    <h2 class="reveal d1">Planète dominante</h2>
+  sl.push(`<p class="kicker reveal">${t('s.planet.k')}</p>
+    <h2 class="reveal d1">${t('s.planet.h')}</h2>
     <div class="giant reveal d2" style="font-size:clamp(60px,20vw,110px);">${planet.g}</div>
     <h2 class="reveal d3" style="margin-top:6px;"><span class="goldy">${planet.n}</span></h2>
-    <p class="sub reveal d4">${esc(planet.d)} — calculé depuis vos vraies stats, pas depuis le ciel.</p>`);
+    <p class="sub reveal d4">${t('s.planet.sub', { d: esc(planet.d) })}</p>`);
 
   // 10 — pleine lune
   const fmShare = S.fullMoonMsgs / Math.max(1, S.total);
   const fmExpected = 2 / SYNODIC;
   const firstPhase = moonPhase(S.first.d);
-  sl.push(`<p class="kicker reveal">Chronobiologie douteuse</p>
-    <h2 class="reveal d1">La lune &amp; vous</h2>
+  sl.push(`<p class="kicker reveal">${t('s.moon.k')}</p>
+    <h2 class="reveal d1">${t('s.moon.h')}</h2>
     <div class="giant reveal d2" style="font-size:clamp(50px,16vw,90px);">${firstPhase.emoji}</div>
-    <p class="sub reveal d3">Votre premier message a été envoyé sous une <b>${firstPhase.name}</b>, le ${fmtDate(S.first.d)}.</p>
-    <p class="sub reveal d4">${fmShare > fmExpected * 1.3 ? `Et ${Math.round(fmShare*100)}% de vos messages tombent les soirs de pleine lune — au-dessus de la normale. Loups-garous confirmés. 🐺` : 'Vos messages ignorent superbement les phases lunaires. La science approuve.'}</p>
+    <p class="sub reveal d3">${t('s.moon.first', { p: firstPhase.name, d: fmtDate(S.first.d) })}</p>
+    <p class="sub reveal d4">${fmShare > fmExpected * 1.3 ? t('s.moon.wolf', { p: Math.round(fmShare*100) }) : t('s.moon.sci')}</p>
     <div class="fact reveal d4">${FACTS[5]}</div>`);
 
   // 11 — red flags interactifs
   const rf = S.flags.slice(0, 5);
-  sl.push(`<p class="kicker reveal">Ce que tu refuses de voir</p>
-    <h2 class="reveal d1">🚩 ${rf.length ? fmtN(S.flags.length) + ' red flag' + (S.flags.length>1?'s':'') + ' détecté' + (S.flags.length>1?'s':'') : 'Zéro red flag'}</h2>
+  sl.push(`<p class="kicker reveal">${t('s.rf.k')}</p>
+    <h2 class="reveal d1">${rf.length ? t('s.rf.h', { n: fmtN(S.flags.length) }) : t('s.rf.zero')}</h2>
     ${rf.length
       ? `<div class="flipwrap no-adv">${rf.map((f,i)=>`
           <div class="flip no-adv" data-flip><div class="flipin">
-            <div class="fface back">🚩 Touche pour révéler le red flag n°${i+1}</div>
+            <div class="fface back">${t('s.rf.card', { i: i+1 })}</div>
             <div class="fface front"><span class="fe">${f[0]}</span><span>${esc(f[1])}</span></div>
           </div></div>`).join('')}</div>`
-      : '<p class="sub reveal d2">Aucun red flag détecté. C’est soit l’amour, soit très louche. ✨</p>'}
-    ${S.flags.length > 5 ? `<p class="sub reveal d3" style="font-size:12.5px;">+ ${S.flags.length - 5} autres dans le rapport complet.</p>` : ''}`);
+      : `<p class="sub reveal d2">${t('s.rf.none')}</p>`}
+    ${S.flags.length > 5 ? `<p class="sub reveal d3" style="font-size:12.5px;">${t('s.rf.more', { n: S.flags.length - 5 })}</p>` : ''}`);
 
   // 12 — green flags
-  sl.push(`<p class="kicker reveal">Quand même</p>
-    <h2 class="reveal d1">💚 ${S.greens.length ? fmtN(S.greens.length) + ' green flag' + (S.greens.length>1?'s':'') : 'Zéro green flag'}</h2>
+  sl.push(`<p class="kicker reveal">${t('s.gf.k')}</p>
+    <h2 class="reveal d1">${S.greens.length ? t('s.gf.h', { n: fmtN(S.greens.length) }) : t('s.gf.zero')}</h2>
     ${S.greens.length
       ? `<div class="flipwrap no-adv">${S.greens.slice(0,5).map(f=>`
           <div class="flip onf"><div class="flipin">
             <div class="fface back"></div>
             <div class="fface front green"><span class="fe">${f[0]}</span><span>${esc(f[1])}</span></div>
           </div></div>`).join('')}</div>`
-      : `<p class="sub reveal d2">Aucun green flag. Les données sont formelles : il n'y a rien à sauver ici.</p>`}`);
+      : `<p class="sub reveal d2">${t('s.gf.none')}</p>`}`);
 
   // 13 — ta carte
-  sl.push(`<p class="kicker reveal">Ta carte est tirée</p>
+  sl.push(`<p class="kicker reveal">${t('s.tar1.k')}</p>
     <div class="tarot reveal d1 no-adv">
       <div class="num">${S.archYou.num}</div>
       <div class="tg">${S.archYou.g}</div>
       <div class="tname display">${esc(S.archYou.name)}</div>
       <div class="ttag">${esc(S.archYou.tag)}</div>
-      <div class="towner">toi · ${A.you.sign.g} ${A.you.sign.n}</div>
+      <div class="towner">${YOU_W} · ${A.you.sign.g} ${signName(A.you.sign)}</div>
     </div>`);
 
   // 14 — sa carte
-  sl.push(`<p class="kicker reveal">Et la sienne…</p>
+  sl.push(`<p class="kicker reveal">${t('s.tar2.k')}</p>
     <div class="tarot reveal d1 no-adv">
       <div class="num">${S.archOther.num}</div>
       <div class="tg">${S.archOther.g}</div>
       <div class="tname display">${esc(S.archOther.name)}</div>
       <div class="ttag">${esc(S.archOther.tag)}</div>
-      <div class="towner">${oFull} · ${A.other.sign.g} ${A.other.sign.n}</div>
+      <div class="towner">${oFull} · ${A.other.sign.g} ${signName(A.other.sign)}</div>
     </div>`);
 
   // 15 — horoscope du couple
-  sl.push(`<p class="kicker reveal">Bulletin céleste</p>
-    <h2 class="reveal d1">Horoscope de votre <span class="goldy">duo</span></h2>
+  sl.push(`<p class="kicker reveal">${t('s.horo.k')}</p>
+    <h2 class="reveal d1">${t('s.horo.h')}</h2>
     <p class="sub reveal d2" style="font-size:16.5px; max-width:520px;">${esc(coupleHoroscope(S, A))}</p>`);
 
   // 16 — verdict
-  sl.push(`<p class="kicker reveal">Verdict final</p>
+  sl.push(`<p class="kicker reveal">${t('s.ver.k')}</p>
     <div class="giant reveal d1" data-scount="${S.score}">0<small>/100</small></div>
     <h2 class="reveal d2" style="font-size:clamp(17px,4.4vw,24px);">${esc(S.verdictPhrase)}</h2>
-    <p class="sub reveal d3">🚩 ${S.flags.length} · 💚 ${S.greens.length} · astro ${A.compat}% · données ${S.score}%</p>`);
+    <p class="sub reveal d3">${t('s.ver.stats', { r: S.flags.length, g: S.greens.length, a: A.compat, d: S.score })}</p>`);
 
   // 17 — fin
-  sl.push(`<h2 class="reveal">Et maintenant ?</h2>
+  sl.push(`<h2 class="reveal">${t('s.end.h')}</h2>
     <div class="endbtns no-adv">
-      <button class="btn gold no-adv" data-act="image">📸 Télécharger l'image story</button>
-      <button class="btn primary no-adv" data-act="grid">🧾 Voir le rapport complet</button>
-      <button class="btn ghost no-adv" data-act="close">🔁 Analyser une autre conversation</button>
+      <button class="btn gold no-adv" data-act="image">${t('s.end.img')}</button>
+      <button class="btn primary no-adv" data-act="grid">${t('s.end.grid')}</button>
+      <button class="btn ghost no-adv" data-act="close">${t('s.end.new')}</button>
     </div>`);
   return sl;
 }
@@ -1337,8 +1307,7 @@ function twoNums(labelA, valA, subA, labelB, valB, subB){
   </div>`;
 }
 function interestTag(v){
-  return v >= 75 ? 'Complètement accro 🫠' : v >= 55 ? 'Clairement intéressé·e 💘' :
-         v >= 40 ? 'Tiède 🌗' : v >= 25 ? 'Distant·e 🧊' : 'Porté·e disparu·e 👻';
+  return t(v >= 75 ? 'tag75' : v >= 55 ? 'tag55' : v >= 40 ? 'tag40' : v >= 25 ? 'tag25' : 'tag0');
 }
 
 function renderGrid(S){
@@ -1346,8 +1315,9 @@ function renderGrid(S){
   const py = P[you], po = P[other];
   const oShort = esc(other);
   const A = ASTRO;
+  const YOU_W = t('word.you');
   $('#otherName').textContent = other;
-  $('#periodLine').textContent = `${fmtN(S.total)} messages analysés · du ${fmtDate(S.first.d)} au ${fmtDate(S.msgs[S.msgs.length-1].d)} · ${fmtN(S.daysSpan)} jours`;
+  $('#periodLine').textContent = t('res.period', { n: fmtN(S.total), a: fmtDate(S.first.d), b: fmtDate(S.msgs[S.msgs.length-1].d), d: fmtN(S.daysSpan) });
   show('scr-results');
   if (GRID_RENDERED) return;
   GRID_RENDERED = true;
@@ -1356,126 +1326,126 @@ function renderGrid(S){
   const html = [];
   const planet = dominantPlanet(S);
 
-  html.push(card('astro', '🔮 Astro vs données',
+  html.push(card('astro', t('g.astrovs'),
     `<div class="versus" style="margin-top:4px;">
-       <div class="vbox astro" style="padding:14px 18px;"><div class="vt">astres</div><div class="vn" style="font-size:34px;" data-count="${A.compat}">0</div></div>
+       <div class="vbox astro" style="padding:14px 18px;"><div class="vt">${t('g.astres')}</div><div class="vn" style="font-size:34px;" data-count="${A.compat}">0</div></div>
        <div class="vs-sep">VS</div>
-       <div class="vbox data" style="padding:14px 18px;"><div class="vt">messages</div><div class="vn" style="font-size:34px;" data-count="${S.score}">0</div></div>
+       <div class="vbox data" style="padding:14px 18px;"><div class="vt">${t('g.msgs')}</div><div class="vn" style="font-size:34px;" data-count="${S.score}">0</div></div>
      </div>
-     <p class="quip">${A.you.sign.g} ${A.you.sign.n} × ${A.other.sign.g} ${A.other.sign.n} — ${Math.abs(A.compat-S.score) <= 12 ? 'les astres avaient vu juste.' : A.compat > S.score ? 'le ciel était optimiste.' : 'vous faites mieux que votre horoscope.'}</p>`));
+     <p class="quip">${A.you.sign.g} ${signName(A.you.sign)} × ${A.other.sign.g} ${signName(A.other.sign)} — ${Math.abs(A.compat-S.score) <= 12 ? t('g.duel.right') : A.compat > S.score ? t('g.duel.opt') : t('g.duel.beat')}</p>`));
 
-  html.push(card('astro', '🪐 Planète dominante',
+  html.push(card('astro', t('g.planet.h'),
     `<div class="bignum" style="font-size:40px;">${planet.g}</div>
      <div style="font-weight:800; font-size:18px; margin-top:6px;">${esc(planet.n)}</div>
      <p class="quip">${esc(planet.d)}.</p>`));
 
-  html.push(card('astro', '📜 Horoscope du duo', `<p class="quip" style="margin-top:0; font-size:14px;">${esc(coupleHoroscope(S, A))}</p>`));
+  html.push(card('astro', t('g.horo.h'), `<p class="quip" style="margin-top:0; font-size:14px;">${esc(coupleHoroscope(S, A))}</p>`));
 
-  html.push(card('', 'Messages',
-    twoNums('toi', py.msgs, `${fmtN(py.words)} mots · ${fmtN(py.media)} médias`, other, po.msgs, `${fmtN(po.words)} mots · ${fmtN(po.media)} médias`) +
-    `<p class="quip">${py.msgs > po.msgs ? `Tu portes cette conversation à ${Math.round(py.msgs/S.total*100)}%. Courage.` : `${oShort} écrit plus que toi. Rare. Précieux.`}</p>`));
+  html.push(card('', t('g.msg.h'),
+    twoNums(YOU_W, py.msgs, t('g.msg.sub', { w: fmtN(py.words), m: fmtN(py.media) }), other, po.msgs, t('g.msg.sub', { w: fmtN(po.words), m: fmtN(po.media) })) +
+    `<p class="quip">${py.msgs > po.msgs ? t('g.msg.you', { p: Math.round(py.msgs/S.total*100) }) : t('g.msg.other', { name: oShort })}</p>`));
 
-  html.push(card('', 'Temps de réponse',
+  html.push(card('', t('g.resp.h'),
     `<div class="twocol">
-       <div><div class="plabel you">toi</div><div class="bignum" style="font-size:22px;">${fmtDur(py.respMedian)}</div><div class="subnum">médiane · moyenne ${fmtDur(py.respMean)}</div></div>
-       <div class="side-r"><div class="plabel other">${oShort}</div><div class="bignum" style="font-size:22px;">${fmtDur(po.respMedian)}</div><div class="subnum">médiane · moyenne ${fmtDur(po.respMean)}</div></div>
+       <div><div class="plabel you">${YOU_W}</div><div class="bignum" style="font-size:22px;">${fmtDur(py.respMedian)}</div><div class="subnum">${t('g.resp.med', { v: fmtDur(py.respMean) })}</div></div>
+       <div class="side-r"><div class="plabel other">${oShort}</div><div class="bignum" style="font-size:22px;">${fmtDur(po.respMedian)}</div><div class="subnum">${t('g.resp.med', { v: fmtDur(po.respMean) })}</div></div>
      </div>
-     <p class="quip">${(po.respMedian??0) > (py.respMedian??0)*3 ? `Tu réponds ${Math.max(2,Math.round((po.respMedian??1)/(py.respMedian||1)))}× plus vite. Ton téléphone n'est pas plus proche, tu es juste plus investi·e.` : 'Des temps de réponse du même ordre. Ça discute vraiment.'}</p>`));
+     <p class="quip">${(po.respMedian??0) > (py.respMedian??0)*3 ? t('g.resp.fast', { x: Math.max(2,Math.round((po.respMedian??1)/(py.respMedian||1))) }) : t('g.resp.even')}</p>`));
 
-  html.push(card('', 'Niveau d’intérêt',
-    `<div class="meter you"><div class="mrow"><span class="plabel you">toi</span><span class="mtag">${interestTag(py.interest)} · ${py.interest}/100</span></div><div class="track"><div class="fill" data-w="${py.interest}"></div></div></div>
+  html.push(card('', t('g.int.h'),
+    `<div class="meter you"><div class="mrow"><span class="plabel you">${YOU_W}</span><span class="mtag">${interestTag(py.interest)} · ${py.interest}/100</span></div><div class="track"><div class="fill" data-w="${py.interest}"></div></div></div>
      <div class="meter other"><div class="mrow"><span class="plabel other">${oShort}</span><span class="mtag">${interestTag(po.interest)} · ${po.interest}/100</span></div><div class="track"><div class="fill" data-w="${po.interest}"></div></div></div>
-     <p class="quip">Score : vitesse de réponse, initiative, longueur des messages, curiosité, affection.</p>`));
+     <p class="quip">${t('g.int.note')}</p>`));
 
   const pyPct = Math.round(py.starts/totalStarts*100), poPct = 100 - pyPct;
-  html.push(card('', 'Qui démarre les convos',
-    `<div class="twocol"><div><div class="bignum">${pyPct}<small style="font-size:16px;">%</small></div><div class="subnum">${fmtN(py.starts)} fois</div></div>
-     <div class="side-r"><div class="bignum">${poPct}<small style="font-size:16px;">%</small></div><div class="subnum">${fmtN(po.starts)} fois</div></div></div>
+  html.push(card('', t('g.start.h'),
+    `<div class="twocol"><div><div class="bignum">${pyPct}<small style="font-size:16px;">%</small></div><div class="subnum">${t('word.times', { n: fmtN(py.starts) })}</div></div>
+     <div class="side-r"><div class="bignum">${poPct}<small style="font-size:16px;">%</small></div><div class="subnum">${t('word.times', { n: fmtN(po.starts) })}</div></div></div>
      <div class="splitbar"><div class="a" style="flex:${Math.max(py.starts,1)}"></div><div class="b" style="flex:${Math.max(po.starts,1)}"></div></div>
-     <div class="legend"><span class="ky"><i></i>toi</span><span class="ko"><i></i>${oShort}</span></div>`));
+     <div class="legend"><span class="ky"><i></i>${YOU_W}</span><span class="ko"><i></i>${oShort}</span></div>`));
 
-  html.push(card('', 'Le tout premier message',
-    `<div class="msgquote"><div class="meta">${S.first.author === you ? 'toi' : oShort} · ${fmtDate(S.first.d)} · ${moonPhase(S.first.d).emoji}</div>${S.first.text ? esc(S.first.text.slice(0,180)) : '<i>[média]</i>'}</div>
-     <p class="quip">Envoyé sous une ${moonPhase(S.first.d).name}, il y a ${fmtN(S.daysSpan)} jours.</p>`));
+  html.push(card('', t('g.first.h'),
+    `<div class="msgquote"><div class="meta">${S.first.author === you ? YOU_W : oShort} · ${fmtDate(S.first.d)} · ${moonPhase(S.first.d).emoji}</div>${S.first.text ? esc(S.first.text.slice(0,180)) : '<i>' + t('g.first.media') + '</i>'}</div>
+     <p class="quip">${t('g.first.moon', { p: moonPhase(S.first.d).name, d: fmtN(S.daysSpan) })}</p>`));
 
   if (py.deleted + po.deleted > 0){
-    html.push(card('', 'Messages supprimés',
-      twoNums('toi', py.deleted, '', other, po.deleted, '') +
-      `<p class="quip">${po.deleted > py.deleted ? `${oShort} efface ses traces. Pluton approuve.` : po.deleted === py.deleted ? 'Égalité dans la dissimulation.' : 'C’est toi qui supprimes le plus. On ne juge pas. (Si.)'}</p>`));
+    html.push(card('', t('g.del.h'),
+      twoNums(YOU_W, py.deleted, '', other, po.deleted, '') +
+      `<p class="quip">${po.deleted > py.deleted ? t('g.del.other', { name: oShort }) : po.deleted === py.deleted ? t('g.del.eq') : t('g.del.you')}</p>`));
   }
 
   if (S.longestSilence){
     const ls = S.longestSilence;
-    html.push(card('', 'Le grand silence',
+    html.push(card('', t('g.sil.h'),
       `<div class="bignum" style="font-size:26px;">${fmtDur(ls.gap)}</div>
-       <div class="subnum">du ${fmtDate(ls.from)} au ${fmtDate(ls.to)}</div>
-       <p class="quip">C'est ${ls.broken === you ? 'toi' : oShort} qui a fini par craquer.${po.ghosted ? ` ${oShort} t'a laissé·e ${po.ghosted} fois en attente plus de 3 jours.` : ''}</p>`));
+       <div class="subnum">${t('g.sil.range', { a: fmtDate(ls.from), b: fmtDate(ls.to) })}</div>
+       <p class="quip">${t('g.sil.crack', { w: ls.broken === you ? YOU_W : oShort })}${po.ghosted ? ' ' + t('g.sil.ghost', { name: oShort, n: po.ghosted }) : ''}</p>`));
   }
 
-  html.push(card('', 'Double texting',
-    twoNums('toi', py.doubleTexts, 'relances sans réponse', other, po.doubleTexts, 'relances sans réponse') +
-    `<p class="quip">${py.doubleTexts > po.doubleTexts*2 ? 'Envoyer un deuxième message ne fait pas répondre plus vite. Promis.' : 'Personne ne spamme vraiment. Sain.'}</p>`));
+  html.push(card('', t('g.dt.h'),
+    twoNums(YOU_W, py.doubleTexts, t('g.dt.sub'), other, po.doubleTexts, t('g.dt.sub')) +
+    `<p class="quip">${py.doubleTexts > po.doubleTexts*2 ? t('g.dt.spam') : t('g.dt.sane')}</p>`));
 
-  const champ = (py.longest?.w||0) >= (po.longest?.w||0) ? { p:py, who:'toi', n:'you' } : { p:po, who:oShort, n:'other' };
+  const champ = (py.longest?.w||0) >= (po.longest?.w||0) ? { p:py, who:YOU_W, n:'you' } : { p:po, who:oShort, n:'other' };
   if (champ.p.longest){
-    html.push(card('', 'Plus long message',
+    html.push(card('', t('g.long.h'),
       `<div class="plabel ${champ.n}">${champ.who}</div>
-       <div class="bignum" style="font-size:26px;">${fmtN(champ.p.longest.w)} mots</div>
+       <div class="bignum" style="font-size:26px;">${t('g.long.words', { n: fmtN(champ.p.longest.w) })}</div>
        <div class="msgquote">${esc(champ.p.longest.text.slice(0,220))}${champ.p.longest.text.length > 220 ? '…' : ''}</div>`));
   }
 
-  html.push(card('', '🚩 Red flags',
+  html.push(card('', t('g.rf.h'),
     S.flags.length
       ? `<ul class="flags">${S.flags.map(f=>`<li><span class="fe">${f[0]}</span><span>${esc(f[1])}</span></li>`).join('')}</ul>`
-      : `<p class="quip">Aucun red flag détecté. C'est soit l'amour, soit très louche. ✨</p>`,
+      : `<p class="quip">${t('s.rf.none')}</p>`,
     'red'));
 
-  html.push(card('', '💚 Green flags',
+  html.push(card('', t('g.gf.h'),
     S.greens.length
       ? `<ul class="flags">${S.greens.map(f=>`<li><span class="fe">${f[0]}</span><span>${esc(f[1])}</span></li>`).join('')}</ul>`
-      : `<p class="quip">Aucun green flag. Les données sont formelles.</p>`,
+      : `<p class="quip">${t('g.gf.none')}</p>`,
     'greenf'));
 
-  html.push(card('', 'Tes mots préférés',
+  html.push(card('', t('g.wyou.h'),
     `<div class="chips">${py.topWords.map(([w,c])=>`<span class="chip">${esc(w)}<b>×${fmtN(c)}</b></span>`).join('') || '<span class="chip">—</span>'}</div>`));
-  html.push(card('', `Les mots de ${oShort}`,
+  html.push(card('', t('g.wother.h', { name: oShort }),
     `<div class="chips">${po.topWords.map(([w,c])=>`<span class="chip">${esc(w)}<b>×${fmtN(c)}</b></span>`).join('') || '<span class="chip">—</span>'}</div>`));
 
   if (py.topEmojis.length + po.topEmojis.length > 0){
-    html.push(card('', 'Vos emojis fétiches',
-      `<div class="plabel you">toi</div><div class="emojirow">${py.topEmojis.map(([e,c])=>`<span>${e}</span><span class="cnt">×${fmtN(c)}</span>`).join('') || '—'}</div>
+    html.push(card('', t('g.emoji.h'),
+      `<div class="plabel you">${YOU_W}</div><div class="emojirow">${py.topEmojis.map(([e,c])=>`<span>${e}</span><span class="cnt">×${fmtN(c)}</span>`).join('') || '—'}</div>
        <div class="plabel other" style="margin-top:12px;">${oShort}</div><div class="emojirow">${po.topEmojis.map(([e,c])=>`<span>${e}</span><span class="cnt">×${fmtN(c)}</span>`).join('') || '—'}</div>`));
   }
 
-  html.push(card('', 'Mots doux & cœurs',
-    twoNums('toi', py.love, '', other, po.love, '') +
-    `<p class="quip">${py.love + po.love === 0 ? 'Zéro tendresse détectée. Une relation commerciale, en somme.' : py.love > po.love*2 ? 'Tu donnes beaucoup d’amour. Il se perd quelque part en route.' : po.love > py.love*2 ? `${oShort} est plus démonstratif·ve que toi. Qui l'eût cru.` : 'L’affection circule dans les deux sens. 🫶'}</p>`));
+  html.push(card('', t('g.love.h'),
+    twoNums(YOU_W, py.love, '', other, po.love, '') +
+    `<p class="quip">${py.love + po.love === 0 ? t('g.love.zero') : py.love > po.love*2 ? t('g.love.you') : po.love > py.love*2 ? t('g.love.other', { name: oShort }) : t('g.love.bal')}</p>`));
 
-  html.push(card('', 'Votre activité dans le temps', `<div class="chart-wrap" id="chartTime"></div>`));
+  html.push(card('', t('g.time.h'), `<div class="chart-wrap" id="chartTime"></div>`));
 
   // machine à remonter le temps
   const mkeys = [...S.byMonth.keys()].sort();
   if (mkeys.length >= 2){
-    html.push(card('astro', '⏳ Machine à remonter le temps',
-      `<input type="range" class="mslider" id="mslider" min="0" max="${mkeys.length-1}" value="${mkeys.length-1}" aria-label="Choisir un mois" />
+    html.push(card('astro', t('g.slider.h'),
+      `<input type="range" class="mslider" id="mslider" min="0" max="${mkeys.length-1}" value="${mkeys.length-1}" aria-label="${t('g.slider.aria')}" />
        <div id="msliderOut" style="margin-top:10px;"></div>`));
   }
 
-  html.push(card('', 'Quand ça texte', `<div id="chartHeat"></div>`));
+  html.push(card('', t('g.heat.h'), `<div id="chartHeat"></div>`));
 
   const totalEnds = py.ends + po.ends || 1;
-  html.push(card('', 'Qui a le dernier mot',
+  html.push(card('', t('g.last.h'),
     `<div class="splitbar"><div class="a" style="flex:${Math.max(py.ends,1)}"></div><div class="b" style="flex:${Math.max(po.ends,1)}"></div></div>
-     <div class="legend"><span class="ky"><i></i>toi · ${Math.round(py.ends/totalEnds*100)}%</span><span class="ko"><i></i>${oShort} · ${Math.round(po.ends/totalEnds*100)}%</span></div>
-     <p class="quip">${py.ends/totalEnds > .65 ? 'Tes messages closent les conversations. Traduction : on te laisse en vu.' : 'Les conversations meurent équitablement des deux côtés.'}</p>`));
+     <div class="legend"><span class="ky"><i></i>${YOU_W} · ${Math.round(py.ends/totalEnds*100)}%</span><span class="ko"><i></i>${oShort} · ${Math.round(po.ends/totalEnds*100)}%</span></div>
+     <p class="quip">${py.ends/totalEnds > .65 ? t('g.last.left') : t('g.last.even')}</p>`));
 
-  html.push(card('', 'Style d’attachement',
-    `<div class="plabel you">toi</div><div style="font-weight:800; font-size:17px; margin:2px 0 4px;">${py.attach.label}</div><p class="quip" style="margin-top:0;">${py.attach.desc}</p>
+  html.push(card('', t('g.att.h'),
+    `<div class="plabel you">${YOU_W}</div><div style="font-weight:800; font-size:17px; margin:2px 0 4px;">${py.attach.label}</div><p class="quip" style="margin-top:0;">${py.attach.desc}</p>
      <div class="plabel other" style="margin-top:14px;">${oShort}</div><div style="font-weight:800; font-size:17px; margin:2px 0 4px;">${po.attach.label}</div><p class="quip" style="margin-top:0;">${po.attach.desc}</p>
-     <p class="quip" style="font-size:11px; opacity:.7;">Pur divertissement — la vraie psychologie ne tient pas dans un export WhatsApp.</p>`));
+     <p class="quip" style="font-size:11px; opacity:.7;">${t('g.att.disc')}</p>`));
 
-  html.push(card('astro', '🃏 Vos archétypes',
-    `<div class="plabel you">toi</div><div style="font-weight:800; font-size:17px; margin:2px 0 2px;">${S.archYou.g} ${esc(S.archYou.name)}</div><p class="quip" style="margin-top:0;">${esc(S.archYou.tag)}</p>
+  html.push(card('astro', t('g.arch.h'),
+    `<div class="plabel you">${YOU_W}</div><div style="font-weight:800; font-size:17px; margin:2px 0 2px;">${S.archYou.g} ${esc(S.archYou.name)}</div><p class="quip" style="margin-top:0;">${esc(S.archYou.tag)}</p>
      <div class="plabel other" style="margin-top:14px;">${oShort}</div><div style="font-weight:800; font-size:17px; margin:2px 0 2px;">${S.archOther.g} ${esc(S.archOther.name)}</div><p class="quip" style="margin-top:0;">${esc(S.archOther.tag)}</p>`));
 
   $('#cards').innerHTML = html.join('');
@@ -1486,16 +1456,16 @@ function renderGrid(S){
   const sl = $('#mslider');
   if (sl){
     const out = $('#msliderOut');
-    const monthLabel = k => { const [y,m] = k.split('-'); return ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'][+m-1] + ' ' + y; };
+    const monthLabel = k => { const [y,m] = k.split('-'); return MONTHS_L[+m-1] + ' ' + y; };
     const upd = () => {
       const k = mkeys[+sl.value];
       const d = S.byMonth.get(k);
       const ty = d[you]||0, to_ = d[other]||0, tot = ty + to_;
       out.innerHTML = tot === 0
-        ? `<b>${monthLabel(k)}</b> — silence radio total. 🕳️`
-        : `<b>${monthLabel(k)}</b> — ${fmtN(tot)} messages<div class="splitbar" style="margin-top:8px;"><div class="a" style="flex:${Math.max(ty,1)}"></div><div class="b" style="flex:${Math.max(to_,1)}"></div></div>
-           <div class="legend"><span class="ky"><i></i>toi · ${fmtN(ty)}</span><span class="ko"><i></i>${oShort} · ${fmtN(to_)}</span></div>
-           <p class="quip">${ty > to_*1.5 ? 'Ce mois-là, tu parlais dans le vide.' : to_ > ty*1.5 ? `Ce mois-là, ${oShort} menait la danse.` : 'Ce mois-là, c’était équilibré.'}</p>`;
+        ? t('g.slider.silence', { m: monthLabel(k) })
+        : `${t('g.slider.n', { m: monthLabel(k), n: fmtN(tot) })}<div class="splitbar" style="margin-top:8px;"><div class="a" style="flex:${Math.max(ty,1)}"></div><div class="b" style="flex:${Math.max(to_,1)}"></div></div>
+           <div class="legend"><span class="ky"><i></i>${YOU_W} · ${fmtN(ty)}</span><span class="ko"><i></i>${oShort} · ${fmtN(to_)}</span></div>
+           <p class="quip">${ty > to_*1.5 ? t('g.slider.you') : to_ > ty*1.5 ? t('g.slider.other', { name: oShort }) : t('g.slider.bal')}</p>`;
     };
     sl.addEventListener('input', upd);
     upd();
@@ -1525,10 +1495,11 @@ function downloadStoryImage(){
   const center = (txt, y, font, color) => { c.font = font; c.fillStyle = color; c.textAlign = 'center'; c.fillText(txt, 540, y); };
 
   center('🔮 AStrologIA', 150, '700 52px Unbounded, Outfit, sans-serif', '#a99bff');
-  center('ASTRO × DATA', 200, '600 26px Outfit, sans-serif', '#6b70a0');
+  center(t('img.tag'), 200, '600 26px Outfit, sans-serif', '#6b70a0');
   const oShort = S.other.length > 14 ? S.other.slice(0, 13) + '…' : S.other;
-  center(`Toi ${A.you.sign.g}  ×  ${oShort} ${A.other.sign.g}`, 320, '700 54px Outfit, sans-serif', '#eef0ff');
-  center(`${fmtN(S.total)} messages · ${fmtN(S.daysSpan)} jours`, 380, '400 34px Outfit, sans-serif', '#9aa0c9');
+  const youCap = t('res.you');
+  center(`${youCap} ${A.you.sign.g}  ×  ${oShort} ${A.other.sign.g}`, 320, '700 54px Outfit, sans-serif', '#eef0ff');
+  center(`${fmtN(S.total)} ${t('g.msgs')} · ${fmtN(S.daysSpan)} ${t('dur.days')}`, 380, '400 34px Outfit, sans-serif', '#9aa0c9');
 
   // duel
   c.fillStyle = 'rgba(232,197,107,.12)'; roundRect(c, 90, 470, 420, 330, 36); c.fill();
@@ -1537,31 +1508,31 @@ function downloadStoryImage(){
   c.strokeStyle = 'rgba(90,139,255,.55)'; roundRect(c, 570, 470, 420, 330, 36); c.stroke();
   c.textAlign = 'center';
   c.font = '700 30px Outfit, sans-serif';
-  c.fillStyle = '#e8c56b'; c.fillText('LES ASTRES', 300, 545);
-  c.fillStyle = '#7ab1f2'; c.fillText('VOS MESSAGES', 780, 545);
+  c.fillStyle = '#e8c56b'; c.fillText(t('img.stars'), 300, 545);
+  c.fillStyle = '#7ab1f2'; c.fillText(t('img.msgs'), 780, 545);
   c.font = '900 130px Unbounded, Outfit, sans-serif';
   c.fillStyle = '#f4e3b6'; c.fillText(A.compat + '%', 300, 700);
   c.fillStyle = '#cde2fb'; c.fillText(S.score + '%', 780, 700);
   c.font = '600 30px Outfit, sans-serif'; c.fillStyle = '#9aa0c9';
-  c.fillText(Math.abs(A.compat-S.score) <= 12 ? 'Les astres avaient raison.' : A.compat > S.score ? 'Quelqu’un ment. Pas les données.' : 'Vous battez votre horoscope.', 540, 770);
+  c.fillText(Math.abs(A.compat-S.score) <= 12 ? t('img.right') : A.compat > S.score ? t('img.lie') : t('img.beat'), 540, 770);
 
   // archétypes
-  center('VOS CARTES', 920, '700 28px Outfit, sans-serif', '#6b70a0');
+  center(t('img.cards'), 920, '700 28px Outfit, sans-serif', '#6b70a0');
   center(`${S.archYou.g} ${S.archYou.name}`, 990, '700 44px Outfit, sans-serif', '#f4e3b6');
-  center('toi', 1032, '600 26px Outfit, sans-serif', '#7ab1f2');
+  center(t('word.you'), 1032, '600 26px Outfit, sans-serif', '#7ab1f2');
   center(`${S.archOther.g} ${S.archOther.name}`, 1110, '700 44px Outfit, sans-serif', '#f4e3b6');
   center(oShort, 1152, '600 26px Outfit, sans-serif', '#f090b4');
 
   // flags + verdict
-  center(`🚩 ${S.flags.length} red flags     💚 ${S.greens.length} green flags`, 1270, '700 40px Outfit, sans-serif', '#eef0ff');
+  center(t('img.stats', { r: S.flags.length, g: S.greens.length }), 1270, '700 40px Outfit, sans-serif', '#eef0ff');
   const vp = S.verdictPhrase;
   c.font = '600 34px Outfit, sans-serif'; c.fillStyle = '#9aa0c9';
   wrapText(c, `« ${vp} »`, 540, 1370, 860, 48);
 
   // score géant
   center(S.score + '/100', 1650, '900 160px Unbounded, Outfit, sans-serif', '#ffffff');
-  center('compatibilité réelle', 1710, '600 30px Outfit, sans-serif', '#6b70a0');
-  center('analyse la tienne — gratuit & 100% privé', 1840, '600 28px Outfit, sans-serif', '#8b7bff');
+  center(t('img.real'), 1710, '600 30px Outfit, sans-serif', '#6b70a0');
+  center(t('img.cta'), 1840, '600 28px Outfit, sans-serif', '#8b7bff');
 
   const a = document.createElement('a');
   a.download = 'astrologia-story.png';
@@ -1594,7 +1565,7 @@ function fail(msg){
 function handleText(text){
   const parsed = parseChat(text);
   if (!parsed){
-    fail("Impossible de lire ce fichier 😕 — vérifie que c'est bien un export WhatsApp « sans les médias » (.txt) avec au moins quelques dizaines de messages.");
+    fail(t('err.parse'));
     return;
   }
   PARSED = parsed;
@@ -1604,10 +1575,8 @@ function renderSetup(){
   const sorted = [...PARSED.participants.entries()].sort((a,b) => b[1]-a[1]);
   const list = $('#peopleList');
   list.innerHTML = sorted.slice(0, 12).map(([name, cnt]) =>
-    `<button class="person" data-name="${esc(name)}"><span class="av">${esc([...name][0].toUpperCase())}</span>${esc(name)}<span class="cnt">${fmtN(cnt)} messages</span></button>`).join('');
-  $('#setupNote').textContent = sorted.length > 2
-    ? "Conversation de groupe détectée : on analysera toi + la personne la plus active parmi les autres."
-    : "";
+    `<button class="person" data-name="${esc(name)}"><span class="av">${esc([...name][0].toUpperCase())}</span>${esc(name)}<span class="cnt">${t('setup.msgs', { n: fmtN(cnt) })}</span></button>`).join('');
+  $('#setupNote').textContent = sorted.length > 2 ? t('setup.group') : "";
   list.querySelectorAll('.person').forEach(btn => btn.addEventListener('click', () => {
     YOU = btn.dataset.name;
     const others = sorted.filter(([n]) => n !== YOU);
@@ -1617,7 +1586,7 @@ function renderSetup(){
   show('scr-setup');
 }
 function openAstro(){
-  $('#bdOtherLabel').textContent = `Date de naissance de ${OTHER}`;
+  $('#bdOtherLabel').textContent = t('astro.lother', { name: OTHER });
   show('scr-astro');
 }
 const parseBirth = v => v ? new Date(v + 'T12:00:00') : null;  // midi local : pas de glissement UTC
@@ -1625,7 +1594,7 @@ function liveSign(inputId, outId){
   const inp = $('#'+inputId);
   inp.addEventListener('input', () => {
     const v = parseBirth(inp.value);
-    $('#'+outId).textContent = v ? `${zodiac(v).g} ${zodiac(v).n} · ${EL_EMOJI[zodiac(v).el]} ${zodiac(v).el}` : '';
+    $('#'+outId).textContent = v ? `${zodiac(v).g} ${signName(zodiac(v))} · ${EL_EMOJI[zodiac(v).el]} ${t('el.'+zodiac(v).el)}` : '';
   });
 }
 liveSign('bdYou', 'signYou');
@@ -1633,8 +1602,8 @@ liveSign('bdOther', 'signOther');
 $('#btnAstroGo').addEventListener('click', () => {
   const dy = parseBirth($('#bdYou').value), doo = parseBirth($('#bdOther').value);
   if (!dy || !doo){
-    $('#signYou').textContent = !dy ? '⚠️ Il me faut ta date pour lire le ciel.' : $('#signYou').textContent;
-    $('#signOther').textContent = !doo ? '⚠️ Et la sienne aussi.' : $('#signOther').textContent;
+    $('#signYou').textContent = !dy ? t('astro.warnyou') : $('#signYou').textContent;
+    $('#signOther').textContent = !doo ? t('astro.warnother') : $('#signOther').textContent;
     return;
   }
   const sy = zodiac(dy), so = zodiac(doo);
@@ -1646,9 +1615,9 @@ $('#btnAstroGo').addEventListener('click', () => {
 function renderQuiz(){
   const oShort = OTHER.split(' ')[0];
   const qs = [
-    { key:'vol', q:'Qui envoie le plus de messages ?', opts:[['you','Moi, clairement'],['other',oShort],['equal','Moitié-moitié']] },
-    { key:'resp', q:'Toi, tu réponds en général en…', opts:[['fast','Moins de 15 minutes'],['mid','Entre 15 min et 2h'],['slow','Plus de 2h (je vis ma vie)']] },
-    { key:'start', q:'Qui démarre les conversations ?', opts:[['you','Moi, toujours moi'],['other',oShort],['equal','Ça alterne']] },
+    { key:'vol', q: t('quiz.q1'), opts:[['you', t('quiz.q1.you')],['other',oShort],['equal', t('quiz.q1.eq')]] },
+    { key:'resp', q: t('quiz.q2'), opts:[['fast', t('quiz.q2.fast')],['mid', t('quiz.q2.mid')],['slow', t('quiz.q2.slow')]] },
+    { key:'start', q: t('quiz.q3'), opts:[['you', t('quiz.q3.you')],['other',oShort],['equal', t('quiz.q3.eq')]] },
   ];
   let qi = 0;
   const box = $('#quizBox');
@@ -1656,7 +1625,7 @@ function renderQuiz(){
     if (qi >= qs.length){ launch(); return; }
     const q = qs[qi];
     box.innerHTML = `<div class="quizq">
-      <div class="qn">Pronostic ${qi+1}/3</div>
+      <div class="qn">${t('quiz.n', { i: qi+1 })}</div>
       <h3>${esc(q.q)}</h3>
       <div class="qopts">${q.opts.map(o => `<button class="qopt" data-v="${o[0]}">${esc(o[1])}</button>`).join('')}</div>
     </div>`;
@@ -1694,20 +1663,20 @@ drop.addEventListener('drop', e => {
 });
 fileInput.addEventListener('change', () => { if (fileInput.files[0]) readFile(fileInput.files[0]); fileInput.value = ''; });
 function readFile(f){
-  if (f.name.endsWith('.zip')){ fail("Décompresse d'abord le .zip et dépose le fichier _chat.txt qu'il contient. 🙏"); return; }
+  if (f.name.endsWith('.zip')){ fail(t('err.zip')); return; }
   const r = new FileReader();
   r.onload = () => handleText(String(r.result));
   r.readAsText(f);
 }
 $('#btnPaste').addEventListener('click', () => { $('#pasteWrap').open = true; $('#pasteBox').focus(); $('#pasteWrap').scrollIntoView({behavior:'smooth', block:'center'}); });
 $('#btnAnalyzePaste').addEventListener('click', () => {
-  const t = $('#pasteBox').value.trim();
-  if (t.length < 100){ fail('Colle un peu plus de contenu — il faut au moins quelques dizaines de messages.'); return; }
-  handleText(t);
+  const txt = $('#pasteBox').value.trim();
+  if (txt.length < 100){ fail(t('err.paste')); return; }
+  handleText(txt);
 });
 $('#btnDemo').addEventListener('click', () => {
   PARSED = buildDemo();
-  YOU = 'Toi'; OTHER = 'Alex 💫';
+  YOU = t('demo.you'); OTHER = DEMO_TXT[L].other;
   $('#bdYou').value = '2002-04-12';   // Bélier
   $('#bdOther').value = '2001-08-08'; // Lion
   $('#bdYou').dispatchEvent(new Event('input'));
@@ -1720,16 +1689,15 @@ $('#btnReplay').addEventListener('click', openStory);
 $('#btnImage').addEventListener('click', downloadStoryImage);
 $('#btnShare').addEventListener('click', async () => {
   const S = LAST_STATS; if (!S) return;
-  const txt = `🔮 AStrologIA — Toi & ${S.other}\n` +
-    `✨ Astro : ${ASTRO.compat}% · 📊 Vos messages : ${S.score}%\n` +
-    `${ASTRO.you.sign.g} ${ASTRO.you.sign.n} × ${ASTRO.other.sign.g} ${ASTRO.other.sign.n}\n` +
-    `🃏 ${S.archYou.name} × ${S.archOther.name}\n` +
-    `🚩 ${S.flags.length} red flags · 💚 ${S.greens.length} green flags\n` +
-    `« ${S.verdictPhrase} »\n` +
-    `→ Analyse la tienne (gratuit, 100% privé) : ${location.href}`;
+  const txt = t('share.txt', {
+    name: S.other, a: ASTRO.compat, d: S.score,
+    signs: `${ASTRO.you.sign.g} ${signName(ASTRO.you.sign)} × ${ASTRO.other.sign.g} ${signName(ASTRO.other.sign)}`,
+    archA: S.archYou.name, archB: S.archOther.name,
+    r: S.flags.length, g: S.greens.length, v: S.verdictPhrase, url: location.href,
+  });
   try {
     if (navigator.share) await navigator.share({ text: txt });
-    else { await navigator.clipboard.writeText(txt); tipShow('Verdict copié ! 📋', innerWidth/2, innerHeight/2); setTimeout(tipHide, 1600); }
+    else { await navigator.clipboard.writeText(txt); tipShow(t('copy.done'), innerWidth/2, innerHeight/2); setTimeout(tipHide, 1600); }
   } catch(e){ /* partage annulé */ }
 });
 </script>
