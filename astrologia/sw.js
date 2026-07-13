@@ -1,7 +1,7 @@
 /* AStrologIA — service worker : installable + offline.
    Stratégie : network-first pour les pages (toujours la dernière version
    quand on est en ligne), cache-first pour le reste. */
-const VERSION = 'astrologia-v1';
+const VERSION = 'astrologia-v2';
 const CORE = ['./', './index.html', './i18n.js', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {

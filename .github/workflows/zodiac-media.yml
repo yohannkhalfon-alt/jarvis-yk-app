@@ -1,0 +1,76 @@
+name: zodiac-media
+
+# Rapatrie les visuels des 12 Dieux du Zodiaque (générés sur Higgsfield)
+# dans astrologia/media/, en les optimisant au passage :
+#   - images  -> WebP 720px (~150 Ko)
+#   - vidéos  -> MP4 H.264 720x1280 CRF 27 sans audio (~1 Mo)
+# Déclenchement manuel (workflow_dispatch) — commit direct sur main.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Installer ffmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+
+      - name: Télécharger et optimiser
+        run: |
+          set -euo pipefail
+          mkdir -p astrologia/media
+          declare -A IMGS=(
+          ["ari"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_132417_a5481816-f742-4def-8bcc-e0de71397e8e.png"
+          ["tau"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_132420_5bcff093-714f-4547-a170-8e789070dcbb.png"
+          ["gem"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_132421_2b961ebe-c85c-43e8-b035-d98dd2d94826.png"
+          ["can"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_132424_82a733dd-fb73-4e91-bd41-97514123391a.png"
+          ["leo"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_140649_f4486792-6278-41fb-b881-73060ff661ca.png"
+          ["vir"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_134442_abc81dae-0dc9-46c3-a11f-15b9ba279c25.png"
+          ["lib"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_132439_ced069de-1174-4688-a76d-d5d7094b9e6b.png"
+          ["sco"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_132442_7f34645e-bdf4-4a2e-b110-48de24cf7625.png"
+          ["sag"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_132645_fe5d9cd7-0c5a-47c5-a710-0f2d92a13bc4.png"
+          ["cap"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_132648_8687689b-3ed6-4e0b-be5d-dbba19908bb3.png"
+          ["aqu"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_132650_d1e2c4ba-3b18-48f3-aa28-cf4f69488970.png"
+          ["pis"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_132652_2edb0867-3354-4abc-ab12-ef0ac9046b21.png"
+          )
+          declare -A VIDS=(
+          ["ari"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_134904_a8755230-65be-495d-92e1-0d695c8f2b29.mp4"
+          ["tau"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_134908_d77e02c5-f4ec-4780-a0ad-a96060e0945a.mp4"
+          ["gem"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_134910_94453f13-0c4f-4492-8a19-1639776df840.mp4"
+          ["can"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_140736_c02e4fa6-c464-4306-81c3-acf3dd6297e9.mp4"
+          ["leo"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_141011_c8668e7d-7255-4513-9608-b38f11514218.mp4"
+          ["vir"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_134918_a7cd5609-2955-44fc-b5d8-fae5422d1c7c.mp4"
+          ["lib"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_134921_c5220844-182f-4bfb-898a-e508c9086705.mp4"
+          ["sco"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_134925_6da18bd9-f25a-41c3-9bfe-16d2381525f1.mp4"
+          ["sag"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_135408_82b30d82-a282-4cbb-9569-0237ee7ab18d.mp4"
+          ["cap"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_135412_79d94e78-f392-4703-a101-082dbfd6895b.mp4"
+          ["aqu"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_140725_b2a8378a-80e6-4123-ad7d-9cc4fec4c08f.mp4"
+          ["pis"]="https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260713_135417_a7c2a926-c91d-4b87-8cb7-a8e031078d27.mp4"
+          )
+          for k in "${!IMGS[@]}"; do
+            echo "== image $k =="
+            curl -sSfL "${IMGS[$k]}" -o "/tmp/$k.png"
+            ffmpeg -y -loglevel error -i "/tmp/$k.png" -vf "scale=720:-2" -c:v libwebp -q:v 82 "astrologia/media/$k.webp"
+          done
+          for k in "${!VIDS[@]}"; do
+            echo "== video $k =="
+            curl -sSfL "${VIDS[$k]}" -o "/tmp/$k.mp4"
+            ffmpeg -y -loglevel error -i "/tmp/$k.mp4" -vf "scale=720:1280" -c:v libx264 -crf 27 -preset slow -pix_fmt yuv420p -movflags +faststart -an "astrologia/media/$k.mp4"
+          done
+          du -sh astrologia/media/ && ls -la astrologia/media/
+
+      - name: Committer
+        run: |
+          git config user.name "zodiac-media-bot"
+          git config user.email "zodiac-media-bot@users.noreply.github.com"
+          git add astrologia/media
+          git commit -m "Ajout des visuels des 12 Dieux du Zodiaque (optimisés)" || echo "rien à committer"
+          git push origin main
