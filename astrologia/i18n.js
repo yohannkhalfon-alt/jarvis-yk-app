@@ -803,3 +803,50 @@ Object.assign(I18N.es, {
   'img.modal.dl': "⬇️ Descargar",
   'img.modal.close': "Cerrar",
 });
+
+/* loader céleste, badges, évolution, confidentialité */
+Object.assign(I18N.fr, {
+  'load.1': "Lecture du ciel…",
+  'load.2': "Analyse de {n} messages…",
+  'load.3': "Alignement de Sirius ✦",
+  'g.badges.h': "🏆 Vos records",
+  'b.fast': "⚡ Réponse éclair : {who} a répondu en {d}",
+  'b.day': "📅 Jour record : {n} messages le {date}",
+  'b.streak': "🔥 Série : {n} jours d'affilée avec des messages",
+  'b.night': "🌙 Noctambule : un message envoyé à {h}",
+  'g.evo.h': "📉 L'évolution de l'intérêt",
+  'g.evo.note': "Temps de réponse médian par mois — quand la courbe monte, l'intérêt descend.",
+  'g.evo.quip': "En {m1}, {name} répondait en {d1}. En {m2} : {d2}. Les données n'oublient rien.",
+  'g.evo.flat': "Des temps de réponse stables sur toute la période. Constance rare.",
+  'footer.priv': "Confidentialité",
+});
+Object.assign(I18N.en, {
+  'load.1': "Reading the sky…",
+  'load.2': "Analyzing {n} messages…",
+  'load.3': "Aligning Sirius ✦",
+  'g.badges.h': "🏆 Your records",
+  'b.fast': "⚡ Lightning reply: {who} answered in {d}",
+  'b.day': "📅 Record day: {n} messages on {date}",
+  'b.streak': "🔥 Streak: {n} days in a row with messages",
+  'b.night': "🌙 Night owl: a message sent at {h}",
+  'g.evo.h': "📉 Interest over time",
+  'g.evo.note': "Median reply time per month — when the line goes up, interest goes down.",
+  'g.evo.quip': "In {m1}, {name} replied in {d1}. In {m2}: {d2}. The data forgets nothing.",
+  'g.evo.flat': "Stable reply times across the whole period. Rare consistency.",
+  'footer.priv': "Privacy",
+});
+Object.assign(I18N.es, {
+  'load.1': "Leyendo el cielo…",
+  'load.2': "Analizando {n} mensajes…",
+  'load.3': "Alineando Sirio ✦",
+  'g.badges.h': "🏆 Vuestros récords",
+  'b.fast': "⚡ Respuesta relámpago: {who} respondió en {d}",
+  'b.day': "📅 Día récord: {n} mensajes el {date}",
+  'b.streak': "🔥 Racha: {n} días seguidos con mensajes",
+  'b.night': "🌙 Noctámbulo: un mensaje enviado a las {h}",
+  'g.evo.h': "📉 La evolución del interés",
+  'g.evo.note': "Tiempo de respuesta mediano por mes — cuando la línea sube, el interés baja.",
+  'g.evo.quip': "En {m1}, {name} respondía en {d1}. En {m2}: {d2}. Los datos no olvidan nada.",
+  'g.evo.flat': "Tiempos de respuesta estables en todo el periodo. Rara constancia.",
+  'footer.priv': "Privacidad",
+});
