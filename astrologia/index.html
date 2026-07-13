@@ -6,6 +6,20 @@
 <meta name="theme-color" content="#070912" />
 <meta name="description" content="AStrologIA — ta conversation WhatsApp passée aux rayons X : stats, red flags, compatibilité astrale vs réalité des messages, archétypes. 100% privé, tout se passe dans ton navigateur." />
 <title>AStrologIA ✨ — Vos messages vs les astres</title>
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<link rel="manifest" href="manifest.webmanifest" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="AStrologIA" />
+<meta property="og:title" content="AStrologIA 🔮 — Vos messages face aux astres" />
+<meta property="og:description" content="Qui aime le plus ? Red flags, compatibilité astrale vs réalité, horoscope du couple. Gratuit, 100% privé : rien ne quitte votre téléphone." />
+<meta property="og:url" content="https://jarvis-yk-app.netlify.app/astrologia/" />
+<meta property="og:image" content="https://jarvis-yk-app.netlify.app/astrologia/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="AStrologIA 🔮 — Vos messages face aux astres" />
+<meta name="twitter:image" content="https://jarvis-yk-app.netlify.app/astrologia/og.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
@@ -369,6 +383,16 @@
   .card.link { cursor: pointer; transition: border-color .15s, transform .15s; }
   .card.link:hover { border-color: var(--gold); transform: translateY(-2px); }
 
+  /* ============ loader « lecture du ciel » ============ */
+  #skyload { position: fixed; inset: 0; z-index: 95; display: none; align-items: center; justify-content: center;
+    flex-direction: column; gap: 20px; background: var(--bg0); }
+  #skyload.on { display: flex; }
+  #skyload .ring { width: 74px; height: 74px; border-radius: 50%; border: 2px solid rgba(139,123,255,.2);
+    border-top-color: var(--gold); animation: skyspin 1.2s linear infinite; }
+  @keyframes skyspin { to { transform: rotate(360deg); } }
+  #skyload .line { font-size: 15px; font-weight: 600; color: var(--dim); letter-spacing: 1px; min-height: 22px; transition: opacity .3s; }
+  @media (prefers-reduced-motion: reduce) { #skyload .ring { animation: none; } }
+
   /* ============ easter egg Sirius ✦ ============ */
   #siriusHit { position: fixed; left: 76vw; top: 11.5vh; width: 70px; height: 70px;
     transform: translate(-50%, -50%); border-radius: 50%; z-index: 6; cursor: pointer;
@@ -423,6 +447,8 @@
 </header>
 
 <div id="tip" role="status"></div>
+
+<div id="skyload" aria-hidden="true"><div class="ring"></div><div class="line" id="skyline"></div></div>
 
 <div id="imgModal" role="dialog" aria-modal="true">
   <h3 id="imTitle"></h3>
@@ -565,7 +591,8 @@
 
 <footer>
   <span data-i18n="footer.l1"></span><br/>
-  <span data-i18n="footer.l2"></span>
+  <span data-i18n="footer.l2"></span><br/>
+  <a href="confidentialite.html" data-i18n="footer.priv" style="color:var(--faint); font-weight:700;"></a>
 </footer>
 
 <script src="i18n.js"></script>
@@ -583,6 +610,9 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>'
 applyStaticI18n();
 document.querySelectorAll('.langs button').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
 $('#siriusHit').addEventListener('click', () => window.triggerSiriusEgg && window.triggerSiriusEgg());
+if ('serviceWorker' in navigator && location.protocol === 'https:'){
+  addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
 
 let PARSED = null, YOU = null, OTHER = null, LAST_STATS = null;
 let ASTRO = null;            // { you:{sign...}, other:{...}, compat, ... }
@@ -864,7 +894,7 @@ function analyze(messages, you, other){
     first: msgs[0], total: msgs.length,
     daysSpan: Math.max(1, Math.round((msgs[msgs.length-1].d - msgs[0].d) / 86400e3)),
     convos: 0, longestSilence: null, byMonth: new Map(), heat: Array.from({length:7},()=>new Array(24).fill(0)),
-    streak: 0, fullMoonMsgs: 0 };
+    streak: 0, fullMoonMsgs: 0, byDay: new Map(), respByMonth: new Map(), nightLatest: null };
 
   let prev = null, prevDay = null, streak = 0;
   for (const m of msgs){
@@ -891,6 +921,10 @@ function analyze(messages, you, other){
     }
     const hr = m.d.getHours();
     if (hr >= 23 || hr < 5) p.late++;
+    if (hr < 5){
+      const mins = hr*60 + m.d.getMinutes();
+      if (!S.nightLatest || mins > S.nightLatest.mins) S.nightLatest = { mins, who: m.author };
+    }
     S.heat[(m.d.getDay()+6)%7][hr]++;
     const age = moonAge(m.d);
     if (age >= 13.77 && age <= 15.77) S.fullMoonMsgs++;   // pleine lune ± 1 jour
@@ -900,6 +934,7 @@ function analyze(messages, you, other){
     S.byMonth.get(mk)[m.author]++;
 
     const dayKey = m.d.toDateString();
+    S.byDay.set(dayKey, (S.byDay.get(dayKey)||0) + 1);
     if (dayKey !== prevDay){
       if (prevDay !== null){
         const diff = Math.round((new Date(dayKey) - new Date(prevDay)) / 86400e3);
@@ -916,7 +951,12 @@ function analyze(messages, you, other){
         if (!S.longestSilence || gap > S.longestSilence.gap)
           S.longestSilence = { gap, from: prev.d, to: m.d, broken: m.author, leftWaiting: prev.author };
       } else if (prev.author !== m.author){
-        if (gap < RESP_MAX) p.respTimes.push(gap);
+        if (gap < RESP_MAX){
+          p.respTimes.push(gap);
+          const rb = S.respByMonth.get(mk) || { [you]: [], [other]: [] };
+          rb[m.author].push(gap);
+          S.respByMonth.set(mk, rb);
+        }
       } else if (gap > 15*60000){
         p.doubleTexts++;
       }
@@ -1172,6 +1212,80 @@ function drawHeatmap(S){
   wrap.querySelector('.heat').addEventListener('mouseleave', tipHide);
 }
 
+/* courbe « évolution de l'intérêt » : temps de réponse médian par mois */
+function drawRespChart(S){
+  const wrap = $('#chartResp'); if (!wrap) return;
+  const { you, other } = S;
+  const keys = [...S.respByMonth.keys()].sort();
+  const data = keys.map(k => {
+    const rb = S.respByMonth.get(k);
+    return { k, y: median(rb[you] || []), o: median(rb[other] || []) };
+  });
+  const vals = data.flatMap(d => [d.y, d.o]).filter(v => v != null);
+  if (vals.length < 3){ wrap.innerHTML = `<p class="quip">${t('g.time.short')}</p>`; return; }
+  const max = Math.max(...vals);
+  const W = 600, H = 240, padL = 52, padR = 14, padT = 12, padB = 28;
+  const iw = W - padL - padR, ih = H - padT - padB;
+  const X = i => padL + (keys.length === 1 ? iw/2 : i * iw / (keys.length - 1));
+  const Y = v => padT + ih - v / max * ih;
+  const monthLabel = k => { const [y,m] = k.split('-'); return MONTHS_S[+m-1] + ' ' + y.slice(2); };
+  const tickEvery = Math.max(1, Math.ceil(keys.length / 6));
+  const cy = getComputedStyle(document.documentElement).getPropertyValue('--s-you').trim();
+  const co = getComputedStyle(document.documentElement).getPropertyValue('--s-other').trim();
+  const path = f => {
+    let d = '', pen = false;
+    data.forEach((pt, i) => {
+      const v = f(pt);
+      if (v == null){ pen = false; return; }
+      d += (pen ? 'L' : 'M') + X(i).toFixed(1) + ',' + Y(v).toFixed(1);
+      pen = true;
+    });
+    return d;
+  };
+  const yTicks = [0, max/2, max];
+
+  wrap.innerHTML = `
+    <div class="legend" style="margin:0 0 10px;"><span class="ky"><i></i>${t('word.you')}</span><span class="ko"><i></i>${esc(other)}</span></div>
+    <svg class="chart" viewBox="0 0 ${W} ${H}" aria-label="${t('g.evo.h')}">
+      ${yTicks.map(v => `<line x1="${padL}" y1="${Y(v)}" x2="${W-padR}" y2="${Y(v)}" stroke="var(--grid)" stroke-width="1"/><text class="axis-t" x="${padL-6}" y="${Y(v)+3}" text-anchor="end">${v ? fmtDur(v) : '0'}</text>`).join('')}
+      ${data.map((d,i) => i % tickEvery ? '' : `<text class="axis-t" x="${X(i)}" y="${H-8}" text-anchor="middle">${monthLabel(d.k)}</text>`).join('')}
+      <path d="${path(d=>d.y)}" fill="none" stroke="${cy}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="${path(d=>d.o)}" fill="none" stroke="${co}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <rect id="rhit" x="${padL}" y="0" width="${iw}" height="${H}" fill="transparent"/>
+    </svg>
+    <details class="tbl"><summary>${t('g.tbl')}</summary>
+      <table><thead><tr><th>${t('g.tbl.month')}</th><th>${t('word.you')}</th><th>${esc(other)}</th></tr></thead><tbody>
+      ${data.map(d => `<tr><td>${monthLabel(d.k)}</td><td>${fmtDur(d.y)}</td><td>${fmtDur(d.o)}</td></tr>`).join('')}
+      </tbody></table>
+    </details>`;
+
+  // le quip cruel : le mois où l'autre répondait vite vs le mois où il/elle traînait
+  const oVals = data.filter(d => d.o != null);
+  if (oVals.length >= 2){
+    const fast = [...oVals].sort((a,b) => a.o - b.o)[0];
+    const slow = [...oVals].sort((a,b) => b.o - a.o)[0];
+    const q = document.createElement('p');
+    q.className = 'quip';
+    q.textContent = slow.o > fast.o * 2
+      ? t('g.evo.quip', { m1: monthLabel(fast.k), d1: fmtDur(fast.o), m2: monthLabel(slow.k), d2: fmtDur(slow.o), name: other.split(' ')[0] })
+      : t('g.evo.flat');
+    wrap.appendChild(q);
+  }
+  const svg = wrap.querySelector('svg'), hit = wrap.querySelector('#rhit');
+  const move = ev => {
+    const pt = svg.createSVGPoint();
+    const e = ev.touches ? ev.touches[0] : ev;
+    pt.x = e.clientX; pt.y = e.clientY;
+    const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+    const i = Math.max(0, Math.min(keys.length-1, Math.round((p.x - padL) / (iw / Math.max(1, keys.length-1)))));
+    tipShow(`<b>${monthLabel(keys[i])}</b><br/>${t('word.you')} : ${fmtDur(data[i].y)}<br/>${esc(other)} : ${fmtDur(data[i].o)}`, e.clientX, e.clientY);
+  };
+  hit.addEventListener('mousemove', move);
+  hit.addEventListener('touchstart', move, {passive:true});
+  hit.addEventListener('mouseleave', tipHide);
+  hit.addEventListener('touchend', tipHide);
+}
+
 /* ---------------------- compteurs & apparitions ---------------------- */
 function countUp(el){
   const target = +el.dataset.count;
@@ -1392,6 +1506,7 @@ function goSlide(i){
   if (i < 0) i = 0;
   if (i >= SLIDES.length){ closeStory(true); return; }
   sIdx = i;
+  try { if (navigator.vibrate) navigator.vibrate(8); } catch(e){}
   document.querySelectorAll('#slides .slide').forEach((el, k) => el.classList.toggle('on', k === i));
   document.querySelectorAll('#sprog i').forEach((el, k) => {
     el.classList.toggle('done', k < i);
@@ -1569,6 +1684,27 @@ function renderGrid(S){
 
   html.push(card('', t('g.time.h'), `<div class="chart-wrap" id="chartTime"></div>`));
 
+  // records
+  const badges = [];
+  const allResp = [[YOU_W, py.respTimes], [oShort, po.respTimes]].filter(([,r]) => r.length);
+  if (allResp.length){
+    const best = allResp.map(([w, r]) => [w, Math.min(...r)]).sort((a,b) => a[1]-b[1])[0];
+    badges.push(t('b.fast', { who: best[0], d: fmtDur(best[1]) }));
+  }
+  const topDay = [...S.byDay.entries()].sort((a,b) => b[1]-a[1])[0];
+  if (topDay) badges.push(t('b.day', { n: fmtN(topDay[1]), date: fmtDate(new Date(topDay[0])) }));
+  if (S.streak >= 2) badges.push(t('b.streak', { n: fmtN(S.streak) }));
+  if (S.nightLatest) badges.push(t('b.night', { h: String(Math.floor(S.nightLatest.mins/60)).padStart(2,'0') + ':' + String(S.nightLatest.mins%60).padStart(2,'0') }));
+  if (badges.length){
+    html.push(card('', t('g.badges.h'),
+      `<div class="chips">${badges.map(b => `<span class="chip" style="font-size:12.5px; line-height:1.5;">${esc(b)}</span>`).join('')}</div>`));
+  }
+
+  // évolution de l'intérêt (temps de réponse par mois)
+  if ([...S.respByMonth.keys()].length >= 2){
+    html.push(card('', t('g.evo.h'), `<p class="quip" style="margin:0 0 12px;">${t('g.evo.note')}</p><div class="chart-wrap" id="chartResp"></div>`));
+  }
+
   // machine à remonter le temps
   const mkeys = [...S.byMonth.keys()].sort();
   if (mkeys.length >= 2){
@@ -1597,6 +1733,7 @@ function renderGrid(S){
   $('#cards').innerHTML = html.join('');
   drawTimeline(S);
   drawHeatmap(S);
+  drawRespChart(S);
   animateIn();
   const ch = $('#cardHoro');
   ch.addEventListener('click', openHoro);
@@ -1806,7 +1943,8 @@ function downloadStoryImage(){
   // score géant
   center(S.score + '/100', 1650, '900 160px Unbounded, Outfit, sans-serif', '#ffffff');
   center(t('img.real'), 1710, '600 30px Outfit, sans-serif', '#6b70a0');
-  center(t('img.cta'), 1840, '600 28px Outfit, sans-serif', '#8b7bff');
+  center(t('img.cta'), 1826, '600 28px Outfit, sans-serif', '#8b7bff');
+  center('jarvis-yk-app.netlify.app/astrologia', 1876, '800 30px Outfit, sans-serif', '#e8c56b');
 
   openImageModal(cv);
 }
@@ -1940,7 +2078,12 @@ function renderQuiz(){
 function launch(){
   LAST_STATS = analyze(PARSED.messages, YOU, OTHER);
   GRID_RENDERED = false;
-  openStory();
+  // petit suspense théâtral : « lecture du ciel »
+  const sk = $('#skyload'), line = $('#skyline');
+  sk.classList.add('on');
+  const steps = [t('load.1'), t('load.2', { n: fmtN(LAST_STATS.total) }), t('load.3')];
+  steps.forEach((txt, i) => setTimeout(() => { line.textContent = txt; }, 60 + i * 850));
+  setTimeout(() => { sk.classList.remove('on'); openStory(); }, 60 + steps.length * 850 + 250);
 }
 function resetAll(){
   PARSED = null; YOU = OTHER = null; LAST_STATS = null; ASTRO = null;
