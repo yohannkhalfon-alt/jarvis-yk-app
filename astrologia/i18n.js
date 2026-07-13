@@ -780,3 +780,26 @@ Object.assign(I18N.es, {
   's.rf.h.sg': "🚩 1 red flag detectada", 's.rf.h.pl': "🚩 {n} red flags detectadas",
   's.gf.h.sg': "💚 1 green flag", 's.gf.h.pl': "💚 {n} green flags",
 });
+
+/* modale image story */
+Object.assign(I18N.fr, {
+  'img.modal.title': "Ton image story est prête ✨",
+  'img.modal.hint': "Sur téléphone : reste appuyé sur l'image pour l'enregistrer 📲",
+  'img.modal.share': "📤 Partager l'image",
+  'img.modal.dl': "⬇️ Télécharger",
+  'img.modal.close': "Fermer",
+});
+Object.assign(I18N.en, {
+  'img.modal.title': "Your story image is ready ✨",
+  'img.modal.hint': "On mobile: press and hold the image to save it 📲",
+  'img.modal.share': "📤 Share the image",
+  'img.modal.dl': "⬇️ Download",
+  'img.modal.close': "Close",
+});
+Object.assign(I18N.es, {
+  'img.modal.title': "Tu imagen story está lista ✨",
+  'img.modal.hint': "En el móvil: mantén pulsada la imagen para guardarla 📲",
+  'img.modal.share': "📤 Compartir la imagen",
+  'img.modal.dl': "⬇️ Descargar",
+  'img.modal.close': "Cerrar",
+});
