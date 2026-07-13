@@ -241,11 +241,27 @@
   .smeter.you .fill { background: var(--s-you); } .smeter.other .fill { background: var(--s-other); }
   .smeter + .smeter { margin-top: 18px; }
 
-  .zodiac-duo { display: flex; gap: 22px; justify-content: center; margin-top: 24px; }
+  .zodiac-duo { display: flex; gap: 18px; justify-content: center; margin-top: 24px; }
   .zcard { background: var(--glass); border: 1px solid var(--line); border-radius: 20px; padding: 20px 22px; min-width: 128px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
   .zcard .g { font-size: 44px; line-height: 1; }
   .zcard .zn { margin-top: 10px; font-weight: 800; font-size: 15px; }
   .zcard .ze { margin-top: 3px; font-size: 12px; color: var(--dim); font-weight: 600; }
+  /* cartes signes habillées par les Dieux du Zodiaque */
+  .zcard.godz { position: relative; overflow: hidden; width: min(160px, 42vw); min-height: 230px;
+    background-size: cover; background-position: center 18%; border-color: rgba(232,197,107,.45);
+    display: flex; flex-direction: column; justify-content: flex-end; padding: 16px 14px;
+    box-shadow: 0 14px 44px rgba(0,0,0,.45); }
+  .zcard.godz::before { content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(7,9,18,0) 34%, rgba(7,9,18,.92) 88%); }
+  .zcard.godz > * { position: relative; z-index: 1; }
+  .zcard.godz .g { font-size: 26px; }
+
+  /* fond divin animé de la slide verdict */
+  .slide .godbg { position: absolute; inset: 0; z-index: 0; }
+  .godbg video, .godbg .godposter { width: 100%; height: 100%; object-fit: cover; opacity: .5; display: block; }
+  .godbg .godposter { background-size: cover; background-position: center 20%; }
+  .godveil { position: absolute; inset: 0;
+    background: radial-gradient(75% 60% at 50% 52%, rgba(7,9,18,.82), rgba(7,9,18,.45) 70%, rgba(7,9,18,.65)); }
 
   .versus { display: flex; align-items: stretch; gap: 14px; justify-content: center; margin-top: 26px; flex-wrap: wrap; }
   .vbox { border-radius: 22px; padding: 22px 26px; min-width: 150px; }
@@ -1382,12 +1398,12 @@ function buildSlides(S, A){
       ${po.ghosted ? `<p class="sub reveal d4">${t('s.sil.ghost', { name: oShort, n: po.ghosted })}</p>` : ''}`);
   }
 
-  // 7 — signes astro
+  // 7 — signes astro, habillés par les Dieux du Zodiaque
   sl.push(`<p class="kicker reveal">${t('s.sign.k')}</p>
     <h2 class="reveal d1">${t('s.sign.h')}</h2>
     <div class="zodiac-duo">
-      <div class="zcard reveal d2"><div class="g">${A.you.sign.g}</div><div class="zn">${signName(A.you.sign)}</div><div class="ze">${EL_EMOJI[A.you.sign.el]} ${t('el.'+A.you.sign.el)} · ${t('mod.'+A.you.sign.mod)}</div></div>
-      <div class="zcard reveal d3"><div class="g">${A.other.sign.g}</div><div class="zn">${signName(A.other.sign)}</div><div class="ze">${EL_EMOJI[A.other.sign.el]} ${t('el.'+A.other.sign.el)} · ${t('mod.'+A.other.sign.mod)}</div></div>
+      <div class="zcard godz reveal d2" style="background-image:url('media/${A.you.sign.k}.webp'), linear-gradient(170deg,#191536,#0e0b22)"><div class="g">${A.you.sign.g}</div><div class="zn">${signName(A.you.sign)}</div><div class="ze">${EL_EMOJI[A.you.sign.el]} ${t('el.'+A.you.sign.el)} · ${t('mod.'+A.you.sign.mod)}</div></div>
+      <div class="zcard godz reveal d3" style="background-image:url('media/${A.other.sign.k}.webp'), linear-gradient(170deg,#191536,#0e0b22)"><div class="g">${A.other.sign.g}</div><div class="zn">${signName(A.other.sign)}</div><div class="ze">${EL_EMOJI[A.other.sign.el]} ${t('el.'+A.other.sign.el)} · ${t('mod.'+A.other.sign.mod)}</div></div>
     </div>
     <p class="sub reveal d4">${A.you.sign.el === A.other.sign.el ? t('s.sign.same') : (EL_COMPAT[A.you.sign.el+'-'+A.other.sign.el]||0) >= 80 ? t('s.sign.comp') : t('s.sign.clash')}</p>`);
 
@@ -1470,8 +1486,12 @@ function buildSlides(S, A){
     <h2 class="reveal d1">${t('s.horo.h')}</h2>
     <p class="sub reveal d2" style="font-size:16.5px; max-width:520px;">${esc(coupleHoroscope(S, A))}</p>`);
 
-  // 16 — verdict
-  sl.push(`<p class="kicker reveal">${t('s.ver.k')}</p>
+  // 16 — verdict, avec le Dieu de ton signe animé en fond
+  sl.push(`<div class="godbg" aria-hidden="true">
+      <video muted loop playsinline preload="none" poster="media/${A.you.sign.k}.webp" data-god="${A.you.sign.k}"></video>
+      <div class="godveil"></div>
+    </div>
+    <p class="kicker reveal">${t('s.ver.k')}</p>
     <div class="giant reveal d1" data-scount="${S.score}">0<small>/100</small></div>
     <h2 class="reveal d2" style="font-size:clamp(17px,4.4vw,24px);">${esc(S.verdictPhrase)}</h2>
     <p class="sub reveal d3">${t('s.ver.stats', { r: S.flags.length, g: S.greens.length, a: A.compat, d: S.score })}</p>`);
@@ -1508,6 +1528,7 @@ function goSlide(i){
   sIdx = i;
   try { if (navigator.vibrate) navigator.vibrate(8); } catch(e){}
   document.querySelectorAll('#slides .slide').forEach((el, k) => el.classList.toggle('on', k === i));
+  manageGodVideos(i);
   document.querySelectorAll('#sprog i').forEach((el, k) => {
     el.classList.toggle('done', k < i);
     el.classList.toggle('cur', k === i);
@@ -1525,6 +1546,36 @@ function goSlide(i){
     requestAnimationFrame(step);
   });
   setTimeout(() => cur.querySelectorAll('.fill[data-sw]').forEach(el => el.style.width = el.dataset.sw + '%'), 350);
+}
+/* vidéos des Dieux : chargement paresseux (une slide d'avance), lecture sur
+   la slide active seulement, respect de l'économiseur de données et de
+   prefers-reduced-motion, repli silencieux sur l'image si le fichier manque */
+function manageGodVideos(cur){
+  const slides = document.querySelectorAll('#slides .slide');
+  const saveData = navigator.connection && navigator.connection.saveData;
+  const noMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  slides.forEach((sl, k) => {
+    const v = sl.querySelector('video[data-god]');
+    if (!v) return;
+    if (saveData || noMotion){
+      // pas de vidéo : on remplace par le poster fixe
+      if (!v.dataset.postered){
+        v.dataset.postered = '1';
+        const p = document.createElement('div');
+        p.className = 'godposter';
+        p.style.backgroundImage = `url('${v.getAttribute('poster')}')`;
+        v.replaceWith(p);
+      }
+      return;
+    }
+    if (!v.dataset.wired){
+      v.dataset.wired = '1';
+      v.addEventListener('error', () => { const b = v.closest('.godbg'); if (b) b.style.display = 'none'; }, { once: true });
+    }
+    if (Math.abs(k - cur) <= 1 && !v.src) v.src = 'media/' + v.dataset.god + '.mp4';   // précharge à l'approche
+    if (k === cur && v.src) v.play().catch(() => {});
+    else if (v.src) v.pause();
+  });
 }
 $('#tzL').addEventListener('click', () => goSlide(sIdx - 1));
 $('#tzR').addEventListener('click', () => goSlide(sIdx + 1));
