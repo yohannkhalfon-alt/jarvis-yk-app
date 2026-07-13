@@ -1,0 +1,1941 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#070912" />
+<meta name="description" content="AStrologIA — ta conversation WhatsApp passée aux rayons X : stats, red flags, compatibilité astrale vs réalité des messages, archétypes. 100% privé, tout se passe dans ton navigateur." />
+<title>AStrologIA ✨ — Vos messages vs les astres</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg0: #070912;
+    --bg1: #10132a;
+    --glass: rgba(148,156,255,.07);
+    --glass-2: rgba(148,156,255,.12);
+    --line: rgba(168,172,255,.16);
+    --ink: #eef0ff;
+    --dim: #9aa0c9;
+    --faint: #6b70a0;
+    --violet: #8b7bff;
+    --indigo: #5a8bff;
+    --gold: #e8c56b;
+    --gold-deep: #c9a445;
+    --grad: linear-gradient(120deg, #8b7bff, #5a8bff 55%, #43b8d6);
+    --s-you: #3987e5;      /* série toi — validée CVD sur fond sombre */
+    --s-other: #d55181;    /* série l'autre */
+    --s-you-track: #1d3a5f;
+    --s-other-track: #4a2334;
+    --flag-red: #ef6a6a;
+    --flag-green: #43d68f;
+    --grid: #262a45;
+    --chart-surface: #151831;
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg0);
+    color: var(--ink);
+    font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  #stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  .aurora {
+    position: fixed; inset: -20%; z-index: 0; pointer-events: none; filter: blur(70px); opacity: .5;
+    background:
+      radial-gradient(38% 30% at 18% 12%, rgba(139,123,255,.20), transparent 70%),
+      radial-gradient(34% 26% at 85% 20%, rgba(67,184,214,.13), transparent 70%),
+      radial-gradient(40% 30% at 60% 95%, rgba(213,81,129,.10), transparent 70%);
+  }
+  .display { font-family: 'Unbounded', 'Outfit', sans-serif; }
+
+  header {
+    position: sticky; top: 0; z-index: 40;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 15px 18px;
+    background: rgba(7,9,18,.72); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+  .logo { font-family: 'Unbounded', 'Outfit', system-ui, sans-serif; font-weight: 700; font-size: 17px; letter-spacing: .5px;
+    background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .logo::before { content: '🔮 '; -webkit-text-fill-color: initial; }
+  header small { font-size: 9px; font-weight: 700; color: var(--faint); letter-spacing: 3px; text-transform: uppercase; align-self: flex-end; margin-bottom: 2px; }
+  .langs { position: absolute; right: 12px; display: flex; gap: 3px; }
+  .langs button { background: none; border: 1px solid transparent; border-radius: 8px; color: var(--faint); font-family: 'Outfit', system-ui, sans-serif; font-weight: 800; font-size: 11px; padding: 5px 7px; cursor: pointer; }
+  .langs button.cur { color: var(--ink); border-color: var(--line); background: var(--glass); }
+  .langs button:hover { color: var(--ink); }
+  @media (max-width: 560px){ header small { display: none; } }
+
+  .wrap { position: relative; z-index: 1; max-width: 1060px; margin: 0 auto; padding: 22px 16px 90px; }
+  .screen { display: none; }
+  .screen.on { display: block; animation: fadeUp .4s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px);} to { opacity: 1; transform: none;} }
+
+  /* ============ accueil ============ */
+  .hero { max-width: 640px; margin: 34px auto 0; text-align: center; }
+  .hero h1 { font-family: 'Unbounded', 'Outfit', system-ui, sans-serif; font-weight: 900; font-size: clamp(26px, 5.6vw, 44px); line-height: 1.18; letter-spacing: -.5px; text-wrap: balance; }
+  .hero h1 em { font-style: normal; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero p.lead { margin: 18px auto 0; max-width: 480px; color: var(--dim); font-size: 16px; line-height: 1.65; font-weight: 400; }
+  .privacy {
+    display: inline-flex; align-items: center; gap: 8px; margin-top: 20px;
+    background: var(--glass); border: 1px solid var(--line); color: var(--dim);
+    font-size: 12.5px; font-weight: 600; padding: 9px 16px; border-radius: 999px;
+  }
+  .drop {
+    margin: 30px auto 0; max-width: 560px; padding: 36px 22px;
+    border: 1.5px dashed rgba(139,123,255,.45); border-radius: 24px;
+    background: var(--glass); cursor: pointer; transition: .2s; text-align: center;
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  }
+  .drop:hover, .drop.over { border-color: var(--violet); background: var(--glass-2); box-shadow: 0 0 40px rgba(139,123,255,.15); }
+  .drop .big { font-size: 34px; }
+  .drop h3 { margin-top: 10px; font-size: 16px; font-weight: 800; }
+  .drop p { margin-top: 6px; color: var(--faint); font-size: 13px; }
+  .row-alt { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 18px auto 0; max-width: 560px; }
+  .btn {
+    border: 0; cursor: pointer; font-family: 'Outfit', system-ui, sans-serif; font-weight: 800; font-size: 15px;
+    padding: 14px 24px; border-radius: 999px; transition: .18s; color: var(--ink);
+  }
+  .btn:active { transform: scale(.97); }
+  .btn.primary { background: var(--grad); color: #0a0c1c; box-shadow: 0 8px 28px rgba(107,111,255,.35); }
+  .btn.primary:hover { filter: brightness(1.1); }
+  .btn.ghost { background: var(--glass); border: 1px solid var(--line); }
+  .btn.ghost:hover { border-color: var(--violet); }
+  .btn.gold { background: linear-gradient(120deg, #e8c56b, #d0a44a); color: #241a05; box-shadow: 0 8px 28px rgba(232,197,107,.25); }
+  .btn:focus-visible { outline: 2px solid var(--violet); outline-offset: 3px; }
+
+  details.helper { max-width: 560px; margin: 22px auto 0; background: var(--glass); border-radius: 18px; border: 1px solid var(--line); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  details.helper summary { cursor: pointer; padding: 15px 18px; font-weight: 700; font-size: 14px; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+  details.helper summary::after { content: '＋'; color: var(--faint); }
+  details.helper[open] summary::after { content: '−'; }
+  details.helper .inner { padding: 0 18px 16px; color: var(--dim); font-size: 14px; line-height: 1.7; }
+  details.helper ol { padding-left: 20px; }
+  textarea#pasteBox {
+    width: 100%; min-height: 150px; margin-top: 10px; resize: vertical;
+    border: 1px solid var(--line); border-radius: 12px; background: rgba(0,0,0,.3);
+    color: var(--ink); font-family: 'Outfit', system-ui, sans-serif; font-size: 13px; padding: 12px; outline: none;
+  }
+  textarea#pasteBox:focus { border-color: var(--violet); }
+
+  .homegrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; max-width: 640px; margin: 42px auto 0; }
+  .why { background: var(--glass); border: 1px solid var(--line); border-radius: 18px; padding: 18px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  .why .e { font-size: 24px; }
+  .why h4 { margin-top: 8px; font-size: 14px; font-weight: 800; }
+  .why p { margin-top: 5px; font-size: 12.5px; color: var(--dim); line-height: 1.55; }
+  .err { max-width: 560px; margin: 14px auto 0; background: rgba(239,106,106,.14); border: 1px solid rgba(239,106,106,.4); color: #ffb3b3; border-radius: 14px; padding: 12px 16px; font-size: 13.5px; font-weight: 600; display: none; }
+
+  /* ============ setup / astro / quiz ============ */
+  .setup { max-width: 480px; margin: 34px auto 0; text-align: center; }
+  .setup h2 { font-family: 'Unbounded', 'Outfit', system-ui, sans-serif; font-weight: 700; font-size: 24px; }
+  .setup > p { margin-top: 10px; color: var(--dim); font-size: 15px; line-height: 1.6; }
+  .people { margin-top: 24px; display: flex; flex-direction: column; gap: 10px; }
+  .person {
+    display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+    background: var(--glass); border: 1.5px solid var(--line); border-radius: 16px;
+    cursor: pointer; transition: .15s; font-weight: 700; font-size: 15px; text-align: left;
+    font-family: 'Outfit', system-ui, sans-serif; color: var(--ink); width: 100%;
+  }
+  .person:hover { border-color: var(--violet); background: var(--glass-2); }
+  .person .av { width: 38px; height: 38px; border-radius: 50%; background: var(--grad); color: #0a0c1c; display: flex; align-items: center; justify-content: center; font-weight: 800; flex: none; }
+  .person .cnt { margin-left: auto; color: var(--faint); font-size: 12.5px; font-weight: 600; }
+  .note { margin-top: 16px; font-size: 12.5px; color: var(--faint); }
+
+  .birthrow { margin-top: 26px; display: flex; flex-direction: column; gap: 16px; text-align: left; }
+  .birth { background: var(--glass); border: 1px solid var(--line); border-radius: 18px; padding: 16px 18px; }
+  .birth label { display: block; font-size: 12px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+  .birth input[type=date] {
+    width: 100%; background: rgba(0,0,0,.3); border: 1px solid var(--line); border-radius: 12px;
+    color: var(--ink); font-family: 'Outfit', system-ui, sans-serif; font-weight: 600; font-size: 16px; padding: 12px 14px; outline: none;
+    color-scheme: dark;
+  }
+  .birth input[type=date]:focus { border-color: var(--gold); }
+  .birth .sign-live { margin-top: 8px; font-size: 13.5px; color: var(--dim); min-height: 18px; font-weight: 600; }
+
+  .quizq { margin-top: 26px; text-align: left; }
+  .quizq .qn { font-size: 11px; letter-spacing: 2px; color: var(--violet); font-weight: 800; text-transform: uppercase; }
+  .quizq h3 { margin-top: 6px; font-size: 19px; font-weight: 800; line-height: 1.4; }
+  .qopts { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .qopt {
+    padding: 15px 18px; border-radius: 16px; background: var(--glass); border: 1.5px solid var(--line);
+    cursor: pointer; font-family: 'Outfit', system-ui, sans-serif; font-weight: 700; font-size: 15px; color: var(--ink);
+    text-align: left; transition: .15s; width: 100%;
+  }
+  .qopt:hover { border-color: var(--violet); background: var(--glass-2); }
+
+  /* ============ STORY ============ */
+  #story {
+    position: fixed; inset: 0; z-index: 100; background: var(--bg0); display: none;
+    user-select: none; -webkit-user-select: none;
+  }
+  #story.on { display: block; }
+  .sprog { position: absolute; top: calc(10px + env(safe-area-inset-top)); left: 12px; right: 12px; display: flex; gap: 4px; z-index: 20; }
+  .sprog i { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,.18); overflow: hidden; position: relative; }
+  .sprog i::after { content: ''; position: absolute; inset: 0; background: #fff; transform: scaleX(0); transform-origin: left; }
+  .sprog i.done::after { transform: scaleX(1); }
+  .sprog i.cur::after { transform: scaleX(1); transition: transform .3s; }
+  .sclose { position: absolute; top: calc(22px + env(safe-area-inset-top)); right: 16px; z-index: 30; background: rgba(255,255,255,.12); border: 0; color: #fff; width: 34px; height: 34px; border-radius: 50%; font-size: 16px; cursor: pointer; }
+  .slide {
+    position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 70px 26px 60px; overflow: hidden;
+  }
+  .slide.on { display: flex; }
+  .slide > * { position: relative; z-index: 2; }
+  .slide .kicker { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--dim); font-weight: 800; }
+  .slide h2 { font-family: 'Unbounded', 'Outfit', system-ui, sans-serif; font-weight: 700; font-size: clamp(20px, 5.4vw, 32px); line-height: 1.3; margin-top: 14px; max-width: 560px; text-wrap: balance; }
+  .slide h2 em { font-style: normal; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .slide h2 .goldy { background: linear-gradient(120deg, #f2d489, #cfa245); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .slide .giant { font-family: 'Unbounded', 'Outfit', system-ui, sans-serif; font-weight: 900; font-size: clamp(56px, 17vw, 120px); line-height: 1; margin-top: 18px; }
+  .slide .giant small { font-size: .32em; font-weight: 700; color: var(--dim); }
+  .slide .sub { margin-top: 14px; color: var(--dim); font-size: 15.5px; line-height: 1.65; max-width: 480px; font-weight: 500; }
+  .slide .sub b { color: var(--ink); }
+  .fact { position: absolute; bottom: calc(26px + env(safe-area-inset-bottom)); left: 26px; right: 26px; font-size: 12px; color: var(--faint); line-height: 1.55; z-index: 2; }
+  /* halo doré derrière les grands glyphes (planète, lune) */
+  .orb { position: relative; }
+  .orb::before { content: ''; position: absolute; left: 50%; top: 50%; width: 240px; height: 240px;
+    transform: translate(-50%, -50%); border-radius: 50%; z-index: -1;
+    background: radial-gradient(circle, rgba(232,197,107,.30), rgba(139,123,255,.10) 55%, transparent 72%); }
+  /* aurores derrière les slides de la story */
+  .s-aurora { position: absolute !important; z-index: 1; }
+  .fact b { color: var(--dim); }
+  .reveal { opacity: 0; transform: translateY(16px); }
+  .slide.on .reveal { animation: rv .55s cubic-bezier(.2,.7,.2,1) forwards; }
+  .slide.on .reveal.d1 { animation-delay: .12s; } .slide.on .reveal.d2 { animation-delay: .28s; }
+  .slide.on .reveal.d3 { animation-delay: .46s; } .slide.on .reveal.d4 { animation-delay: .66s; }
+  @keyframes rv { to { opacity: 1; transform: none; } }
+
+  .duo-nums { display: flex; gap: 34px; justify-content: center; margin-top: 20px; }
+  .duo-nums .plabel { font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+  .plabel.you { color: #7ab1f2; } .plabel.other { color: #f090b4; }
+  .duo-nums .n { font-family: 'Unbounded', 'Outfit', system-ui, sans-serif; font-weight: 900; font-size: clamp(38px, 11vw, 72px); line-height: 1.05; margin-top: 6px; }
+  .duo-nums .s { color: var(--dim); font-size: 12.5px; margin-top: 4px; font-weight: 600; }
+
+  .prono { margin-top: 22px; display: inline-flex; align-items: center; gap: 8px; background: var(--glass); border: 1px solid var(--line); border-radius: 999px; padding: 9px 16px; font-size: 13.5px; font-weight: 700; color: var(--dim); }
+  .prono.win { border-color: rgba(67,214,143,.5); color: var(--flag-green); }
+  .prono.lose { border-color: rgba(239,106,106,.5); color: var(--flag-red); }
+
+  .smeter { width: min(420px, 82vw); margin-top: 16px; text-align: left; }
+  .smeter .mrow { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--dim); }
+  .smeter .track { height: 12px; border-radius: 999px; overflow: hidden; }
+  .smeter.you .track { background: var(--s-you-track); } .smeter.other .track { background: var(--s-other-track); }
+  .smeter .fill { height: 100%; width: 0; border-radius: 999px; transition: width 1.2s cubic-bezier(.2,.7,.2,1); }
+  .smeter.you .fill { background: var(--s-you); } .smeter.other .fill { background: var(--s-other); }
+  .smeter + .smeter { margin-top: 18px; }
+
+  .zodiac-duo { display: flex; gap: 22px; justify-content: center; margin-top: 24px; }
+  .zcard { background: var(--glass); border: 1px solid var(--line); border-radius: 20px; padding: 20px 22px; min-width: 128px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  .zcard .g { font-size: 44px; line-height: 1; }
+  .zcard .zn { margin-top: 10px; font-weight: 800; font-size: 15px; }
+  .zcard .ze { margin-top: 3px; font-size: 12px; color: var(--dim); font-weight: 600; }
+
+  .versus { display: flex; align-items: stretch; gap: 14px; justify-content: center; margin-top: 26px; flex-wrap: wrap; }
+  .vbox { border-radius: 22px; padding: 22px 26px; min-width: 150px; }
+  .vbox .vt { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; font-weight: 800; }
+  .vbox .vn { font-family: 'Unbounded', 'Outfit', system-ui, sans-serif; font-weight: 900; font-size: clamp(40px, 12vw, 66px); line-height: 1.05; margin-top: 8px; }
+  .vbox.astro { background: linear-gradient(160deg, rgba(232,197,107,.16), rgba(232,197,107,.05)); border: 1px solid rgba(232,197,107,.4); }
+  .vbox.astro .vt { color: var(--gold); }
+  .vbox.data { background: linear-gradient(160deg, rgba(90,139,255,.16), rgba(90,139,255,.05)); border: 1px solid rgba(90,139,255,.4); }
+  .vbox.data .vt { color: #7ab1f2; }
+  .vs-sep { align-self: center; font-family: 'Unbounded', 'Outfit', system-ui, sans-serif; font-weight: 900; font-size: 20px; color: var(--faint); }
+  @media (max-width: 520px){ .versus { flex-direction: column; align-items: center; } }
+
+  .flipwrap { margin-top: 22px; display: flex; flex-direction: column; gap: 12px; width: min(440px, 86vw); max-height: 46vh; overflow-y: auto; padding: 2px; }
+  .flip { perspective: 900px; cursor: pointer; }
+  /* pile grid : les deux faces occupent la même cellule, la hauteur suit le contenu le plus grand */
+  .flipin { display: grid; transform-style: preserve-3d; transition: transform .6s cubic-bezier(.3,.7,.3,1); min-height: 64px; }
+  .flip.onf .flipin { transform: rotateY(180deg); }
+  .fface { grid-area: 1 / 1; backface-visibility: hidden; border-radius: 16px; display: flex; align-items: center; gap: 10px; padding: 13px 16px; text-align: left; font-size: 13.5px; font-weight: 600; line-height: 1.45; }
+  .fface.back { background: linear-gradient(135deg, rgba(139,123,255,.2), rgba(139,123,255,.06)); border: 1px solid rgba(139,123,255,.4); justify-content: center; color: var(--dim); font-weight: 700; }
+  .fface.front { background: rgba(239,106,106,.1); border: 1px solid rgba(239,106,106,.35); transform: rotateY(180deg); color: var(--ink); }
+  .fface.front.green { background: rgba(67,214,143,.1); border-color: rgba(67,214,143,.35); }
+  .flip .fe { font-size: 18px; flex: none; }
+
+  .tarot {
+    margin-top: 24px; width: min(280px, 74vw); border-radius: 20px; padding: 26px 22px 22px;
+    background:
+      radial-gradient(120% 80% at 50% 0%, rgba(232,197,107,.14), transparent 60%),
+      linear-gradient(170deg, #191536, #0e0b22);
+    border: 1px solid rgba(232,197,107,.55);
+    box-shadow: 0 0 0 5px rgba(232,197,107,.07), 0 20px 60px rgba(0,0,0,.5);
+    position: relative;
+  }
+  .tarot::before { content: ''; position: absolute; inset: 7px; border: 1px solid rgba(232,197,107,.3); border-radius: 14px; pointer-events: none; }
+  .tarot .num { font-family: 'Unbounded', 'Outfit', system-ui, sans-serif; font-size: 12px; letter-spacing: 4px; color: var(--gold); font-weight: 700; }
+  .tarot .tg { font-size: 62px; line-height: 1.15; margin-top: 14px; }
+  .tarot .tname { font-family: 'Unbounded', 'Outfit', system-ui, sans-serif; font-weight: 700; font-size: 17px; margin-top: 14px; color: #f4e3b6; line-height: 1.35; text-wrap: balance; }
+  .tarot .ttag { margin-top: 10px; font-size: 13px; color: var(--dim); line-height: 1.6; font-weight: 500; }
+  .tarot .towner { margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(232,197,107,.2); font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold); font-weight: 800; }
+
+  .endbtns { margin-top: 26px; display: flex; flex-direction: column; gap: 11px; width: min(340px, 84vw); }
+  .tapzones { position: absolute; inset: 0; z-index: 10; display: flex; }
+  .tapzones .tz-l { width: 30%; } .tapzones .tz-r { width: 70%; }
+  /* les slides flottent AU-DESSUS des tapzones mais laissent passer les taps,
+     sauf sur les éléments interactifs (.no-adv, cartes à retourner, boutons) */
+  #slides { position: absolute; inset: 0; z-index: 15; pointer-events: none; }
+  #slides .no-adv, #slides [data-flip], #slides .endbtns .btn { pointer-events: auto; }
+  .taphint { position: absolute; bottom: calc(10px + env(safe-area-inset-bottom)); left: 0; right: 0; text-align: center; font-size: 10.5px; color: var(--faint); letter-spacing: 1px; z-index: 3; }
+
+  /* ============ rapport (grille) ============ */
+  .duo { text-align: center; margin: 14px auto 24px; }
+  .duo h2 { font-family: 'Unbounded', 'Outfit', system-ui, sans-serif; font-weight: 700; font-size: clamp(22px, 4.6vw, 34px); }
+  .duo h2 .you { color: #7ab1f2; } .duo h2 .other { color: #f090b4; }
+  .duo p { margin-top: 8px; color: var(--faint); font-size: 13.5px; }
+  .duo .btn { margin-top: 14px; }
+
+  .cards { columns: 1; column-gap: 14px; }
+  @media (min-width: 720px) { .cards { columns: 2; } }
+  @media (min-width: 1020px) { .cards { columns: 3; } }
+  .card {
+    break-inside: avoid; margin: 0 0 14px; padding: 22px; border-radius: 22px;
+    background: rgba(22,25,48,.72); border: 1px solid var(--line);
+    opacity: 0; transform: translateY(14px); transition: opacity .45s ease, transform .45s ease;
+  }
+  .card.seen { opacity: 1; transform: none; }
+  .card h3 { font-size: 15px; font-weight: 800; margin-bottom: 14px; letter-spacing: .2px; }
+  .card.astro { border-color: rgba(232,197,107,.4); background: linear-gradient(170deg, rgba(232,197,107,.09), rgba(232,197,107,.02)); }
+  .card.astro h3 { color: var(--gold); }
+  .card h3.red { color: var(--flag-red); } .card h3.greenf { color: var(--flag-green); }
+  .twocol { display: flex; justify-content: space-between; gap: 14px; }
+  .twocol > div { min-width: 0; }
+  .twocol .side-r { text-align: right; }
+  .bignum { font-family: 'Unbounded', 'Outfit', system-ui, sans-serif; font-size: clamp(24px, 3.6vw, 34px); font-weight: 900; line-height: 1.15; }
+  .subnum { font-size: 12px; color: var(--dim); margin-top: 4px; font-weight: 600; }
+  .quip { margin-top: 14px; font-size: 13px; line-height: 1.6; color: var(--dim); font-weight: 500; }
+  .msgquote { background: rgba(0,0,0,.25); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin-top: 10px; font-size: 14px; line-height: 1.55; word-break: break-word; }
+  .msgquote .meta { font-size: 11px; color: var(--faint); font-weight: 700; margin-bottom: 5px; text-transform: uppercase; letter-spacing: .5px; }
+  ul.flags { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  ul.flags li { display: flex; gap: 10px; font-size: 13.5px; line-height: 1.5; font-weight: 500; color: var(--dim); }
+  ul.flags li .fe { flex: none; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { background: rgba(0,0,0,.28); border: 1px solid var(--line); border-radius: 999px; padding: 7px 13px; font-size: 13px; font-weight: 700; }
+  .chip b { font-weight: 800; opacity: .5; margin-left: 4px; font-size: 11.5px; }
+  .emojirow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 6px; font-size: 22px; }
+  .emojirow .cnt { font-size: 11px; color: var(--faint); font-weight: 700; align-self: flex-end; margin-right: 8px; }
+  .meter { margin-top: 4px; }
+  .meter .track { height: 14px; border-radius: 999px; overflow: hidden; }
+  .meter.you .track { background: var(--s-you-track); } .meter.other .track { background: var(--s-other-track); }
+  .meter .fill { height: 100%; width: 0; border-radius: 999px; transition: width 1.1s cubic-bezier(.2,.7,.2,1); }
+  .meter.you .fill { background: var(--s-you); } .meter.other .fill { background: var(--s-other); }
+  .meter .mrow { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .meter .mtag { font-size: 12.5px; font-weight: 700; color: var(--dim); }
+  .meter + .meter { margin-top: 16px; }
+  .splitbar { display: flex; height: 28px; border-radius: 10px; overflow: hidden; gap: 2px; margin-top: 6px; }
+  .splitbar div { min-width: 0; }
+  .splitbar .a { background: var(--s-you); border-radius: 10px 4px 4px 10px; }
+  .splitbar .b { background: var(--s-other); border-radius: 4px 10px 10px 4px; }
+  .legend { display: flex; gap: 16px; margin-top: 10px; flex-wrap: wrap; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; color: var(--dim); }
+  .legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+  .legend .ky i { background: var(--s-you); } .legend .ko i { background: var(--s-other); }
+  .chart-wrap { position: relative; }
+  svg.chart { display: block; width: 100%; height: auto; }
+  .axis-t { font-size: 10.5px; fill: var(--faint); font-family: 'Outfit', sans-serif; }
+  #tip { position: fixed; z-index: 200; pointer-events: none; display: none;
+    background: #e9ebff; color: #12142a; font-size: 12px; font-weight: 600;
+    padding: 8px 11px; border-radius: 10px; max-width: 240px; line-height: 1.5;
+    box-shadow: 0 6px 20px rgba(0,0,0,.4); }
+  .heat { display: grid; grid-template-columns: 26px repeat(24, 1fr); gap: 2px; }
+  .heat .cell { aspect-ratio: 1; border-radius: 3px; min-width: 0; }
+  @supports not (aspect-ratio: 1) { .heat .cell { height: 11px; } }
+  .heat .dlab { font-size: 10px; color: var(--faint); font-weight: 700; display: flex; align-items: center; }
+  .heat-hours { display: grid; grid-template-columns: 26px repeat(24, 1fr); gap: 2px; margin-top: 4px; }
+  .heat-hours span { font-size: 9px; color: var(--faint); text-align: center; }
+  .heat-scale { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 11px; color: var(--faint); font-weight: 600; }
+  .heat-scale .grad { flex: 1; height: 8px; border-radius: 4px; }
+  details.tbl { margin-top: 12px; }
+  details.tbl summary { cursor: pointer; font-size: 12px; font-weight: 700; color: var(--faint); list-style: none; }
+  details.tbl summary::before { content: '▸ '; }
+  details.tbl[open] summary::before { content: '▾ '; }
+  details.tbl table { width: 100%; margin-top: 8px; border-collapse: collapse; font-size: 12px; }
+  details.tbl th, details.tbl td { text-align: right; padding: 4px 6px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; color: var(--dim); }
+  details.tbl th:first-child, details.tbl td:first-child { text-align: left; }
+  details.tbl th { color: var(--faint); font-weight: 700; }
+  input[type=range].mslider { width: 100%; accent-color: var(--violet); margin-top: 8px; }
+  .actions { position: sticky; bottom: 14px; margin-top: 20px; display: flex; gap: 10px; justify-content: center; z-index: 25; flex-wrap: wrap; }
+  .actions .btn { box-shadow: 0 8px 26px rgba(0,0,0,.5); }
+  @media (max-width: 480px){ .actions .btn { padding: 11px 15px; font-size: 13px; } }
+
+  /* ============ horoscope mensuel ============ */
+  .horolist { max-width: 620px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+  .horolist .card { opacity: 1; transform: none; }
+  .skynow { display: flex; flex-wrap: wrap; gap: 8px; }
+  .skynow span { background: rgba(0,0,0,.28); border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; font-size: 12.5px; font-weight: 700; color: var(--dim); }
+  .htrend { display: inline-block; background: linear-gradient(120deg, rgba(232,197,107,.18), rgba(232,197,107,.06)); border: 1px solid rgba(232,197,107,.45); color: var(--gold); border-radius: 999px; padding: 9px 16px; font-size: 13px; font-weight: 800; }
+  .card.link { cursor: pointer; transition: border-color .15s, transform .15s; }
+  .card.link:hover { border-color: var(--gold); transform: translateY(-2px); }
+
+  /* ============ modale image story ============ */
+  #imgModal { position: fixed; inset: 0; z-index: 400; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 14px; background: rgba(4,5,12,.9); padding: 20px; }
+  #imgModal.on { display: flex; }
+  #imgModal h3 { font-size: 16px; font-weight: 800; text-align: center; }
+  #imgModal img { max-height: 60vh; max-width: min(88vw, 330px); border-radius: 18px; border: 1px solid var(--line); box-shadow: 0 24px 80px rgba(0,0,0,.6); }
+  #imgModal .hint { font-size: 12px; color: var(--dim); text-align: center; max-width: 300px; line-height: 1.5; }
+  #imgModal .mrow2 { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .hnext { text-align: center; color: var(--faint); font-size: 12.5px; margin-top: 6px; line-height: 1.6; }
+
+  footer { position: relative; z-index: 1; text-align: center; padding: 30px 16px 40px; color: var(--faint); font-size: 12.5px; line-height: 1.7; }
+  footer b { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  @media print { .card { opacity: 1 !important; transform: none !important; } .actions, #stars, .aurora { display: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .card, .meter .fill, .smeter .fill, .flipin { transition: none; }
+    .slide.on .reveal { animation-duration: .01s; animation-delay: 0s !important; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="stars" aria-hidden="true"></canvas>
+<div class="aurora" aria-hidden="true"></div>
+
+<header>
+  <div class="logo display">AStrologIA</div>
+  <small>astro × data</small>
+  <nav class="langs" aria-label="Language">
+    <button data-lang="fr">FR</button><button data-lang="en">EN</button><button data-lang="es">ES</button>
+  </nav>
+</header>
+
+<div id="tip" role="status"></div>
+
+<div id="imgModal" role="dialog" aria-modal="true">
+  <h3 id="imTitle"></h3>
+  <img id="imImg" alt="Story AStrologIA" />
+  <p class="hint" id="imHint"></p>
+  <div class="mrow2">
+    <button class="btn gold" id="imShare"></button>
+    <button class="btn primary" id="imDl"></button>
+    <button class="btn ghost" id="imClose"></button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ================= ACCUEIL ================= -->
+  <section id="scr-home" class="screen on">
+    <div class="hero">
+      <h1 data-i18n="hero.h"></h1>
+      <p class="lead" data-i18n="hero.lead"></p>
+      <div class="privacy" data-i18n="hero.priv"></div>
+    </div>
+
+    <div class="drop" id="drop" role="button" tabindex="0">
+      <div class="big">🌠</div>
+      <h3 data-i18n="drop.h"></h3>
+      <p data-i18n="drop.p"></p>
+      <input type="file" id="file" accept=".txt,text/plain" hidden />
+    </div>
+    <div class="err" id="err"></div>
+
+    <div class="row-alt">
+      <button class="btn ghost" id="btnPaste" data-i18n="btn.paste"></button>
+      <button class="btn primary" id="btnDemo" data-i18n="btn.demo"></button>
+    </div>
+
+    <details class="helper">
+      <summary data-i18n="help1.s"></summary>
+      <div class="inner" data-i18n="help1.b"></div>
+    </details>
+
+    <details class="helper" id="pasteWrap">
+      <summary data-i18n="help2.s"></summary>
+      <div class="inner">
+        <textarea id="pasteBox" data-i18n-ph="paste.ph"></textarea>
+        <div style="margin-top:10px; text-align:right;">
+          <button class="btn primary" id="btnAnalyzePaste" data-i18n="btn.analyze"></button>
+        </div>
+      </div>
+    </details>
+
+    <div class="homegrid">
+      <div class="why"><div class="e">🔭</div><h4 data-i18n="why1.h"></h4><p data-i18n="why1.p"></p></div>
+      <div class="why"><div class="e">📖</div><h4 data-i18n="why2.h"></h4><p data-i18n="why2.p"></p></div>
+      <div class="why"><div class="e">🃏</div><h4 data-i18n="why3.h"></h4><p data-i18n="why3.p"></p></div>
+      <div class="why"><div class="e">🔒</div><h4 data-i18n="why4.h"></h4><p data-i18n="why4.p"></p></div>
+    </div>
+  </section>
+
+  <!-- ================= QUI ES-TU ================= -->
+  <section id="scr-setup" class="screen">
+    <div class="setup">
+      <h2 class="display" data-i18n="setup.h"></h2>
+      <p data-i18n="setup.p"></p>
+      <div class="people" id="peopleList"></div>
+      <p class="note" id="setupNote"></p>
+      <p class="note"><button class="btn ghost" id="btnBackHome" data-i18n="btn.back"></button></p>
+    </div>
+  </section>
+
+  <!-- ================= ASTRO ================= -->
+  <section id="scr-astro" class="screen">
+    <div class="setup">
+      <h2 class="display" data-i18n="astro.h"></h2>
+      <p data-i18n="astro.p"></p>
+      <div class="birthrow">
+        <div class="birth">
+          <label for="bdYou" data-i18n="astro.lyou"></label>
+          <input type="date" id="bdYou" min="1930-01-01" />
+          <div class="sign-live" id="signYou"></div>
+        </div>
+        <div class="birth">
+          <label for="bdOther" id="bdOtherLabel"></label>
+          <input type="date" id="bdOther" min="1930-01-01" />
+          <div class="sign-live" id="signOther"></div>
+        </div>
+      </div>
+      <p class="note" data-i18n="astro.note"></p>
+      <button class="btn gold" id="btnAstroGo" style="margin-top:20px;" data-i18n="astro.go"></button>
+    </div>
+  </section>
+
+  <!-- ================= QUIZ ================= -->
+  <section id="scr-quiz" class="screen">
+    <div class="setup">
+      <h2 class="display" data-i18n="quiz.h"></h2>
+      <p data-i18n="quiz.p"></p>
+      <div id="quizBox"></div>
+    </div>
+  </section>
+
+  <!-- ================= RAPPORT COMPLET ================= -->
+  <section id="scr-results" class="screen">
+    <div class="duo">
+      <h2 class="display"><span class="you" data-i18n="res.you"></span> &amp; <span class="other" id="otherName"></span></h2>
+      <p id="periodLine"></p>
+      <button class="btn primary" id="btnReplay" data-i18n="btn.replay"></button>
+    </div>
+    <div class="cards" id="cards"></div>
+    <div class="actions">
+      <button class="btn gold" id="btnImage" data-i18n="btn.image"></button>
+      <button class="btn primary" id="btnShare" data-i18n="btn.share"></button>
+      <button class="btn ghost" id="btnReset" data-i18n="btn.reset"></button>
+    </div>
+  </section>
+
+  <!-- ================= HOROSCOPE DU MOIS ================= -->
+  <section id="scr-horo" class="screen">
+    <div class="duo">
+      <h2 class="display" id="horoTitle"></h2>
+      <p id="horoSub"></p>
+    </div>
+    <div class="horolist" id="horoCards"></div>
+    <div class="actions">
+      <button class="btn gold" id="btnHoroShare"></button>
+      <button class="btn ghost" id="btnHoroBack"></button>
+    </div>
+  </section>
+
+</div>
+
+<!-- ================= STORY ================= -->
+<div id="story" aria-live="polite">
+  <div class="aurora s-aurora" aria-hidden="true"></div>
+  <div class="sprog" id="sprog"></div>
+  <button class="sclose" id="sclose" aria-label="Fermer la story">✕</button>
+  <div id="slides"></div>
+  <div class="tapzones"><div class="tz-l" id="tzL"></div><div class="tz-r" id="tzR"></div></div>
+  <div class="taphint" data-i18n="taphint"></div>
+</div>
+
+<footer>
+  <span data-i18n="footer.l1"></span><br/>
+  <span data-i18n="footer.l2"></span>
+</footer>
+
+<script src="i18n.js"></script>
+<script>
+"use strict";
+/* =========================================================
+   AStrologIA — astro × data, 100% client-side
+   ========================================================= */
+
+const $ = (s, el=document) => el.querySelector(s);
+const NBSP = ' ';
+const fmtN = n => n.toLocaleString(LOCALE);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+applyStaticI18n();
+document.querySelectorAll('.langs button').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
+
+let PARSED = null, YOU = null, OTHER = null, LAST_STATS = null;
+let ASTRO = null;            // { you:{sign...}, other:{...}, compat, ... }
+let QUIZ = { vol:null, resp:null, start:null };
+let GRID_RENDERED = false;
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  $('#'+id).classList.add('on');
+  window.scrollTo({top:0});
+}
+
+/* ---------------------- fond étoilé ---------------------- */
+(function stars(){
+  const cv = $('#stars'), ctx = cv.getContext('2d');
+  let pts = [];
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function resize(){
+    cv.width = innerWidth * devicePixelRatio; cv.height = innerHeight * devicePixelRatio;
+    cv.style.width = innerWidth+'px'; cv.style.height = innerHeight+'px';
+    pts = Array.from({length: Math.min(160, innerWidth/6)}, () => ({
+      x: Math.random()*cv.width, y: Math.random()*cv.height,
+      r: (Math.random()*1.1 + .3) * devicePixelRatio,
+      p: Math.random()*Math.PI*2, v: .4 + Math.random()*1.2
+    }));
+  }
+  function draw(t){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    for (const s of pts){
+      const a = reduced ? .6 : .25 + .55 * (0.5 + 0.5*Math.sin(s.p + t/1000*s.v));
+      ctx.globalAlpha = a;
+      ctx.fillStyle = '#cdd3ff';
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 7); ctx.fill();
+    }
+    // constellation-triangle avec Sirius au sommet — 💫 pour Shelly
+    const dpr = devicePixelRatio;
+    const ax = cv.width*.76, ay = cv.height*.115;          // Sirius (sommet)
+    const bx = cv.width*.655, by = cv.height*.245;
+    const cx2 = cv.width*.865, cy2 = cv.height*.225;
+    ctx.globalAlpha = .13; ctx.strokeStyle = '#8b7bff'; ctx.lineWidth = 1*dpr;
+    ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx,by); ctx.lineTo(cx2,cy2); ctx.closePath(); ctx.stroke();
+    ctx.globalAlpha = .5; ctx.fillStyle = '#cdd3ff';
+    ctx.beginPath(); ctx.arc(bx,by,1.4*dpr,0,7); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx2,cy2,1.4*dpr,0,7); ctx.fill();
+    const pulse = reduced ? .8 : .55 + .45*Math.sin(t/900);
+    const gl = ctx.createRadialGradient(ax,ay,0, ax,ay,14*dpr);
+    gl.addColorStop(0,'rgba(205,225,255,'+(.85*pulse)+')'); gl.addColorStop(1,'rgba(139,123,255,0)');
+    ctx.globalAlpha = 1; ctx.fillStyle = gl;
+    ctx.beginPath(); ctx.arc(ax,ay,14*dpr,0,7); ctx.fill();
+    ctx.fillStyle = '#eef4ff'; ctx.globalAlpha = .9*pulse + .1;
+    ctx.beginPath(); ctx.arc(ax,ay,2.2*dpr,0,7); ctx.fill();
+    ctx.globalAlpha = .55*pulse; ctx.strokeStyle = '#eef4ff'; ctx.lineWidth = .8*dpr;
+    ctx.beginPath(); ctx.moveTo(ax-7*dpr,ay); ctx.lineTo(ax+7*dpr,ay); ctx.moveTo(ax,ay-7*dpr); ctx.lineTo(ax,ay+7*dpr); ctx.stroke();
+    if (!reduced) requestAnimationFrame(draw);
+  }
+  addEventListener('resize', resize);
+  resize(); requestAnimationFrame(draw);
+})();
+
+/* ---------------------- parsing WhatsApp ---------------------- */
+const LINE_RE = /^[‎‏﻿\s]*\[?(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})(?:[,\s]+|\s+à\s+)(\d{1,2})[:h](\d{2})(?::(\d{2}))?\s*([APap])?\.?\s*[Mm]?\.?\]?\s*(?:-|–|—)?\s*(.*)$/;
+const MEDIA_RE = /<\s*(médias?\s+omis|media omitted|multimedia omitido|image absente|vidéo absente)\s*>|(image|video|vidéo|audio|sticker|gif|document|photo|contact card|imagen|documento)\s+(omitted|omise?|absente?|omitido|omitida)|\((fichier joint|file attached|archivo adjunto)\)/i;
+const DELETED_RE = /ce message a été supprimé|vous avez supprimé ce message|this message was deleted|you deleted this message|este mensaje fue eliminado|se eliminó este mensaje|eliminaste este mensaje/i;
+const SYSTEM_RE = /chiffr(é|ée|és)s? de bout en bout|end-to-end encrypted|cifrados de extremo a extremo|a créé le groupe|created group|creó el grupo|a changé (le sujet|l'icône|la description)|changed the (subject|group)|cambió el (asunto|ícono)|vous avez (rejoint|ajouté)|a ajouté|a quitté|left the group|añadió a|salió del grupo|code de sécurité|security code|código de seguridad|a changé de numéro|changed their phone number|cambió su número|messages éphémères|disappearing messages|mensajes temporales/i;
+
+function parseChat(text){
+  const lines = text.split(/\r?\n/);
+  const raw = [];
+  let cur = null;
+  for (const line of lines){
+    const m = line.match(LINE_RE);
+    if (m && m[8] !== undefined){
+      if (cur) raw.push(cur);
+      cur = { a:+m[1], b:+m[2], y:+m[3], h:+m[4], min:+m[5], ap:(m[7]||'').toUpperCase(), rest:m[8] };
+    } else if (cur){ cur.rest += '\n' + line; }
+  }
+  if (cur) raw.push(cur);
+  if (raw.length < 10) return null;
+  let dayFirst = true;
+  if (!raw.some(r => r.a > 12) && raw.some(r => r.b > 12)) dayFirst = false;
+  const messages = [];
+  const participants = new Map();
+  for (const r of raw){
+    const day = dayFirst ? r.a : r.b, mon = dayFirst ? r.b : r.a;
+    const year = r.y < 100 ? 2000 + r.y : r.y;
+    let h = r.h;
+    if (r.ap === 'P' && h < 12) h += 12;
+    if (r.ap === 'A' && h === 12) h = 0;
+    const d = new Date(year, mon - 1, day, h, r.min);
+    if (isNaN(d)) continue;
+    const rest = r.rest.replace(/[‎‏]/g, '');
+    const am = rest.match(/^([^:]{1,60}?):\s([\s\S]*)$/);
+    if (!am) continue;
+    const author = am[1].trim();
+    const body = am[2].trim();
+    if (SYSTEM_RE.test(body)) continue;
+    const media = MEDIA_RE.test(body);
+    const deleted = DELETED_RE.test(body);
+    messages.push({ d, author, text: (media||deleted) ? '' : body, media, deleted });
+    participants.set(author, (participants.get(author)||0) + 1);
+  }
+  if (messages.length < 10 || participants.size < 2) return null;
+  messages.sort((x,y) => x.d - y.d);
+  return { messages, participants };
+}
+
+/* ---------------------- démo ---------------------- */
+function buildDemo(){
+  let seed = 421;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const pick = a => a[Math.floor(rnd()*a.length)];
+  const YOU_TXT = DEMO_TXT[L].you, OTHER_TXT = DEMO_TXT[L].other_txt;
+  const DEMO_YOU = t('demo.you'), DEMO_OTHER = DEMO_TXT[L].other;
+  const msgs = [];
+  const start = new Date(2026, 0, 5);
+  for (let day = 0; day < 180; day++){
+    if (rnd() < 0.28) continue;
+    if (day > 60 && day < 74) continue;                 // ghosting de mars
+    const d0 = new Date(start); d0.setDate(d0.getDate() + day);
+    const nConv = rnd() < 0.25 ? 2 : 1;
+    for (let c = 0; c < nConv; c++){
+      const youStarts = rnd() < 0.78;
+      let t = new Date(d0); t.setHours(9 + Math.floor(rnd()*13), Math.floor(rnd()*60));
+      const n = 2 + Math.floor(rnd()*9);
+      let who = youStarts ? 'you' : 'other';
+      for (let i = 0; i < n; i++){
+        const you = who === 'you';
+        const author = you ? DEMO_YOU : DEMO_OTHER;
+        const deleted = !you && rnd() < 0.03;
+        const media = rnd() < 0.05;
+        msgs.push({ d: new Date(t), author, text: (deleted||media) ? '' : pick(you ? YOU_TXT : OTHER_TXT), media, deleted });
+        // le délai ajouté ici = temps de réponse du PROCHAIN auteur
+        const gapMin = you ? (5 + rnd()*rnd()*240) : (1 + rnd()*14);
+        t = new Date(t.getTime() + gapMin*60000);
+        if (you && rnd() < 0.22){ /* double text */ } else { who = you ? 'other' : 'you'; }
+      }
+    }
+  }
+  msgs.sort((a,b) => a.d - b.d);
+  const participants = new Map();
+  msgs.forEach(m => participants.set(m.author, (participants.get(m.author)||0)+1));
+  return { messages: msgs, participants };
+}
+
+/* ---------------------- astro ---------------------- */
+const SIGNS = [
+  { k:'cap', g:'♑', el:'earth', mod:'fix'  },
+  { k:'aqu', g:'♒', el:'air',   mod:'fix'  },
+  { k:'pis', g:'♓', el:'water', mod:'mut'  },
+  { k:'ari', g:'♈', el:'fire',  mod:'card' },
+  { k:'tau', g:'♉', el:'earth', mod:'fix'  },
+  { k:'gem', g:'♊', el:'air',   mod:'mut'  },
+  { k:'can', g:'♋', el:'water', mod:'card' },
+  { k:'leo', g:'♌', el:'fire',  mod:'fix'  },
+  { k:'vir', g:'♍', el:'earth', mod:'mut'  },
+  { k:'lib', g:'♎', el:'air',   mod:'card' },
+  { k:'sco', g:'♏', el:'water', mod:'fix'  },
+  { k:'sag', g:'♐', el:'fire',  mod:'mut'  },
+];
+SIGNS[0].mod = 'card'; // Capricorne est cardinal
+const EL_EMOJI = { fire:'🔥', earth:'🌱', air:'🌬️', water:'🌊' };
+const signName = s => t('z.' + s.k);
+const signFull = s => `${s.g} ${signName(s)}`;
+const ZBOUND = [[119,'cap'],[218,'aqu'],[320,'pis'],[419,'ari'],[520,'tau'],[620,'gem'],[722,'can'],[822,'leo'],[922,'vir'],[1022,'lib'],[1121,'sco'],[1221,'sag'],[1231,'cap']];
+function zodiac(date){
+  const md = (date.getMonth()+1)*100 + date.getDate();
+  const key = ZBOUND.find(b => md <= b[0])[1];
+  return SIGNS.find(s => s.k === key);
+}
+const EL_COMPAT = {
+  'fire-fire':78, 'earth-earth':80, 'air-air':76, 'water-water':82,
+  'fire-air':88, 'air-fire':88, 'earth-water':86, 'water-earth':86,
+  'fire-earth':52, 'earth-fire':52, 'fire-water':48, 'water-fire':48,
+  'air-earth':50, 'earth-air':50, 'air-water':54, 'water-air':54,
+};
+function astroCompat(a, b){
+  let score = EL_COMPAT[a.el + '-' + b.el] ?? 60;
+  if (a.mod === b.mod) score += (a.mod === 'mut' ? 4 : a.mod === 'fix' ? -8 : -6);
+  else score += 3;
+  if (a.k === b.k) score += 6;
+  const ia = SIGNS.findIndex(s=>s.k===a.k), ib = SIGNS.findIndex(s=>s.k===b.k);
+  score += ((ia*7 + ib*13) % 9) - 4;         // variation déterministe par paire
+  return Math.max(25, Math.min(98, score));
+}
+// phase de lune (approx. cycle synodique depuis la nouvelle lune du 6/1/2000)
+const SYNODIC = 29.530588;
+function moonAge(d){
+  const ref = new Date(2000, 0, 6, 18, 14);
+  let age = ((d - ref) / 86400e3) % SYNODIC;
+  if (age < 0) age += SYNODIC;
+  return age;
+}
+function moonPhase(d){
+  const age = moonAge(d);
+  const idx = Math.floor((age / SYNODIC) * 8 + .5) % 8;
+  return { emoji:['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'][idx], name: t('moon.' + idx) };
+}
+
+/* ---------------------- analyse ---------------------- */
+const STOPWORDS = new Set(("le la les un une des de du au aux et ou où mais donc or ni car que qui quoi dont quand comme si pour par avec sans sous sur dans chez vers entre pas plus moins très trop peu tout tous toute toutes rien jamais toujours aussi alors ainsi apres après avant bien encore deja déjà cette ce cet ces mon ma mes ton ta tes son sa ses notre votre leur nos vos leurs je tu il elle on nous vous ils elles moi toi lui eux se me te en y ne est es suis sommes etes êtes sont etait était etais étais ete été etre être avoir ai as a avons avez ont avais avait aura auras fait faire fais faisait vais vas va allez vont aller peux peut pouvez peuvent pouvait veux veut voulez veulent voulait dois doit devez doivent sais sait savez savent dit dire dis c'est cest j'ai jai t'es tes n'est nest qu'il quil qu'elle quelle d'un dun d'une dune l'ai lai m'a t'a s'est sest n'a na y'a ya ptn mdr mdrr mdrrr lol ptdr oui non ok okay oue ouais ouai nan si ça ca cela ceci celui celle " +
+"the and you for was are with this that have from not just but they what when your can out get got like know did don't dont i'm im it's its will would there here about because been being over then them these those she he him her his who how all any some more much than too very had has do does i've ive you're youre we're were can't cant didn't didnt that's thats going want yeah okay really think right one only now see say said tell time good well make made still even also should could our their let need am was " +
+"el la los las un una unos unas de del al y o u pero sino porque como cuando donde que quien cual cuyo para por con sin sobre entre hacia hasta desde muy mas más menos mucho poco todo toda todos todas nada nunca siempre tambien también entonces asi así antes despues después bien aun aún este esta estos estas ese esa esos esas aquel aquella mi mis tu tus su sus nuestro vuestra yo me te se nos os le les lo ella ellos ellas usted ustedes soy eres es somos sois son era eras fui fue estoy estas está estamos estan están estaba estar ser tengo tienes tiene tenemos teneis tienen tenia tenía hay habia había he has ha hemos han hago haces hace hacemos hacen hice hizo voy vas va vamos vais van iba ir puedo puedes puede podemos pueden podia podía quiero quieres quiere queremos quieren queria quería debo debes debe sé sabes sabe digo dices dice decimos dicen dije dijo jaja jajaja jeje sí si vale nada pues bueno").split(/\s+/));
+const LOVE_RE = /je\s*t'?aime|jtm|tu me manques|vous me manquez|mon c(?:œ|oe)ur|mon amour|ma vie|mon bb|bébé|i love you|love you|i miss you|miss you|my love|babe|sweetheart|te quiero|te amo|te extraño|te echo de menos|mi amor|mi vida|cariño|❤|🧡|💛|💚|💙|💜|🖤|🤍|💕|💞|💓|💗|💖|💘|💝|😍|🥰|😘/gi;
+const LAUGH_RE = /\bmdr+\b|\bptdr+\b|\blo+l\b|\blmaoo*\b|\blmfao\b|\brofl\b|haha+|ahah+|jaja+|jeje+|😂|🤣/gi;
+const EMOJI_RE = /\p{Extended_Pictographic}(?:️)?(?:‍\p{Extended_Pictographic}(?:️)?)*/gu;
+const CONVO_GAP = 3 * 3600e3, RESP_MAX = 12 * 3600e3, GHOST_GAP = 72 * 3600e3;
+
+function median(arr){
+  if (!arr.length) return null;
+  const s = [...arr].sort((a,b)=>a-b);
+  const mid = s.length >> 1;
+  return s.length % 2 ? s[mid] : (s[mid-1]+s[mid])/2;
+}
+function fmtDur(ms){
+  if (ms == null) return '—';
+  const m = Math.round(ms/60000);
+  if (m < 1) return t('dur.lt1');
+  if (m < 60) return m + NBSP + 'min';
+  const h = Math.floor(m/60), rm = m % 60;
+  if (h < 24) return h + NBSP + 'h' + (rm ? NBSP + String(rm).padStart(2,'0') : '');
+  const dd = Math.floor(h/24);
+  return dd + NBSP + (dd>1 ? t('dur.days') : t('dur.day')) + (h%24 ? ' ' + t('dur.and') + ' ' + (h%24) + NBSP + 'h' : '');
+}
+function fmtDate(d){ return d.toLocaleDateString(LOCALE, { day:'numeric', month:'long', year:'numeric' }); }
+
+function personShell(){
+  return { msgs:0, words:0, chars:0, media:0, deleted:0, questions:0, emojis:0,
+    dry:0, okOnly:0, starts:0, ends:0, doubleTexts:0, love:0, laughs:0, late:0,
+    respTimes:[], emojiMap:new Map(), wordMap:new Map(), longest:null, ghosted:0 };
+}
+
+function analyze(messages, you, other){
+  const P = { [you]: personShell(), [other]: personShell() };
+  const msgs = messages.filter(m => m.author === you || m.author === other);
+  const S = { you, other, msgs, P,
+    first: msgs[0], total: msgs.length,
+    daysSpan: Math.max(1, Math.round((msgs[msgs.length-1].d - msgs[0].d) / 86400e3)),
+    convos: 0, longestSilence: null, byMonth: new Map(), heat: Array.from({length:7},()=>new Array(24).fill(0)),
+    streak: 0, fullMoonMsgs: 0 };
+
+  let prev = null, prevDay = null, streak = 0;
+  for (const m of msgs){
+    const p = P[m.author];
+    p.msgs++;
+    if (m.media) p.media++;
+    if (m.deleted) p.deleted++;
+    const t = m.text;
+    if (t){
+      p.chars += t.length;
+      const words = t.toLowerCase().normalize('NFC').replace(/https?:\/\/\S+/g,'').match(/[\p{L}''-]{2,}/gu) || [];
+      p.words += words.length;
+      for (const w of words){
+        if (w.length >= 3 && !STOPWORDS.has(w)) p.wordMap.set(w, (p.wordMap.get(w)||0)+1);
+      }
+      if (t.includes('?')) p.questions++;
+      if (t.length < 5) p.dry++;
+      if (/^(ok+|okay|oui|non|ouais?|k|kk|yes|yeah?|nah|no|sí|si|vale|ya|lol|lmao|mdr+|jaja+|😂|👍)$/i.test(t.trim())) p.okOnly++;
+      const loves = t.match(LOVE_RE); if (loves) p.love += loves.length;
+      const laughs = t.match(LAUGH_RE); if (laughs) p.laughs += laughs.length;
+      const ems = t.match(EMOJI_RE);
+      if (ems){ p.emojis += ems.length; for (const e of ems) p.emojiMap.set(e, (p.emojiMap.get(e)||0)+1); }
+      if (!p.longest || words.length > p.longest.w) p.longest = { w: words.length, text: t, d: m.d };
+    }
+    const hr = m.d.getHours();
+    if (hr >= 23 || hr < 5) p.late++;
+    S.heat[(m.d.getDay()+6)%7][hr]++;
+    const age = moonAge(m.d);
+    if (age >= 13.77 && age <= 15.77) S.fullMoonMsgs++;   // pleine lune ± 1 jour
+
+    const mk = m.d.getFullYear() + '-' + String(m.d.getMonth()+1).padStart(2,'0');
+    if (!S.byMonth.has(mk)) S.byMonth.set(mk, { [you]:0, [other]:0 });
+    S.byMonth.get(mk)[m.author]++;
+
+    const dayKey = m.d.toDateString();
+    if (dayKey !== prevDay){
+      if (prevDay !== null){
+        const diff = Math.round((new Date(dayKey) - new Date(prevDay)) / 86400e3);
+        streak = diff === 1 ? streak + 1 : 1;
+      } else streak = 1;
+      S.streak = Math.max(S.streak, streak);
+      prevDay = dayKey;
+    }
+
+    if (prev){
+      const gap = m.d - prev.d;
+      if (gap > CONVO_GAP){
+        S.convos++; p.starts++; P[prev.author].ends++;
+        if (!S.longestSilence || gap > S.longestSilence.gap)
+          S.longestSilence = { gap, from: prev.d, to: m.d, broken: m.author, leftWaiting: prev.author };
+      } else if (prev.author !== m.author){
+        if (gap < RESP_MAX) p.respTimes.push(gap);
+      } else if (gap > 15*60000){
+        p.doubleTexts++;
+      }
+    } else { S.convos++; p.starts++; }
+    prev = m;
+  }
+  let pr = null;
+  for (const m of msgs){
+    if (pr && pr.author !== m.author && (m.d - pr.d) > GHOST_GAP) P[m.author].ghosted++;
+    pr = m;
+  }
+
+  for (const name of [you, other]){
+    const p = P[name];
+    p.respMedian = median(p.respTimes);
+    p.respMean = p.respTimes.length ? p.respTimes.reduce((a,b)=>a+b,0)/p.respTimes.length : null;
+    p.avgWords = p.msgs ? p.words / p.msgs : 0;
+    p.topWords = [...p.wordMap.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8);
+    p.topEmojis = [...p.emojiMap.entries()].sort((a,b)=>b[1]-a[1]).slice(0,6);
+  }
+
+  const totalStarts = P[you].starts + P[other].starts || 1;
+  for (const [name, otherName] of [[you, other],[other, you]]){
+    const p = P[name], o = P[otherName];
+    const respMin = p.respMedian != null ? p.respMedian/60000 : 600;
+    const speed = Math.max(0, Math.min(100, 100 - 30*Math.log10(respMin + 1)));
+    const initiative = p.starts / totalStarts * 100;
+    const lengthShare = (p.avgWords + o.avgWords) ? p.avgWords / (p.avgWords + o.avgWords) * 100 : 50;
+    const curiosity = Math.min(100, (p.questions / Math.max(1,p.msgs)) * 480);
+    const warmth = Math.min(100, ((p.love + p.emojis*0.15) / Math.max(1,p.msgs)) * 300);
+    const invest = Math.min(100, (p.doubleTexts / Math.max(1,p.msgs)) * 900);
+    p.interest = Math.round(speed*.30 + initiative*.24 + lengthShare*.16 + curiosity*.13 + warmth*.09 + invest*.08);
+  }
+
+  for (const name of [you, other]){
+    const p = P[name];
+    const fast = p.respMedian != null && p.respMedian < 30*60000;
+    const initShare = p.starts / totalStarts;
+    const dtRate = p.doubleTexts / Math.max(1, p.msgs);
+    const dryRate = p.dry / Math.max(1, p.msgs);
+    if (initShare > .62 && (dtRate > .06 || fast))
+      p.attach = { label: t('att.anx.l'), desc: t('att.anx.d') };
+    else if (!fast && (dryRate > .3 || initShare < .35))
+      p.attach = { label: t('att.avo.l'), desc: t('att.avo.d') };
+    else if (fast && initShare >= .45 && dtRate > .05)
+      p.attach = { label: t('att.fus.l'), desc: t('att.fus.d') };
+    else
+      p.attach = { label: t('att.sec.l'), desc: t('att.sec.d') };
+  }
+
+  // -------- red / green flags --------
+  const flags = [], greens = [];
+  const py = P[you], po = P[other];
+  const oShort = other.split(' ')[0];
+  if (po.respMedian != null && po.respMedian > 3*3600e3)
+    flags.push(['🐌', t('rf.slow', { name: oShort, dur: fmtDur(po.respMedian) }), 'slow']);
+  if (po.dry / Math.max(1,po.msgs) > .28)
+    flags.push(['🏜️', t('rf.dry', { p: Math.round(po.dry/po.msgs*100) }), 'dry']);
+  if (py.starts / totalStarts > .7)
+    flags.push(['📣', t('rf.starts', { p: Math.round(py.starts/totalStarts*100) }), 'starts']);
+  if (po.ghosted >= 2)
+    flags.push(['👻', t('rf.ghost', { name: oShort, n: po.ghosted }), 'ghost']);
+  if (po.deleted >= 5 || po.deleted / Math.max(1,po.msgs) > .02)
+    flags.push(['🗑️', t('rf.del', { n: fmtN(po.deleted) }), 'del']);
+  if (py.avgWords > 0 && po.avgWords > 0 && py.avgWords / po.avgWords > 2.2)
+    flags.push(['📏', t('rf.len', { r: (py.avgWords/po.avgWords).toFixed(1) }), 'len']);
+  if (py.questions >= 10 && py.questions > 3 * Math.max(1, po.questions))
+    flags.push(['❓', t('rf.q', { a: fmtN(py.questions), b: fmtN(po.questions), name: oShort }), 'q']);
+  if (po.okOnly / Math.max(1,po.msgs) > .15)
+    flags.push(['🧊', t('rf.ok', { n: fmtN(po.okOnly) }), 'ok']);
+  if (po.late / Math.max(1,po.msgs) > .4 && po.msgs > 20)
+    flags.push(['🌙', t('rf.late', { p: Math.round(po.late/po.msgs*100) }), 'late']);
+  if (py.doubleTexts / Math.max(1,py.msgs) > .12)
+    flags.push(['📱', t('rf.dt', { n: fmtN(py.doubleTexts) }), 'dt']);
+
+  if (py.respMedian != null && po.respMedian != null && py.respMedian < 30*60000 && po.respMedian < 30*60000)
+    greens.push(['⚡', t('gf.fast'), 'fast']);
+  const initBalance = py.starts / totalStarts;
+  if (initBalance >= .4 && initBalance <= .6)
+    greens.push(['⚖️', t('gf.bal'), 'bal']);
+  if (py.love >= 5 && po.love >= 5)
+    greens.push(['💌', t('gf.love', { n: fmtN(py.love + po.love) }), 'love']);
+  if (py.questions / Math.max(1,py.msgs) > .08 && po.questions / Math.max(1,po.msgs) > .08)
+    greens.push(['🎙️', t('gf.q'), 'q']);
+  if (S.streak >= 14)
+    greens.push(['🔥', t('gf.streak', { n: S.streak }), 'streak']);
+  const volShare = py.msgs / S.total;
+  if (volShare >= .45 && volShare <= .55)
+    greens.push(['🤝', t('gf.vol'), 'vol']);
+  if (py.laughs + po.laughs > S.total * .1)
+    greens.push(['😂', t('gf.laugh', { n: fmtN(py.laughs + po.laughs) }), 'laugh']);
+
+  S.flags = flags; S.greens = greens;
+
+  let score = Math.round((py.interest + po.interest) / 2 + greens.length * 3 - flags.length * 4);
+  score = Math.max(3, Math.min(99, score));
+  S.score = score;
+  S.verdictPhrase = t(score >= 80 ? 'verd.80' : score >= 65 ? 'verd.65' : score >= 50 ? 'verd.50' : score >= 35 ? 'verd.35' : 'verd.0');
+
+  // -------- archétypes --------
+  S.archYou = archetype(py, po, totalStarts);
+  S.archOther = archetype(po, py, totalStarts);
+  return S;
+}
+
+function archetype(p, o, totalStarts){
+  const initShare = p.starts / totalStarts;
+  const fast = p.respMedian != null && p.respMedian < 30*60000;
+  const dryRate = p.dry / Math.max(1, p.msgs);
+  const loveRate = p.love / Math.max(1, p.msgs);
+  const lateRate = p.late / Math.max(1, p.msgs);
+  const mk = (num, g, key) => ({ num, g, name: t('arch.'+key+'.n'), tag: t('arch.'+key+'.t') });
+  if (p.ghosted >= 2 || (!fast && initShare < .3)) return mk('XIII','👻','ghost');
+  if (dryRate > .3) return mk('VII','🪨','dry');
+  if (initShare > .62 && p.doubleTexts / Math.max(1,p.msgs) > .06) return mk('II','🌀','anx');
+  if (loveRate > .05 && fast) return mk('XIX','☀️','sun');
+  if (p.avgWords > 14 && loveRate > .01) return mk('XVIII','🌙','poet');
+  if (lateRate > .35) return mk('XV','🦇','noct');
+  return mk('XI','⚖️','bal');
+}
+
+/* ---------------------- planète dominante & horoscope ---------------------- */
+function dominantPlanet(S){
+  const { P, you, other } = S;
+  const py = P[you], po = P[other];
+  const per100 = v => v / Math.max(1, S.total) * 100;
+  const P_ = k => ({ n: t('pl.'+k+'.n'), d: t('pl.'+k+'.d') });
+  const cand = [
+    { ...P_('mer'), g:'☿', v: Math.min(100, (py.words + po.words) / Math.max(1, S.daysSpan) / 2) },
+    { ...P_('ven'), g:'♀', v: per100(py.love + po.love) * 12 },
+    { ...P_('mar'), g:'♂', v: per100(py.doubleTexts + po.doubleTexts) * 14 },
+    { ...P_('jup'), g:'♃', v: per100(py.laughs + po.laughs) * 8 },
+    { ...P_('sat'), g:'♄', v: (po.respMedian ?? 0) / 3600e3 * 9 + (py.ghosted + po.ghosted) * 18 },
+    { ...P_('moon'), g:'☾', v: per100(py.late + po.late) * 2.2 },
+    { ...P_('plu'), g:'♇', v: per100(py.deleted + po.deleted) * 30 },
+  ];
+  cand.sort((a,b)=>b.v-a.v);
+  return cand[0];
+}
+function coupleHoroscope(S, A){
+  const po = S.P[S.other];
+  const oShort = S.other.split(' ')[0];
+  const s1 = t('horo.s1', { a: signName(A.you.sign), b: signName(A.other.sign),
+    x: t(A.compat >= 70 ? 'horo.s1.hi' : A.compat >= 50 ? 'horo.s1.mid' : 'horo.s1.lo') });
+  const s2 = po.respMedian != null && po.respMedian > 2*3600e3
+    ? t('horo.s2slow', { name: oShort, dur: fmtDur(po.respMedian) })
+    : t('horo.s2fast');
+  const s3 = S.flags.length > S.greens.length
+    ? t('horo.s3bad', { n: S.flags.length })
+    : t('horo.s3good', { n: S.greens.length });
+  return `${s1} ${s2} ${s3}`;
+}
+
+/* ---------------------- graphiques ---------------------- */
+const RAMP_DARK = ['#16283f','#1d3a5f','#25507f','#2f6bab','#3987e5','#6da7ec','#9ec5f4','#cde2fb'];
+const tip = $('#tip');
+function tipShow(html, x, y){
+  tip.innerHTML = html; tip.style.display = 'block';
+  const r = tip.getBoundingClientRect();
+  tip.style.left = Math.min(innerWidth - r.width - 8, Math.max(8, x + 14)) + 'px';
+  tip.style.top = Math.max(8, y - r.height - 12) + 'px';
+}
+function tipHide(){ tip.style.display = 'none'; }
+
+function drawTimeline(S){
+  const wrap = $('#chartTime'); if (!wrap) return;
+  const { you, other } = S;
+  const keys = [...S.byMonth.keys()].sort();
+  if (keys.length < 2){ wrap.innerHTML = `<p class="quip">${t('g.time.short')}</p>`; return; }
+  const data = keys.map(k => ({ k, y: S.byMonth.get(k)[you]||0, o: S.byMonth.get(k)[other]||0 }));
+  const max = Math.max(...data.map(d => Math.max(d.y, d.o)), 1);
+  const W = 600, H = 240, padL = 36, padR = 14, padT = 12, padB = 28;
+  const iw = W - padL - padR, ih = H - padT - padB;
+  const X = i => padL + i * iw / (keys.length - 1);
+  const Y = v => padT + ih - v / max * ih;
+  const line = f => data.map((d,i) => `${i?'L':'M'}${X(i).toFixed(1)},${Y(f(d)).toFixed(1)}`).join('');
+  const monthLabel = k => { const [y,m] = k.split('-'); return MONTHS_S[+m-1] + ' ' + y.slice(2); };
+  const tickEvery = Math.max(1, Math.ceil(keys.length / 6));
+  const yTicks = [0, Math.round(max/2), max];
+  const cy = getComputedStyle(document.documentElement).getPropertyValue('--s-you').trim();
+  const co = getComputedStyle(document.documentElement).getPropertyValue('--s-other').trim();
+
+  wrap.innerHTML = `
+    <div class="legend" style="margin:0 0 10px;"><span class="ky"><i></i>${t('word.you')}</span><span class="ko"><i></i>${esc(other)}</span></div>
+    <svg class="chart" viewBox="0 0 ${W} ${H}" aria-label="${t('chart.aria')}">
+      ${yTicks.map(v => `<line x1="${padL}" y1="${Y(v)}" x2="${W-padR}" y2="${Y(v)}" stroke="var(--grid)" stroke-width="1"/><text class="axis-t" x="${padL-6}" y="${Y(v)+3}" text-anchor="end">${fmtN(v)}</text>`).join('')}
+      ${data.map((d,i) => i % tickEvery ? '' : `<text class="axis-t" x="${X(i)}" y="${H-8}" text-anchor="middle">${monthLabel(d.k)}</text>`).join('')}
+      <path d="${line(d=>d.y)}" fill="none" stroke="${cy}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="${line(d=>d.o)}" fill="none" stroke="${co}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <circle cx="${X(keys.length-1)}" cy="${Y(data[data.length-1].y)}" r="4" fill="${cy}" stroke="var(--chart-surface)" stroke-width="2"/>
+      <circle cx="${X(keys.length-1)}" cy="${Y(data[data.length-1].o)}" r="4" fill="${co}" stroke="var(--chart-surface)" stroke-width="2"/>
+      <line id="xhair" x1="0" y1="${padT}" x2="0" y2="${padT+ih}" stroke="var(--faint)" stroke-width="1" visibility="hidden"/>
+      <rect id="hitzone" x="${padL}" y="0" width="${iw}" height="${H}" fill="transparent"/>
+    </svg>
+    <details class="tbl"><summary>${t('g.tbl')}</summary>
+      <table><thead><tr><th>${t('g.tbl.month')}</th><th>${t('word.you')}</th><th>${esc(other)}</th></tr></thead><tbody>
+      ${data.map(d => `<tr><td>${monthLabel(d.k)}</td><td>${fmtN(d.y)}</td><td>${fmtN(d.o)}</td></tr>`).join('')}
+      </tbody></table>
+    </details>`;
+
+  const svg = wrap.querySelector('svg'), hz = wrap.querySelector('#hitzone'), xh = wrap.querySelector('#xhair');
+  const move = ev => {
+    const pt = svg.createSVGPoint();
+    const e = ev.touches ? ev.touches[0] : ev;
+    pt.x = e.clientX; pt.y = e.clientY;
+    const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+    const i = Math.max(0, Math.min(keys.length-1, Math.round((p.x - padL) / (iw / (keys.length-1)))));
+    xh.setAttribute('x1', X(i)); xh.setAttribute('x2', X(i)); xh.setAttribute('visibility','visible');
+    tipShow(`<b>${monthLabel(keys[i])}</b><br/>${t('word.you')} : ${fmtN(data[i].y)}<br/>${esc(other)} : ${fmtN(data[i].o)}`, e.clientX, e.clientY);
+  };
+  hz.addEventListener('mousemove', move);
+  hz.addEventListener('touchstart', move, {passive:true});
+  hz.addEventListener('touchmove', move, {passive:true});
+  hz.addEventListener('mouseleave', () => { xh.setAttribute('visibility','hidden'); tipHide(); });
+  hz.addEventListener('touchend', () => { xh.setAttribute('visibility','hidden'); tipHide(); });
+}
+
+function drawHeatmap(S){
+  const wrap = $('#chartHeat'); if (!wrap) return;
+  const ramp = RAMP_DARK;
+  const days = DAYS_S;
+  const max = Math.max(1, ...S.heat.flat());
+  let cells = '';
+  for (let d = 0; d < 7; d++){
+    cells += `<div class="dlab">${days[d]}</div>`;
+    for (let h = 0; h < 24; h++){
+      const v = S.heat[d][h];
+      const color = v === 0 ? 'var(--grid)' : ramp[Math.min(ramp.length-1, Math.floor(v / max * (ramp.length - .01)))];
+      cells += `<div class="cell" style="background:${color}" data-d="${d}" data-h="${h}" data-v="${v}"></div>`;
+    }
+  }
+  const hourLabels = Array.from({length:24}, (_,h) => `<span>${h % 6 === 0 ? h + 'h' : ''}</span>`).join('');
+  const perDay = S.heat.map(row => row.reduce((a,b)=>a+b,0));
+  const busiest = perDay.indexOf(Math.max(...perDay));
+  const perHour = Array.from({length:24},(_,h)=>S.heat.reduce((a,row)=>a+row[h],0));
+  const peakHour = perHour.indexOf(Math.max(...perHour));
+
+  wrap.innerHTML = `
+    <div class="heat">${cells}</div>
+    <div class="heat-hours"><span></span>${hourLabels}</div>
+    <div class="heat-scale"><span>0</span><div class="grad" style="background:linear-gradient(90deg, ${ramp.join(',')});"></div><span>${fmtN(max)}</span></div>
+    <p class="quip">${t('g.heat.peak', { d: DAYS_L[busiest], h: peakHour })}</p>
+    <details class="tbl"><summary>${t('g.tbl')}</summary>
+      <table><thead><tr><th>${t('g.tbl.day')}</th><th>${t('g.tbl.msgs')}</th></tr></thead><tbody>
+      ${days.map((d,i)=>`<tr><td>${d}</td><td>${fmtN(perDay[i])}</td></tr>`).join('')}
+      </tbody></table>
+    </details>`;
+
+  wrap.querySelector('.heat').addEventListener('mousemove', ev => {
+    const c = ev.target.closest('.cell'); if (!c){ tipHide(); return; }
+    tipShow(`<b>${days[+c.dataset.d]} ${c.dataset.h}h</b> — ${fmtN(+c.dataset.v)} ${t('g.msgs')}`, ev.clientX, ev.clientY);
+  });
+  wrap.querySelector('.heat').addEventListener('mouseleave', tipHide);
+}
+
+/* ---------------------- compteurs & apparitions ---------------------- */
+function countUp(el){
+  const target = +el.dataset.count;
+  const suffix = el.querySelector('small')?.outerHTML || '';
+  const t0 = performance.now(), dur = 900;
+  const step = now => {
+    const k = Math.min(1, (now - t0)/dur), e = 1 - Math.pow(1-k, 3);
+    el.innerHTML = fmtN(Math.round(target * e)) + suffix;
+    if (k < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+function animateIn(root=document){
+  const io = new IntersectionObserver(entries => {
+    for (const en of entries){
+      if (!en.isIntersecting) continue;
+      en.target.classList.add('seen');
+      en.target.querySelectorAll('[data-count]').forEach(el => countUp(el));
+      en.target.querySelectorAll('.fill[data-w]').forEach(el => { el.style.width = el.dataset.w + '%'; });
+      io.unobserve(en.target);
+    }
+  }, { threshold: .15 });
+  root.querySelectorAll('.card').forEach(c => io.observe(c));
+}
+
+/* =========================================================
+   STORY ENGINE
+   ========================================================= */
+const FACTS = [t('fact1'), t('fact2'), t('fact3'), t('fact4'), t('fact5'), t('fact6')];
+let SLIDES = [], sIdx = 0;
+
+function buildSlides(S, A){
+  const { you, other, P } = S;
+  const py = P[you], po = P[other];
+  const oShort = esc(other.split(' ')[0]);
+  const oFull = esc(other);
+  const totalStarts = py.starts + po.starts || 1;
+  const pyPct = Math.round(py.starts/totalStarts*100);
+  const YOU_W = t('word.you');
+  const sl = [];
+  const prono = (guess, actual, labels) => guess == null ? '' :
+    `<div class="prono reveal d3 ${guess === actual ? 'win' : 'lose'}">${guess === actual ? t('prono.win') : t('prono.lose', { g: esc(labels[guess]) })}</div>`;
+
+  // 1 — intro
+  sl.push(`<p class="kicker reveal">${t('s.intro.k')}</p>
+    <h2 class="reveal d1">${t('s.intro.h', { name: oFull })}</h2>
+    <p class="sub reveal d2">${t('s.intro.sub', { n: fmtN(S.total), d: fmtN(S.daysSpan), c: fmtN(S.convos) })}</p>
+    <div class="fact reveal d4">${FACTS[4]}</div>`);
+
+  // 2 — volume + prono
+  const volWinner = py.msgs === po.msgs ? 'equal' : (py.msgs > po.msgs ? 'you' : 'other');
+  sl.push(`<p class="kicker reveal">${t('s.vol.k')}</p>
+    <div class="duo-nums">
+      <div class="reveal d1"><div class="plabel you">${YOU_W}</div><div class="n" data-scount="${py.msgs}">0</div><div class="s">${t('s.vol.words', { n: fmtN(py.words) })}</div></div>
+      <div class="reveal d2"><div class="plabel other">${oShort}</div><div class="n" data-scount="${po.msgs}">0</div><div class="s">${t('s.vol.words', { n: fmtN(po.words) })}</div></div>
+    </div>
+    ${prono(QUIZ.vol, volWinner, { you: t('quiz.q1.you'), other: oShort, equal: t('quiz.q1.eq') })}
+    <p class="sub reveal d4">${volWinner === 'you' ? t('s.vol.you') : volWinner === 'other' ? t('s.vol.other', { name: oShort }) : t('s.vol.eq')}</p>`);
+
+  // 3 — temps de réponse + prono
+  const respBucket = ms => ms == null ? 'slow' : ms < 15*60000 ? 'fast' : ms < 2*3600e3 ? 'mid' : 'slow';
+  sl.push(`<p class="kicker reveal">${t('s.resp.k')}</p>
+    <h2 class="reveal d1">${t('s.resp.h')}</h2>
+    <div class="duo-nums">
+      <div class="reveal d2"><div class="plabel you">${YOU_W}</div><div class="n" style="font-size:clamp(24px,7vw,44px);">${fmtDur(py.respMedian)}</div></div>
+      <div class="reveal d2"><div class="plabel other">${oShort}</div><div class="n" style="font-size:clamp(24px,7vw,44px);">${fmtDur(po.respMedian)}</div></div>
+    </div>
+    ${prono(QUIZ.resp, respBucket(py.respMedian), { fast: t('quiz.q2.fast'), mid: t('quiz.q2.mid'), slow: t('quiz.q2.slow') })}
+    <p class="sub reveal d4">${(po.respMedian??0) > (py.respMedian??1)*3 ? t('s.resp.fast', { x: Math.max(2,Math.round((po.respMedian??1)/(py.respMedian||1))), name: oShort }) : t('s.resp.even')}</p>
+    <div class="fact reveal d4">${FACTS[0]}</div>`);
+
+  // 4 — qui démarre + prono
+  const startWinner = pyPct > 55 ? 'you' : pyPct < 45 ? 'other' : 'equal';
+  sl.push(`<p class="kicker reveal">${t('s.start.k')}</p>
+    <h2 class="reveal d1">${t('s.start.h')}</h2>
+    <div class="giant reveal d2">${pyPct}<small>${t('s.start.unit')}</small></div>
+    ${prono(QUIZ.start, startWinner, { you: t('quiz.q3.you'), other: oShort, equal: t('quiz.q3.eq') })}
+    <p class="sub reveal d4">${pyPct > 70 ? t('s.start.dead') : pyPct < 30 ? t('s.start.hunt', { name: oShort }) : t('s.start.bal')}</p>`);
+
+  // 5 — intérêt
+  sl.push(`<p class="kicker reveal">${t('s.int.k')}</p>
+    <h2 class="reveal d1">${t('s.int.h')}</h2>
+    <div class="smeter you reveal d2"><div class="mrow"><span>${YOU_W}</span><span>${py.interest}/100</span></div><div class="track"><div class="fill" data-sw="${py.interest}"></div></div></div>
+    <div class="smeter other reveal d3"><div class="mrow"><span>${oShort}</span><span>${po.interest}/100</span></div><div class="track"><div class="fill" data-sw="${po.interest}"></div></div></div>
+    <p class="sub reveal d4">${Math.abs(py.interest-po.interest) > 25 ? t('s.int.gap') : t('s.int.same')}</p>`);
+
+  // 6 — grand silence
+  if (S.longestSilence){
+    const ls = S.longestSilence;
+    sl.push(`<p class="kicker reveal">${t('s.sil.k')}</p>
+      <h2 class="reveal d1">${t('s.sil.h')}</h2>
+      <div class="giant reveal d2" style="font-size:clamp(34px,9vw,64px);">${fmtDur(ls.gap)}</div>
+      <p class="sub reveal d3">${t('s.sil.sub', { a: fmtDate(ls.from), b: fmtDate(ls.to), w: ls.broken === you ? YOU_W : oShort })}</p>
+      ${po.ghosted ? `<p class="sub reveal d4">${t('s.sil.ghost', { name: oShort, n: po.ghosted })}</p>` : ''}`);
+  }
+
+  // 7 — signes astro
+  sl.push(`<p class="kicker reveal">${t('s.sign.k')}</p>
+    <h2 class="reveal d1">${t('s.sign.h')}</h2>
+    <div class="zodiac-duo">
+      <div class="zcard reveal d2"><div class="g">${A.you.sign.g}</div><div class="zn">${signName(A.you.sign)}</div><div class="ze">${EL_EMOJI[A.you.sign.el]} ${t('el.'+A.you.sign.el)} · ${t('mod.'+A.you.sign.mod)}</div></div>
+      <div class="zcard reveal d3"><div class="g">${A.other.sign.g}</div><div class="zn">${signName(A.other.sign)}</div><div class="ze">${EL_EMOJI[A.other.sign.el]} ${t('el.'+A.other.sign.el)} · ${t('mod.'+A.other.sign.mod)}</div></div>
+    </div>
+    <p class="sub reveal d4">${A.you.sign.el === A.other.sign.el ? t('s.sign.same') : (EL_COMPAT[A.you.sign.el+'-'+A.other.sign.el]||0) >= 80 ? t('s.sign.comp') : t('s.sign.clash')}</p>`);
+
+  // 8 — LE DUEL (slide signature)
+  sl.push(`<p class="kicker reveal">${t('s.duel.k')}</p>
+    <h2 class="reveal d1">${t('s.duel.h')}</h2>
+    <div class="versus">
+      <div class="vbox astro reveal d2"><div class="vt">${t('s.duel.a')}</div><div class="vn" data-scount="${A.compat}">0</div></div>
+      <div class="vs-sep reveal d3">VS</div>
+      <div class="vbox data reveal d3"><div class="vt">${t('s.duel.d')}</div><div class="vn" data-scount="${S.score}">0</div></div>
+    </div>
+    <p class="sub reveal d4"><b>${Math.abs(A.compat - S.score) <= 12 ? t('s.duel.right') : A.compat > S.score ? t('s.duel.lie') : t('s.duel.beat')}</b></p>
+    <div class="fact reveal d4">${FACTS[4]}</div>`);
+
+  // 9 — planète dominante
+  const planet = dominantPlanet(S);
+  sl.push(`<p class="kicker reveal">${t('s.planet.k')}</p>
+    <h2 class="reveal d1">${t('s.planet.h')}</h2>
+    <div class="giant orb reveal d2" style="font-size:clamp(60px,20vw,110px); color:#f4e3b6;">${planet.g}</div>
+    <h2 class="reveal d3" style="margin-top:6px;"><span class="goldy">${planet.n}</span></h2>
+    <p class="sub reveal d4">${t('s.planet.sub', { d: esc(planet.d) })}</p>`);
+
+  // 10 — pleine lune
+  const fmShare = S.fullMoonMsgs / Math.max(1, S.total);
+  const fmExpected = 2 / SYNODIC;
+  const firstPhase = moonPhase(S.first.d);
+  sl.push(`<p class="kicker reveal">${t('s.moon.k')}</p>
+    <h2 class="reveal d1">${t('s.moon.h')}</h2>
+    <div class="giant orb reveal d2" style="font-size:clamp(50px,16vw,90px);">${firstPhase.emoji}</div>
+    <p class="sub reveal d3">${t('s.moon.first', { p: firstPhase.name, d: fmtDate(S.first.d) })}</p>
+    <p class="sub reveal d4">${fmShare > fmExpected * 1.3 ? t('s.moon.wolf', { p: Math.round(fmShare*100) }) : t('s.moon.sci')}</p>
+    <div class="fact reveal d4">${FACTS[5]}</div>`);
+
+  // 11 — red flags interactifs
+  const rf = S.flags.slice(0, 5);
+  sl.push(`<p class="kicker reveal">${t('s.rf.k')}</p>
+    <h2 class="reveal d1">${rf.length ? t(S.flags.length > 1 ? 's.rf.h.pl' : 's.rf.h.sg', { n: fmtN(S.flags.length) }) : t('s.rf.zero')}</h2>
+    ${rf.length
+      ? `<div class="flipwrap no-adv">${rf.map((f,i)=>`
+          <div class="flip no-adv" data-flip><div class="flipin">
+            <div class="fface back">${t('s.rf.card', { i: i+1 })}</div>
+            <div class="fface front"><span class="fe">${f[0]}</span><span>${esc(f[1])}</span></div>
+          </div></div>`).join('')}</div>`
+      : `<p class="sub reveal d2">${t('s.rf.none')}</p>`}
+    ${S.flags.length > 5 ? `<p class="sub reveal d3" style="font-size:12.5px;">${t('s.rf.more', { n: S.flags.length - 5 })}</p>` : ''}`);
+
+  // 12 — green flags
+  sl.push(`<p class="kicker reveal">${t('s.gf.k')}</p>
+    <h2 class="reveal d1">${S.greens.length ? t(S.greens.length > 1 ? 's.gf.h.pl' : 's.gf.h.sg', { n: fmtN(S.greens.length) }) : t('s.gf.zero')}</h2>
+    ${S.greens.length
+      ? `<div class="flipwrap no-adv">${S.greens.slice(0,5).map(f=>`
+          <div class="flip onf"><div class="flipin">
+            <div class="fface back"></div>
+            <div class="fface front green"><span class="fe">${f[0]}</span><span>${esc(f[1])}</span></div>
+          </div></div>`).join('')}</div>`
+      : `<p class="sub reveal d2">${t('s.gf.none')}</p>`}`);
+
+  // 13 — ta carte
+  sl.push(`<p class="kicker reveal">${t('s.tar1.k')}</p>
+    <div class="tarot reveal d1 no-adv">
+      <div class="num">${S.archYou.num}</div>
+      <div class="tg">${S.archYou.g}</div>
+      <div class="tname display">${esc(S.archYou.name)}</div>
+      <div class="ttag">${esc(S.archYou.tag)}</div>
+      <div class="towner">${YOU_W} · ${A.you.sign.g} ${signName(A.you.sign)}</div>
+    </div>`);
+
+  // 14 — sa carte
+  sl.push(`<p class="kicker reveal">${t('s.tar2.k')}</p>
+    <div class="tarot reveal d1 no-adv">
+      <div class="num">${S.archOther.num}</div>
+      <div class="tg">${S.archOther.g}</div>
+      <div class="tname display">${esc(S.archOther.name)}</div>
+      <div class="ttag">${esc(S.archOther.tag)}</div>
+      <div class="towner">${oFull} · ${A.other.sign.g} ${signName(A.other.sign)}</div>
+    </div>`);
+
+  // 15 — horoscope du couple
+  sl.push(`<p class="kicker reveal">${t('s.horo.k')}</p>
+    <h2 class="reveal d1">${t('s.horo.h')}</h2>
+    <p class="sub reveal d2" style="font-size:16.5px; max-width:520px;">${esc(coupleHoroscope(S, A))}</p>`);
+
+  // 16 — verdict
+  sl.push(`<p class="kicker reveal">${t('s.ver.k')}</p>
+    <div class="giant reveal d1" data-scount="${S.score}">0<small>/100</small></div>
+    <h2 class="reveal d2" style="font-size:clamp(17px,4.4vw,24px);">${esc(S.verdictPhrase)}</h2>
+    <p class="sub reveal d3">${t('s.ver.stats', { r: S.flags.length, g: S.greens.length, a: A.compat, d: S.score })}</p>`);
+
+  // 17 — fin
+  sl.push(`<h2 class="reveal">${t('s.end.h')}</h2>
+    <div class="endbtns no-adv">
+      <button class="btn gold no-adv" data-act="horo">${t('h.btn.story')}</button>
+      <button class="btn primary no-adv" data-act="image">${t('s.end.img')}</button>
+      <button class="btn primary no-adv" data-act="grid">${t('s.end.grid')}</button>
+      <button class="btn ghost no-adv" data-act="close">${t('s.end.new')}</button>
+    </div>`);
+  return sl;
+}
+
+function openStory(){
+  SLIDES = buildSlides(LAST_STATS, ASTRO);
+  const sc = $('#slides');
+  sc.innerHTML = SLIDES.map(s => `<div class="slide">${s}</div>`).join('');
+  $('#sprog').innerHTML = SLIDES.map(() => '<i></i>').join('');
+  sIdx = 0;
+  $('#story').classList.add('on');
+  document.body.style.overflow = 'hidden';
+  goSlide(0);
+}
+function closeStory(showGrid){
+  $('#story').classList.remove('on');
+  document.body.style.overflow = '';
+  if (showGrid !== false){ renderGrid(LAST_STATS); }
+}
+function goSlide(i){
+  if (i < 0) i = 0;
+  if (i >= SLIDES.length){ closeStory(true); return; }
+  sIdx = i;
+  document.querySelectorAll('#slides .slide').forEach((el, k) => el.classList.toggle('on', k === i));
+  document.querySelectorAll('#sprog i').forEach((el, k) => {
+    el.classList.toggle('done', k < i);
+    el.classList.toggle('cur', k === i);
+  });
+  const cur = document.querySelectorAll('#slides .slide')[i];
+  cur.querySelectorAll('[data-scount]').forEach(el => {
+    const target = +el.dataset.scount;
+    const suffix = el.querySelector('small')?.outerHTML || '';
+    const t0 = performance.now(), dur = 1100;
+    const step = now => {
+      const k = Math.min(1, (now - t0)/dur), e = 1 - Math.pow(1-k, 3);
+      el.innerHTML = fmtN(Math.round(target * e)) + suffix;
+      if (k < 1 && el.closest('.slide.on')) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  });
+  setTimeout(() => cur.querySelectorAll('.fill[data-sw]').forEach(el => el.style.width = el.dataset.sw + '%'), 350);
+}
+$('#tzL').addEventListener('click', () => goSlide(sIdx - 1));
+$('#tzR').addEventListener('click', () => goSlide(sIdx + 1));
+$('#sclose').addEventListener('click', () => closeStory(true));
+document.addEventListener('keydown', e => {
+  if (!$('#story').classList.contains('on')) return;
+  if (e.key === 'ArrowRight' || e.key === ' ') goSlide(sIdx + 1);
+  if (e.key === 'ArrowLeft') goSlide(sIdx - 1);
+  if (e.key === 'Escape') closeStory(true);
+});
+// interactions internes aux slides (flips, boutons de fin)
+$('#slides').addEventListener('click', e => {
+  const flip = e.target.closest('[data-flip]');
+  if (flip){ flip.classList.toggle('onf'); return; }
+  const act = e.target.closest('[data-act]');
+  if (!act) return;
+  if (act.dataset.act === 'image') downloadStoryImage();
+  if (act.dataset.act === 'grid') closeStory(true);
+  if (act.dataset.act === 'horo'){ closeStory(true); openHoro(); }
+  if (act.dataset.act === 'close'){ closeStory(false); resetAll(); }
+});
+
+/* =========================================================
+   GRILLE (rapport complet)
+   ========================================================= */
+function card(cls, title, body, titleCls=''){
+  return `<article class="card ${cls}"><h3 class="${titleCls}">${title}</h3>${body}</article>`;
+}
+function twoNums(labelA, valA, subA, labelB, valB, subB){
+  return `<div class="twocol">
+    <div><div class="plabel you">${esc(labelA)}</div><div class="bignum" data-count="${valA}">0</div>${subA?`<div class="subnum">${subA}</div>`:''}</div>
+    <div class="side-r"><div class="plabel other">${esc(labelB)}</div><div class="bignum" data-count="${valB}">0</div>${subB?`<div class="subnum">${subB}</div>`:''}</div>
+  </div>`;
+}
+function interestTag(v){
+  return t(v >= 75 ? 'tag75' : v >= 55 ? 'tag55' : v >= 40 ? 'tag40' : v >= 25 ? 'tag25' : 'tag0');
+}
+
+function renderGrid(S){
+  const { you, other, P } = S;
+  const py = P[you], po = P[other];
+  const oShort = esc(other);
+  const A = ASTRO;
+  const YOU_W = t('word.you');
+  $('#otherName').textContent = other;
+  $('#periodLine').textContent = t('res.period', { n: fmtN(S.total), a: fmtDate(S.first.d), b: fmtDate(S.msgs[S.msgs.length-1].d), d: fmtN(S.daysSpan) });
+  show('scr-results');
+  if (GRID_RENDERED) return;
+  GRID_RENDERED = true;
+
+  const totalStarts = py.starts + po.starts || 1;
+  const html = [];
+  const planet = dominantPlanet(S);
+
+  html.push(card('astro', t('g.astrovs'),
+    `<div class="versus" style="margin-top:4px;">
+       <div class="vbox astro" style="padding:14px 18px;"><div class="vt">${t('g.astres')}</div><div class="vn" style="font-size:34px;" data-count="${A.compat}">0</div></div>
+       <div class="vs-sep">VS</div>
+       <div class="vbox data" style="padding:14px 18px;"><div class="vt">${t('g.msgs')}</div><div class="vn" style="font-size:34px;" data-count="${S.score}">0</div></div>
+     </div>
+     <p class="quip">${A.you.sign.g} ${signName(A.you.sign)} × ${A.other.sign.g} ${signName(A.other.sign)} — ${Math.abs(A.compat-S.score) <= 12 ? t('g.duel.right') : A.compat > S.score ? t('g.duel.opt') : t('g.duel.beat')}</p>`));
+
+  // lien vers l'horoscope mensuel personnalisé
+  const NOW_M = MONTHS_L[new Date().getMonth()];
+  html.push(`<article class="card astro link" id="cardHoro" role="button" tabindex="0">
+    <h3>${t('h.link.grid')}</h3>
+    <p class="quip" style="margin-top:0;">${t('h.link.teaser', { m: NOW_M })}</p>
+    <div style="margin-top:14px;"><span class="btn gold" style="display:inline-block; padding:11px 18px; font-size:13px;">${t('h.link.open')}</span></div>
+  </article>`);
+
+  html.push(card('astro', t('g.planet.h'),
+    `<div class="bignum" style="font-size:40px;">${planet.g}</div>
+     <div style="font-weight:800; font-size:18px; margin-top:6px;">${esc(planet.n)}</div>
+     <p class="quip">${esc(planet.d)}.</p>`));
+
+  html.push(card('astro', t('g.horo.h'), `<p class="quip" style="margin-top:0; font-size:14px;">${esc(coupleHoroscope(S, A))}</p>`));
+
+  html.push(card('', t('g.msg.h'),
+    twoNums(YOU_W, py.msgs, t('g.msg.sub', { w: fmtN(py.words), m: fmtN(py.media) }), other, po.msgs, t('g.msg.sub', { w: fmtN(po.words), m: fmtN(po.media) })) +
+    `<p class="quip">${py.msgs > po.msgs ? t('g.msg.you', { p: Math.round(py.msgs/S.total*100) }) : t('g.msg.other', { name: oShort })}</p>`));
+
+  html.push(card('', t('g.resp.h'),
+    `<div class="twocol">
+       <div><div class="plabel you">${YOU_W}</div><div class="bignum" style="font-size:22px;">${fmtDur(py.respMedian)}</div><div class="subnum">${t('g.resp.med', { v: fmtDur(py.respMean) })}</div></div>
+       <div class="side-r"><div class="plabel other">${oShort}</div><div class="bignum" style="font-size:22px;">${fmtDur(po.respMedian)}</div><div class="subnum">${t('g.resp.med', { v: fmtDur(po.respMean) })}</div></div>
+     </div>
+     <p class="quip">${(po.respMedian??0) > (py.respMedian??0)*3 ? t('g.resp.fast', { x: Math.max(2,Math.round((po.respMedian??1)/(py.respMedian||1))) }) : t('g.resp.even')}</p>`));
+
+  html.push(card('', t('g.int.h'),
+    `<div class="meter you"><div class="mrow"><span class="plabel you">${YOU_W}</span><span class="mtag">${interestTag(py.interest)} · ${py.interest}/100</span></div><div class="track"><div class="fill" data-w="${py.interest}"></div></div></div>
+     <div class="meter other"><div class="mrow"><span class="plabel other">${oShort}</span><span class="mtag">${interestTag(po.interest)} · ${po.interest}/100</span></div><div class="track"><div class="fill" data-w="${po.interest}"></div></div></div>
+     <p class="quip">${t('g.int.note')}</p>`));
+
+  const pyPct = Math.round(py.starts/totalStarts*100), poPct = 100 - pyPct;
+  html.push(card('', t('g.start.h'),
+    `<div class="twocol"><div><div class="bignum">${pyPct}<small style="font-size:16px;">%</small></div><div class="subnum">${t('word.times', { n: fmtN(py.starts) })}</div></div>
+     <div class="side-r"><div class="bignum">${poPct}<small style="font-size:16px;">%</small></div><div class="subnum">${t('word.times', { n: fmtN(po.starts) })}</div></div></div>
+     <div class="splitbar"><div class="a" style="flex:${Math.max(py.starts,1)}"></div><div class="b" style="flex:${Math.max(po.starts,1)}"></div></div>
+     <div class="legend"><span class="ky"><i></i>${YOU_W}</span><span class="ko"><i></i>${oShort}</span></div>`));
+
+  html.push(card('', t('g.first.h'),
+    `<div class="msgquote"><div class="meta">${S.first.author === you ? YOU_W : oShort} · ${fmtDate(S.first.d)} · ${moonPhase(S.first.d).emoji}</div>${S.first.text ? esc(S.first.text.slice(0,180)) : '<i>' + t('g.first.media') + '</i>'}</div>
+     <p class="quip">${t('g.first.moon', { p: moonPhase(S.first.d).name, d: fmtN(S.daysSpan) })}</p>`));
+
+  if (py.deleted + po.deleted > 0){
+    html.push(card('', t('g.del.h'),
+      twoNums(YOU_W, py.deleted, '', other, po.deleted, '') +
+      `<p class="quip">${po.deleted > py.deleted ? t('g.del.other', { name: oShort }) : po.deleted === py.deleted ? t('g.del.eq') : t('g.del.you')}</p>`));
+  }
+
+  if (S.longestSilence){
+    const ls = S.longestSilence;
+    html.push(card('', t('g.sil.h'),
+      `<div class="bignum" style="font-size:26px;">${fmtDur(ls.gap)}</div>
+       <div class="subnum">${t('g.sil.range', { a: fmtDate(ls.from), b: fmtDate(ls.to) })}</div>
+       <p class="quip">${t('g.sil.crack', { w: ls.broken === you ? YOU_W : oShort })}${po.ghosted ? ' ' + t('g.sil.ghost', { name: oShort, n: po.ghosted }) : ''}</p>`));
+  }
+
+  html.push(card('', t('g.dt.h'),
+    twoNums(YOU_W, py.doubleTexts, t('g.dt.sub'), other, po.doubleTexts, t('g.dt.sub')) +
+    `<p class="quip">${py.doubleTexts > po.doubleTexts*2 ? t('g.dt.spam') : t('g.dt.sane')}</p>`));
+
+  const champ = (py.longest?.w||0) >= (po.longest?.w||0) ? { p:py, who:YOU_W, n:'you' } : { p:po, who:oShort, n:'other' };
+  if (champ.p.longest){
+    html.push(card('', t('g.long.h'),
+      `<div class="plabel ${champ.n}">${champ.who}</div>
+       <div class="bignum" style="font-size:26px;">${t('g.long.words', { n: fmtN(champ.p.longest.w) })}</div>
+       <div class="msgquote">${esc(champ.p.longest.text.slice(0,220))}${champ.p.longest.text.length > 220 ? '…' : ''}</div>`));
+  }
+
+  html.push(card('', t('g.rf.h'),
+    S.flags.length
+      ? `<ul class="flags">${S.flags.map(f=>`<li><span class="fe">${f[0]}</span><span>${esc(f[1])}</span></li>`).join('')}</ul>`
+      : `<p class="quip">${t('s.rf.none')}</p>`,
+    'red'));
+
+  html.push(card('', t('g.gf.h'),
+    S.greens.length
+      ? `<ul class="flags">${S.greens.map(f=>`<li><span class="fe">${f[0]}</span><span>${esc(f[1])}</span></li>`).join('')}</ul>`
+      : `<p class="quip">${t('g.gf.none')}</p>`,
+    'greenf'));
+
+  html.push(card('', t('g.wyou.h'),
+    `<div class="chips">${py.topWords.map(([w,c])=>`<span class="chip">${esc(w)}<b>×${fmtN(c)}</b></span>`).join('') || '<span class="chip">—</span>'}</div>`));
+  html.push(card('', t('g.wother.h', { name: oShort }),
+    `<div class="chips">${po.topWords.map(([w,c])=>`<span class="chip">${esc(w)}<b>×${fmtN(c)}</b></span>`).join('') || '<span class="chip">—</span>'}</div>`));
+
+  if (py.topEmojis.length + po.topEmojis.length > 0){
+    html.push(card('', t('g.emoji.h'),
+      `<div class="plabel you">${YOU_W}</div><div class="emojirow">${py.topEmojis.map(([e,c])=>`<span>${e}</span><span class="cnt">×${fmtN(c)}</span>`).join('') || '—'}</div>
+       <div class="plabel other" style="margin-top:12px;">${oShort}</div><div class="emojirow">${po.topEmojis.map(([e,c])=>`<span>${e}</span><span class="cnt">×${fmtN(c)}</span>`).join('') || '—'}</div>`));
+  }
+
+  html.push(card('', t('g.love.h'),
+    twoNums(YOU_W, py.love, '', other, po.love, '') +
+    `<p class="quip">${py.love + po.love === 0 ? t('g.love.zero') : py.love > po.love*2 ? t('g.love.you') : po.love > py.love*2 ? t('g.love.other', { name: oShort }) : t('g.love.bal')}</p>`));
+
+  html.push(card('', t('g.time.h'), `<div class="chart-wrap" id="chartTime"></div>`));
+
+  // machine à remonter le temps
+  const mkeys = [...S.byMonth.keys()].sort();
+  if (mkeys.length >= 2){
+    html.push(card('astro', t('g.slider.h'),
+      `<input type="range" class="mslider" id="mslider" min="0" max="${mkeys.length-1}" value="${mkeys.length-1}" aria-label="${t('g.slider.aria')}" />
+       <div id="msliderOut" style="margin-top:10px;"></div>`));
+  }
+
+  html.push(card('', t('g.heat.h'), `<div id="chartHeat"></div>`));
+
+  const totalEnds = py.ends + po.ends || 1;
+  html.push(card('', t('g.last.h'),
+    `<div class="splitbar"><div class="a" style="flex:${Math.max(py.ends,1)}"></div><div class="b" style="flex:${Math.max(po.ends,1)}"></div></div>
+     <div class="legend"><span class="ky"><i></i>${YOU_W} · ${Math.round(py.ends/totalEnds*100)}%</span><span class="ko"><i></i>${oShort} · ${Math.round(po.ends/totalEnds*100)}%</span></div>
+     <p class="quip">${py.ends/totalEnds > .65 ? t('g.last.left') : t('g.last.even')}</p>`));
+
+  html.push(card('', t('g.att.h'),
+    `<div class="plabel you">${YOU_W}</div><div style="font-weight:800; font-size:17px; margin:2px 0 4px;">${py.attach.label}</div><p class="quip" style="margin-top:0;">${py.attach.desc}</p>
+     <div class="plabel other" style="margin-top:14px;">${oShort}</div><div style="font-weight:800; font-size:17px; margin:2px 0 4px;">${po.attach.label}</div><p class="quip" style="margin-top:0;">${po.attach.desc}</p>
+     <p class="quip" style="font-size:11px; opacity:.7;">${t('g.att.disc')}</p>`));
+
+  html.push(card('astro', t('g.arch.h'),
+    `<div class="plabel you">${YOU_W}</div><div style="font-weight:800; font-size:17px; margin:2px 0 2px;">${S.archYou.g} ${esc(S.archYou.name)}</div><p class="quip" style="margin-top:0;">${esc(S.archYou.tag)}</p>
+     <div class="plabel other" style="margin-top:14px;">${oShort}</div><div style="font-weight:800; font-size:17px; margin:2px 0 2px;">${S.archOther.g} ${esc(S.archOther.name)}</div><p class="quip" style="margin-top:0;">${esc(S.archOther.tag)}</p>`));
+
+  $('#cards').innerHTML = html.join('');
+  drawTimeline(S);
+  drawHeatmap(S);
+  animateIn();
+  const ch = $('#cardHoro');
+  ch.addEventListener('click', openHoro);
+  ch.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openHoro(); });
+
+  const sl = $('#mslider');
+  if (sl){
+    const out = $('#msliderOut');
+    const monthLabel = k => { const [y,m] = k.split('-'); return MONTHS_L[+m-1] + ' ' + y; };
+    const upd = () => {
+      const k = mkeys[+sl.value];
+      const d = S.byMonth.get(k);
+      const ty = d[you]||0, to_ = d[other]||0, tot = ty + to_;
+      out.innerHTML = tot === 0
+        ? t('g.slider.silence', { m: monthLabel(k) })
+        : `${t('g.slider.n', { m: monthLabel(k), n: fmtN(tot) })}<div class="splitbar" style="margin-top:8px;"><div class="a" style="flex:${Math.max(ty,1)}"></div><div class="b" style="flex:${Math.max(to_,1)}"></div></div>
+           <div class="legend"><span class="ky"><i></i>${YOU_W} · ${fmtN(ty)}</span><span class="ko"><i></i>${oShort} · ${fmtN(to_)}</span></div>
+           <p class="quip">${ty > to_*1.5 ? t('g.slider.you') : to_ > ty*1.5 ? t('g.slider.other', { name: oShort }) : t('g.slider.bal')}</p>`;
+    };
+    sl.addEventListener('input', upd);
+    upd();
+  }
+}
+
+/* =========================================================
+   HOROSCOPE MENSUEL PERSONNALISÉ
+   moteur céleste local : saison solaire réelle, phase de lune
+   du jour, rétrogradations de Mercure, éclipses 2025-2027 —
+   croisé avec les stats réelles de la conversation.
+   ========================================================= */
+const MERCURY_RETRO = [
+  ['2025-03-15','2025-04-07'], ['2025-07-18','2025-08-11'], ['2025-11-09','2025-11-29'],
+  ['2026-02-26','2026-03-20'], ['2026-06-29','2026-07-23'], ['2026-10-24','2026-11-13'],
+  ['2027-02-09','2027-03-03'], ['2027-06-10','2027-07-04'], ['2027-10-07','2027-10-28'],
+];
+const ECLIPSES = [
+  ['2025-03-14','lunar'], ['2025-03-29','solar'], ['2025-09-07','lunar'], ['2025-09-21','solar'],
+  ['2026-02-17','solar'], ['2026-03-03','lunar'], ['2026-08-12','solar'], ['2026-08-28','lunar'],
+  ['2027-02-06','solar'], ['2027-08-02','solar'],
+];
+const isMercuryRetro = d => MERCURY_RETRO.some(([a,b]) => d >= new Date(a+'T00:00:00') && d <= new Date(b+'T23:59:59'));
+function nextMoonEvents(from){
+  let newMoon = null, fullMoon = null;
+  for (let i = 0; i <= 32 && (!newMoon || !fullMoon); i++){
+    const d = new Date(from.getFullYear(), from.getMonth(), from.getDate() + i, 12);
+    const age = moonAge(d);
+    if (!newMoon && (age < .75 || age > SYNODIC - .75)) newMoon = d;
+    if (!fullMoon && Math.abs(age - SYNODIC/2) < .75) fullMoon = d;
+  }
+  let venus = null;
+  if (newMoon){
+    venus = new Date(newMoon);
+    do { venus.setDate(venus.getDate() + 1); } while (venus.getDay() !== 5);
+  }
+  return { newMoon, fullMoon, venus };
+}
+function personReading(sign, seasonSign, retro){
+  const rel = sign.el === seasonSign.el ? 'h.rel.same'
+    : (EL_COMPAT[sign.el + '-' + seasonSign.el] || 0) >= 80 ? 'h.rel.comp' : 'h.rel.tense';
+  return [
+    t(rel, { season: signName(seasonSign), sign: signName(sign), el: t('el.'+sign.el) }),
+    t('h.mod.' + sign.mod),
+    t(retro ? 'h.retro.warn' : 'h.retro.ok'),
+  ];
+}
+function openHoro(){
+  const S = LAST_STATS, A = ASTRO;
+  if (!S || !A) return;
+  const NOW = new Date();
+  const monthName = MONTHS_L[NOW.getMonth()];
+  const nextMonthName = MONTHS_L[(NOW.getMonth()+1) % 12];
+  const seasonSign = zodiac(NOW);
+  const retro = isMercuryRetro(NOW);
+  const phaseNow = moonPhase(NOW);
+  const { newMoon, fullMoon, venus } = nextMoonEvents(NOW);
+  const fmtDay = d => d ? d.toLocaleDateString(LOCALE, { weekday:'long', day:'numeric', month:'long' }) : '—';
+  const oShort = esc(S.other.split(' ')[0]);
+  const YOU_W = t('word.you');
+
+  // tendance du mois : flags vs greens, ajustée par Mercure rétrograde
+  const trendKey = (S.greens.length >= S.flags.length && !retro) ? 'h.trend.up'
+    : (S.flags.length > S.greens.length && retro) ? 'h.trend.down' : 'h.trend.flat';
+
+  // vigilances et atouts du mois, depuis les VRAIS flags de la conversation
+  const warns = S.flags.slice(0, 3).map(f => ['hw.' + f[2], f[0]]);
+  const pluses = S.greens.slice(0, 3).map(f => ['hp.' + f[2], f[0]]);
+  const advice = t(S.score >= 65 ? 'h.advice.hi' : S.score >= 40 ? 'h.advice.mid' : 'h.advice.lo');
+  const eclipse = ECLIPSES.find(([iso]) => { const d = new Date(iso+'T12:00:00'); return d.getFullYear() === NOW.getFullYear() && d.getMonth() === NOW.getMonth() && d >= NOW; });
+
+  $('#horoTitle').textContent = t('h.title', { m: monthName });
+  $('#horoSub').textContent = t('h.sub', { a: `${A.you.sign.g} ${signName(A.you.sign)}`, b: `${A.other.sign.g} ${signName(A.other.sign)}` });
+
+  const secs = [];
+  secs.push(`<article class="card astro"><h3>${t('h.now.title')}</h3>
+    <div class="skynow">
+      <span>${t('h.now.sun', { s: signName(seasonSign) })}</span>
+      <span>${phaseNow.emoji} ${esc(phaseNow.name)}</span>
+      <span>${t(retro ? 'h.now.retro' : 'h.now.direct')}</span>
+    </div>
+    <div style="margin-top:14px;"><span class="htrend">${t(trendKey)}</span></div>
+    ${eclipse ? `<p class="quip">${t('h.eclipse.' + eclipse[1], { d: fmtDay(new Date(eclipse[0]+'T12:00:00')) })}</p>` : ''}</article>`);
+
+  secs.push(`<article class="card"><h3><span class="plabel you">${YOU_W}</span> · ${A.you.sign.g} ${signName(A.you.sign)}</h3>
+    <ul class="flags">${personReading(A.you.sign, seasonSign, retro).map(x => `<li><span class="fe">✦</span><span>${esc(x)}</span></li>`).join('')}</ul></article>`);
+  secs.push(`<article class="card"><h3><span class="plabel other">${oShort}</span> · ${A.other.sign.g} ${signName(A.other.sign)}</h3>
+    <ul class="flags">${personReading(A.other.sign, seasonSign, retro).map(x => `<li><span class="fe">✦</span><span>${esc(x)}</span></li>`).join('')}</ul></article>`);
+
+  secs.push(`<article class="card"><h3 class="red">${t('h.sec.couple.warn')}</h3>
+    ${warns.length
+      ? `<ul class="flags">${warns.map(([k, e]) => `<li><span class="fe">${e}</span><span>${esc(t(k, { name: oShort }))}</span></li>`).join('')}</ul>`
+      : `<p class="quip" style="margin-top:0;">${t('h.warn.none')}</p>`}</article>`);
+  secs.push(`<article class="card"><h3 class="greenf">${t('h.sec.couple.plus')}</h3>
+    ${pluses.length
+      ? `<ul class="flags">${pluses.map(([k, e]) => `<li><span class="fe">${e}</span><span>${esc(t(k, { name: oShort }))}</span></li>`).join('')}</ul>`
+      : `<p class="quip" style="margin-top:0;">${t('h.plus.none')}</p>`}</article>`);
+
+  secs.push(`<article class="card astro"><h3>${t('h.sec.advice')}</h3>
+    <p class="quip" style="margin-top:0; font-size:14px;">${esc(advice)}</p></article>`);
+
+  secs.push(`<article class="card"><h3>${t('h.sec.days')}</h3>
+    <ul class="flags">
+      ${newMoon ? `<li><span class="fe">🌑</span><span>${esc(t('h.day.new', { d: fmtDay(newMoon) }))}</span></li>` : ''}
+      ${fullMoon ? `<li><span class="fe">🌕</span><span>${esc(t('h.day.full', { d: fmtDay(fullMoon) }))}</span></li>` : ''}
+      ${venus ? `<li><span class="fe">💘</span><span>${esc(t('h.day.venus', { d: fmtDay(venus) }))}</span></li>` : ''}
+    </ul></article>`);
+
+  secs.push(`<p class="hnext">${t('h.next', { m: nextMonthName })}<br/>${t('h.disc')}</p>`);
+  $('#horoCards').innerHTML = secs.join('');
+  $('#btnHoroShare').textContent = t('h.share');
+  $('#btnHoroBack').textContent = t('h.back');
+  HORO_SHARE = t('h.share.txt', {
+    m: monthName,
+    a: `${A.you.sign.g} ${signName(A.you.sign)}`, b: `${A.other.sign.g} ${signName(A.other.sign)}`,
+    trend: t(trendKey),
+    w: warns.length ? t(warns[0][0], { name: S.other.split(' ')[0] }) : t('h.warn.none'),
+    p: pluses.length ? t(pluses[0][0], { name: S.other.split(' ')[0] }) : t('h.plus.none'),
+    url: location.href,
+  });
+  show('scr-horo');
+}
+let HORO_SHARE = '';
+$('#btnHoroBack').addEventListener('click', () => show('scr-results'));
+$('#btnHoroShare').addEventListener('click', async () => {
+  try {
+    if (navigator.share) await navigator.share({ text: HORO_SHARE });
+    else { await navigator.clipboard.writeText(HORO_SHARE); tipShow(t('copy.done'), innerWidth/2, innerHeight/2); setTimeout(tipHide, 1600); }
+  } catch(e){ /* partage annulé */ }
+});
+
+/* =========================================================
+   IMAGE STORY 1080×1920
+   ========================================================= */
+function downloadStoryImage(){
+  const S = LAST_STATS, A = ASTRO;
+  const cv = document.createElement('canvas');
+  cv.width = 1080; cv.height = 1920;
+  const c = cv.getContext('2d');
+
+  const g = c.createLinearGradient(0, 0, 0, 1920);
+  g.addColorStop(0, '#0b0d1e'); g.addColorStop(.5, '#151038'); g.addColorStop(1, '#070912');
+  c.fillStyle = g; c.fillRect(0, 0, 1080, 1920);
+  let seed = 99;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 220; i++){
+    c.globalAlpha = .25 + rnd()*.6;
+    c.fillStyle = '#cdd3ff';
+    c.beginPath(); c.arc(rnd()*1080, rnd()*1920, rnd()*2.2 + .5, 0, 7); c.fill();
+  }
+  c.globalAlpha = 1;
+  const center = (txt, y, font, color) => { c.font = font; c.fillStyle = color; c.textAlign = 'center'; c.fillText(txt, 540, y); };
+
+  center('🔮 AStrologIA', 150, '700 52px Unbounded, Outfit, sans-serif', '#a99bff');
+  center(t('img.tag'), 200, '600 26px Outfit, sans-serif', '#6b70a0');
+  const oShort = S.other.length > 14 ? S.other.slice(0, 13) + '…' : S.other;
+  const youCap = t('res.you');
+  center(`${youCap} ${A.you.sign.g}  ×  ${oShort} ${A.other.sign.g}`, 320, '700 54px Outfit, sans-serif', '#eef0ff');
+  center(`${fmtN(S.total)} ${t('g.msgs')} · ${fmtN(S.daysSpan)} ${t('dur.days')}`, 380, '400 34px Outfit, sans-serif', '#9aa0c9');
+
+  // duel
+  c.fillStyle = 'rgba(232,197,107,.12)'; roundRect(c, 90, 470, 420, 330, 36); c.fill();
+  c.strokeStyle = 'rgba(232,197,107,.55)'; c.lineWidth = 2; roundRect(c, 90, 470, 420, 330, 36); c.stroke();
+  c.fillStyle = 'rgba(90,139,255,.12)'; roundRect(c, 570, 470, 420, 330, 36); c.fill();
+  c.strokeStyle = 'rgba(90,139,255,.55)'; roundRect(c, 570, 470, 420, 330, 36); c.stroke();
+  c.textAlign = 'center';
+  c.font = '700 30px Outfit, sans-serif';
+  c.fillStyle = '#e8c56b'; c.fillText(t('img.stars'), 300, 545);
+  c.fillStyle = '#7ab1f2'; c.fillText(t('img.msgs'), 780, 545);
+  c.font = '900 130px Unbounded, Outfit, sans-serif';
+  c.fillStyle = '#f4e3b6'; c.fillText(A.compat + '%', 300, 700);
+  c.fillStyle = '#cde2fb'; c.fillText(S.score + '%', 780, 700);
+  c.font = '600 30px Outfit, sans-serif'; c.fillStyle = '#9aa0c9';
+  c.fillText(Math.abs(A.compat-S.score) <= 12 ? t('img.right') : A.compat > S.score ? t('img.lie') : t('img.beat'), 540, 770);
+
+  // archétypes
+  center(t('img.cards'), 920, '700 28px Outfit, sans-serif', '#6b70a0');
+  center(`${S.archYou.g} ${S.archYou.name}`, 990, '700 44px Outfit, sans-serif', '#f4e3b6');
+  center(t('word.you'), 1032, '600 26px Outfit, sans-serif', '#7ab1f2');
+  center(`${S.archOther.g} ${S.archOther.name}`, 1110, '700 44px Outfit, sans-serif', '#f4e3b6');
+  center(oShort, 1152, '600 26px Outfit, sans-serif', '#f090b4');
+
+  // flags + verdict
+  center(t('img.stats', { r: S.flags.length, g: S.greens.length }), 1270, '700 40px Outfit, sans-serif', '#eef0ff');
+  const vp = S.verdictPhrase;
+  c.font = '600 34px Outfit, sans-serif'; c.fillStyle = '#9aa0c9';
+  wrapText(c, `« ${vp} »`, 540, 1370, 860, 48);
+
+  // score géant
+  center(S.score + '/100', 1650, '900 160px Unbounded, Outfit, sans-serif', '#ffffff');
+  center(t('img.real'), 1710, '600 30px Outfit, sans-serif', '#6b70a0');
+  center(t('img.cta'), 1840, '600 28px Outfit, sans-serif', '#8b7bff');
+
+  openImageModal(cv);
+}
+/* modale : aperçu + partage natif du fichier (Instagram/WhatsApp) + téléchargement.
+   Indispensable : iOS Safari et les webviews bloquent souvent le download direct. */
+const imgModal = $('#imgModal');
+function openImageModal(cv){
+  $('#imTitle').textContent = t('img.modal.title');
+  $('#imHint').textContent = t('img.modal.hint');
+  $('#imShare').textContent = t('img.modal.share');
+  $('#imDl').textContent = t('img.modal.dl');
+  $('#imClose').textContent = t('img.modal.close');
+  const dataUrl = cv.toDataURL('image/png');
+  $('#imImg').src = dataUrl;
+  imgModal.classList.add('on');
+  $('#imShare').style.display = 'none';
+  cv.toBlob(blob => {
+    if (!blob) return;
+    const file = new File([blob], 'astrologia-story.png', { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })){
+      $('#imShare').style.display = '';
+      $('#imShare').onclick = async () => { try { await navigator.share({ files: [file] }); } catch(e){ /* annulé */ } };
+    }
+  });
+  $('#imDl').onclick = () => {
+    const a = document.createElement('a');
+    a.download = 'astrologia-story.png';
+    a.href = dataUrl;
+    document.body.appendChild(a); a.click(); a.remove();
+  };
+}
+$('#imClose').addEventListener('click', () => imgModal.classList.remove('on'));
+imgModal.addEventListener('click', e => { if (e.target === imgModal) imgModal.classList.remove('on'); });
+function roundRect(c, x, y, w, h, r){
+  c.beginPath();
+  c.moveTo(x+r, y); c.arcTo(x+w, y, x+w, y+h, r); c.arcTo(x+w, y+h, x, y+h, r);
+  c.arcTo(x, y+h, x, y, r); c.arcTo(x, y, x+w, y, r); c.closePath();
+}
+function wrapText(c, text, x, y, maxW, lh){
+  const words = text.split(' ');
+  let line = '', yy = y;
+  for (const w of words){
+    const test = line ? line + ' ' + w : w;
+    if (c.measureText(test).width > maxW && line){ c.fillText(line, x, yy); line = w; yy += lh; }
+    else line = test;
+  }
+  if (line) c.fillText(line, x, yy);
+}
+
+/* =========================================================
+   FLUX
+   ========================================================= */
+function fail(msg){
+  const e = $('#err'); e.textContent = msg; e.style.display = 'block';
+  setTimeout(() => e.style.display = 'none', 6000);
+}
+function handleText(text){
+  const parsed = parseChat(text);
+  if (!parsed){
+    fail(t('err.parse'));
+    return;
+  }
+  PARSED = parsed;
+  renderSetup();
+}
+function renderSetup(){
+  const sorted = [...PARSED.participants.entries()].sort((a,b) => b[1]-a[1]);
+  const list = $('#peopleList');
+  list.innerHTML = sorted.slice(0, 12).map(([name, cnt]) =>
+    `<button class="person" data-name="${esc(name)}"><span class="av">${esc([...name][0].toUpperCase())}</span>${esc(name)}<span class="cnt">${t('setup.msgs', { n: fmtN(cnt) })}</span></button>`).join('');
+  $('#setupNote').textContent = sorted.length > 2 ? t('setup.group') : "";
+  list.querySelectorAll('.person').forEach(btn => btn.addEventListener('click', () => {
+    YOU = btn.dataset.name;
+    const others = sorted.filter(([n]) => n !== YOU);
+    OTHER = others[0][0];
+    openAstro();
+  }));
+  show('scr-setup');
+}
+function openAstro(){
+  $('#bdOtherLabel').textContent = t('astro.lother', { name: OTHER });
+  show('scr-astro');
+}
+const parseBirth = v => v ? new Date(v + 'T12:00:00') : null;  // midi local : pas de glissement UTC
+function liveSign(inputId, outId){
+  const inp = $('#'+inputId);
+  inp.addEventListener('input', () => {
+    const v = parseBirth(inp.value);
+    $('#'+outId).textContent = v ? `${zodiac(v).g} ${signName(zodiac(v))} · ${EL_EMOJI[zodiac(v).el]} ${t('el.'+zodiac(v).el)}` : '';
+  });
+}
+liveSign('bdYou', 'signYou');
+liveSign('bdOther', 'signOther');
+$('#btnAstroGo').addEventListener('click', () => {
+  const dy = parseBirth($('#bdYou').value), doo = parseBirth($('#bdOther').value);
+  if (!dy || !doo){
+    $('#signYou').textContent = !dy ? t('astro.warnyou') : $('#signYou').textContent;
+    $('#signOther').textContent = !doo ? t('astro.warnother') : $('#signOther').textContent;
+    return;
+  }
+  const sy = zodiac(dy), so = zodiac(doo);
+  ASTRO = { you:{ date:dy, sign:sy }, other:{ date:doo, sign:so }, compat: astroCompat(sy, so) };
+  renderQuiz();
+});
+
+/* ---------- quiz ---------- */
+function renderQuiz(){
+  const oShort = OTHER.split(' ')[0];
+  const qs = [
+    { key:'vol', q: t('quiz.q1'), opts:[['you', t('quiz.q1.you')],['other',oShort],['equal', t('quiz.q1.eq')]] },
+    { key:'resp', q: t('quiz.q2'), opts:[['fast', t('quiz.q2.fast')],['mid', t('quiz.q2.mid')],['slow', t('quiz.q2.slow')]] },
+    { key:'start', q: t('quiz.q3'), opts:[['you', t('quiz.q3.you')],['other',oShort],['equal', t('quiz.q3.eq')]] },
+  ];
+  let qi = 0;
+  const box = $('#quizBox');
+  const step = () => {
+    if (qi >= qs.length){ launch(); return; }
+    const q = qs[qi];
+    box.innerHTML = `<div class="quizq">
+      <div class="qn">${t('quiz.n', { i: qi+1 })}</div>
+      <h3>${esc(q.q)}</h3>
+      <div class="qopts">${q.opts.map(o => `<button class="qopt" data-v="${o[0]}">${esc(o[1])}</button>`).join('')}</div>
+    </div>`;
+    box.querySelectorAll('.qopt').forEach(b => b.addEventListener('click', () => {
+      QUIZ[q.key] = b.dataset.v; qi++; step();
+    }));
+  };
+  step();
+  show('scr-quiz');
+}
+function launch(){
+  LAST_STATS = analyze(PARSED.messages, YOU, OTHER);
+  GRID_RENDERED = false;
+  openStory();
+}
+function resetAll(){
+  PARSED = null; YOU = OTHER = null; LAST_STATS = null; ASTRO = null;
+  QUIZ = { vol:null, resp:null, start:null };
+  GRID_RENDERED = false;
+  $('#bdYou').value = ''; $('#bdOther').value = '';
+  $('#signYou').textContent = ''; $('#signOther').textContent = '';
+  show('scr-home');
+}
+
+/* ---------- entrées ---------- */
+const drop = $('#drop'), fileInput = $('#file');
+drop.addEventListener('click', () => fileInput.click());
+drop.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') fileInput.click(); });
+drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
+drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+drop.addEventListener('drop', e => {
+  e.preventDefault(); drop.classList.remove('over');
+  const f = e.dataTransfer.files[0];
+  if (f) readFile(f);
+});
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) readFile(fileInput.files[0]); fileInput.value = ''; });
+function readFile(f){
+  if (f.name.endsWith('.zip')){ fail(t('err.zip')); return; }
+  const r = new FileReader();
+  r.onload = () => handleText(String(r.result));
+  r.readAsText(f);
+}
+$('#btnPaste').addEventListener('click', () => { $('#pasteWrap').open = true; $('#pasteBox').focus(); $('#pasteWrap').scrollIntoView({behavior:'smooth', block:'center'}); });
+$('#btnAnalyzePaste').addEventListener('click', () => {
+  const txt = $('#pasteBox').value.trim();
+  if (txt.length < 100){ fail(t('err.paste')); return; }
+  handleText(txt);
+});
+$('#btnDemo').addEventListener('click', () => {
+  PARSED = buildDemo();
+  YOU = t('demo.you'); OTHER = DEMO_TXT[L].other;
+  $('#bdYou').value = '2002-04-12';   // Bélier
+  $('#bdOther').value = '2001-08-08'; // Lion
+  $('#bdYou').dispatchEvent(new Event('input'));
+  $('#bdOther').dispatchEvent(new Event('input'));
+  openAstro();
+});
+$('#btnBackHome').addEventListener('click', () => show('scr-home'));
+$('#btnReset').addEventListener('click', resetAll);
+$('#btnReplay').addEventListener('click', openStory);
+$('#btnImage').addEventListener('click', downloadStoryImage);
+$('#btnShare').addEventListener('click', async () => {
+  const S = LAST_STATS; if (!S) return;
+  const txt = t('share.txt', {
+    name: S.other, a: ASTRO.compat, d: S.score,
+    signs: `${ASTRO.you.sign.g} ${signName(ASTRO.you.sign)} × ${ASTRO.other.sign.g} ${signName(ASTRO.other.sign)}`,
+    archA: S.archYou.name, archB: S.archOther.name,
+    r: S.flags.length, g: S.greens.length, v: S.verdictPhrase, url: location.href,
+  });
+  try {
+    if (navigator.share) await navigator.share({ text: txt });
+    else { await navigator.clipboard.writeText(txt); tipShow(t('copy.done'), innerWidth/2, innerHeight/2); setTimeout(tipHide, 1600); }
+  } catch(e){ /* partage annulé */ }
+});
+</script>
+</body>
+</html>
