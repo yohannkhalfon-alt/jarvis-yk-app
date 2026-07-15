@@ -1,4 +1,5 @@
 {
+  "anthropicApiKey": "sk-ant-XXXXXXXX",
   "timezone": "Europe/Paris",
   "port": 8787,
   "accessToken": "CHANGE-MOI-jeton-long-et-secret",
