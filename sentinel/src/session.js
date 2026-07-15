@@ -1,5 +1,4 @@
 import makeWASocket, { useMultiFileAuthState, fetchLatestBaileysVersion, DisconnectReason } from "@whiskeysockets/baileys";
-import qrcode from "qrcode-terminal";
 import pino from "pino";
 import fs from "fs";
 import path from "path";
@@ -42,14 +41,16 @@ export async function startAccount(account, config) {
     lastReplyAt: new Map(),
     groupNames: new Map(),
     sock: null,
-    connected: false
+    connected: false,
+    qr: null
   };
+  const webPort = process.env.PORT || config.port || 8787;
   const saveState = () =>
     fs.writeFileSync(stateFile, JSON.stringify({ paused: ctx.paused, lastDigestTs: ctx.lastDigestTs }));
 
   const notifyJid = toJid(account.notify);
   const log = (...a) => console.log(`[${account.id}]`, ...a);
-  const handle = { account, archive, status: () => ({ connected: ctx.connected, paused: ctx.paused }) };
+  const handle = { account, archive, getQr: () => ctx.qr, status: () => ({ connected: ctx.connected, paused: ctx.paused }) };
 
   async function connect() {
     const { state, saveCreds } = await useMultiFileAuthState(path.join(dataDir, "auth"));
@@ -61,10 +62,11 @@ export async function startAccount(account, config) {
 
     sock.ev.on("connection.update", ({ connection, lastDisconnect, qr }) => {
       if (qr) {
-        log(`Scanne ce QR avec le telephone du compte « ${account.id} » (WhatsApp > Appareils connectes) :`);
-        qrcode.generate(qr, { small: true });
+        ctx.qr = qr;
+        log(`QR pret. Ouvre cette page pour le scanner (image nette, se met a jour toute seule) :`);
+        log(`   >>> http://localhost:${webPort}/connexion`);
       }
-      if (connection === "open") { ctx.connected = true; log("Connecte."); }
+      if (connection === "open") { ctx.qr = null; ctx.connected = true; log("Connecte."); }
       if (connection === "close") {
         ctx.connected = false;
         const code = lastDisconnect?.error?.output?.statusCode;

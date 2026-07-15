@@ -2,10 +2,13 @@
 import http from "http";
 import fs from "fs";
 import path from "path";
+import QRCode from "qrcode";
 import { fileURLToPath } from "url";
 
 const __dir = path.dirname(fileURLToPath(import.meta.url));
-const UI = path.join(__dir, "..", "public", "messagerie.html");
+const PUB = path.join(__dir, "..", "public");
+const UI = path.join(PUB, "messagerie.html");
+const CONNEXION = path.join(PUB, "connexion.html");
 
 export function startApi(accounts, config) {
   const token = process.env.SENTINEL_TOKEN || config.accessToken;
@@ -27,12 +30,25 @@ export function startApi(accounts, config) {
       try { return send(res, 200, fs.readFileSync(UI, "utf8"), "text/html; charset=utf-8"); }
       catch { return send(res, 500, "UI introuvable"); }
     }
+    if (p === "/connexion") {
+      try { return send(res, 200, fs.readFileSync(CONNEXION, "utf8"), "text/html; charset=utf-8"); }
+      catch { return send(res, 500, "Page connexion introuvable"); }
+    }
     if (p.startsWith("/api/")) {
       if (!authed(url)) return send(res, 401, { error: "token invalide" });
       const acc = byId.get(url.searchParams.get("account") || accounts[0]?.account.id);
       if (!acc) return send(res, 404, { error: "compte inconnu" });
 
       if (p === "/api/accounts") return send(res, 200, accounts.map((a) => ({ id: a.account.id, ...a.status() })));
+      if (p === "/api/qr") {
+        const st = acc.status();
+        if (st.connected) return send(res, 200, { connected: true });
+        const raw = acc.getQr && acc.getQr();
+        if (!raw) return send(res, 200, { connected: false, qr: null });
+        return QRCode.toDataURL(raw, { margin: 1, width: 320 })
+          .then((dataUrl) => send(res, 200, { connected: false, qr: dataUrl }))
+          .catch(() => send(res, 200, { connected: false, qr: null }));
+      }
       if (p === "/api/chats") return send(res, 200, acc.archive.listChats());
       if (p === "/api/messages") {
         const jid = url.searchParams.get("jid");

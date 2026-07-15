@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JARVIS·YK — Connexion WhatsApp</title>
+<style>
+  :root { --bg:#0b141a; --panel:#111b21; --acc:#00a884; --txt:#e9edef; --dim:#8696a0; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--txt);
+         min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+  .card { background:var(--panel); border:1px solid #222d34; border-radius:16px; padding:28px; max-width:420px; width:100%; text-align:center; }
+  h1 { font-size:20px; margin-bottom:6px; }
+  p { color:var(--dim); font-size:14px; line-height:1.5; margin-bottom:16px; }
+  .qr { background:#fff; border-radius:12px; padding:14px; display:inline-block; min-height:320px; min-width:320px; }
+  .qr img { display:block; width:300px; height:300px; }
+  .status { margin-top:16px; font-size:15px; font-weight:600; }
+  .ok { color:var(--acc); }
+  input { background:#202c33; border:1px solid #2a3942; color:var(--txt); padding:11px 14px; border-radius:10px; font-size:15px; outline:none; width:260px; }
+  button { background:var(--acc); color:#04231c; border:0; padding:11px 18px; border-radius:10px; font-weight:600; cursor:pointer; font-size:15px; margin-top:10px; }
+  a.link { color:var(--acc); font-weight:600; text-decoration:none; display:inline-block; margin-top:14px; }
+  .steps { text-align:left; font-size:13px; color:var(--dim); margin-top:18px; line-height:1.6; }
+  .hide { display:none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🛰️ Connexion WhatsApp</h1>
+
+  <div id="login">
+    <p>Entre ton jeton d'accès pour afficher le QR code.</p>
+    <input id="tok" type="password" placeholder="Jeton d'accès" autocomplete="off">
+    <br><button onclick="saveTok()">Afficher le QR</button>
+    <p id="lerr" style="color:#f0a"></p>
+  </div>
+
+  <div id="main" class="hide">
+    <p>Scanne ce QR avec le téléphone du compte à surveiller :<br>
+       <b>WhatsApp → Réglages → Appareils connectés → Connecter un appareil</b></p>
+    <div class="qr"><img id="qrimg" alt="QR en cours de génération…"></div>
+    <div id="status" class="status">En attente du QR…</div>
+    <div id="done" class="hide">
+      <div class="status ok">✅ Connecté !</div>
+      <a class="link" href="/">→ Ouvrir les conversations</a>
+    </div>
+    <div class="steps">
+      Le QR se rafraîchit tout seul, tu n'as rien à faire. Garde cette page ouverte
+      jusqu'à ce qu'il affiche « Connecté ». Le terminal doit rester ouvert aussi.
+    </div>
+  </div>
+</div>
+
+<script>
+let TOK = localStorage.getItem("sentinel_tok") || "";
+const $ = (s) => document.querySelector(s);
+
+function saveTok() {
+  TOK = $("#tok").value.trim();
+  if (!TOK) return;
+  localStorage.setItem("sentinel_tok", TOK);
+  show();
+}
+function show() {
+  $("#login").classList.add("hide");
+  $("#main").classList.remove("hide");
+  poll();
+}
+
+let timer;
+async function poll() {
+  try {
+    const r = await fetch("/api/qr?token=" + encodeURIComponent(TOK));
+    if (r.status === 401) { fail("Jeton invalide."); return; }
+    const d = await r.json();
+    if (d.connected) {
+      $("#qrimg").parentElement.classList.add("hide");
+      $("#status").classList.add("hide");
+      $("#done").classList.remove("hide");
+      clearTimeout(timer);
+      return;
+    }
+    if (d.qr) {
+      $("#qrimg").src = d.qr;
+      $("#status").textContent = "Prêt à scanner (le QR se met à jour automatiquement)";
+    } else {
+      $("#status").textContent = "Génération du QR en cours…";
+    }
+  } catch (e) {
+    $("#status").textContent = "Connexion au serveur perdue, nouvelle tentative…";
+  }
+  timer = setTimeout(poll, 2000);
+}
+function fail(msg) {
+  localStorage.removeItem("sentinel_tok");
+  $("#login").classList.remove("hide");
+  $("#main").classList.add("hide");
+  $("#lerr").textContent = msg;
+}
+
+if (TOK) show();
+</script>
+</body>
+</html>

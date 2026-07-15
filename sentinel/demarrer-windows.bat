@@ -3,11 +3,9 @@ chcp 65001 >nul
 title JARVIS-YK Sentinel
 cd /d "%~dp0"
 
-if not exist "node_modules" (
-  echo  Installation des dependances ^(1 seule fois, patiente^)...
-  call npm install
-  if errorlevel 1 ( echo  [!] Echec de l'installation. pause & exit /b 1 )
-)
+echo  Verification des dependances...
+call npm install
+if errorlevel 1 ( echo  [!] Echec de l'installation des dependances. pause & exit /b 1 )
 
 if not exist "config.json" (
   echo.
