@@ -1,4 +1,4 @@
-import makeWASocket, { useMultiFileAuthState, fetchLatestBaileysVersion, DisconnectReason } from "@whiskeysockets/baileys";
+import makeWASocket, { useMultiFileAuthState, fetchLatestBaileysVersion, DisconnectReason, downloadMediaMessage } from "@whiskeysockets/baileys";
 import pino from "pino";
 import fs from "fs";
 import path from "path";
@@ -21,10 +21,29 @@ function extractText(msg) {
     m.videoMessage?.caption ||
     (m.audioMessage ? "[note vocale]" : "") ||
     (m.imageMessage ? "[image]" : "") ||
+    (m.videoMessage ? "[vidéo]" : "") ||
     (m.documentMessage ? `[document] ${m.documentMessage.fileName || ""}` : "") ||
     (m.stickerMessage ? "[sticker]" : "") ||
     ""
   );
+}
+
+const MIME_EXT = {
+  "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif",
+  "video/mp4": "mp4", "video/3gpp": "3gp", "video/quicktime": "mov",
+  "audio/ogg": "ogg", "audio/mpeg": "mp3", "audio/mp4": "m4a", "audio/aac": "aac",
+  "application/pdf": "pdf"
+};
+function mediaKind(m) {
+  if (m.imageMessage) return "image";
+  if (m.videoMessage) return "video";
+  if (m.stickerMessage) return "sticker";
+  if (m.audioMessage) return "audio";
+  if (m.documentMessage) return "document";
+  return null;
+}
+function mediaNode(m) {
+  return m.imageMessage || m.videoMessage || m.stickerMessage || m.audioMessage || m.documentMessage || null;
 }
 
 export async function startAccount(account, config) {
@@ -123,7 +142,27 @@ export async function startAccount(account, config) {
     return ctx.groupNames.get(jid);
   }
 
-  async function toRecord(sock, msg) {
+  async function saveMedia(sock, msg) {
+    const m = msg.message || {};
+    const kind = mediaKind(m);
+    if (!kind) return null;
+    const node = mediaNode(m);
+    const mime = (node?.mimetype || "").split(";")[0];
+    const ext = MIME_EXT[mime] || (kind === "image" || kind === "sticker" ? "jpg" : kind === "video" ? "mp4" : kind === "audio" ? "ogg" : "bin");
+    const name = ((msg.key?.id || "m" + (Number(msg.messageTimestamp) || "")).replace(/[^\w-]/g, "")) + "." + ext;
+    const dest = archive.mediaPath(name);
+    const info = { file: name, mime, kind, name: node?.fileName || null };
+    if (fs.existsSync(dest) && fs.statSync(dest).size > 0) return info;
+    try {
+      const buf = await downloadMediaMessage(msg, "buffer", {}, { logger: pino({ level: "silent" }), reuploadRequest: sock.updateMediaMessage });
+      fs.writeFileSync(dest, buf);
+      return info;
+    } catch (e) {
+      return { file: null, mime, kind, name: node?.fileName || null }; // média expiré/indisponible
+    }
+  }
+
+  async function toRecord(sock, msg, downloadM = false) {
     const jid = msg.key?.remoteJid;
     if (!jid || jid === "status@broadcast" || !msg.message) return null;
     const text = extractText(msg);
@@ -134,7 +173,10 @@ export async function startAccount(account, config) {
     const senderName = fromMe ? "moi" : (msg.pushName || bare(senderJid));
     const chatName = await chatDisplayName(sock, jid, msg.pushName);
     const ts = Number(msg.messageTimestamp) * 1000 || Date.now();
-    return { id: msg.key.id, ts, chat: jid, chatName, sender: senderName, fromMe, text, isGroup };
+    const kind = mediaKind(msg.message);
+    let media = null;
+    if (kind) media = downloadM ? await saveMedia(sock, msg) : { file: null, kind, mime: (mediaNode(msg.message)?.mimetype || "").split(";")[0] };
+    return { id: msg.key.id, ts, chat: jid, chatName, sender: senderName, fromMe, text, isGroup, media };
   }
 
   async function onMessage(sock, msg) {
@@ -149,7 +191,7 @@ export async function startAccount(account, config) {
     const isController = bare(senderJid) === bare(account.notify) && !isGroup;
     if (isController && text.startsWith("!")) { await handleCommand(sock, text.trim()); return; }
 
-    const rec = await toRecord(sock, msg);
+    const rec = await toRecord(sock, msg, true);
     if (rec) archive.add(rec);
 
     // Reponse assistee : 1-a-1 entrant uniquement, hors chat de pilotage

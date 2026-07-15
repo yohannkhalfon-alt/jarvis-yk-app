@@ -21,6 +21,11 @@ export function startApi(accounts, config) {
     res.end(Buffer.isBuffer(data) || typeof data === "string" ? data : JSON.stringify(data));
   };
   const STATIC = { ".png": "image/png", ".ico": "image/x-icon", ".svg": "image/svg+xml", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp" };
+  const MEDIA_TYPES = {
+    ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp", ".gif": "image/gif",
+    ".mp4": "video/mp4", ".3gp": "video/3gpp", ".mov": "video/quicktime",
+    ".ogg": "audio/ogg", ".mp3": "audio/mpeg", ".m4a": "audio/mp4", ".aac": "audio/aac", ".pdf": "application/pdf"
+  };
   const authed = (url) => (url.searchParams.get("token") || "") === token;
 
   const server = http.createServer((req, res) => {
@@ -75,6 +80,17 @@ export function startApi(accounts, config) {
         const q = (url.searchParams.get("q") || "").trim();
         if (q.length < 2) return send(res, 400, { error: "requete trop courte" });
         return send(res, 200, acc.archive.search(q));
+      }
+      if (p === "/api/media") {
+        const file = path.basename(url.searchParams.get("file") || "");
+        if (!file) return send(res, 400, { error: "file requis" });
+        const f = acc.archive.mediaPath(file);
+        const ext = path.extname(f).toLowerCase();
+        const type = MEDIA_TYPES[ext] || "application/octet-stream";
+        let data;
+        try { data = fs.readFileSync(f); } catch { return send(res, 404, { error: "média introuvable" }); }
+        res.writeHead(200, { "content-type": type, "cache-control": "private, max-age=86400" });
+        return res.end(data);
       }
       return send(res, 404, { error: "route inconnue" });
     }

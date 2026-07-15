@@ -37,6 +37,10 @@
   .m.them { align-self:flex-start; background:var(--out); }
   .m .who { font-size:12px; color:var(--acc); font-weight:600; margin-bottom:2px; }
   .m .t { font-size:10px; color:var(--dim); text-align:right; margin-top:3px; }
+  .media { max-width:260px; max-height:320px; border-radius:8px; display:block; margin:2px 0 4px; cursor:pointer; }
+  video.media { cursor:default; }
+  .media-doc { color:var(--acc); text-decoration:none; font-weight:600; display:inline-block; margin:2px 0; }
+  .media-missing { color:var(--dim); font-style:italic; font-size:13px; margin:2px 0; }
   .empty { color:var(--dim); text-align:center; margin-top:40px; }
   .day { align-self:center; background:var(--panel2); color:var(--dim); font-size:11px; padding:4px 10px; border-radius:8px; margin:8px 0; }
   .err { color:#f0a; font-size:13px; }
@@ -141,7 +145,11 @@ function renderMsgs(msgs, isSearch) {
     if (!isSearch && day !== lastDay) { html += `<div class="day">${day}</div>`; lastDay = day; }
     const who = isSearch ? `<div class="who">${escapeHtml(m.chatName || "")} · ${escapeHtml(m.fromMe ? "moi" : m.sender)}</div>`
                          : (m.fromMe ? "" : `<div class="who">${escapeHtml(m.sender)}</div>`);
-    html += `<div class="m ${m.fromMe ? "me" : "them"}">${who}${escapeHtml(m.text)}<div class="t">${fmtTs(m.ts)}</div></div>`;
+    const media = mediaHtml(m.media);
+    // Si le texte n'est qu'un marqueur ([image], [vidéo]…) et qu'on a le média, on masque le marqueur
+    const marker = /^\[(image|vidéo|sticker|note vocale|document)/i.test(m.text || "");
+    const txt = (media && marker) ? "" : escapeHtml(m.text);
+    html += `<div class="m ${m.fromMe ? "me" : "them"}">${who}${media}${txt}<div class="t">${fmtTs(m.ts)}</div></div>`;
   }
   box.innerHTML = html;
   if (!isSearch) box.scrollTop = box.scrollHeight;
@@ -163,6 +171,22 @@ function openChatByJid(jid) {
   if (n) openChat(n);
 }
 
+function mediaSrc(file) {
+  return "/api/media?token=" + encodeURIComponent(TOK) + "&account=" + encodeURIComponent(ACC) + "&file=" + encodeURIComponent(file);
+}
+function mediaHtml(md) {
+  if (!md) return "";
+  if (!md.file) {
+    // média non téléchargé (souvent : ancien message importé de l'historique)
+    const label = { image: "📷 Photo", video: "🎬 Vidéo", audio: "🎤 Audio", document: "📄 Document", sticker: "🩹 Sticker" }[md.kind] || "📎 Média";
+    return `<div class="media-missing">${label} (non téléchargé)</div>`;
+  }
+  const src = mediaSrc(md.file);
+  if (md.kind === "image" || md.kind === "sticker") return `<img class="media" src="${src}" loading="lazy" onclick="window.open(this.src)">`;
+  if (md.kind === "video") return `<video class="media" controls preload="metadata" src="${src}"></video>`;
+  if (md.kind === "audio") return `<audio controls preload="none" src="${src}" style="width:230px;display:block;margin:4px 0"></audio>`;
+  return `<a class="media-doc" href="${src}" target="_blank" rel="noopener">📄 ${escapeHtml(md.name || "Document")}</a>`;
+}
 function escapeHtml(s) { return String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c])); }
 function escapeAttr(s) { return escapeHtml(s).replace(/'/g, "&#39;"); }
 

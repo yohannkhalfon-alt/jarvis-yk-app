@@ -7,9 +7,15 @@ export class Archive {
   constructor(dir) {
     this.dir = dir;
     this.msgDir = path.join(dir, "chats");
+    this.mediaDir = path.join(dir, "media");
     fs.mkdirSync(this.msgDir, { recursive: true });
+    fs.mkdirSync(this.mediaDir, { recursive: true });
     this.indexPath = path.join(dir, "chats.json");
     this.index = this.#loadIndex();
+  }
+
+  mediaPath(name) {
+    return path.join(this.mediaDir, path.basename(name || ""));
   }
 
   #loadIndex() {
