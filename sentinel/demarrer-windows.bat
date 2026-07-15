@@ -3,19 +3,19 @@ chcp 65001 >nul
 title JARVIS-YK Sentinel
 cd /d "%~dp0"
 
-if not exist "config.json" (
-  echo.
-  echo  [!] Fichier config.json manquant.
-  echo      Copie config.example.json en config.json et remplis-le d'abord.
-  echo.
-  pause
-  exit /b 1
-)
-
 if not exist "node_modules" (
   echo  Installation des dependances ^(1 seule fois, patiente^)...
   call npm install
   if errorlevel 1 ( echo  [!] Echec de l'installation. pause & exit /b 1 )
+)
+
+if not exist "config.json" (
+  echo.
+  echo  Premiere configuration : reponds aux 3 questions.
+  echo.
+  node src/setup.js
+  if errorlevel 1 ( echo  [!] Configuration interrompue. pause & exit /b 1 )
+  if not exist "config.json" ( echo  [!] config.json non cree. pause & exit /b 1 )
 )
 
 echo.
