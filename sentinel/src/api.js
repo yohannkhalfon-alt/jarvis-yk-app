@@ -43,11 +43,20 @@ export function startApi(accounts, config) {
       if (p === "/api/qr") {
         const st = acc.status();
         if (st.connected) return send(res, 200, { connected: true });
+        const pairing = acc.getPairing && acc.getPairing();
         const raw = acc.getQr && acc.getQr();
-        if (!raw) return send(res, 200, { connected: false, qr: null });
+        if (!raw) return send(res, 200, { connected: false, qr: null, pairing: pairing || null });
         return QRCode.toDataURL(raw, { margin: 1, width: 320 })
-          .then((dataUrl) => send(res, 200, { connected: false, qr: dataUrl }))
-          .catch(() => send(res, 200, { connected: false, qr: null }));
+          .then((dataUrl) => send(res, 200, { connected: false, qr: dataUrl, pairing: pairing || null }))
+          .catch(() => send(res, 200, { connected: false, qr: null, pairing: pairing || null }));
+      }
+      if (p === "/api/pair") {
+        if (acc.status().connected) return send(res, 200, { connected: true });
+        const number = url.searchParams.get("number");
+        if (!acc.requestPairing) return send(res, 400, { error: "non supporte" });
+        return acc.requestPairing(number)
+          .then((code) => send(res, 200, { code }))
+          .catch((e) => send(res, 200, { error: e.message }));
       }
       if (p === "/api/chats") return send(res, 200, acc.archive.listChats());
       if (p === "/api/messages") {

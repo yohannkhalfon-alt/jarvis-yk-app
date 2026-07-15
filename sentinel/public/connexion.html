@@ -20,6 +20,9 @@
   button { background:var(--acc); color:#04231c; border:0; padding:11px 18px; border-radius:10px; font-weight:600; cursor:pointer; font-size:15px; margin-top:10px; }
   a.link { color:var(--acc); font-weight:600; text-decoration:none; display:inline-block; margin-top:14px; }
   .steps { text-align:left; font-size:13px; color:var(--dim); margin-top:18px; line-height:1.6; }
+  .sep { color:var(--dim); font-size:13px; margin:20px 0 14px; }
+  .paircode { font-size:30px; font-weight:700; letter-spacing:4px; background:#202c33; border-radius:12px;
+              padding:16px; margin:6px 0 12px; color:var(--acc); user-select:all; }
   .hide { display:none; }
 </style>
 </head>
@@ -35,17 +38,39 @@
   </div>
 
   <div id="main" class="hide">
-    <p>Scanne ce QR avec le téléphone du compte à surveiller :<br>
-       <b>WhatsApp → Réglages → Appareils connectés → Connecter un appareil</b></p>
-    <div class="qr"><img id="qrimg" alt="QR en cours de génération…"></div>
-    <div id="status" class="status">En attente du QR…</div>
+    <!-- Mode QR -->
+    <div id="qrmode">
+      <p>Scanne ce QR avec le téléphone du compte à surveiller :<br>
+         <b>WhatsApp → Réglages → Appareils connectés → Connecter un appareil</b></p>
+      <div class="qr"><img id="qrimg" alt="QR en cours de génération…"></div>
+      <div id="status" class="status">En attente du QR…</div>
+
+      <div class="sep">— ou —</div>
+      <p style="margin-bottom:8px"><b>La personne n'est pas avec toi ?</b><br>
+         Lie son compte à distance avec un code à lui envoyer.</p>
+      <input id="pairnum" inputmode="tel" placeholder="Son numéro, ex +573106224524">
+      <br><button onclick="getPair()">Obtenir un code de liaison</button>
+      <p id="pairerr" style="color:#f0a"></p>
+    </div>
+
+    <!-- Code de liaison affiché -->
+    <div id="pairmode" class="hide">
+      <p>Envoie ce code à la personne. Sur SON téléphone :<br>
+         <b>WhatsApp → Appareils connectés → Connecter un appareil →
+         « Lier avec le numéro de téléphone » → saisir ce code :</b></p>
+      <div id="paircode" class="paircode">— — — —</div>
+      <div id="status2" class="status">En attente de la saisie du code…</div>
+      <div class="steps">Le code est valable quelques minutes. S'il expire, reviens en arrière et regénères-en un.</div>
+      <br><button onclick="backToQr()" style="background:#2a3942;color:var(--txt)">← Revenir au QR</button>
+    </div>
+
     <div id="done" class="hide">
       <div class="status ok">✅ Connecté !</div>
       <a class="link" href="/">→ Ouvrir les conversations</a>
     </div>
-    <div class="steps">
-      Le QR se rafraîchit tout seul, tu n'as rien à faire. Garde cette page ouverte
-      jusqu'à ce qu'il affiche « Connecté ». Le terminal doit rester ouvert aussi.
+
+    <div class="steps" style="margin-top:20px">
+      Garde cette page ouverte jusqu'à « Connecté ». Le terminal (fenêtre noire) doit rester ouvert aussi.
     </div>
   </div>
 </div>
@@ -73,11 +98,14 @@ async function poll() {
     if (r.status === 401) { fail("Jeton invalide."); return; }
     const d = await r.json();
     if (d.connected) {
-      $("#qrimg").parentElement.classList.add("hide");
-      $("#status").classList.add("hide");
+      $("#qrmode").classList.add("hide");
+      $("#pairmode").classList.add("hide");
       $("#done").classList.remove("hide");
       clearTimeout(timer);
       return;
+    }
+    if (d.pairing) {
+      $("#paircode").textContent = d.pairing;
     }
     if (d.qr) {
       $("#qrimg").src = d.qr;
@@ -89,6 +117,27 @@ async function poll() {
     $("#status").textContent = "Connexion au serveur perdue, nouvelle tentative…";
   }
   timer = setTimeout(poll, 2000);
+}
+
+async function getPair() {
+  const num = $("#pairnum").value.trim();
+  $("#pairerr").textContent = "";
+  if (num.replace(/[^\d]/g, "").length < 8) { $("#pairerr").textContent = "Entre un numéro valide (format international)."; return; }
+  try {
+    const r = await fetch("/api/pair?token=" + encodeURIComponent(TOK) + "&number=" + encodeURIComponent(num));
+    const d = await r.json();
+    if (d.connected) { return; }
+    if (d.error) { $("#pairerr").textContent = d.error; return; }
+    $("#paircode").textContent = d.code;
+    $("#qrmode").classList.add("hide");
+    $("#pairmode").classList.remove("hide");
+  } catch (e) {
+    $("#pairerr").textContent = "Erreur de connexion au serveur.";
+  }
+}
+function backToQr() {
+  $("#pairmode").classList.add("hide");
+  $("#qrmode").classList.remove("hide");
 }
 function fail(msg) {
   localStorage.removeItem("sentinel_tok");

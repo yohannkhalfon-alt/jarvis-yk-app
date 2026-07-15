@@ -42,7 +42,8 @@ export async function startAccount(account, config) {
     groupNames: new Map(),
     sock: null,
     connected: false,
-    qr: null
+    qr: null,
+    pairingCode: null
   };
   const webPort = process.env.PORT || config.port || 8787;
   const saveState = () =>
@@ -50,7 +51,22 @@ export async function startAccount(account, config) {
 
   const notifyJid = toJid(account.notify);
   const log = (...a) => console.log(`[${account.id}]`, ...a);
-  const handle = { account, archive, getQr: () => ctx.qr, status: () => ({ connected: ctx.connected, paused: ctx.paused }) };
+  const handle = {
+    account, archive,
+    getQr: () => ctx.qr,
+    getPairing: () => ctx.pairingCode,
+    status: () => ({ connected: ctx.connected, paused: ctx.paused }),
+    // Liaison a distance : genere un code a taper dans WhatsApp (sans QR)
+    requestPairing: async (rawNumber) => {
+      const num = String(rawNumber || "").replace(/[^\d]/g, "");
+      if (ctx.connected) throw new Error("Deja connecte.");
+      if (!ctx.sock) throw new Error("Serveur pas encore pret, reessaie dans 5s.");
+      if (num.length < 8) throw new Error("Numero invalide (format international, ex 573106224524).");
+      const code = await ctx.sock.requestPairingCode(num);
+      ctx.pairingCode = code;
+      return code;
+    }
+  };
 
   async function connect() {
     const { state, saveCreds } = await useMultiFileAuthState(path.join(dataDir, "auth"));
@@ -66,7 +82,7 @@ export async function startAccount(account, config) {
         log(`QR pret. Ouvre cette page pour le scanner (image nette, se met a jour toute seule) :`);
         log(`   >>> http://localhost:${webPort}/connexion`);
       }
-      if (connection === "open") { ctx.qr = null; ctx.connected = true; log("Connecte."); }
+      if (connection === "open") { ctx.qr = null; ctx.pairingCode = null; ctx.connected = true; log("Connecte."); }
       if (connection === "close") {
         ctx.connected = false;
         const code = lastDisconnect?.error?.output?.statusCode;
