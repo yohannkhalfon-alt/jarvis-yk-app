@@ -1,0 +1,17 @@
+{
+  "timezone": "Europe/Paris",
+  "port": 8787,
+  "accessToken": "CHANGE-MOI-jeton-long-et-secret",
+  "accounts": [
+    {
+      "id": "juliana",
+      "notify": "336XXXXXXXX",
+      "digest": { "enabled": true, "everyHours": 4, "scope": "all" },
+      "autoReply": {
+        "mode": "off",
+        "allowFrom": [],
+        "persona": "Tu reponds au nom de Juliana. Ton professionnel, aimable, messages courts. Ne prends jamais d'engagement ferme (prix, date contractuelle)."
+      }
+    }
+  ]
+}

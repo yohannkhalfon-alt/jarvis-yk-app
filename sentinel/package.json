@@ -1,0 +1,18 @@
+{
+  "name": "jarvis-sentinel",
+  "version": "0.1.0",
+  "description": "Veille WhatsApp multi-comptes : résumés, tâches et réponses assistées via Claude",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.9",
+    "pino": "^9.5.0",
+    "qrcode-terminal": "^0.12.0"
+  }
+}
