@@ -18,8 +18,9 @@ export function startApi(accounts, config) {
 
   const send = (res, code, data, type = "application/json") => {
     res.writeHead(code, { "content-type": type, "cache-control": "no-store" });
-    res.end(typeof data === "string" ? data : JSON.stringify(data));
+    res.end(Buffer.isBuffer(data) || typeof data === "string" ? data : JSON.stringify(data));
   };
+  const STATIC = { ".png": "image/png", ".ico": "image/x-icon", ".svg": "image/svg+xml", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp" };
   const authed = (url) => (url.searchParams.get("token") || "") === token;
 
   const server = http.createServer((req, res) => {
@@ -33,6 +34,11 @@ export function startApi(accounts, config) {
     if (p === "/connexion") {
       try { return send(res, 200, fs.readFileSync(CONNEXION, "utf8"), "text/html; charset=utf-8"); }
       catch { return send(res, 500, "Page connexion introuvable"); }
+    }
+    const ext = path.extname(p).toLowerCase();
+    if (STATIC[ext]) {
+      try { return send(res, 200, fs.readFileSync(path.join(PUB, path.basename(p))), STATIC[ext]); }
+      catch { return send(res, 404, "Not found", "text/plain"); }
     }
     if (p.startsWith("/api/")) {
       if (!authed(url)) return send(res, 401, { error: "token invalide" });
