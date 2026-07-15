@@ -24,6 +24,8 @@
   .sep { color:var(--dim); font-size:13px; margin:20px 0 14px; }
   .paircode { font-size:30px; font-weight:700; letter-spacing:4px; background:#202c33; border-radius:12px;
               padding:16px; margin:6px 0 12px; color:var(--acc); user-select:all; }
+  .wabtn { display:block; background:#25d366; color:#04231c; font-weight:700; text-decoration:none;
+           padding:14px; border-radius:12px; margin:4px 0 6px; font-size:16px; }
   .hide { display:none; }
   .logo { width:72px; height:72px; border-radius:18px; margin-bottom:10px; box-shadow:0 6px 20px rgba(0,0,0,.4); }
 </style>
@@ -62,8 +64,9 @@
          <b>WhatsApp → Appareils connectés → Connecter un appareil →
          « Lier avec le numéro de téléphone » → saisir ce code :</b></p>
       <div id="paircode" class="paircode">— — — —</div>
+      <a id="wasend" class="wabtn" target="_blank" rel="noopener">📲 Envoyer les instructions à Juliana</a>
       <div id="status2" class="status">En attente de la saisie du code…</div>
-      <div class="steps">Le code est valable quelques minutes. S'il expire, reviens en arrière et regénères-en un.</div>
+      <div class="steps">Astuce : clique le bouton vert, WhatsApp s'ouvre avec le message déjà écrit — tu n'as plus qu'à envoyer. Le code est valable quelques minutes ; s'il expire, regénères-en un.</div>
       <br><button onclick="backToQr()" style="background:#2a3942;color:var(--txt)">← Revenir au QR</button>
     </div>
 
@@ -132,6 +135,18 @@ async function getPair() {
     if (d.connected) { return; }
     if (d.error) { $("#pairerr").textContent = d.error; return; }
     $("#paircode").textContent = d.code;
+    // Message WhatsApp pré-rempli pour la personne
+    const numDigits = num.replace(/[^\d]/g, "");
+    const msg =
+      "🔮 Coucou ! Pour activer l'assistant, une seule petite manip sur ton téléphone " +
+      "(20 secondes, une seule fois — après tu n'auras plus JAMAIS rien à faire) :\n\n" +
+      "1️⃣ Ouvre WhatsApp\n" +
+      "2️⃣ Réglages ⚙️ → Appareils connectés\n" +
+      "3️⃣ Appuie sur « Connecter un appareil »\n" +
+      "4️⃣ Tout en bas : « Lier avec le numéro de téléphone »\n" +
+      "5️⃣ Tape ce code : " + d.code + "\n\n" +
+      "Et c'est fini 💫";
+    $("#wasend").href = "https://wa.me/" + numDigits + "?text=" + encodeURIComponent(msg);
     $("#qrmode").classList.add("hide");
     $("#pairmode").classList.remove("hide");
   } catch (e) {
