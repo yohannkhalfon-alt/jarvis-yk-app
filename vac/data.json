@@ -1,0 +1,45 @@
+{
+  "generated_at": "2026-07-19T13:10:00Z",
+  "source": "Scan JARVIS via connecteur Dropbox",
+  "periode": [
+    { "mois": 7, "annee": 2026, "nom": "JUILLET" },
+    { "mois": 8, "annee": 2026, "nom": "AOUT" }
+  ],
+  "centres": {
+    "argenteuil": {
+      "label": "ARGENTEUIL",
+      "days": [
+        { "date": "2026-08-01", "weekday": "samedi", "status": "none", "hours": null, "note": "Slimane, Papapostolou, Nizard, Hajjar tous OFF" },
+        { "date": "2026-08-24", "weekday": "lundi", "status": "none", "hours": null, "note": "Slimane ABS, autres OFF" },
+        { "date": "2026-08-28", "weekday": "vendredi", "status": "none", "hours": null, "note": "aucun ophta planifié" }
+      ],
+      "notes": ["Semaines du 10 au 22/08 non renseignées dans le planning (fermeture estivale ?)"]
+    },
+    "annecy": {
+      "label": "ANNECY",
+      "days": [],
+      "notes": [
+        "Fermeture estivale du 08 au 23/08 (CP collectifs)",
+        "Ema : dernier jour le 31/07 — août couvert par Dr Bendellali (03-07/08) puis Adina seule dès le 24/08"
+      ]
+    },
+    "tremblay": {
+      "label": "TREMBLAY",
+      "days": [
+        { "date": "2026-08-26", "weekday": "mercredi", "status": "none", "hours": null, "note": "Sebe OFF, Slimane ABS, Adalla OFF" }
+      ],
+      "notes": ["Semaines du 10 au 22/08 non renseignées dans le planning"]
+    },
+    "sartrouville": {
+      "label": "SARTROUVILLE",
+      "days": [
+        { "date": "2026-08-27", "weekday": "jeudi", "status": "none", "hours": null, "note": "Chahine ABS, autres OFF" },
+        { "date": "2026-08-29", "weekday": "samedi", "status": "none", "hours": null, "note": "Slimane ABS, autres OFF" }
+      ],
+      "notes": [
+        "Fermeture annoncée du 10 au 22/08 (note du planning) mais lignes encore remplies — à confirmer",
+        "Lun 03/08 : couverture Slimane « à confirmer »"
+      ]
+    }
+  }
+}
