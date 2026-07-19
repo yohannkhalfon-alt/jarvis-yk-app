@@ -144,10 +144,14 @@ const STORE_KEY = "majvac_last_v1";
 const MOIS_FR = { JANVIER:"janvier", FEVRIER:"février", MARS:"mars", AVRIL:"avril", MAI:"mai", JUIN:"juin",
   JUILLET:"juillet", AOUT:"août", SEPTEMBRE:"septembre", OCTOBRE:"octobre", NOVEMBRE:"novembre", DECEMBRE:"décembre" };
 const JOURS_ABR = ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"];
+const AUJOURDHUI = new Date().toLocaleDateString('fr-CA'); // YYYY-MM-DD local
 
 let centres = [];
-let resultats = {};   // id -> réponse API
+let resultats = {};   // id -> réponse API ou données du scan auto
 let dernierMsg = "";
+let mode = "live";    // "live" = scan Dropbox à la demande · "auto" = données publiées par JARVIS
+
+const joursFuturs = (r) => (r.days || []).filter(d => !d.date || d.date >= AUJOURDHUI);
 
 function chipHtml(c, contenu) {
   return '<div class="chip" id="chip-' + c.id + '"><div class="c">' + c.label + '</div><div class="n">' + contenu + '</div></div>';
@@ -185,7 +189,7 @@ function construireMessage(periode) {
     if (!r) { lignes.push("⏳ non analysé"); }
     else if (r.error) { lignes.push("⚠️ erreur : " + r.error); }
     else {
-      const days = (r.days || []).slice().sort((a,b) => (a.date||"").localeCompare(b.date||""));
+      const days = joursFuturs(r).slice().sort((a,b) => (a.date||"").localeCompare(b.date||""));
       if (!days.length) lignes.push("✅ aucun jour sans ophta");
       else for (const d of days) lignes.push(fmtJour(d));
       if (r.erreurs && r.erreurs.length) for (const e of r.erreurs) lignes.push("⚠️ " + e);
@@ -209,17 +213,34 @@ function majChipDepuisResultat(id) {
   const r = resultats[id];
   if (!r) return;
   if (r.error) { setChip(id, '<span class="ko">⚠️ erreur</span>'); return; }
-  const days = r.days || [];
+  const days = joursFuturs(r);
   const complets = days.filter(d => d.status === 'none').length;
   const partiels = days.filter(d => d.status === 'partial').length;
-  if (!days.length && !(r.erreurs || []).length) setChip(id, '<span class="ok">0 <small>tout couvert</small></span>');
-  else if (!days.length) setChip(id, '<span class="mid">? <small>' + r.erreurs[0] + '</small></span>');
+  if (!days.length) setChip(id, '<span class="ok">0 <small>tout couvert</small></span>');
   else {
     let html = '';
     if (complets) html += '<span class="ko">' + complets + '<small>sans ophta</small></span>';
     if (partiels) html += (complets ? ' ' : '') + '<span class="mid">' + partiels + '<small>partiel' + (partiels>1?'s':'') + '</small></span>';
     setChip(id, html);
   }
+}
+
+async function chargerAuto(bust) {
+  try {
+    const res = await fetch('/vac/data.json' + (bust ? '?t=' + Date.now() : ''));
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) { return null; }
+}
+
+function appliquerAuto(data) {
+  resultats = {};
+  for (const c of centres) {
+    const d = data.centres && data.centres[c.id];
+    resultats[c.id] = d ? { days: d.days || [], erreurs: d.notes || [] } : { error: 'absent du dernier scan' };
+    majChipDepuisResultat(c.id);
+  }
+  afficherResultat(data.periode, data.generated_at ? new Date(data.generated_at).getTime() : Date.now());
 }
 
 async function lancerScan() {
@@ -229,6 +250,15 @@ async function lancerScan() {
   document.getElementById('resultZone').style.display = 'none';
   resultats = {};
   centres.forEach(c => setChip(c.id, '<span class="spin"></span>'));
+
+  if (mode === 'auto') {
+    const data = await chargerAuto(true);
+    if (data) appliquerAuto(data);
+    else { setStatus('HORS LIGNE', true); centres.forEach(c => setChip(c.id, '<span class="ko">⚠️</span>')); }
+    btn.disabled = false; btn.classList.remove('scanning');
+    if (data) setStatus('PRÊT');
+    return;
+  }
 
   let periode = null;
   await Promise.all(centres.map(async (c) => {
@@ -276,6 +306,18 @@ async function init() {
       document.getElementById('footTxt').textContent = 'Période analysée : ' + p1 + ' → ' + (MOIS_FR[pl.nom] || pl.nom) + ' ' + pl.annee + ' · Source : Dropbox';
     }
     if (!info.ok) {
+      // Pas d'accès Dropbox direct : on bascule sur les données publiées par JARVIS
+      const data = await chargerAuto(false);
+      if (data) {
+        mode = 'auto';
+        if (data.periode && data.periode.length) {
+          const p1 = MOIS_FR[data.periode[0].nom] || data.periode[0].nom;
+          const pl = data.periode[data.periode.length - 1];
+          document.getElementById('footTxt').textContent = 'Période : ' + p1 + ' → ' + (MOIS_FR[pl.nom] || pl.nom) + ' ' + pl.annee + ' · MAJ automatique par JARVIS';
+        }
+        appliquerAuto(data);
+        return;
+      }
       setStatus('CONFIG', true);
       const box = document.getElementById('setupBox');
       box.style.display = 'block';
@@ -283,7 +325,7 @@ async function init() {
         info.manquantes.map(m => '<code>' + m + '</code>').join(' ') +
         '<br>Voir le fichier <code>MAJVAC-SETUP.md</code> du projet pour les créer (5 min).';
     }
-    // Restaurer le dernier résultat
+    // Restaurer le dernier résultat (mode live)
     try {
       const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
       if (saved && saved.resultats) {
