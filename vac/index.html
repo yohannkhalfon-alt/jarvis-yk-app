@@ -229,7 +229,11 @@ function construireMessage(periode) {
     else if (r.error) { lignes.push("⚠️ erreur : " + r.error); }
     else {
       const days = joursFuturs(r).slice().sort((a,b) => (a.date||"").localeCompare(b.date||""));
-      if (!days.length) lignes.push("✅ aucun jour sans ophta");
+      const totalFutur = (r.days || []).filter(d => !d.date || d.date >= AUJOURDHUI).length;
+      if (!days.length) {
+        if (rangeJours && totalFutur > 0) lignes.push("✅ rien sur cette période (" + totalFutur + " jour" + (totalFutur > 1 ? "s" : "") + " plus tard → voir 3 MOIS)");
+        else lignes.push("✅ aucun jour sans ophta");
+      }
       else for (const d of days) lignes.push(fmtJour(d));
       if (r.erreurs && r.erreurs.length) for (const e of r.erreurs) lignes.push("⚠️ " + e);
     }
@@ -254,9 +258,15 @@ function majChipDepuisResultat(id) {
   if (!r) return;
   if (r.error) { setChip(id, '<span class="ko">⚠️ erreur</span>'); return; }
   const days = joursFuturs(r);
+  const totalFutur = (r.days || []).filter(d => !d.date || d.date >= AUJOURDHUI).length;
   const complets = days.filter(d => d.status === 'none').length;
   const partiels = days.filter(d => d.status === 'partial').length;
-  if (!days.length) setChip(id, '<span class="ok">0 <small>tout couvert</small></span>');
+  if (!days.length) {
+    if (rangeJours && totalFutur > 0)
+      setChip(id, '<span class="ok">0</span> <small class="mid">· ' + totalFutur + ' sur 3 mois</small>');
+    else
+      setChip(id, '<span class="ok">0 <small>tout couvert</small></span>');
+  }
   else {
     let html = '';
     if (complets) html += '<span class="ko">' + complets + '<small>sans ophta</small></span>';
