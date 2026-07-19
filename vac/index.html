@@ -76,6 +76,15 @@
   #btnVac.scanning { animation:pulse 1.2s infinite; }
   #lastScan { font-size:11px; color:var(--dim); letter-spacing:1px; }
 
+  /* Sélecteur de période */
+  .seg { display:flex; gap:8px; justify-content:center; }
+  .seg button {
+    flex:1; max-width:120px; padding:9px 0; border-radius:20px; cursor:pointer;
+    background:transparent; border:1px solid var(--line); color:var(--dim);
+    font-family:'Rajdhani'; font-size:13px; font-weight:700; letter-spacing:1px; transition:.15s;
+  }
+  .seg button.on { background:rgba(79,216,235,.14); border-color:rgba(79,216,235,.55); color:var(--cyan); }
+
   /* Chips centres */
   .chips { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
   .chip { border:1px solid var(--line); background:var(--panel); border-radius:11px; padding:10px 12px; min-height:60px; }
@@ -125,6 +134,12 @@
 
   <div id="setupBox"></div>
 
+  <div class="seg" id="seg">
+    <button data-r="7" onclick="setRange(7)">7 JOURS</button>
+    <button data-r="30" onclick="setRange(30)">30 JOURS</button>
+    <button data-r="0" class="on" onclick="setRange(0)">3 MOIS</button>
+  </div>
+
   <div class="chips" id="chips"></div>
 
   <div id="resultZone">
@@ -150,8 +165,28 @@ let centres = [];
 let resultats = {};   // id -> réponse API ou données du scan auto
 let dernierMsg = "";
 let mode = "live";    // "live" = scan Dropbox à la demande · "auto" = données publiées par JARVIS
+let rangeJours = parseInt(localStorage.getItem('majvac_range') || '0', 10) || 0;  // 0 = 3 mois
+let lastPeriode = null, lastTs = null;
 
-const joursFuturs = (r) => (r.days || []).filter(d => !d.date || d.date >= AUJOURDHUI);
+function limiteIso() {
+  if (!rangeJours) return null;
+  const d = new Date(); d.setDate(d.getDate() + rangeJours);
+  return d.toLocaleDateString('fr-CA');
+}
+const joursFuturs = (r) => {
+  const lim = limiteIso();
+  return (r.days || []).filter(d => !d.date || (d.date >= AUJOURDHUI && (!lim || d.date <= lim)));
+};
+
+function setRange(n) {
+  rangeJours = n;
+  try { localStorage.setItem('majvac_range', String(n)); } catch (e) {}
+  document.querySelectorAll('#seg button').forEach(b => b.classList.toggle('on', parseInt(b.dataset.r, 10) === n));
+  if (Object.keys(resultats).length) {
+    centres.forEach(c => majChipDepuisResultat(c.id));
+    afficherResultat(lastPeriode, lastTs);
+  }
+}
 
 function chipHtml(c, contenu) {
   return '<div class="chip" id="chip-' + c.id + '"><div class="c">' + c.label + '</div><div class="n">' + contenu + '</div></div>';
@@ -177,7 +212,11 @@ function fmtJour(d) {
 
 function construireMessage(periode) {
   let lignes = ["🚨 JOURS SANS OPHTA"];
-  if (periode && periode.length) {
+  if (rangeJours) {
+    const lim = new Date(limiteIso() + "T12:00:00");
+    lignes.push("Période : les " + rangeJours + " prochains jours (jusqu'au " +
+      String(lim.getDate()).padStart(2,"0") + "/" + String(lim.getMonth()+1).padStart(2,"0") + ")");
+  } else if (periode && periode.length) {
     const p1 = MOIS_FR[periode[0].nom] || periode[0].nom;
     const p2 = periode[periode.length-1];
     lignes.push("Période : " + p1 + " → " + (MOIS_FR[p2.nom] || p2.nom) + " " + p2.annee);
@@ -200,6 +239,7 @@ function construireMessage(periode) {
 }
 
 function afficherResultat(periode, ts) {
+  lastPeriode = periode; lastTs = ts;
   dernierMsg = construireMessage(periode);
   document.getElementById('msgBox').textContent = dernierMsg;
   document.getElementById('resultZone').style.display = 'flex';
@@ -338,6 +378,7 @@ async function init() {
     setStatus('HORS LIGNE', true);
   }
 }
+document.querySelectorAll('#seg button').forEach(b => b.classList.toggle('on', parseInt(b.dataset.r, 10) === rangeJours));
 init();
 </script>
 </body>
