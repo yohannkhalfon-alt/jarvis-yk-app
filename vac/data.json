@@ -1,9 +1,10 @@
 {
-  "generated_at": "2026-07-19T13:10:00Z",
+  "generated_at": "2026-07-19T13:25:00Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     { "mois": 7, "annee": 2026, "nom": "JUILLET" },
-    { "mois": 8, "annee": 2026, "nom": "AOUT" }
+    { "mois": 8, "annee": 2026, "nom": "AOUT" },
+    { "mois": 9, "annee": 2026, "nom": "SEPTEMBRE" }
   ],
   "centres": {
     "argenteuil": {
@@ -13,32 +14,44 @@
         { "date": "2026-08-24", "weekday": "lundi", "status": "none", "hours": null, "note": "Slimane ABS, autres OFF" },
         { "date": "2026-08-28", "weekday": "vendredi", "status": "none", "hours": null, "note": "aucun ophta planifié" }
       ],
-      "notes": ["Semaines du 10 au 22/08 non renseignées dans le planning (fermeture estivale ?)"]
+      "notes": [
+        "Semaines du 10 au 22/08 non renseignées dans le planning (fermeture estivale ?)",
+        "Lun 21/09 : centre fermé (Kippour)",
+        "Ven 25/09 : couverture Slimane « à confirmer »"
+      ]
     },
     "annecy": {
       "label": "ANNECY",
       "days": [],
       "notes": [
         "Fermeture estivale du 08 au 23/08 (CP collectifs)",
-        "Ema : dernier jour le 31/07 — août couvert par Dr Bendellali (03-07/08) puis Adina seule dès le 24/08"
+        "Ema : dernier jour le 31/07 — août couvert par Dr Bendellali (03-07/08) puis Adina seule dès le 24/08",
+        "Semaine du 07 au 12/09 : couverte par un médecin noté « Dr » sans nom dans le planning — à confirmer"
       ]
     },
     "tremblay": {
       "label": "TREMBLAY",
       "days": [
-        { "date": "2026-08-26", "weekday": "mercredi", "status": "none", "hours": null, "note": "Sebe OFF, Slimane ABS, Adalla OFF" }
+        { "date": "2026-08-26", "weekday": "mercredi", "status": "none", "hours": null, "note": "Sebe OFF, Slimane ABS, Adalla OFF" },
+        { "date": "2026-09-01", "weekday": "mardi", "status": "none", "hours": null, "note": "Adalla ABS, Slimane/Sebe/Clemente OFF" },
+        { "date": "2026-09-04", "weekday": "vendredi", "status": "none", "hours": null, "note": "Adalla ABS, autres OFF" }
       ],
-      "notes": ["Semaines du 10 au 22/08 non renseignées dans le planning"]
+      "notes": [
+        "Semaines du 10 au 22/08 non renseignées dans le planning",
+        "Lun 21/09 : centre fermé (Kippour)"
+      ]
     },
     "sartrouville": {
       "label": "SARTROUVILLE",
       "days": [
         { "date": "2026-08-27", "weekday": "jeudi", "status": "none", "hours": null, "note": "Chahine ABS, autres OFF" },
-        { "date": "2026-08-29", "weekday": "samedi", "status": "none", "hours": null, "note": "Slimane ABS, autres OFF" }
+        { "date": "2026-08-29", "weekday": "samedi", "status": "none", "hours": null, "note": "Slimane ABS, autres OFF" },
+        { "date": "2026-09-02", "weekday": "mercredi", "status": "none", "hours": null, "note": "Addala ABS, autres OFF" }
       ],
       "notes": [
         "Fermeture annoncée du 10 au 22/08 (note du planning) mais lignes encore remplies — à confirmer",
-        "Lun 03/08 : couverture Slimane « à confirmer »"
+        "Lun 03/08 : couverture Slimane « à confirmer »",
+        "Lun 21/09 : centre fermé (Kippour)"
       ]
     }
   }

@@ -165,7 +165,7 @@ export default async (req) => {
 
   const url = new URL(req.url);
   const centreId = url.searchParams.get("centre");
-  const nbMois = Math.min(Math.max(parseInt(url.searchParams.get("months") || "2", 10) || 2, 1), 3);
+  const nbMois = Math.min(Math.max(parseInt(url.searchParams.get("months") || "3", 10) || 3, 1), 3);
   const periode = moisAnalyses(nbMois);
 
   if (!centreId) {
