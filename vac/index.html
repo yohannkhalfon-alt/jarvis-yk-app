@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#04060C" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="MAJ VAC" />
+<title>MAJ VAC — Jours sans ophta</title>
+<meta name="description" content="Un appui : scan des plannings Dropbox et jours sans ophtalmologue par centre, prêts à envoyer sur WhatsApp." />
+<meta property="og:title" content="MAJ VAC — Jours sans ophta" />
+<meta property="og:description" content="Un appui : jours sans ophta par centre (Argenteuil, Annecy, Tremblay, Sartrouville), prêts à envoyer sur WhatsApp." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://jarvis-yk-app.netlify.app/vac/" />
+<meta property="og:image" content="https://jarvis-yk-app.netlify.app/vac/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<link rel="manifest" href="/vac/manifest.webmanifest" />
+<link rel="icon" type="image/png" sizes="192x192" href="/vac/icon-192.png" />
+<link rel="apple-touch-icon" href="/vac/apple-touch-icon.png" />
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { height:100%; }
+  :root {
+    --bg:#04060C; --panel:rgba(10,16,28,0.72); --line:rgba(79,216,235,0.18);
+    --blue:#1B6FD8; --cyan:#4FD8EB; --txt:#C8D6E5; --dim:#6B7C93;
+    --red:#FF5D6C; --orange:#FFB454; --green:#33d17a;
+  }
+  body {
+    background:var(--bg); color:var(--txt); font-family:'Rajdhani',sans-serif;
+    display:flex; flex-direction:column; min-height:100vh;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(27,111,216,0.13), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 110%, rgba(79,216,235,0.06), transparent);
+  }
+  @keyframes spin { from{transform:rotate(0);} to{transform:rotate(360deg);} }
+  @keyframes pulse { 0%,100%{opacity:.5;} 50%{opacity:1;} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
+
+  header {
+    display:flex; align-items:center; gap:12px; padding:14px 18px;
+    border-bottom:1px solid var(--line); background:rgba(4,6,12,.6); backdrop-filter:blur(8px);
+  }
+  .back { color:var(--dim); text-decoration:none; font-size:13px; letter-spacing:1px; }
+  .back:hover { color:var(--cyan); }
+  .core { width:30px; height:30px; position:relative; flex:none; }
+  .core::before, .core::after {
+    content:''; position:absolute; inset:0; border-radius:50%;
+    border:2px solid transparent; border-top-color:var(--cyan); border-right-color:var(--blue);
+    animation:spin 3s linear infinite;
+  }
+  .core::after { inset:5px; animation-direction:reverse; animation-duration:2s; }
+  h1 { font-family:'Orbitron'; font-size:15px; letter-spacing:2.5px; color:#EAF4FF; font-weight:700; }
+  h1 span { color:var(--cyan); }
+  .status { margin-left:auto; font-size:11px; color:var(--dim); letter-spacing:1px; display:flex; align-items:center; gap:6px; }
+  .dot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 2s infinite; }
+  .dot.err { background:var(--red); }
+
+  main { flex:1; width:100%; max-width:560px; margin:0 auto; padding:22px 16px 40px; display:flex; flex-direction:column; gap:16px; }
+
+  /* Bouton principal */
+  .btnwrap { display:flex; flex-direction:column; align-items:center; gap:8px; }
+  #btnVac {
+    width:170px; height:170px; border-radius:50%; cursor:pointer; border:2px solid rgba(79,216,235,.55);
+    background:radial-gradient(circle at 50% 35%, rgba(79,216,235,.22), rgba(27,111,216,.10) 60%, transparent);
+    box-shadow:0 0 34px rgba(79,216,235,.28), inset 0 0 22px rgba(79,216,235,.12);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+    color:#EAF4FF; font-family:'Orbitron'; transition:.2s;
+  }
+  #btnVac b { font-size:21px; letter-spacing:3px; font-weight:900; }
+  #btnVac span { font-family:'Rajdhani'; font-size:10px; letter-spacing:1.6px; color:var(--dim); text-transform:uppercase; }
+  #btnVac:active { transform:scale(.96); }
+  #btnVac:disabled { opacity:.55; cursor:wait; }
+  #btnVac.scanning { animation:pulse 1.2s infinite; }
+  #lastScan { font-size:11px; color:var(--dim); letter-spacing:1px; }
+
+  /* Chips centres */
+  .chips { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  .chip { border:1px solid var(--line); background:var(--panel); border-radius:11px; padding:10px 12px; min-height:60px; }
+  .chip .c { font-size:10px; letter-spacing:1.4px; color:var(--dim); text-transform:uppercase; }
+  .chip .n { font-size:17px; font-weight:700; color:#EAF4FF; margin-top:2px; font-family:'Rajdhani'; }
+  .chip .n small { font-size:11px; font-weight:600; letter-spacing:.4px; margin-left:4px; }
+  .ok { color:var(--green); } .ko { color:var(--red); } .mid { color:var(--orange); } .wait { color:var(--dim); }
+  .spin { display:inline-block; width:13px; height:13px; border-radius:50%; border:2px solid rgba(79,216,235,.25); border-top-color:var(--cyan); animation:spin .9s linear infinite; vertical-align:-2px; }
+
+  /* Message */
+  #resultZone { display:none; flex-direction:column; gap:10px; animation:fadeUp .3s ease; }
+  .rt { font-size:11px; letter-spacing:2px; color:var(--cyan); text-transform:uppercase; font-weight:700; }
+  #msgBox {
+    background:rgba(10,16,28,.85); border:1px solid rgba(79,216,235,.25); border-radius:12px;
+    padding:14px; font-size:14.5px; line-height:1.6; white-space:pre-wrap; color:#DDE7F4;
+    font-family:'Rajdhani',sans-serif; font-weight:500;
+  }
+  .acts { display:flex; gap:9px; }
+  .acts button {
+    flex:1; border-radius:11px; padding:13px 0; font-size:14px; font-weight:700; letter-spacing:1px;
+    cursor:pointer; font-family:'Rajdhani'; transition:.15s;
+  }
+  #btnCopy { background:transparent; border:1.5px solid rgba(79,216,235,.5); color:var(--cyan); }
+  #btnCopy:active { background:rgba(79,216,235,.12); }
+  #btnWa { background:#1FAF5E; border:none; color:#04140B; }
+  #btnWa:active { filter:brightness(1.1); }
+
+  /* Setup / erreurs */
+  #setupBox { display:none; border:1px dashed rgba(255,180,84,.5); border-radius:12px; padding:14px; font-size:13.5px; color:var(--orange); line-height:1.5; }
+  #setupBox code { color:#EAF4FF; background:rgba(255,255,255,.07); padding:1px 6px; border-radius:5px; font-size:12px; }
+  .foot { text-align:center; font-size:10.5px; color:var(--dim); letter-spacing:1px; margin-top:auto; }
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="/">◂</a>
+  <div class="core"></div>
+  <h1>MAJ<span>·VAC</span></h1>
+  <div class="status"><span class="dot" id="statusDot"></span><span id="statusTxt">PRÊT</span></div>
+</header>
+
+<main>
+  <div class="btnwrap">
+    <button id="btnVac" onclick="lancerScan()"><b>MAJ VAC</b><span>Scanner les plannings</span></button>
+    <div id="lastScan"></div>
+  </div>
+
+  <div id="setupBox"></div>
+
+  <div class="chips" id="chips"></div>
+
+  <div id="resultZone">
+    <div class="rt">Message prêt à envoyer</div>
+    <div id="msgBox"></div>
+    <div class="acts">
+      <button id="btnCopy" onclick="copierMsg()">📋 COPIER</button>
+      <button id="btnWa" onclick="envoyerWa()">WHATSAPP</button>
+    </div>
+  </div>
+
+  <div class="foot" id="footTxt">Période analysée : mois en cours + mois suivant · Source : Dropbox</div>
+</main>
+
+<script>
+const STORE_KEY = "majvac_last_v1";
+const MOIS_FR = { JANVIER:"janvier", FEVRIER:"février", MARS:"mars", AVRIL:"avril", MAI:"mai", JUIN:"juin",
+  JUILLET:"juillet", AOUT:"août", SEPTEMBRE:"septembre", OCTOBRE:"octobre", NOVEMBRE:"novembre", DECEMBRE:"décembre" };
+const JOURS_ABR = ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"];
+
+let centres = [];
+let resultats = {};   // id -> réponse API
+let dernierMsg = "";
+
+function chipHtml(c, contenu) {
+  return '<div class="chip" id="chip-' + c.id + '"><div class="c">' + c.label + '</div><div class="n">' + contenu + '</div></div>';
+}
+function setChip(id, contenu) {
+  const el = document.querySelector('#chip-' + id + ' .n');
+  if (el) el.innerHTML = contenu;
+}
+function setStatus(txt, err) {
+  document.getElementById('statusTxt').textContent = txt;
+  document.getElementById('statusDot').className = 'dot' + (err ? ' err' : '');
+}
+
+function fmtJour(d) {
+  // d.date = "YYYY-MM-DD"
+  const dt = new Date(d.date + "T12:00:00");
+  const abr = isNaN(dt) ? (d.weekday || "").slice(0,3) : JOURS_ABR[dt.getDay()];
+  const jm = isNaN(dt) ? d.date : String(dt.getDate()).padStart(2,"0") + "/" + String(dt.getMonth()+1).padStart(2,"0");
+  let ligne = "• " + abr + " " + jm;
+  if (d.status === "partial") ligne += " (ophta " + (d.hours || "partiel") + " seulement)";
+  return ligne;
+}
+
+function construireMessage(periode) {
+  let lignes = ["🚨 JOURS SANS OPHTA"];
+  if (periode && periode.length) {
+    const p1 = MOIS_FR[periode[0].nom] || periode[0].nom;
+    const p2 = periode[periode.length-1];
+    lignes.push("Période : " + p1 + " → " + (MOIS_FR[p2.nom] || p2.nom) + " " + p2.annee);
+  }
+  lignes.push("");
+  for (const c of centres) {
+    const r = resultats[c.id];
+    lignes.push("📍 " + c.label);
+    if (!r) { lignes.push("⏳ non analysé"); }
+    else if (r.error) { lignes.push("⚠️ erreur : " + r.error); }
+    else {
+      const days = (r.days || []).slice().sort((a,b) => (a.date||"").localeCompare(b.date||""));
+      if (!days.length) lignes.push("✅ aucun jour sans ophta");
+      else for (const d of days) lignes.push(fmtJour(d));
+      if (r.erreurs && r.erreurs.length) for (const e of r.erreurs) lignes.push("⚠️ " + e);
+    }
+    lignes.push("");
+  }
+  return lignes.join("\n").trim();
+}
+
+function afficherResultat(periode, ts) {
+  dernierMsg = construireMessage(periode);
+  document.getElementById('msgBox').textContent = dernierMsg;
+  document.getElementById('resultZone').style.display = 'flex';
+  const d = ts ? new Date(ts) : new Date();
+  document.getElementById('lastScan').textContent = "Dernier scan : " +
+    d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' }) + " " +
+    d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+}
+
+function majChipDepuisResultat(id) {
+  const r = resultats[id];
+  if (!r) return;
+  if (r.error) { setChip(id, '<span class="ko">⚠️ erreur</span>'); return; }
+  const days = r.days || [];
+  const complets = days.filter(d => d.status === 'none').length;
+  const partiels = days.filter(d => d.status === 'partial').length;
+  if (!days.length && !(r.erreurs || []).length) setChip(id, '<span class="ok">0 <small>tout couvert</small></span>');
+  else if (!days.length) setChip(id, '<span class="mid">? <small>' + r.erreurs[0] + '</small></span>');
+  else {
+    let html = '';
+    if (complets) html += '<span class="ko">' + complets + '<small>sans ophta</small></span>';
+    if (partiels) html += (complets ? ' ' : '') + '<span class="mid">' + partiels + '<small>partiel' + (partiels>1?'s':'') + '</small></span>';
+    setChip(id, html);
+  }
+}
+
+async function lancerScan() {
+  const btn = document.getElementById('btnVac');
+  btn.disabled = true; btn.classList.add('scanning');
+  setStatus('SCAN…');
+  document.getElementById('resultZone').style.display = 'none';
+  resultats = {};
+  centres.forEach(c => setChip(c.id, '<span class="spin"></span>'));
+
+  let periode = null;
+  await Promise.all(centres.map(async (c) => {
+    try {
+      const res = await fetch('/api/majvac?centre=' + c.id);
+      const data = await res.json();
+      resultats[c.id] = data;
+      if (data.periode) periode = data.periode;
+    } catch (e) {
+      resultats[c.id] = { error: 'réseau : ' + e.message };
+    }
+    majChipDepuisResultat(c.id);
+  }));
+
+  afficherResultat(periode, Date.now());
+  try { localStorage.setItem(STORE_KEY, JSON.stringify({ ts: Date.now(), periode, resultats })); } catch (e) {}
+  btn.disabled = false; btn.classList.remove('scanning');
+  setStatus('PRÊT');
+}
+
+function copierMsg() {
+  const done = () => { const b = document.getElementById('btnCopy'); b.textContent = '✓ COPIÉ'; setTimeout(() => b.textContent = '📋 COPIER', 1600); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(dernierMsg).then(done).catch(() => fallbackCopy(done));
+  else fallbackCopy(done);
+}
+function fallbackCopy(done) {
+  const ta = document.createElement('textarea');
+  ta.value = dernierMsg; document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); done(); } catch (e) { alert('Copie impossible — sélectionne le texte manuellement.'); }
+  document.body.removeChild(ta);
+}
+function envoyerWa() {
+  window.open('https://wa.me/?text=' + encodeURIComponent(dernierMsg), '_blank');
+}
+
+async function init() {
+  try {
+    const res = await fetch('/api/majvac');
+    const info = await res.json();
+    centres = info.centres || [];
+    document.getElementById('chips').innerHTML = centres.map(c => chipHtml(c, '<span class="wait">—</span>')).join('');
+    if (info.periode && info.periode.length) {
+      const p1 = MOIS_FR[info.periode[0].nom] || info.periode[0].nom;
+      const pl = info.periode[info.periode.length-1];
+      document.getElementById('footTxt').textContent = 'Période analysée : ' + p1 + ' → ' + (MOIS_FR[pl.nom] || pl.nom) + ' ' + pl.annee + ' · Source : Dropbox';
+    }
+    if (!info.ok) {
+      setStatus('CONFIG', true);
+      const box = document.getElementById('setupBox');
+      box.style.display = 'block';
+      box.innerHTML = '⚠️ Configuration incomplète — variables manquantes sur Netlify : ' +
+        info.manquantes.map(m => '<code>' + m + '</code>').join(' ') +
+        '<br>Voir le fichier <code>MAJVAC-SETUP.md</code> du projet pour les créer (5 min).';
+    }
+    // Restaurer le dernier résultat
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
+      if (saved && saved.resultats) {
+        resultats = saved.resultats;
+        centres.forEach(c => majChipDepuisResultat(c.id));
+        afficherResultat(saved.periode, saved.ts);
+      }
+    } catch (e) {}
+  } catch (e) {
+    setStatus('HORS LIGNE', true);
+  }
+}
+init();
+</script>
+</body>
+</html>

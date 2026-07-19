@@ -1,0 +1,9 @@
+{
+  "name": "jarvis-yk-app",
+  "private": true,
+  "version": "1.0.0",
+  "description": "JARVIS YK — direction virtuelle + mini apps (MAJ VAC)",
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}
