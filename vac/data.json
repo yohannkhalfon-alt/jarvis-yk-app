@@ -1,18 +1,48 @@
 {
-  "generated_at": "2026-07-19T13:25:00Z",
+  "generated_at": "2026-07-20T05:36:00Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
-    { "mois": 7, "annee": 2026, "nom": "JUILLET" },
-    { "mois": 8, "annee": 2026, "nom": "AOUT" },
-    { "mois": 9, "annee": 2026, "nom": "SEPTEMBRE" }
+    {
+      "mois": 7,
+      "annee": 2026,
+      "nom": "JUILLET"
+    },
+    {
+      "mois": 8,
+      "annee": 2026,
+      "nom": "AOUT"
+    },
+    {
+      "mois": 9,
+      "annee": 2026,
+      "nom": "SEPTEMBRE"
+    }
   ],
   "centres": {
     "argenteuil": {
       "label": "ARGENTEUIL",
       "days": [
-        { "date": "2026-08-01", "weekday": "samedi", "status": "none", "hours": null, "note": "Slimane, Papapostolou, Nizard, Hajjar tous OFF" },
-        { "date": "2026-08-24", "weekday": "lundi", "status": "none", "hours": null, "note": "Slimane ABS, autres OFF" },
-        { "date": "2026-08-28", "weekday": "vendredi", "status": "none", "hours": null, "note": "aucun ophta planifié" }
+        {
+          "date": "2026-08-01",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Slimane, Papapostolou, Nizard, Hajjar tous OFF"
+        },
+        {
+          "date": "2026-08-24",
+          "weekday": "lundi",
+          "status": "none",
+          "hours": null,
+          "note": "Slimane ABS, autres OFF"
+        },
+        {
+          "date": "2026-08-28",
+          "weekday": "vendredi",
+          "status": "none",
+          "hours": null,
+          "note": "aucun ophta planifié"
+        }
       ],
       "notes": [
         "Semaines du 10 au 22/08 non renseignées dans le planning (fermeture estivale ?)",
@@ -32,9 +62,27 @@
     "tremblay": {
       "label": "TREMBLAY",
       "days": [
-        { "date": "2026-08-26", "weekday": "mercredi", "status": "none", "hours": null, "note": "Sebe OFF, Slimane ABS, Adalla OFF" },
-        { "date": "2026-09-01", "weekday": "mardi", "status": "none", "hours": null, "note": "Adalla ABS, Slimane/Sebe/Clemente OFF" },
-        { "date": "2026-09-04", "weekday": "vendredi", "status": "none", "hours": null, "note": "Adalla ABS, autres OFF" }
+        {
+          "date": "2026-08-26",
+          "weekday": "mercredi",
+          "status": "none",
+          "hours": null,
+          "note": "Sebe OFF, Slimane ABS, Adalla OFF"
+        },
+        {
+          "date": "2026-09-01",
+          "weekday": "mardi",
+          "status": "none",
+          "hours": null,
+          "note": "Adalla ABS, Slimane/Sebe/Clemente OFF"
+        },
+        {
+          "date": "2026-09-04",
+          "weekday": "vendredi",
+          "status": "none",
+          "hours": null,
+          "note": "Adalla ABS, autres OFF"
+        }
       ],
       "notes": [
         "Semaines du 10 au 22/08 non renseignées dans le planning",
@@ -44,9 +92,27 @@
     "sartrouville": {
       "label": "SARTROUVILLE",
       "days": [
-        { "date": "2026-08-27", "weekday": "jeudi", "status": "none", "hours": null, "note": "Chahine ABS, autres OFF" },
-        { "date": "2026-08-29", "weekday": "samedi", "status": "none", "hours": null, "note": "Slimane ABS, autres OFF" },
-        { "date": "2026-09-02", "weekday": "mercredi", "status": "none", "hours": null, "note": "Addala ABS, autres OFF" }
+        {
+          "date": "2026-08-27",
+          "weekday": "jeudi",
+          "status": "none",
+          "hours": null,
+          "note": "Chahine ABS, autres OFF"
+        },
+        {
+          "date": "2026-08-29",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Slimane ABS, autres OFF"
+        },
+        {
+          "date": "2026-09-02",
+          "weekday": "mercredi",
+          "status": "none",
+          "hours": null,
+          "note": "Addala ABS, autres OFF"
+        }
       ],
       "notes": [
         "Fermeture annoncée du 10 au 22/08 (note du planning) mais lignes encore remplies — à confirmer",
