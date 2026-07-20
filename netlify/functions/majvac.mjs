@@ -157,7 +157,7 @@ async function analyserAvecClaude(fichiers, label) {
       "anthropic-version": "2023-06-01",
     },
     body: JSON.stringify({
-      model: process.env.MAJVAC_MODEL || "claude-sonnet-5",
+      model: process.env.MAJVAC_MODEL || "claude-haiku-4-5-20251001",
       max_tokens: 2000,
       temperature: 0,
       system: SYSTEME,
@@ -177,6 +177,7 @@ export default async (req) => {
   const reponse = (obj, status = 200) =>
     new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json" } });
 
+  try {
   const creds = await getCreds();
   const manquantes = [];
   if (!creds) manquantes.push("ACCES_DROPBOX (à configurer via /api/majvac-oauth)");
@@ -185,7 +186,13 @@ export default async (req) => {
   const url = new URL(req.url);
   const centreId = url.searchParams.get("centre");
   const nbMois = Math.min(Math.max(parseInt(url.searchParams.get("months") || "3", 10) || 3, 1), 3);
-  const periode = moisAnalyses(nbMois);
+  // Un mois précis peut être demandé (scan découpé pour rester sous la limite de temps Netlify)
+  const moisParam = parseInt(url.searchParams.get("mois") || "0", 10);
+  const anneeParam = parseInt(url.searchParams.get("annee") || "0", 10);
+  const periode =
+    moisParam >= 1 && moisParam <= 12 && anneeParam >= 2024
+      ? [{ mois: moisParam, annee: anneeParam, nom: MOIS[moisParam - 1] }]
+      : moisAnalyses(nbMois);
 
   if (!centreId) {
     return reponse({
@@ -227,6 +234,9 @@ export default async (req) => {
     });
   } catch (e) {
     return reponse({ centre: centreId, label: centre.label, error: String(e.message || e) }, 502);
+  }
+  } catch (e) {
+    return reponse({ error: String((e && e.message) || e) }, 500);
   }
 };
 
