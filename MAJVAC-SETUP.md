@@ -62,3 +62,5 @@ Puis **Deploys → Trigger deploy** pour relancer un déploiement.
 
 Centres couverts : Argenteuil, Annecy, Tremblay, Sartrouville
 (configurables en tête de `netlify/functions/majvac.mjs`).
+
+<!-- build 20/07 22h05 -->
