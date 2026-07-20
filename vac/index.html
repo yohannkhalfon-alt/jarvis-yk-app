@@ -167,6 +167,16 @@ let dernierMsg = "";
 let mode = "live";    // "live" = scan Dropbox à la demande · "auto" = données publiées par JARVIS
 let rangeJours = parseInt(localStorage.getItem('majvac_range') || '0', 10) || 0;  // 0 = 3 mois
 let lastPeriode = null, lastTs = null;
+let periodeInfo = [];   // mois analysés, fournis par /api/majvac à l'ouverture
+
+async function fetchJsonSafe(u) {
+  try {
+    const res = await fetch(u);
+    const txt = await res.text();
+    try { return JSON.parse(txt); }
+    catch (e) { return { error: 'réponse invalide (' + res.status + ') : ' + txt.slice(0, 60) }; }
+  } catch (e) { return { error: 'réseau : ' + e.message }; }
+}
 
 function limiteIso() {
   if (!rangeJours) return null;
@@ -310,16 +320,20 @@ async function lancerScan() {
     return;
   }
 
-  let periode = null;
+  // Scan direct : 1 requête par centre ET par mois (chacune reste sous la limite de temps Netlify)
+  const moisList = periodeInfo && periodeInfo.length ? periodeInfo : [null];
+  let periode = periodeInfo && periodeInfo.length ? periodeInfo : null;
   await Promise.all(centres.map(async (c) => {
-    try {
-      const res = await fetch('/api/majvac?centre=' + c.id);
-      const data = await res.json();
-      resultats[c.id] = data;
-      if (data.periode) periode = data.periode;
-    } catch (e) {
-      resultats[c.id] = { error: 'réseau : ' + e.message };
+    const parts = await Promise.all(moisList.map(m =>
+      fetchJsonSafe('/api/majvac?centre=' + c.id + (m ? '&mois=' + m.mois + '&annee=' + m.annee : ''))
+    ));
+    const days = [], erreurs = [];
+    let okCount = 0;
+    for (const p of parts) {
+      if (p.error) erreurs.push(p.error);
+      else { okCount++; days.push(...(p.days || [])); erreurs.push(...(p.erreurs || [])); if (!periode && p.periode) periode = p.periode; }
     }
+    resultats[c.id] = okCount === 0 ? { error: erreurs[0] || 'échec du scan' } : { days, erreurs: [...new Set(erreurs)] };
     majChipDepuisResultat(c.id);
   }));
 
@@ -349,6 +363,7 @@ async function init() {
     const res = await fetch('/api/majvac');
     const info = await res.json();
     centres = info.centres || [];
+    periodeInfo = info.periode || [];
     document.getElementById('chips').innerHTML = centres.map(c => chipHtml(c, '<span class="wait">—</span>')).join('');
     if (info.periode && info.periode.length) {
       const p1 = MOIS_FR[info.periode[0].nom] || info.periode[0].nom;
