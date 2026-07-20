@@ -2,6 +2,7 @@
 // GET /api/majvac                    → état de la configuration + liste des centres + période analysée
 // GET /api/majvac?centre=argenteuil  → analyse d'un centre (mois en cours + mois suivant)
 import * as XLSX from "xlsx";
+import { getStore } from "@netlify/blobs";
 
 const CENTRES = {
   argenteuil:   { label: "ARGENTEUIL",   match: ["argenteuil", "cdsoa"] },
@@ -28,18 +29,35 @@ function moisAnalyses(count) {
 }
 
 // ---------- Dropbox ----------
+// Identifiants : variables d'environnement Netlify OU stockage Blobs
+// (renseigné en 2 clics via /api/majvac-oauth).
+async function getCreds() {
+  let key = process.env.DROPBOX_APP_KEY;
+  let secret = process.env.DROPBOX_APP_SECRET;
+  let refresh = process.env.DROPBOX_REFRESH_TOKEN;
+  if (key && secret && refresh) return { key, secret, refresh };
+  try {
+    const store = getStore("majvac");
+    key = key || (await store.get("app_key"));
+    secret = secret || (await store.get("app_secret"));
+    refresh = refresh || (await store.get("refresh_token"));
+    if (key && secret && refresh) return { key, secret, refresh };
+  } catch (e) {}
+  return null;
+}
+
 let tokenCache = { value: null, exp: 0 };
 
-async function dropboxToken() {
+async function dropboxToken(creds) {
   if (tokenCache.value && Date.now() < tokenCache.exp - 60_000) return tokenCache.value;
   const res = await fetch("https://api.dropbox.com/oauth2/token", {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
       grant_type: "refresh_token",
-      refresh_token: process.env.DROPBOX_REFRESH_TOKEN,
-      client_id: process.env.DROPBOX_APP_KEY,
-      client_secret: process.env.DROPBOX_APP_SECRET,
+      refresh_token: creds.refresh,
+      client_id: creds.key,
+      client_secret: creds.secret,
     }),
   });
   const data = await res.json();
@@ -159,9 +177,10 @@ export default async (req) => {
   const reponse = (obj, status = 200) =>
     new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json" } });
 
-  const manquantes = ["DROPBOX_APP_KEY", "DROPBOX_APP_SECRET", "DROPBOX_REFRESH_TOKEN", "ANTHROPIC_API_KEY"].filter(
-    (k) => !process.env[k]
-  );
+  const creds = await getCreds();
+  const manquantes = [];
+  if (!creds) manquantes.push("ACCES_DROPBOX (à configurer via /api/majvac-oauth)");
+  if (!process.env.ANTHROPIC_API_KEY) manquantes.push("ANTHROPIC_API_KEY");
 
   const url = new URL(req.url);
   const centreId = url.searchParams.get("centre");
@@ -182,7 +201,7 @@ export default async (req) => {
   if (manquantes.length) return reponse({ error: "Configuration incomplète", manquantes }, 503);
 
   try {
-    const token = await dropboxToken();
+    const token = await dropboxToken(creds);
     const fichiers = [];
     const erreurs = [];
 

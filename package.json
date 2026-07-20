@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "JARVIS YK — direction virtuelle + mini apps (MAJ VAC)",
   "dependencies": {
+    "@netlify/blobs": "^10.7.9",
     "xlsx": "^0.18.5"
   }
 }
