@@ -48,6 +48,18 @@ async function getCreds() {
 
 let tokenCache = { value: null, exp: 0 };
 
+// Lit une réponse HTTP en tolérant les erreurs texte brut de Dropbox
+// ("Error in call to API function …") au lieu de planter sur res.json().
+async function lireJson(res, contexte) {
+  const txt = await res.text();
+  if (!res.ok) throw new Error(`${contexte} (${res.status}) : ${txt.slice(0, 180)}`);
+  try {
+    return JSON.parse(txt);
+  } catch (e) {
+    throw new Error(`${contexte} : réponse inattendue : ${txt.slice(0, 180)}`);
+  }
+}
+
 async function dropboxToken(creds) {
   if (tokenCache.value && Date.now() < tokenCache.exp - 60_000) return tokenCache.value;
   const res = await fetch("https://api.dropbox.com/oauth2/token", {
@@ -60,8 +72,7 @@ async function dropboxToken(creds) {
       client_secret: creds.secret,
     }),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(`Dropbox auth: ${data.error_description || data.error || res.status}`);
+  const data = await lireJson(res, "Connexion Dropbox");
   tokenCache = { value: data.access_token, exp: Date.now() + (data.expires_in || 14400) * 1000 };
   return tokenCache.value;
 }
@@ -75,8 +86,7 @@ async function dropboxSearch(token, query) {
       options: { filename_only: true, file_extensions: ["xlsx"], file_status: "active", max_results: 100 },
     }),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(`Dropbox search: ${data.error_summary || res.status}`);
+  const data = await lireJson(res, "Recherche Dropbox");
   return (data.matches || [])
     .map((m) => m.metadata && m.metadata.metadata)
     .filter((md) => md && md[".tag"] === "file");
@@ -87,7 +97,10 @@ async function dropboxDownload(token, fileId) {
     method: "POST",
     headers: { authorization: `Bearer ${token}`, "Dropbox-API-Arg": JSON.stringify({ path: fileId }) },
   });
-  if (!res.ok) throw new Error(`Dropbox download: ${res.status}`);
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(`Téléchargement Dropbox (${res.status}) : ${txt.slice(0, 180)}`);
+  }
   return Buffer.from(await res.arrayBuffer());
 }
 
@@ -164,11 +177,15 @@ async function analyserAvecClaude(fichiers, label) {
       messages: [{ role: "user", content: `Centre : ${label}. Analyse ces plannings et liste les jours sans ophtalmologue.\n\n${contenu}` }],
     }),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(`Claude: ${(data.error && data.error.message) || res.status}`);
+  const data = await lireJson(res, "Analyse Claude");
   const texte = (data.content || []).filter((b) => b.type === "text").map((b) => b.text).join("\n");
   const json = texte.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/, "").trim();
-  const parsed = JSON.parse(json);
+  let parsed;
+  try {
+    parsed = JSON.parse(json);
+  } catch (e) {
+    throw new Error(`Analyse Claude : réponse non structurée : ${texte.slice(0, 180)}`);
+  }
   return Array.isArray(parsed.days) ? parsed.days : [];
 }
 
