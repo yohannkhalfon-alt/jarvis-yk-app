@@ -1,0 +1,23 @@
+name: debug-majvac
+# Test manuel de l'API MAJ VAC depuis un runner GitHub (l'environnement de
+# maintenance de JARVIS ne peut pas atteindre netlify.app directement).
+on: workflow_dispatch
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Statut de la configuration
+        run: |
+          curl -sS -w "\n--- HTTP %{http_code} en %{time_total}s\n" \
+            "https://jarvis-yk-app.netlify.app/api/majvac" | head -c 1000
+
+      - name: Scan Argenteuil août
+        run: |
+          curl -sS -w "\n--- HTTP %{http_code} en %{time_total}s\n" \
+            "https://jarvis-yk-app.netlify.app/api/majvac?centre=argenteuil&mois=8&annee=2026" | head -c 2000
+
+      - name: Scan Annecy septembre
+        run: |
+          curl -sS -w "\n--- HTTP %{http_code} en %{time_total}s\n" \
+            "https://jarvis-yk-app.netlify.app/api/majvac?centre=annecy&mois=9&annee=2026" | head -c 2000
