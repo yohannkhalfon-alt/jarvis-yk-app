@@ -1,6 +1,11 @@
 // MAJ VAC — détection des jours sans ophtalmologue depuis les plannings Excel Dropbox.
+//
 // GET /api/majvac                    → état de la configuration + liste des centres + période analysée
 // GET /api/majvac?centre=argenteuil  → analyse d'un centre (mois en cours + mois suivant)
+//
+// Les DATES et l'ALIGNEMENT DES COLONNES sont calculés par le code (déterministe,
+// fiable). L'IA ne sert plus qu'à une chose : identifier quels NOMS sont des
+// ophtalmologues — plus aucun calcul de dates ni de colonnes par le modèle.
 import * as XLSX from "xlsx";
 import { getStore } from "@netlify/blobs";
 
@@ -15,7 +20,7 @@ const MOIS = ["JANVIER", "FEVRIER", "MARS", "AVRIL", "MAI", "JUIN", "JUILLET", "
 const EXCLURE_FICHIERS = ["PAIE", "REUNION", "RETRO", "FACTURE", "CAISSE", "COMPTA"];
 
 const stripAccents = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-const norm = (s) => stripAccents(String(s)).toUpperCase();
+const norm = (s) => stripAccents(String(s)).toUpperCase().replace(/\s+/g, " ").trim();
 
 function moisAnalyses(count) {
   // Date "aujourd'hui" en heure de Paris
@@ -62,7 +67,7 @@ async function lireJson(res, contexte) {
 
 async function dropboxToken(creds) {
   if (tokenCache.value && Date.now() < tokenCache.exp - 60_000) return tokenCache.value;
-  const res = await fetch("https://api.dropbox.com/oauth2/token", {
+  const res = await fetch("https://api.dropboxapi.com/oauth2/token", {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
@@ -72,9 +77,9 @@ async function dropboxToken(creds) {
       client_secret: creds.secret,
     }),
   });
-  const data = await lireJson(res, "Connexion Dropbox");
+  const data = await lireJson(res, "Token Dropbox");
   tokenCache = { value: data.access_token, exp: Date.now() + (data.expires_in || 14400) * 1000 };
-  return tokenCache.value;
+  return data.access_token;
 }
 
 async function dropboxSearch(token, query) {
@@ -131,6 +136,18 @@ async function trouverPlanning(token, centre, { nom, annee }) {
   return bons[0] || null;
 }
 
+// ---------- Lecture du classeur ----------
+function xlsxVersLignes(buffer) {
+  const wb = XLSX.read(buffer, { type: "buffer" });
+  const lignes = [];
+  for (const n of wb.SheetNames) {
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[n], { header: 1, raw: false, defval: "" });
+    for (const r of rows) lignes.push(r.map((c) => String(c == null ? "" : c).trim()));
+  }
+  return lignes;
+}
+
+// Conservé pour compatibilité (diagnostic) : dump texte du classeur.
 function xlsxVersTexte(buffer) {
   const wb = XLSX.read(buffer, { type: "buffer" });
   return wb.SheetNames.map((n) => {
@@ -139,54 +156,251 @@ function xlsxVersTexte(buffer) {
   }).join("\n").slice(0, 60_000);
 }
 
-// ---------- Analyse Claude ----------
-const SYSTEME = `Tu analyses des plannings mensuels Excel de centres de santé ophtalmologiques français.
+// ---------- Analyse déterministe de la grille ----------
+// Structure attendue : lignes d'en-têtes "LUNDI 06/07  MARDI 07/07 …" (JJ/MM),
+// puis des blocs de lignes-personnes séparés par des lignes vides.
+const RE_ENTETE = /^(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\.?\s+(\d{1,2})[\/.](\d{1,2})(?!\d)/i;
+// Mots (sans accents) qui signifient "absent / ne travaille pas", même si la cellule contient des heures.
+const RE_ABSENT = /(^|[^a-z])(off|abs|absente?|cp|rtt|ssolde|sans\s+solde|arret|conge|formation|ferme|feries?|ferie|preavis|malade|maladie)($|[^a-z])/;
+const RE_FERME = /(^|[^a-z])(ferme|feries?|ferie)($|[^a-z])/;
+const JOURS_FR = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
 
-Structure typique d'un planning : des lignes d'en-têtes de dates (ex. "LUNDI 06/07", "MARDI 07/07"…) suivies de blocs de lignes (une ligne par personne), les blocs étant séparés par des lignes vides. Le PREMIER bloc sous chaque en-tête correspond aux OPHTALMOLOGUES (médecins), les blocs suivants aux orthoptistes/optométristes puis aux secrétaires. Si le fichier étiquette explicitement les catégories, utilise ces étiquettes en priorité.
+function anneePourMois(mm, moisFichier, anneeFichier) {
+  if (moisFichier === 1 && mm === 12) return anneeFichier - 1;
+  if (moisFichier === 12 && mm === 1) return anneeFichier + 1;
+  return anneeFichier;
+}
 
-Signification des cases : "09H 19H" (ou similaire) = plage travaillée ; "OFF", "ABS", "CP", "SANS SOLDE", "RTT", case vide = absent ; "FERIE"/"Férié" = jour férié (centre fermé).
-
-Ta mission : identifier les JOURS SANS OPHTALMOLOGUE, c'est-à-dire les jours où le centre fonctionne (au moins une personne d'un autre bloc travaille) mais où :
-- AUCUN ophtalmologue n'a de plage horaire → status "none"
-- OU la couverture ophta est partielle (ex. seulement le matin, ou fin avant 17h) → status "partial" (précise les heures couvertes)
-
-À EXCLURE : les dimanches, les jours fériés, et les jours où personne ne travaille (centre fermé).
-
-Réponds UNIQUEMENT avec un JSON valide, sans aucun texte autour, au format :
-{"days":[{"date":"YYYY-MM-DD","weekday":"lundi","status":"none","hours":null,"ophtas_presents":[],"note":""}]}
-- "hours" : plage couverte si status "partial" (ex. "09H-13H"), sinon null.
-- "note" : très courte (ex. "Dr X en CP").
-Si aucun jour problématique : {"days":[]}`;
-
-async function analyserAvecClaude(fichiers, label) {
-  const contenu = fichiers
-    .map((f) => `=== FICHIER : ${f.name} — ${f.moisNom} ${f.annee} (mois ${String(f.mois).padStart(2, "0")}/${f.annee}) ===\n${f.texte}`)
-    .join("\n\n");
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "x-api-key": process.env.ANTHROPIC_API_KEY,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model: process.env.MAJVAC_MODEL || "claude-haiku-4-5-20251001",
-      max_tokens: 2000,
-      temperature: 0,
-      system: SYSTEME,
-      messages: [{ role: "user", content: `Centre : ${label}. Analyse ces plannings et liste les jours sans ophtalmologue.\n\n${contenu}` }],
-    }),
-  });
-  const data = await lireJson(res, "Analyse Claude");
-  const texte = (data.content || []).filter((b) => b.type === "text").map((b) => b.text).join("\n");
-  const json = texte.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/, "").trim();
-  let parsed;
-  try {
-    parsed = JSON.parse(json);
-  } catch (e) {
-    throw new Error(`Analyse Claude : réponse non structurée : ${texte.slice(0, 180)}`);
+// Une cellule → { travail, debut, fin } (heures décimales). "09H 19H" → 9→19.
+function lireCellule(texte) {
+  const brut = String(texte || "").trim();
+  if (!brut) return { travail: false };
+  const t = stripAccents(brut).toLowerCase();
+  if (RE_ABSENT.test(t)) return { travail: false };
+  const heures = [];
+  // Espaces retirés pour fiabiliser ("09H 19H", "9h13h30", "12H40"…). Les minutes
+  // ne sont acceptées que collées au h et non suivies d'un autre h ("12h40" oui,
+  // "9h13h30" → 9h puis 13h30).
+  const compact = t.replace(/\s+/g, "");
+  const re = /(\d{1,2})h(\d{2}(?!h))?/g;
+  let m;
+  while ((m = re.exec(compact))) {
+    const h = parseInt(m[1], 10) + (m[2] ? parseInt(m[2], 10) / 60 : 0);
+    if (h >= 7 && h <= 22) heures.push(h); // ignore "+1h", "+6H", "-3H30" (récups/décomptes)
   }
-  return Array.isArray(parsed.days) ? parsed.days : [];
+  if (!heures.length) return { travail: false };
+  return { travail: true, debut: Math.min(...heures), fin: Math.max(...heures) };
+}
+
+const fmtH = (v) => {
+  const h = Math.floor(v);
+  const mn = Math.round((v - h) * 60);
+  return String(h).padStart(2, "0") + "H" + (mn ? String(mn).padStart(2, "0") : "");
+};
+
+// Parcourt les lignes et reconstruit : personnes (nom, bloc, cellules par date ISO)
+// + dates rencontrées. Le bloc retenu est le bloc MAJORITAIRE sur le mois
+// (robuste aux lignes de commentaire qui cassent parfois la séparation).
+function parseGrille(lignes, moisFichier, anneeFichier) {
+  const personnes = new Map(); // clé norm(nom) → { nom, blocs: {n: occurrences}, cellules: Map(iso → texte) }
+  const dates = new Map(); // iso → { enTete }
+  let colonnes = null; // Map colIdx → iso
+  let blocCourant = 1;
+  let enBlanc = false;
+
+  for (const cells of lignes) {
+    const vide = cells.every((c) => !c);
+    const headerCols = [];
+    cells.forEach((c, i) => {
+      const m = String(c).match(RE_ENTETE);
+      if (m) headerCols.push([i, m]);
+    });
+
+    // Ligne d'en-tête : ≥2 dates, ou 1 date accompagnée de la cellule "NOMS"
+    // (semaines à un seul jour, ex. "SAMEDI 01/08" ou "LUNDI 31/08").
+    const estEnTete =
+      headerCols.length >= 2 ||
+      (headerCols.length === 1 && cells.some((c) => norm(c) === "NOMS"));
+    if (estEnTete) {
+      colonnes = new Map();
+      for (const [i, m] of headerCols) {
+        const jj = parseInt(m[2], 10);
+        const mm = parseInt(m[3], 10);
+        if (jj < 1 || jj > 31 || mm < 1 || mm > 12) continue;
+        const an = anneePourMois(mm, moisFichier, anneeFichier);
+        const iso = `${an}-${String(mm).padStart(2, "0")}-${String(jj).padStart(2, "0")}`;
+        colonnes.set(i, iso);
+        if (!dates.has(iso)) dates.set(iso, { enTete: m[1].toLowerCase() });
+      }
+      blocCourant = 1; // premier bloc sous chaque en-tête = ophtalmologues (convention)
+      enBlanc = false;
+      continue;
+    }
+
+    if (!colonnes) continue;
+    if (vide) {
+      enBlanc = true;
+      continue;
+    }
+    if (enBlanc) {
+      blocCourant += 1;
+      enBlanc = false;
+    }
+
+    const idxNom = cells.findIndex((c) => c);
+    const nomBrut = cells[idxNom];
+    if (!nomBrut || RE_ENTETE.test(nomBrut) || norm(nomBrut) === "NOMS") continue;
+
+    const cle = norm(nomBrut);
+    if (!personnes.has(cle)) personnes.set(cle, { nom: nomBrut.trim(), blocs: {}, cellules: new Map() });
+    const p = personnes.get(cle);
+    p.blocs[blocCourant] = (p.blocs[blocCourant] || 0) + 1;
+    for (const [i, iso] of colonnes) {
+      const v = cells[i];
+      if (v) p.cellules.set(iso, v);
+    }
+  }
+
+  // Bloc majoritaire par personne
+  for (const p of personnes.values()) {
+    let meilleur = 1;
+    let n = -1;
+    for (const [b, c] of Object.entries(p.blocs)) {
+      if (c > n || (c === n && +b < meilleur)) {
+        meilleur = +b;
+        n = c;
+      }
+    }
+    p.bloc = meilleur;
+  }
+  return { personnes, dates };
+}
+
+// Jours sans ophta (status "none") ou couverture partielle (status "partial"),
+// calculés déterministement. Exclut dimanches, jours fériés/fermés, et jours
+// où personne ne travaille (centre fermé ou semaine non renseignée).
+function calculerJours(grille, ophtasSet) {
+  const jours = [];
+  for (const [iso, meta] of grille.dates) {
+    const dt = new Date(iso + "T12:00:00Z");
+    if (isNaN(dt)) continue;
+    const wd = dt.getUTCDay();
+    if (wd === 0) continue; // dimanche
+
+    const intervalles = [];
+    const ophtasPresents = [];
+    let autresTravaillent = false;
+    let cellules = 0;
+    let fermees = 0;
+
+    for (const p of grille.personnes.values()) {
+      const cell = p.cellules.get(iso);
+      if (!cell) continue;
+      cellules += 1;
+      if (RE_FERME.test(stripAccents(cell).toLowerCase())) fermees += 1;
+      const c = lireCellule(cell);
+      if (!c.travail) continue;
+      if (ophtasSet.has(norm(p.nom))) {
+        intervalles.push([c.debut, c.fin]);
+        ophtasPresents.push(p.nom);
+      } else {
+        autresTravaillent = true;
+      }
+    }
+
+    if (cellules === 0) continue; // colonne vide (semaine non renseignée)
+    if (fermees >= cellules) continue; // tout le monde "Fermé"/"Férié" → centre fermé
+    if (!autresTravaillent && intervalles.length === 0) continue; // personne ne travaille
+
+    const weekday = JOURS_FR[wd];
+    const alerte =
+      meta.enTete && stripAccents(meta.enTete).toLowerCase() !== stripAccents(weekday)
+        ? ` (⚠️ en-tête planning : ${meta.enTete})`
+        : "";
+
+    if (intervalles.length === 0) {
+      jours.push({ date: iso, weekday, status: "none", hours: null, ophtas_presents: [], note: "aucun ophtalmologue planifié" + alerte });
+    } else {
+      const debut = Math.min(...intervalles.map((i) => i[0]));
+      const fin = Math.max(...intervalles.map((i) => i[1]));
+      if (fin < 17 || debut > 12) {
+        jours.push({
+          date: iso,
+          weekday,
+          status: "partial",
+          hours: `${fmtH(debut)}-${fmtH(fin)}`,
+          ophtas_presents: ophtasPresents,
+          note: "couverture partielle" + alerte,
+        });
+      }
+    }
+  }
+  jours.sort((a, b) => a.date.localeCompare(b.date));
+  return jours;
+}
+
+// ---------- Identification des ophtalmologues ----------
+// 1) Variable d'environnement MAJVAC_OPHTAS_<CENTRE> ("SLIMANE,PAPAPOSTOLOU,…") si définie.
+// 2) Sinon, classification par Claude (noms + bloc + exemples de cellules — pas de dates).
+// 3) En dernier recours : bloc 1 + tout nom commençant par "Dr".
+function heuristiqueOphtas(fiches) {
+  return new Set(
+    fiches.filter((p) => p.bloc === 1 || /^dr\b/i.test(stripAccents(p.nom))).map((p) => norm(p.nom))
+  );
+}
+
+async function classifierOphtas(grilles, centreId, label) {
+  const surcharge = process.env["MAJVAC_OPHTAS_" + centreId.toUpperCase()];
+  if (surcharge) {
+    return new Set(surcharge.split(",").map((s) => norm(s)).filter(Boolean));
+  }
+
+  const parNom = new Map();
+  for (const g of grilles) {
+    for (const p of g.personnes.values()) {
+      const cle = norm(p.nom);
+      if (!parNom.has(cle)) parNom.set(cle, { nom: p.nom, bloc: p.bloc, exemples: [] });
+      const f = parNom.get(cle);
+      f.bloc = Math.min(f.bloc, p.bloc);
+      for (const v of p.cellules.values()) {
+        if (f.exemples.length < 3 && !f.exemples.includes(v)) f.exemples.push(v);
+      }
+    }
+  }
+  const fiches = [...parNom.values()];
+  if (!fiches.length) return new Set();
+  if (!process.env.ANTHROPIC_API_KEY) return heuristiqueOphtas(fiches);
+
+  const desc = fiches
+    .map((p) => `- ${p.nom} [bloc ${p.bloc}] ex: ${p.exemples.join(" | ").slice(0, 90)}`)
+    .join("\n");
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": process.env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: process.env.MAJVAC_MODEL || "claude-haiku-4-5-20251001",
+        max_tokens: 500,
+        temperature: 0,
+        system: `Tu identifies les OPHTALMOLOGUES (médecins) dans la liste du personnel d'un planning de centre de santé ophtalmologique français.
+Indices : "bloc" = position du groupe de lignes dans le planning — le bloc 1 regroupe normalement les ophtalmologues, puis viennent orthoptistes/optométristes puis secrétaires (certains fichiers mélangent les blocs, utilise alors les autres indices). Un nom commençant par "Dr" est toujours un médecin. Les lignes qui ressemblent à des commentaires ("X : 2ème samedi du mois"…) ne sont personne.
+Réponds UNIQUEMENT avec un JSON valide : {"ophtalmologues":["NOM", …]} — les noms EXACTEMENT comme fournis, rien d'autre.`,
+        messages: [{ role: "user", content: `Centre : ${label}. Personnel du planning :\n${desc}` }],
+      }),
+    });
+    const data = await lireJson(res, "Classification Claude");
+    const texte = (data.content || []).filter((b) => b.type === "text").map((b) => b.text).join("\n");
+    const json = texte.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/, "").trim();
+    const parsed = JSON.parse(json);
+    const noms = Array.isArray(parsed.ophtalmologues) ? parsed.ophtalmologues.map(norm).filter(Boolean) : [];
+    return noms.length ? new Set(noms) : heuristiqueOphtas(fiches);
+  } catch (e) {
+    return heuristiqueOphtas(fiches);
+  }
 }
 
 // ---------- Handler ----------
@@ -195,63 +409,80 @@ export default async (req) => {
     new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json" } });
 
   try {
-  const creds = await getCreds();
-  const manquantes = [];
-  if (!creds) manquantes.push("ACCES_DROPBOX (à configurer via /api/majvac-oauth)");
-  if (!process.env.ANTHROPIC_API_KEY) manquantes.push("ANTHROPIC_API_KEY");
+    const creds = await getCreds();
+    const manquantes = [];
+    if (!creds) manquantes.push("ACCES_DROPBOX (à configurer via /api/majvac-oauth)");
+    if (!process.env.ANTHROPIC_API_KEY) manquantes.push("ANTHROPIC_API_KEY");
 
-  const url = new URL(req.url);
-  const centreId = url.searchParams.get("centre");
-  const nbMois = Math.min(Math.max(parseInt(url.searchParams.get("months") || "3", 10) || 3, 1), 3);
-  // Un mois précis peut être demandé (scan découpé pour rester sous la limite de temps Netlify)
-  const moisParam = parseInt(url.searchParams.get("mois") || "0", 10);
-  const anneeParam = parseInt(url.searchParams.get("annee") || "0", 10);
-  const periode =
-    moisParam >= 1 && moisParam <= 12 && anneeParam >= 2024
-      ? [{ mois: moisParam, annee: anneeParam, nom: MOIS[moisParam - 1] }]
-      : moisAnalyses(nbMois);
+    const url = new URL(req.url);
+    const centreId = url.searchParams.get("centre");
+    const nbMois = Math.min(Math.max(parseInt(url.searchParams.get("months") || "3", 10) || 3, 1), 3);
+    // Un mois précis peut être demandé (scan découpé pour rester sous la limite de temps Netlify)
+    const moisParam = parseInt(url.searchParams.get("mois") || "0", 10);
+    const anneeParam = parseInt(url.searchParams.get("annee") || "0", 10);
+    const periode =
+      moisParam >= 1 && moisParam <= 12 && anneeParam >= 2024
+        ? [{ mois: moisParam, annee: anneeParam, nom: MOIS[moisParam - 1] }]
+        : moisAnalyses(nbMois);
 
-  if (!centreId) {
-    return reponse({
-      ok: manquantes.length === 0,
-      manquantes,
-      centres: Object.entries(CENTRES).map(([id, c]) => ({ id, label: c.label })),
-      periode,
-    });
-  }
-
-  const centre = CENTRES[centreId];
-  if (!centre) return reponse({ error: `Centre inconnu : ${centreId}` }, 400);
-  if (manquantes.length) return reponse({ error: "Configuration incomplète", manquantes }, 503);
-
-  try {
-    const token = await dropboxToken(creds);
-    const fichiers = [];
-    const erreurs = [];
-
-    for (const m of periode) {
-      const f = await trouverPlanning(token, centre, m);
-      if (!f) {
-        erreurs.push(`Planning ${m.nom} ${m.annee} introuvable`);
-        continue;
-      }
-      const buffer = await dropboxDownload(token, f.id);
-      fichiers.push({ name: f.name, path: f.path_display, mois: m.mois, annee: m.annee, moisNom: m.nom, texte: xlsxVersTexte(buffer) });
+    if (!centreId) {
+      return reponse({
+        ok: manquantes.length === 0,
+        manquantes,
+        centres: Object.entries(CENTRES).map(([id, c]) => ({ id, label: c.label })),
+        periode,
+      });
     }
 
-    const days = fichiers.length ? await analyserAvecClaude(fichiers, centre.label) : [];
+    const centre = CENTRES[centreId];
+    if (!centre) return reponse({ error: `Centre inconnu : ${centreId}` }, 400);
+    if (!creds) return reponse({ error: "Configuration incomplète", manquantes }, 503);
 
-    return reponse({
-      centre: centreId,
-      label: centre.label,
-      periode,
-      fichiers: fichiers.map(({ name, path, mois, annee }) => ({ name, path, mois, annee })),
-      days,
-      erreurs,
-    });
-  } catch (e) {
-    return reponse({ centre: centreId, label: centre.label, error: String(e.message || e) }, 502);
-  }
+    try {
+      const token = await dropboxToken(creds);
+      const fichiers = [];
+      const grilles = [];
+      const erreurs = [];
+
+      for (const m of periode) {
+        const f = await trouverPlanning(token, centre, m);
+        if (!f) {
+          erreurs.push(`Planning ${m.nom} ${m.annee} introuvable`);
+          continue;
+        }
+        const buffer = await dropboxDownload(token, f.id);
+        const grille = parseGrille(xlsxVersLignes(buffer), m.mois, m.annee);
+        if (!grille.dates.size) erreurs.push(`${f.name} : aucune ligne d'en-tête de dates reconnue`);
+        fichiers.push({ name: f.name, path: f.path_display, mois: m.mois, annee: m.annee });
+        grilles.push(grille);
+      }
+
+      // Seules les dates des mois demandés sont retournées (évite les doublons
+      // quand une semaine déborde sur le mois voisin dans le fichier).
+      const moisDemandes = new Set(periode.map((m) => `${m.annee}-${String(m.mois).padStart(2, "0")}`));
+      const ophtasSet = grilles.length ? await classifierOphtas(grilles, centreId, centre.label) : new Set();
+
+      const parDate = new Map();
+      for (const grille of grilles) {
+        for (const d of calculerJours(grille, ophtasSet)) {
+          if (!moisDemandes.has(d.date.slice(0, 7))) continue;
+          if (!parDate.has(d.date)) parDate.set(d.date, d);
+        }
+      }
+      const days = [...parDate.values()].sort((a, b) => a.date.localeCompare(b.date));
+
+      return reponse({
+        centre: centreId,
+        label: centre.label,
+        periode,
+        fichiers,
+        ophtalmologues: [...ophtasSet],
+        days,
+        erreurs,
+      });
+    } catch (e) {
+      return reponse({ centre: centreId, label: centre.label, error: String(e.message || e) }, 502);
+    }
   } catch (e) {
     return reponse({ error: String((e && e.message) || e) }, 500);
   }
@@ -260,4 +491,4 @@ export default async (req) => {
 export const config = { path: "/api/majvac" };
 
 // Exports internes pour les tests
-export { moisAnalyses, trouverPlanning, xlsxVersTexte };
+export { moisAnalyses, trouverPlanning, xlsxVersTexte, xlsxVersLignes, parseGrille, lireCellule, calculerJours, classifierOphtas };
