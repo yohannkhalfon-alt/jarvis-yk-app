@@ -46,6 +46,14 @@ export default async (req) => {
     return Response.redirect(authorize, 303);
   }
 
+  // Déconnexion : efface les identifiants stockés (l'app repasse en données publiées)
+  if (url.searchParams.get("logout") === "1") {
+    await store.delete("app_key");
+    await store.delete("app_secret");
+    await store.delete("refresh_token");
+    return page("MAJ VAC — déconnecté", `<h1 class="ok">Dropbox déconnecté</h1><p>Le scan direct est désactivé ; l'app affiche à nouveau les données publiées par JARVIS. Pour reconnecter : <a href="${redirectUri}">formulaire de connexion</a>.</p>`);
+  }
+
   // Étape 3 : retour de Dropbox avec le code → échange et stockage du refresh token
   const code = url.searchParams.get("code");
   if (code) {

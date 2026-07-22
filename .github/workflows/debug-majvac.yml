@@ -8,6 +8,10 @@ on:
         description: "URL de base à tester"
         required: false
         default: "https://jarvis-yk-app.netlify.app"
+      extra_path:
+        description: "Chemin supplémentaire à appeler (optionnel)"
+        required: false
+        default: ""
 
 jobs:
   test:
@@ -29,3 +33,9 @@ jobs:
         run: |
           curl -sS -w "\n--- HTTP %{http_code} en %{time_total}s\n" \
             "$BASE/api/majvac?centre=annecy&mois=9&annee=2026" | head -c 2000
+
+      - name: Appel supplémentaire (optionnel)
+        if: ${{ github.event.inputs.extra_path != '' }}
+        run: |
+          curl -sS -w "\n--- HTTP %{http_code} en %{time_total}s\n" \
+            "$BASE${{ github.event.inputs.extra_path }}" | head -c 2000
