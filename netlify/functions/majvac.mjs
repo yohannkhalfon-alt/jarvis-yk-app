@@ -339,6 +339,72 @@ function calculerJours(grille, ophtasSet) {
   return jours;
 }
 
+// ---------- Vue « Équipe » (qui travaille, par rôle) ----------
+const ROLE_LABEL = { ophta: "Ophtalmologue", ortho: "Orthoptistes", secretaire: "Secrétaires" };
+
+// Rôle d'une personne : ophta si classée comme telle, sinon d'après le bloc
+// (bloc 2 = orthoptistes, bloc 3+ = secrétaires ; bloc 1 par défaut = ophta).
+function roleDe(nom, bloc, ophtasSet) {
+  if (ophtasSet.has(norm(nom))) return "ophta";
+  if (bloc === 2) return "ortho";
+  if (bloc >= 3) return "secretaire";
+  return "ophta";
+}
+
+// Semaine ISO (lundi → samedi) contenant la date d'ancrage (YYYY-MM-DD).
+// Sans ancre : semaine en cours, heure de Paris.
+function semaineDe(ancreIso) {
+  let y, mo, day;
+  if (ancreIso && /^\d{4}-\d{2}-\d{2}$/.test(ancreIso)) {
+    [y, mo, day] = ancreIso.split("-").map(Number);
+  } else {
+    const p = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Paris" }));
+    y = p.getFullYear(); mo = p.getMonth() + 1; day = p.getDate();
+  }
+  const dt = new Date(Date.UTC(y, mo - 1, day, 12));
+  const wd = dt.getUTCDay(); // 0 = dimanche … 6 = samedi
+  dt.setUTCDate(dt.getUTCDate() + (wd === 0 ? -6 : 1 - wd)); // recule au lundi
+  const jours = [];
+  for (let i = 0; i < 6; i++) {
+    const x = new Date(dt);
+    x.setUTCDate(dt.getUTCDate() + i);
+    jours.push(x.toISOString().slice(0, 10)); // lundi → samedi
+  }
+  return jours;
+}
+
+// À partir des grilles déjà lues, construit le roster par rôle pour les jours donnés.
+// Chaque personne : { nom, jours: { iso: "09H-19H" | null } }.
+function construireEquipe(grilles, joursSemaine, ophtasSet) {
+  const gens = new Map();
+  for (const g of grilles) {
+    for (const p of g.personnes.values()) {
+      const cle = norm(p.nom);
+      if (!gens.has(cle)) gens.set(cle, { nom: p.nom, bloc: p.bloc, cellules: new Map() });
+      const gg = gens.get(cle);
+      gg.bloc = Math.min(gg.bloc, p.bloc);
+      for (const [iso, v] of p.cellules) gg.cellules.set(iso, v);
+    }
+  }
+  const roles = { ophta: [], ortho: [], secretaire: [] };
+  for (const p of gens.values()) {
+    // On ignore les personnes qui n'apparaissent aucun jour de la semaine visée.
+    if (![...p.cellules.keys()].some((k) => joursSemaine.includes(k))) continue;
+    const jours = {};
+    for (const iso of joursSemaine) {
+      const cell = p.cellules.get(iso);
+      const c = cell ? lireCellule(cell) : { travail: false };
+      jours[iso] = c.travail ? `${fmtH(c.debut)}-${fmtH(c.fin)}` : null;
+    }
+    roles[roleDe(p.nom, p.bloc, ophtasSet)].push({ nom: p.nom, jours });
+  }
+  return [
+    { role: "ophta", label: ROLE_LABEL.ophta, personnes: roles.ophta },
+    { role: "ortho", label: ROLE_LABEL.ortho, personnes: roles.ortho },
+    { role: "secretaire", label: ROLE_LABEL.secretaire, personnes: roles.secretaire },
+  ];
+}
+
 // ---------- Identification des ophtalmologues ----------
 // 1) Variable d'environnement MAJVAC_OPHTAS_<CENTRE> ("SLIMANE,PAPAPOSTOLOU,…") si définie.
 // 2) Sinon, classification par Claude (noms + bloc + exemples de cellules — pas de dates).
@@ -416,6 +482,8 @@ export default async (req) => {
 
     const url = new URL(req.url);
     const centreId = url.searchParams.get("centre");
+    const vue = url.searchParams.get("vue"); // "equipe" → roster par rôle ; sinon jours sans ophta
+    const semaineParam = url.searchParams.get("semaine"); // YYYY-MM-DD (jour dans la semaine voulue)
     const nbMois = Math.min(Math.max(parseInt(url.searchParams.get("months") || "3", 10) || 3, 1), 3);
     // Un mois précis peut être demandé (scan découpé pour rester sous la limite de temps Netlify)
     const moisParam = parseInt(url.searchParams.get("mois") || "0", 10);
@@ -440,6 +508,42 @@ export default async (req) => {
 
     try {
       const token = await dropboxToken(creds);
+
+      // ----- Vue « Équipe » : qui travaille par rôle sur une semaine -----
+      if (vue === "equipe") {
+        const joursSemaine = semaineDe(semaineParam); // lundi → samedi
+        // Mois à charger = mois distincts couverts par la semaine (déborde parfois).
+        const moisNeeded = [...new Set(joursSemaine.map((iso) => iso.slice(0, 7)))].map((ym) => {
+          const [a, mm] = ym.split("-").map(Number);
+          return { mois: mm, annee: a, nom: MOIS[mm - 1] };
+        });
+        const grillesE = [];
+        const fichiersE = [];
+        const erreursE = [];
+        for (const m of moisNeeded) {
+          const f = await trouverPlanning(token, centre, m);
+          if (!f) {
+            erreursE.push(`Planning ${m.nom} ${m.annee} introuvable`);
+            continue;
+          }
+          const buffer = await dropboxDownload(token, f.id);
+          grillesE.push(parseGrille(xlsxVersLignes(buffer), m.mois, m.annee));
+          fichiersE.push({ name: f.name, mois: m.mois, annee: m.annee });
+        }
+        const ophtasSetE = grillesE.length ? await classifierOphtas(grillesE, centreId, centre.label) : new Set();
+        const roles = construireEquipe(grillesE, joursSemaine, ophtasSetE);
+        return reponse({
+          centre: centreId,
+          label: centre.label,
+          vue: "equipe",
+          semaine: { debut: joursSemaine[0], fin: joursSemaine[5], jours: joursSemaine },
+          roles,
+          ophtalmologues: [...ophtasSetE],
+          fichiers: fichiersE,
+          erreurs: erreursE,
+        });
+      }
+
       const fichiers = [];
       const grilles = [];
       const erreurs = [];
@@ -491,4 +595,4 @@ export default async (req) => {
 export const config = { path: "/api/majvac" };
 
 // Exports internes pour les tests
-export { moisAnalyses, trouverPlanning, xlsxVersTexte, xlsxVersLignes, parseGrille, lireCellule, calculerJours, classifierOphtas };
+export { moisAnalyses, trouverPlanning, xlsxVersTexte, xlsxVersLignes, parseGrille, lireCellule, calculerJours, classifierOphtas, semaineDe, roleDe, construireEquipe };
