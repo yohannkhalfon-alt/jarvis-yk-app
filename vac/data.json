@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-21T05:36:00Z",
+  "generated_at": "2026-07-22T05:37:00Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -49,6 +49,13 @@
           "status": "none",
           "hours": null,
           "note": "aucun ophta planifié"
+        },
+        {
+          "date": "2026-08-29",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Slimane, Papapostolou, Nizard, Hajjar tous OFF"
         }
       ],
       "notes": [
@@ -63,7 +70,8 @@
       "notes": [
         "Fermeture estivale du 08 au 23/08 (CP collectifs)",
         "Ema : dernier jour le 31/07 — août couvert par Dr Bendellali (03-07/08) puis Adina seule dès le 24/08",
-        "Semaine du 07 au 12/09 : couverte par Dr Charakidas (09h-19h lun-jeu + sam)"
+        "Semaine du 07 au 12/09 : couverte par Dr Charakidas (09h-19h lun-jeu + sam)",
+        "Ven 04/09 : Adina marquée « Fermé » mais des secrétaires sont planifiées — ouverture à confirmer"
       ]
     },
     "tremblay": {
@@ -99,6 +107,20 @@
     "sartrouville": {
       "label": "SARTROUVILLE",
       "days": [
+        {
+          "date": "2026-07-28",
+          "weekday": "mardi",
+          "status": "none",
+          "hours": null,
+          "note": "Saade ABS, autres OFF (modif planning du 21/07 après-midi)"
+        },
+        {
+          "date": "2026-08-04",
+          "weekday": "mardi",
+          "status": "none",
+          "hours": null,
+          "note": "Saade ABS, autres OFF (modif planning du 21/07)"
+        },
         {
           "date": "2026-08-27",
           "weekday": "jeudi",
