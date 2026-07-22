@@ -1,0 +1,46 @@
+name: pages
+# Hébergement de secours gratuit de l'app MAJ VAC sur GitHub Pages
+# (utilisé quand le site Netlify est suspendu — l'app bascule alors
+# automatiquement sur les données publiées dans vac/data.json).
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, claude/dropbox-absence-days-extractor-k4vutt]
+    paths:
+      - "vac/**"
+      - ".github/workflows/pages.yml"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Préparer le site (app MAJ VAC uniquement)
+        run: |
+          mkdir -p _site
+          cp -r vac _site/vac
+          printf '<!DOCTYPE html><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=vac/"><a href="vac/">MAJ VAC</a>' > _site/index.html
+
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

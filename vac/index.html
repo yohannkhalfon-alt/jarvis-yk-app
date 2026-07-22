@@ -13,12 +13,12 @@
 <meta property="og:description" content="Un appui : jours sans ophta par centre (Argenteuil, Annecy, Tremblay, Sartrouville), prêts à envoyer sur WhatsApp." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://jarvis-yk-app.netlify.app/vac/" />
-<meta property="og:image" content="https://jarvis-yk-app.netlify.app/vac/og.png" />
+<meta property="og:image" content="https://yohannkhalfon-alt.github.io/jarvis-yk-app/vac/og.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<link rel="manifest" href="/vac/manifest.webmanifest" />
-<link rel="icon" type="image/png" sizes="192x192" href="/vac/icon-192.png" />
-<link rel="apple-touch-icon" href="/vac/apple-touch-icon.png" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
   * { box-sizing:border-box; margin:0; padding:0; }
@@ -287,7 +287,7 @@ function majChipDepuisResultat(id) {
 
 async function chargerAuto(bust) {
   try {
-    const res = await fetch('/vac/data.json' + (bust ? '?t=' + Date.now() : ''));
+    const res = await fetch('data.json' + (bust ? '?t=' + Date.now() : ''));
     if (!res.ok) return null;
     return await res.json();
   } catch (e) { return null; }
@@ -325,7 +325,7 @@ async function lancerScan() {
   let periode = periodeInfo && periodeInfo.length ? periodeInfo : null;
   await Promise.all(centres.map(async (c) => {
     const parts = await Promise.all(moisList.map(m =>
-      fetchJsonSafe('/api/majvac?centre=' + c.id + (m ? '&mois=' + m.mois + '&annee=' + m.annee : ''))
+      fetchJsonSafe('../api/majvac?centre=' + c.id + (m ? '&mois=' + m.mois + '&annee=' + m.annee : ''))
     ));
     const days = [], erreurs = [];
     let okCount = 0;
@@ -360,7 +360,8 @@ function envoyerWa() {
 
 async function init() {
   try {
-    const res = await fetch('/api/majvac');
+    const res = await fetch('../api/majvac');
+    if (!res.ok) throw new Error('API indisponible (' + res.status + ')');
     const info = await res.json();
     centres = info.centres || [];
     periodeInfo = info.periode || [];
@@ -400,6 +401,20 @@ async function init() {
       }
     } catch (e) {}
   } catch (e) {
+    // API absente (hébergement statique ou Netlify suspendu) : données publiées par JARVIS
+    const data = await chargerAuto(true);
+    if (data && data.centres) {
+      mode = 'auto';
+      centres = Object.keys(data.centres).map(id => ({ id, label: (data.centres[id].label || id).toUpperCase() }));
+      document.getElementById('chips').innerHTML = centres.map(c => chipHtml(c, '<span class="wait">—</span>')).join('');
+      if (data.periode && data.periode.length) {
+        const p1 = MOIS_FR[data.periode[0].nom] || data.periode[0].nom;
+        const pl = data.periode[data.periode.length - 1];
+        document.getElementById('footTxt').textContent = 'Période : ' + p1 + ' → ' + (MOIS_FR[pl.nom] || pl.nom) + ' ' + pl.annee + ' · MAJ automatique par JARVIS';
+      }
+      appliquerAuto(data);
+      return;
+    }
     setStatus('HORS LIGNE', true);
   }
 }
