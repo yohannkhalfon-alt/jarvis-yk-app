@@ -435,7 +435,7 @@ async function classifierOphtas(grilles, centreId, label) {
   }
   const fiches = [...parNom.values()];
   if (!fiches.length) return new Set();
-  if (!process.env.ANTHROPIC_API_KEY) return heuristiqueOphtas(fiches);
+  return heuristiqueOphtas(fiches);
 
   const desc = fiches
     .map((p) => `- ${p.nom} [bloc ${p.bloc}] ex: ${p.exemples.join(" | ").slice(0, 90)}`)
