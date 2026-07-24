@@ -1,0 +1,153 @@
+{
+  "generated_at": "2026-07-24T05:40:00Z",
+  "source": "Scan JARVIS via connecteur Dropbox",
+  "periode": [
+    {
+      "mois": 7,
+      "annee": 2026,
+      "nom": "JUILLET"
+    },
+    {
+      "mois": 8,
+      "annee": 2026,
+      "nom": "AOUT"
+    },
+    {
+      "mois": 9,
+      "annee": 2026,
+      "nom": "SEPTEMBRE"
+    }
+  ],
+  "centres": {
+    "argenteuil": {
+      "label": "ARGENTEUIL",
+      "days": [
+        {
+          "date": "2026-08-01",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Slimane, Papapostolou, Nizard, Hajjar tous OFF"
+        },
+        {
+          "date": "2026-08-06",
+          "weekday": "jeudi",
+          "status": "none",
+          "hours": null,
+          "note": "Slimane et Papapostolou ABS, autres OFF (modif planning du 20/07)"
+        },
+        {
+          "date": "2026-08-24",
+          "weekday": "lundi",
+          "status": "none",
+          "hours": null,
+          "note": "Slimane ABS, autres OFF"
+        },
+        {
+          "date": "2026-08-28",
+          "weekday": "vendredi",
+          "status": "none",
+          "hours": null,
+          "note": "aucun ophta planifié"
+        },
+        {
+          "date": "2026-08-29",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Slimane, Papapostolou, Nizard, Hajjar tous OFF"
+        }
+      ],
+      "notes": [
+        "Semaines du 10 au 22/08 non renseignées dans le planning (fermeture estivale ?)",
+        "Lun 21/09 : centre fermé (Kippour)",
+        "Ven 25/09 : couverture Slimane « à confirmer »"
+      ]
+    },
+    "annecy": {
+      "label": "ANNECY",
+      "days": [],
+      "notes": [
+        "Semaine du 03 au 07/08 : couverte par le Dr Diop 09h-19h (ajouté au planning le 23/07 — remplace Bendellali)",
+        "Fermeture estivale du 08 au 23/08 (CP collectifs) — Adina reprend le 24/08",
+        "Ema : dernier jour le 31/07",
+        "Semaine du 07 au 12/09 : couverte par Dr Charakidas (09h-19h lun-jeu + sam)"
+      ]
+    },
+    "tremblay": {
+      "label": "TREMBLAY",
+      "days": [
+        {
+          "date": "2026-08-26",
+          "weekday": "mercredi",
+          "status": "none",
+          "hours": null,
+          "note": "Sebe OFF, Slimane ABS, Adalla OFF"
+        },
+        {
+          "date": "2026-09-01",
+          "weekday": "mardi",
+          "status": "none",
+          "hours": null,
+          "note": "Adalla ABS, Slimane/Sebe/Clemente OFF"
+        },
+        {
+          "date": "2026-09-04",
+          "weekday": "vendredi",
+          "status": "none",
+          "hours": null,
+          "note": "Adalla ABS, autres OFF"
+        }
+      ],
+      "notes": [
+        "Semaines du 10 au 22/08 non renseignées dans le planning",
+        "Lun 21/09 : centre fermé (Kippour)"
+      ]
+    },
+    "sartrouville": {
+      "label": "SARTROUVILLE",
+      "days": [
+        {
+          "date": "2026-07-28",
+          "weekday": "mardi",
+          "status": "none",
+          "hours": null,
+          "note": "Saade ABS, autres OFF (modif planning du 21/07 après-midi)"
+        },
+        {
+          "date": "2026-08-04",
+          "weekday": "mardi",
+          "status": "none",
+          "hours": null,
+          "note": "Saade ABS, autres OFF (modif planning du 21/07)"
+        },
+        {
+          "date": "2026-08-27",
+          "weekday": "jeudi",
+          "status": "none",
+          "hours": null,
+          "note": "Chahine ABS, autres OFF"
+        },
+        {
+          "date": "2026-08-29",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Slimane ABS, autres OFF"
+        },
+        {
+          "date": "2026-09-02",
+          "weekday": "mercredi",
+          "status": "none",
+          "hours": null,
+          "note": "Addala ABS, autres OFF"
+        }
+      ],
+      "notes": [
+        "Fermeture annoncée du 10 au 22/08 (note du planning) mais lignes encore remplies — à confirmer",
+        "Lun 03/08 : couverture Slimane « à confirmer »",
+        "Lun 21/09 : centre fermé (Kippour)"
+      ]
+    }
+  }
+}

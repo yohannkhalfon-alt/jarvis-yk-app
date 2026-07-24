@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>MAJ VAC — Équipe du jour</title>
+<meta name="theme-color" content="#04060C" />
+<meta name="description" content="Équipe du jour et de la semaine par rôle (ophta, ortho, secrétaires) par centre." />
+<link rel="manifest" href="/vac/manifest.webmanifest" />
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+:root{--bg:#04060C;--panel:rgba(10,16,28,0.72);--line:rgba(79,216,235,0.18);
+--blue:#1B6FD8;--cyan:#4FD8EB;--violet:#A78BFA;--txt:#C8D6E5;--dim:#6B7C93;
+--red:#FF5D6C;--orange:#FFB454;--green:#33d17a;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'Rajdhani',sans-serif;-webkit-font-smoothing:antialiased;
+background-image:radial-gradient(circle at 15% 0%,rgba(27,111,216,.12),transparent 40%),radial-gradient(circle at 95% 100%,rgba(79,216,235,.10),transparent 45%);
+min-height:100vh;padding-bottom:30px}
+.orb{font-family:'Orbitron',sans-serif}
+.cap{letter-spacing:2px;text-transform:uppercase;font-size:11px;color:var(--dim)}
+.hrs{font-variant-numeric:tabular-nums;font-weight:600}
+.wrap{max-width:520px;margin:0 auto;padding:0 16px}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:14px 16px;
+border-bottom:1px solid var(--line);background:rgba(4,6,12,.72);backdrop-filter:blur(8px)}
+.back{color:var(--dim);text-decoration:none;font-size:12px;letter-spacing:1.5px}
+.back:hover{color:var(--cyan)}
+.brand{font-family:'Orbitron';font-weight:700;letter-spacing:2.5px;font-size:14px;color:#EAF4FF}
+.brand b{color:var(--cyan)}
+.status{margin-left:auto;display:flex;align-items:center;gap:6px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+.dot.err{background:var(--red);box-shadow:0 0 8px var(--red)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.chip{padding:6px 13px;border-radius:999px;font-size:13px;color:var(--dim);border:1px solid var(--line);background:none;cursor:pointer;font-family:inherit}
+.chip.active{color:#04060C;background:var(--cyan);border-color:var(--cyan);font-weight:600}
+.bar{display:flex;align-items:center;gap:10px;margin-top:16px;flex-wrap:wrap}
+.toggle{display:flex;gap:4px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;padding:4px}
+.toggle a,.toggle span{padding:8px 14px;border-radius:9px;font-size:13px;text-decoration:none;color:var(--dim);cursor:pointer}
+.toggle .on{color:#EAF4FF;font-weight:700;background:rgba(79,216,235,.14);border:1px solid var(--cyan)}
+.nav{margin-left:auto;display:flex;align-items:center;gap:12px}
+.nav button{background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer;padding:2px 6px}
+.nav button:hover{color:var(--cyan)}
+.nav .lbl{font-family:'Orbitron';font-size:13px;color:#EAF4FF}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:20px;margin-top:16px}
+.roleHead{display:flex;align-items:center;gap:8px;margin:17px 0 9px}
+.sq{width:10px;height:10px;border-radius:3px}
+.person{display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);margin-bottom:8px}
+.ini{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-family:Orbitron;font-weight:700;font-size:14px}
+.pname{flex:1;font-weight:600;font-size:16px;color:#EAF4FF}
+.abs{font-size:12.5px;color:var(--dim)}
+.preview{background:rgba(10,16,28,.5);border:1px solid var(--line);border-radius:16px;padding:14px 10px;margin-top:14px}
+.pvhead{display:flex;align-items:center;margin:0 6px 8px}
+.scroller{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:separate;border-spacing:2px 2px;min-width:100%}
+th,td{white-space:nowrap}
+.nmeta{position:sticky;left:0;background:var(--bg);color:#EAF4FF;font-weight:600;font-size:11px;padding:2px 8px 2px 2px;text-align:left;z-index:1}
+thead .nmeta{background:var(--bg)}
+.dcol{font-size:9.5px;padding:2px;text-align:center}
+.cellon{border-radius:4px}
+.today{outline:1px solid var(--cyan)}
+.actions{display:flex;gap:9px;margin-top:14px}
+.btn{flex:1;text-align:center;padding:11px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;border:1px solid}
+.btn.copy{background:rgba(79,216,235,.12);border-color:var(--cyan);color:#EAF4FF}
+.btn.wa{background:rgba(51,209,122,.12);border-color:rgba(51,209,122,.4);color:var(--green);text-decoration:none;display:block}
+.msg{text-align:center;color:var(--dim);padding:40px 0;font-size:14px}
+.spin{display:inline-block;width:26px;height:26px;border:2px solid rgba(79,216,235,.25);border-top-color:var(--cyan);border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="/">‹ RETOUR</a>
+  <span class="brand">MAJ <b>VAC</b></span>
+  <span class="status"><span id="dot" class="dot"></span><span id="stat" class="cap">Chargement…</span></span>
+</header>
+
+<div class="wrap">
+  <div class="cap" style="margin-top:16px">Centre</div>
+  <div id="chips" class="chips"></div>
+
+  <div class="bar">
+    <div class="toggle">
+      <a href="/vac/">Jours sans ophta</a>
+      <span class="on">Équipe</span>
+    </div>
+    <div class="nav">
+      <button id="prev" title="Semaine précédente">‹</button>
+      <span id="weekLbl" class="lbl">—</span>
+      <button id="next" title="Semaine suivante">›</button>
+    </div>
+  </div>
+
+  <div id="content"></div>
+</div>
+
+<script>
+const CENTRES = [
+  {id:"argenteuil",label:"Argenteuil"},
+  {id:"annecy",label:"Annecy"},
+  {id:"tremblay",label:"Tremblay"},
+  {id:"sartrouville",label:"Sartrouville"},
+];
+const ROLE_STYLE = {
+  ophta:{c:"var(--cyan)",label:"Ophtalmologue"},
+  ortho:{c:"var(--violet)",label:"Orthoptistes"},
+  secretaire:{c:"var(--orange)",label:"Secrétaires"},
+};
+const JOURS_ABR = ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"];
+const MOIS_ABR = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+
+const qs = new URLSearchParams(location.search);
+let centre = qs.get("centre") || "argenteuil";
+let semaine = qs.get("semaine") || todayISO();
+let lastData = null, lastMsg = "";
+
+function todayISO(){ return new Date().toLocaleDateString('fr-CA'); }
+function isoToDate(iso){ return new Date(iso+"T12:00:00Z"); }
+function fmtJM(iso){ const d=isoToDate(iso); return String(d.getUTCDate()).padStart(2,"0")+" "+MOIS_ABR[d.getUTCMonth()]; }
+function fmtDayLong(iso){ const d=isoToDate(iso); const jours=["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];
+  return jours[d.getUTCDay()].toUpperCase()+" "+d.getUTCDate()+" "+["JANVIER","FÉVRIER","MARS","AVRIL","MAI","JUIN","JUILLET","AOÛT","SEPTEMBRE","OCTOBRE","NOVEMBRE","DÉCEMBRE"][d.getUTCMonth()]; }
+function shiftWeek(iso,delta){ const d=isoToDate(iso); d.setUTCDate(d.getUTCDate()+delta*7); return d.toISOString().slice(0,10); }
+function initials(n){ n=n.replace(/^Dr\.?\s+/i,"").trim(); const p=n.split(/\s+/); return (p[0][0]+(p[1]?p[1][0]:"")).toUpperCase(); }
+
+function renderChips(){
+  document.getElementById("chips").innerHTML = CENTRES.map(c =>
+    `<button class="chip ${c.id===centre?'active':''}" data-c="${c.id}">${c.label}</button>`).join("");
+  document.querySelectorAll(".chip").forEach(b => b.onclick = () => { centre=b.dataset.c; sync(); load(); });
+}
+function setStatus(t,err){ document.getElementById("stat").textContent=t; document.getElementById("dot").className="dot"+(err?" err":""); }
+function sync(){ const u=new URL(location); u.searchParams.set("centre",centre); u.searchParams.set("semaine",semaine); history.replaceState(null,"",u); }
+
+async function load(){
+  document.getElementById("content").innerHTML = `<div class="msg"><span class="spin"></span></div>`;
+  setStatus("Scan…");
+  try{
+    const r = await fetch(`/api/majvac?centre=${centre}&vue=equipe&semaine=${semaine}`);
+    const data = await r.json();
+    if(data.error){ throw new Error(data.error); }
+    lastData = data;
+    render(data);
+    setStatus("À jour");
+  }catch(e){
+    setStatus("Erreur",true);
+    document.getElementById("content").innerHTML = `<div class="msg">⚠️ ${e.message||e}<br><span class="cap" style="display:block;margin-top:8px">Vérifie la connexion Dropbox sur /api/majvac-oauth</span></div>`;
+  }
+}
+
+function render(data){
+  const jours = data.semaine.jours;                 // [lundi..samedi]
+  const weekLbl = `${isoToDate(jours[0]).getUTCDate()}–${isoToDate(jours[5]).getUTCDate()} ${MOIS_ABR[isoToDate(jours[5]).getUTCMonth()]}`;
+  document.getElementById("weekLbl").textContent = "SEM. "+weekLbl;
+
+  const today = todayISO();
+  const focus = jours.includes(today) ? today : jours[0]; // jour mis en avant
+
+  // ---- HERO (équipe du jour) ----
+  let hero = `<div class="card"><div class="cap">Équipe du jour</div>
+    <div class="orb" style="font-size:24px;color:#EAF4FF;letter-spacing:1px;margin-top:2px">${fmtDayLong(focus)}</div>`;
+  let anyPresent = false;
+  for(const role of data.roles){
+    const st = ROLE_STYLE[role.role]; if(!st) continue;
+    const present = role.personnes.filter(p => p.jours[focus]);
+    const absent  = role.personnes.filter(p => !p.jours[focus]).map(p => p.nom.replace(/^Dr\.?\s+/i,""));
+    anyPresent = anyPresent || present.length>0;
+    hero += `<div class="roleHead"><span class="sq" style="background:${st.c}"></span>
+      <span class="cap" style="color:${st.c};font-weight:700;font-size:12px">${st.label}</span>
+      <span style="margin-left:auto;font-size:12px;color:var(--dim)">${present.length} présent·e·s</span></div>`;
+    if(present.length){
+      hero += present.map(p => `<div class="person">
+        <div class="ini" style="color:${st.c};background:color-mix(in srgb,${st.c} 16%,transparent);border:1px solid color-mix(in srgb,${st.c} 40%,transparent)">${initials(p.nom)}</div>
+        <div class="pname">${p.nom}</div><span class="hrs" style="color:${st.c};font-size:15px">${p.jours[focus]}</span></div>`).join("");
+    } else {
+      hero += `<div class="person" style="border-style:dashed;opacity:.7"><div class="pname" style="color:var(--red);font-size:14px">Aucun·e ${st.label.toLowerCase()} ce jour</div></div>`;
+    }
+    if(absent.length) hero += `<div class="abs">Absent·es : ${absent.join(", ")}</div>`;
+  }
+  hero += `</div>`;
+
+  // ---- PREVIEW SEMAINE (grille, mobile = scroll horizontal) ----
+  const head = jours.map(iso => {
+    const d=isoToDate(iso); const t = iso===today ? "color:var(--cyan)" : "";
+    return `<th class="dcol cap ${iso===today?'today':''}" style="${t}">${JOURS_ABR[d.getUTCDay()]} ${d.getUTCDate()}</th>`;
+  }).join("");
+  let rows = "";
+  for(const role of data.roles){
+    const st = ROLE_STYLE[role.role]; if(!st || !role.personnes.length) continue;
+    for(const p of role.personnes){
+      const cells = jours.map(iso => {
+        const v = p.jours[iso];
+        const t = iso===today ? "today" : "";
+        if(!v) return `<td class="dcol ${t}" style="color:var(--dim)">OFF</td>`;
+        return `<td class="dcol cellon ${t}" style="color:${st.c};background:color-mix(in srgb,${st.c} 12%,transparent)">${v.replace(/H/g,"").replace("09","9")}</td>`;
+      }).join("");
+      rows += `<tr><td class="nmeta"><span style="color:${st.c}">●</span> ${p.nom.replace(/^Dr\.?\s+/i,"")}</td>${cells}</tr>`;
+    }
+  }
+  const preview = `<div class="preview">
+    <div class="pvhead"><span class="cap" style="font-weight:700;color:var(--txt)">Aperçu semaine · ${weekLbl}</span>
+      <span class="cap" style="margin-left:auto;color:var(--cyan)">glisser →</span></div>
+    <div class="scroller"><table><thead><tr><th class="nmeta"></th>${head}</tr></thead><tbody>${rows}</tbody></table></div>
+  </div>`;
+
+  // ---- Message copiable ----
+  lastMsg = buildMsg(data, focus);
+  const actions = `<div class="actions">
+    <button class="btn copy" id="btnCopy">📋 Copier</button>
+    <a class="btn wa" id="btnWa" target="_blank" rel="noopener">🟢 WhatsApp</a></div>`;
+
+  document.getElementById("content").innerHTML = hero + preview + actions;
+  document.getElementById("btnCopy").onclick = copyMsg;
+  document.getElementById("btnWa").href = "https://wa.me/?text=" + encodeURIComponent(lastMsg);
+}
+
+function buildMsg(data, focus){
+  const icon = {ophta:"🔵",ortho:"🟣",secretaire:"🟠"};
+  let out = `👥 ÉQUIPE DU JOUR — ${data.label}\n${fmtDayLong(focus)}\n`;
+  for(const role of data.roles){
+    const st = ROLE_STYLE[role.role]; if(!st) continue;
+    const present = role.personnes.filter(p=>p.jours[focus]).map(p=>`${p.nom.replace(/^Dr\.?\s+/i,"")} (${p.jours[focus]})`);
+    out += `\n${icon[role.role]} ${st.label} : ${present.length?present.join(", "):"—"}`;
+  }
+  return out;
+}
+function copyMsg(){
+  const done=()=>{ const b=document.getElementById("btnCopy"); b.textContent="✓ Copie©"; setTimeout(()=>b.textContent="📋 Copier",1500); };
+  if(navigator.clipboard) navigator.clipboard.writeText(lastMsg).then(done).catch(fallback);
+  else fallback();
+  function fallback(){ const t=document.createElement("textarea"); t.value=lastMsg; document.body.appendChild(t); t.select(); try{document.execCommand("copy");done();}catch(e){} document.body.removeChild(t); }
+}
+
+document.getElementById("prev").onclick = () => { semaine=shiftWeek(semaine,-1); sync(); load(); };
+document.getElementById("next").onclick = () => { semaine=shiftWeek(semaine, 1); sync(); load(); };
+
+renderChips(); sync(); load();
+</script>
+</body>
+</html>
