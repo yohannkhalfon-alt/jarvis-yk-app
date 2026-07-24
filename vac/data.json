@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-23T05:35:00Z",
+  "generated_at": "2026-07-24T05:40:00Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -66,49 +66,12 @@
     },
     "annecy": {
       "label": "ANNECY",
-      "days": [
-        {
-          "date": "2026-08-03",
-          "weekday": "lundi",
-          "status": "none",
-          "hours": null,
-          "note": "Aucun médecin planifié — ligne Dr Bendellali retirée du planning le 22/07"
-        },
-        {
-          "date": "2026-08-04",
-          "weekday": "mardi",
-          "status": "none",
-          "hours": null,
-          "note": "Aucun médecin planifié — ligne Dr Bendellali retirée du planning le 22/07"
-        },
-        {
-          "date": "2026-08-05",
-          "weekday": "mercredi",
-          "status": "none",
-          "hours": null,
-          "note": "Aucun médecin planifié — ligne Dr Bendellali retirée du planning le 22/07"
-        },
-        {
-          "date": "2026-08-06",
-          "weekday": "jeudi",
-          "status": "none",
-          "hours": null,
-          "note": "Aucun médecin planifié — ligne Dr Bendellali retirée du planning le 22/07"
-        },
-        {
-          "date": "2026-08-07",
-          "weekday": "vendredi",
-          "status": "none",
-          "hours": null,
-          "note": "Aucun médecin planifié — ligne Dr Bendellali retirée du planning le 22/07"
-        }
-      ],
+      "days": [],
       "notes": [
-        "⚠️ Semaine du 03 au 07/08 : le Dr Bendellali ne figure plus au planning (retiré le 22/07) — centre ouvert sans ophtalmologue",
+        "Semaine du 03 au 07/08 : couverte par le Dr Diop 09h-19h (ajouté au planning le 23/07 — remplace Bendellali)",
         "Fermeture estivale du 08 au 23/08 (CP collectifs) — Adina reprend le 24/08",
         "Ema : dernier jour le 31/07",
-        "Semaine du 07 au 12/09 : couverte par Dr Charakidas (09h-19h lun-jeu + sam)",
-        "Ven 04/09 : finalement couvert par Adina (planning corrigé le 22/07)"
+        "Semaine du 07 au 12/09 : couverte par Dr Charakidas (09h-19h lun-jeu + sam)"
       ]
     },
     "tremblay": {
