@@ -6,6 +6,7 @@
 // GET  /api/sign?id=&token=&pdf=1     → le PDF (version signée en cours, sinon original)
 // POST /api/sign {action:"create"}    → créer une demande (admin) : titre + PDF base64 + signataires
 // POST /api/sign {action:"sign"}      → signer : image PNG de la signature + consentement
+// POST /api/sign {action:"delete"}    → supprimer une demande et tous ses fichiers (admin)
 //
 // Stockage Netlify Blobs (store "sign") :
 //   env/{id}.json   métadonnées de la demande (signataires, statuts, audit)
@@ -270,6 +271,19 @@ export default async (req) => {
       if (env.status === "complet") await notifierCompletion(store, env, url.origin);
       await store.setJSON(`env/${id}.json`, env);
       return json(vueSignataire(env, idx));
+    }
+
+    // --- Suppression d'une demande (admin) ---
+    if (body.action === "delete") {
+      if (!adminOk(req)) return json({ error: "Code admin invalide" }, 403);
+      const { id } = body;
+      const env = await store.get(`env/${id}.json`, { type: "json" });
+      if (!env) return json({ error: "Demande introuvable" }, 404);
+      for (let i = 0; i < env.signers.length; i++) await store.delete(`sig/${id}/${i}`);
+      await store.delete(`signed/${id}`);
+      await store.delete(`pdf/${id}`);
+      await store.delete(`env/${id}.json`);
+      return json({ deleted: id });
     }
 
     return json({ error: "Action inconnue" }, 400);

@@ -49,6 +49,8 @@
   button.primary { background:linear-gradient(135deg,var(--blue),#0d4ea0); color:#fff; border:none; padding:12px 22px; font-size:15px; }
   button.primary:hover { filter:brightness(1.15); }
   button.small { padding:6px 12px; font-size:12px; }
+  button.danger { border-color:rgba(255,107,107,.3); color:#ff6b6b; background:rgba(255,107,107,.06); }
+  button.danger:hover { background:rgba(255,107,107,.14); }
   button:disabled { opacity:.5; cursor:default; }
   .chip { display:inline-block; font-size:11px; font-weight:700; letter-spacing:1px; padding:3px 10px; border-radius:20px; text-transform:uppercase; }
   .chip.attente { background:rgba(245,197,66,.12); color:var(--warn); }
@@ -218,8 +220,9 @@ async function chargerListe() {
         '<span class="st ' + s.status + '">' + (s.status === 'signe' ? '✓ Signé' : '⏳ En attente') + '</span>' +
         (s.status !== 'signe' ? '<span class="liens">' + blocLienInline(e, s) + '</span>' : '') +
         '</div>').join('') +
-      '<div style="margin-top:10px;"><button class="small" onclick="telecharger(\'' + e.id + '\', \'' + e.signers[0].token + '\')">' +
-      (e.status === 'complet' ? '⬇ Télécharger le PDF signé' : '⬇ Voir le PDF (état actuel)') + '</button></div>' +
+      '<div style="margin-top:10px; display:flex; gap:6px; flex-wrap:wrap;"><button class="small" onclick="telecharger(\'' + e.id + '\', \'' + e.signers[0].token + '\')">' +
+      (e.status === 'complet' ? '⬇ Télécharger le PDF signé' : '⬇ Voir le PDF (état actuel)') + '</button>' +
+      '<button class="small danger" onclick="supprimer(\'' + e.id + '\', \'' + echap(e.title).replace(/'/g, "\\'") + '\')">🗑 Supprimer</button></div>' +
       '</div>'
     ).join('');
   } catch (e) {
@@ -240,6 +243,18 @@ function blocLienInline(env, s) {
   const texte = encodeURIComponent('Bonjour ' + s.name + ', merci de signer le document « ' + env.title + ' » : ' + url);
   return '<button class="small" onclick="copier(\'' + url + '\', this)">Copier le lien</button>' +
     '<a href="https://wa.me/?text=' + texte + '" target="_blank"><button class="small">WhatsApp</button></a>';
+}
+
+async function supprimer(id, titre) {
+  if (!confirm('Supprimer définitivement « ' + titre + ' » ?\n\nLe PDF, les signatures et les liens envoyés seront effacés. Les liens déjà transmis aux signataires ne fonctionneront plus.')) return;
+  try {
+    await api('/api/sign', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ action: 'delete', id }),
+    });
+    chargerListe();
+  } catch (e) { alert(e.message); }
 }
 
 async function telecharger(id, token) {
