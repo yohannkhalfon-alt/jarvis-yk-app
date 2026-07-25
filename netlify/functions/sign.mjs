@@ -13,6 +13,14 @@
 //   sig/{id}/{i}    PNG de la signature du signataire i
 //   signed/{id}     PDF reconstruit après chaque signature (+ certificat quand complet)
 //
+// Retour automatique au centre : chaque demande porte une "boîte d'envoi"
+// (fromEmail — la boîte de la direction du centre qui envoie le contrat).
+// Quand tous les signataires ont signé, le PDF signé est renvoyé en pièce
+// jointe sur cette boîte via l'API Brevo (gratuit jusqu'à 300 emails/jour).
+// Variables Netlify : BREVO_API_KEY (obligatoire pour l'envoi) et BREVO_FROM
+// (adresse expéditrice validée chez Brevo). Sans clé, tout fonctionne pareil,
+// simplement sans email automatique.
+//
 // Signature électronique "simple" au sens eIDAS : le document final embarque
 // les signatures dessinées + une page de certificat (horodatage, IP, empreinte
 // SHA-256 de l'original) qui constitue la piste d'audit.
@@ -105,6 +113,42 @@ async function construirePdfSigne(store, env) {
   return env;
 }
 
+const echapHtml = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+// Renvoie le PDF signé en pièce jointe sur la boîte d'envoi du centre.
+// Ne fait jamais échouer la signature : le résultat est consigné dans env.notif.
+async function notifierCompletion(store, env, origin) {
+  if (!env.fromEmail) return;
+  const key = process.env.BREVO_API_KEY;
+  if (!key) { env.notif = { skipped: "BREVO_API_KEY non configurée sur Netlify" }; return; }
+  try {
+    const pdf = await store.get(`signed/${env.id}`, { type: "arrayBuffer" });
+    const b64 = Buffer.from(pdf).toString("base64");
+    const lien = `${origin}/api/sign?id=${env.id}&token=${env.dlToken}&pdf=1`;
+    const noms = env.signers.map((s) => s.name).join(", ");
+    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: { "api-key": key, "content-type": "application/json" },
+      body: JSON.stringify({
+        sender: { name: "JARVIS SIGN", email: process.env.BREVO_FROM || env.fromEmail },
+        to: [{ email: env.fromEmail }],
+        subject: `Document signé : ${env.title}`,
+        htmlContent:
+          `<p>Le document <b>${echapHtml(env.title)}</b> a été signé par tous les signataires (${echapHtml(noms)}).</p>` +
+          `<p>Le PDF signé (avec certificat) est en pièce jointe. Lien de secours : <a href="${lien}">télécharger</a>.</p>` +
+          `<p style="color:#888;font-size:12px;">JARVIS SIGN — signature électronique</p>`,
+        attachment: b64.length < 7_000_000
+          ? [{ name: env.title.replace(/[^\w. -]/g, "_") + "-signe.pdf", content: b64 }]
+          : undefined,
+      }),
+    });
+    if (!res.ok) throw new Error((await res.text()).slice(0, 200));
+    env.notif = { sent: true, to: env.fromEmail, at: new Date().toISOString() };
+  } catch (e) {
+    env.notif = { error: String(e.message || e).slice(0, 200) };
+  }
+}
+
 const vueSignataire = (env, idx) => ({
   id: env.id,
   title: env.title,
@@ -127,7 +171,9 @@ export default async (req) => {
       const env = await store.get(`env/${id}.json`, { type: "json" });
       if (!env) return json({ error: "Demande introuvable" }, 404);
       const idx = env.signers.findIndex((s) => s.token === token);
-      if (idx < 0 && !adminOk(req)) return json({ error: "Lien invalide" }, 403);
+      // dlToken : lien de téléchargement direct (utilisé dans l'email au centre)
+      const dlOk = Boolean(token) && token === env.dlToken;
+      if (idx < 0 && !dlOk && !adminOk(req)) return json({ error: "Lien invalide" }, 403);
 
       if (url.searchParams.get("pdf")) {
         const pdf = (await store.get(`signed/${id}`, { type: "arrayBuffer" })) ||
@@ -167,7 +213,7 @@ export default async (req) => {
     // --- Création d'une demande (admin) ---
     if (body.action === "create") {
       if (!adminOk(req)) return json({ error: "Code admin invalide" }, 403);
-      const { title, pdfBase64, signers } = body;
+      const { title, pdfBase64, signers, fromEmail } = body;
       if (!title || !pdfBase64 || !Array.isArray(signers) || !signers.length)
         return json({ error: "Titre, PDF et au moins un signataire requis" }, 400);
       if (signers.some((s) => !s.name || !String(s.name).trim()))
@@ -186,6 +232,8 @@ export default async (req) => {
         title: String(title).slice(0, 120),
         createdAt: new Date().toISOString(),
         hashOriginal: sha256(pdf),
+        fromEmail: String(fromEmail || "").slice(0, 120),
+        dlToken: randomBytes(16).toString("hex"),
         status: "attente",
         signers: signers.slice(0, 8).map((s) => ({
           name: String(s.name).slice(0, 80),
@@ -219,6 +267,7 @@ export default async (req) => {
       env.signers[idx].ua = req.headers.get("user-agent") || "";
 
       await construirePdfSigne(store, env);
+      if (env.status === "complet") await notifierCompletion(store, env, url.origin);
       await store.setJSON(`env/${id}.json`, env);
       return json(vueSignataire(env, idx));
     }

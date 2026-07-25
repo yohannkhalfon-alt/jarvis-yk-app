@@ -84,6 +84,10 @@
     <h2>Nouvelle demande de signature</h2>
     <label>Titre du document</label>
     <input type="text" id="titre" placeholder="Ex : Contrat de vacation — Dr Martin" maxlength="120" />
+    <label>Boîte d'envoi (email de la direction du centre)</label>
+    <input type="email" id="fromEmail" placeholder="Ex : direction.argenteuil@toncentre.fr" maxlength="120" list="boites" />
+    <datalist id="boites"></datalist>
+    <div class="hint">Le PDF signé sera automatiquement renvoyé sur cette boîte quand tous les signataires auront signé.</div>
     <label>Fichier PDF (max 3,5 Mo)</label>
     <input type="file" id="pdf" accept="application/pdf" />
     <label>Signataires</label>
@@ -139,6 +143,7 @@ $('#creer').onclick = async () => {
   const msg = $('#msgCreate');
   msg.className = 'msg'; msg.textContent = '';
   const titre = $('#titre').value.trim();
+  const fromEmail = $('#fromEmail').value.trim();
   const fichier = $('#pdf').files[0];
   const signers = [...document.querySelectorAll('#signataires .row')].map((r) => ({
     name: r.querySelector('.s-nom').value.trim(),
@@ -158,8 +163,9 @@ $('#creer').onclick = async () => {
     const { envelope } = await api('/api/sign', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ action: 'create', title: titre, pdfBase64: b64, signers }),
+      body: JSON.stringify({ action: 'create', title: titre, pdfBase64: b64, signers, fromEmail }),
     });
+    if (fromEmail) localStorage.setItem('signFrom', fromEmail);
     msg.className = 'msg ok'; msg.textContent = 'Demande créée ! Envoie chaque lien au bon signataire :';
     $('#resultat').innerHTML = envelope.signers.map((s) => blocLien(envelope, s)).join('');
     $('#titre').value = ''; $('#pdf').value = ''; $('#signataires').innerHTML = ''; ligneSigner();
@@ -194,6 +200,11 @@ const CHIP = { attente: 'En attente', partiel: 'Partiel', complet: 'Complet' };
 async function chargerListe() {
   try {
     const { envelopes } = await api('/api/sign?list=1');
+    // Datalist des boîtes déjà utilisées + dernière boîte mémorisée
+    const boites = [...new Set(envelopes.map((e) => e.fromEmail).filter(Boolean))];
+    $('#boites').innerHTML = boites.map((b) => '<option value="' + echap(b) + '">').join('');
+    if (!$('#fromEmail').value) $('#fromEmail').value = localStorage.getItem('signFrom') || '';
+
     if (!envelopes.length) { $('#liste').className = 'vide'; $('#liste').textContent = 'Aucune demande pour le moment.'; return; }
     $('#liste').className = '';
     $('#liste').innerHTML = envelopes.map((e) =>
@@ -202,6 +213,7 @@ async function chargerListe() {
       '<span class="chip ' + e.status + '">' + (CHIP[e.status] || e.status) + '</span>' +
       '<span class="date">' + new Date(e.createdAt).toLocaleDateString('fr-FR') + '</span>' +
       '</div>' +
+      (e.fromEmail ? '<div class="hint">📤 Boîte d’envoi : ' + echap(e.fromEmail) + notifTxt(e) + '</div>' : '') +
       e.signers.map((s) => '<div class="sgn"><span class="nm">' + echap(s.name) + '</span>' +
         '<span class="st ' + s.status + '">' + (s.status === 'signe' ? '✓ Signé' : '⏳ En attente') + '</span>' +
         (s.status !== 'signe' ? '<span class="liens">' + blocLienInline(e, s) + '</span>' : '') +
@@ -213,6 +225,14 @@ async function chargerListe() {
   } catch (e) {
     $('#liste').className = 'vide'; $('#liste').textContent = e.message;
   }
+}
+
+function notifTxt(e) {
+  if (!e.notif) return '';
+  if (e.notif.sent) return ' — 📧 PDF signé renvoyé le ' + new Date(e.notif.at).toLocaleString('fr-FR');
+  if (e.notif.skipped) return ' — ⚠ Email non envoyé (' + echap(e.notif.skipped) + ')';
+  if (e.notif.error) return ' — ⚠ Échec de l’email : ' + echap(e.notif.error);
+  return '';
 }
 
 function blocLienInline(env, s) {
