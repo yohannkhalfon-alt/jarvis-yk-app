@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#04060C" />
+<title>JARVIS·SIGN — Signature électronique</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg:#04060C; --panel:rgba(10,16,28,0.72); --line:rgba(79,216,235,0.18);
+    --blue:#1B6FD8; --cyan:#4FD8EB; --txt:#C8D6E5; --dim:#6B7C93;
+    --ok:#33d17a; --warn:#f5c542;
+  }
+  body {
+    background:var(--bg); color:var(--txt); font-family:'Rajdhani',sans-serif; min-height:100vh;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(27,111,216,0.13), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 110%, rgba(79,216,235,0.06), transparent);
+  }
+  @keyframes spin { from{transform:rotate(0);} to{transform:rotate(360deg);} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
+  header { display:flex; align-items:center; gap:14px; padding:14px 20px; border-bottom:1px solid var(--line); background:rgba(4,6,12,.6); backdrop-filter:blur(8px); }
+  .core { width:34px; height:34px; position:relative; flex:none; }
+  .core::before,.core::after { content:''; position:absolute; inset:0; border-radius:50%; border:2px solid transparent; border-top-color:var(--cyan); border-right-color:var(--blue); animation:spin 3s linear infinite; }
+  .core::after { inset:6px; animation-direction:reverse; animation-duration:2s; }
+  h1 { font-family:'Orbitron'; font-size:18px; letter-spacing:3px; color:#EAF4FF; font-weight:700; }
+  h1 span { color:var(--cyan); }
+  .sub { font-size:11px; color:var(--dim); letter-spacing:2px; text-transform:uppercase; }
+  main { max-width:860px; margin:0 auto; padding:24px 18px 60px; display:flex; flex-direction:column; gap:22px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:20px; animation:fadeUp .25s ease; }
+  .card h2 { font-family:'Orbitron'; font-size:13px; letter-spacing:2px; color:var(--cyan); text-transform:uppercase; margin-bottom:16px; }
+  label { display:block; font-size:12px; color:var(--dim); letter-spacing:1px; text-transform:uppercase; margin:12px 0 5px; }
+  input[type=text], input[type=email] {
+    width:100%; background:rgba(4,6,12,.6); border:1px solid var(--line); border-radius:10px;
+    color:var(--txt); font-family:inherit; font-size:15px; padding:10px 12px; outline:none;
+  }
+  input:focus { border-color:var(--cyan); }
+  input[type=file] { color:var(--dim); font-size:14px; margin-top:2px; }
+  .row { display:flex; gap:10px; align-items:center; margin-bottom:8px; }
+  .row input { flex:1; }
+  button {
+    font-family:'Rajdhani'; font-weight:700; font-size:14px; letter-spacing:1px; cursor:pointer;
+    border-radius:10px; border:1px solid var(--line); padding:10px 18px; transition:.15s;
+    background:rgba(79,216,235,.08); color:var(--cyan);
+  }
+  button:hover { background:rgba(79,216,235,.16); }
+  button.primary { background:linear-gradient(135deg,var(--blue),#0d4ea0); color:#fff; border:none; padding:12px 22px; font-size:15px; }
+  button.primary:hover { filter:brightness(1.15); }
+  button.small { padding:6px 12px; font-size:12px; }
+  button:disabled { opacity:.5; cursor:default; }
+  .chip { display:inline-block; font-size:11px; font-weight:700; letter-spacing:1px; padding:3px 10px; border-radius:20px; text-transform:uppercase; }
+  .chip.attente { background:rgba(245,197,66,.12); color:var(--warn); }
+  .chip.partiel { background:rgba(79,216,235,.12); color:var(--cyan); }
+  .chip.complet { background:rgba(51,209,122,.12); color:var(--ok); }
+  .env { border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:12px; }
+  .env .top { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .env .titre { font-weight:700; font-size:16px; color:#EAF4FF; flex:1; }
+  .env .date { font-size:12px; color:var(--dim); }
+  .sgn { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:10px; font-size:14px; }
+  .sgn .nm { min-width:140px; }
+  .sgn .st { font-size:12px; }
+  .st.signe { color:var(--ok); } .st.attente { color:var(--warn); }
+  .liens { display:flex; gap:6px; flex-wrap:wrap; }
+  .msg { font-size:14px; margin-top:10px; }
+  .msg.err { color:#ff6b6b; } .msg.ok { color:var(--ok); }
+  .hint { font-size:12px; color:var(--dim); margin-top:6px; line-height:1.5; }
+  .vide { color:var(--dim); text-align:center; padding:20px; font-size:14px; }
+  a { color:var(--cyan); }
+</style>
+</head>
+<body>
+<header>
+  <div class="core"></div>
+  <div>
+    <h1>JARVIS·<span>SIGN</span></h1>
+    <div class="sub">Signature électronique — zéro abonnement</div>
+  </div>
+</header>
+<main>
+
+  <div class="card">
+    <h2>Nouvelle demande de signature</h2>
+    <label>Titre du document</label>
+    <input type="text" id="titre" placeholder="Ex : Contrat de vacation — Dr Martin" maxlength="120" />
+    <label>Fichier PDF (max 3,5 Mo)</label>
+    <input type="file" id="pdf" accept="application/pdf" />
+    <label>Signataires</label>
+    <div id="signataires"></div>
+    <button class="small" id="addSigner">+ Ajouter un signataire</button>
+    <div style="margin-top:18px;">
+      <button class="primary" id="creer">Créer la demande</button>
+    </div>
+    <div class="msg" id="msgCreate"></div>
+    <div id="resultat"></div>
+  </div>
+
+  <div class="card">
+    <h2>Demandes en cours</h2>
+    <div id="liste" class="vide">Chargement…</div>
+  </div>
+
+</main>
+<script>
+const $ = (s) => document.querySelector(s);
+let adminCode = localStorage.getItem('signCode') || '';
+
+async function api(path, opts = {}) {
+  opts.headers = Object.assign({}, opts.headers, adminCode ? { 'x-sign-code': adminCode } : {});
+  const res = await fetch(path, opts);
+  const data = await res.json().catch(() => ({}));
+  if (res.status === 403 && (data.error || '').includes('admin')) {
+    adminCode = prompt('Code d’accès JARVIS SIGN :') || '';
+    localStorage.setItem('signCode', adminCode);
+    if (adminCode) return api(path, opts);
+  }
+  if (!res.ok) throw new Error(data.error || ('Erreur ' + res.status));
+  return data;
+}
+
+// ---- Lignes signataires ----
+function ligneSigner(nom = '', email = '') {
+  const div = document.createElement('div');
+  div.className = 'row';
+  div.innerHTML = '<input type="text" placeholder="Nom du signataire" class="s-nom" maxlength="80" />' +
+                  '<input type="email" placeholder="Email (facultatif)" class="s-email" maxlength="120" />' +
+                  '<button class="small s-del" title="Retirer">✕</button>';
+  div.querySelector('.s-nom').value = nom;
+  div.querySelector('.s-email').value = email;
+  div.querySelector('.s-del').onclick = () => { if ($('#signataires').children.length > 1) div.remove(); };
+  $('#signataires').appendChild(div);
+}
+ligneSigner();
+$('#addSigner').onclick = () => { if ($('#signataires').children.length < 8) ligneSigner(); };
+
+// ---- Création ----
+$('#creer').onclick = async () => {
+  const msg = $('#msgCreate');
+  msg.className = 'msg'; msg.textContent = '';
+  const titre = $('#titre').value.trim();
+  const fichier = $('#pdf').files[0];
+  const signers = [...document.querySelectorAll('#signataires .row')].map((r) => ({
+    name: r.querySelector('.s-nom').value.trim(),
+    email: r.querySelector('.s-email').value.trim(),
+  })).filter((s) => s.name);
+  if (!titre || !fichier || !signers.length) { msg.className = 'msg err'; msg.textContent = 'Titre, PDF et au moins un signataire (avec nom) requis.'; return; }
+  if (fichier.size > 3.5 * 1024 * 1024) { msg.className = 'msg err'; msg.textContent = 'PDF trop lourd (max 3,5 Mo). Compresse-le d’abord.'; return; }
+
+  $('#creer').disabled = true; msg.textContent = 'Création en cours…';
+  try {
+    const b64 = await new Promise((ok, ko) => {
+      const fr = new FileReader();
+      fr.onload = () => ok(fr.result.split(',')[1]);
+      fr.onerror = ko;
+      fr.readAsDataURL(fichier);
+    });
+    const { envelope } = await api('/api/sign', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ action: 'create', title: titre, pdfBase64: b64, signers }),
+    });
+    msg.className = 'msg ok'; msg.textContent = 'Demande créée ! Envoie chaque lien au bon signataire :';
+    $('#resultat').innerHTML = envelope.signers.map((s) => blocLien(envelope, s)).join('');
+    $('#titre').value = ''; $('#pdf').value = ''; $('#signataires').innerHTML = ''; ligneSigner();
+    chargerListe();
+  } catch (e) {
+    msg.className = 'msg err'; msg.textContent = e.message;
+  }
+  $('#creer').disabled = false;
+};
+
+const lienSigner = (env, s) => location.origin + '/sign/signer.html?id=' + env.id + '&token=' + s.token;
+
+function blocLien(env, s) {
+  const url = lienSigner(env, s);
+  const texte = encodeURIComponent('Bonjour ' + s.name + ', merci de signer le document « ' + env.title + ' » : ' + url);
+  return '<div class="sgn"><span class="nm">' + echap(s.name) + '</span><span class="liens">' +
+    '<button class="small" onclick="copier(\'' + url + '\', this)">Copier le lien</button>' +
+    '<a href="https://wa.me/?text=' + texte + '" target="_blank"><button class="small">WhatsApp</button></a>' +
+    '<a href="mailto:' + encodeURIComponent(s.email || '') + '?subject=' + encodeURIComponent('Signature : ' + env.title) + '&body=' + texte + '"><button class="small">Email</button></a>' +
+    '</span></div>';
+}
+
+function copier(url, btn) {
+  navigator.clipboard.writeText(url).then(() => { btn.textContent = 'Copié !'; setTimeout(() => btn.textContent = 'Copier le lien', 1500); });
+}
+
+const echap = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+
+// ---- Liste ----
+const CHIP = { attente: 'En attente', partiel: 'Partiel', complet: 'Complet' };
+
+async function chargerListe() {
+  try {
+    const { envelopes } = await api('/api/sign?list=1');
+    if (!envelopes.length) { $('#liste').className = 'vide'; $('#liste').textContent = 'Aucune demande pour le moment.'; return; }
+    $('#liste').className = '';
+    $('#liste').innerHTML = envelopes.map((e) =>
+      '<div class="env"><div class="top">' +
+      '<span class="titre">' + echap(e.title) + '</span>' +
+      '<span class="chip ' + e.status + '">' + (CHIP[e.status] || e.status) + '</span>' +
+      '<span class="date">' + new Date(e.createdAt).toLocaleDateString('fr-FR') + '</span>' +
+      '</div>' +
+      e.signers.map((s) => '<div class="sgn"><span class="nm">' + echap(s.name) + '</span>' +
+        '<span class="st ' + s.status + '">' + (s.status === 'signe' ? '✓ Signé' : '⏳ En attente') + '</span>' +
+        (s.status !== 'signe' ? '<span class="liens">' + blocLienInline(e, s) + '</span>' : '') +
+        '</div>').join('') +
+      '<div style="margin-top:10px;"><button class="small" onclick="telecharger(\'' + e.id + '\', \'' + e.signers[0].token + '\')">' +
+      (e.status === 'complet' ? '⬇ Télécharger le PDF signé' : '⬇ Voir le PDF (état actuel)') + '</button></div>' +
+      '</div>'
+    ).join('');
+  } catch (e) {
+    $('#liste').className = 'vide'; $('#liste').textContent = e.message;
+  }
+}
+
+function blocLienInline(env, s) {
+  const url = lienSigner(env, s);
+  const texte = encodeURIComponent('Bonjour ' + s.name + ', merci de signer le document « ' + env.title + ' » : ' + url);
+  return '<button class="small" onclick="copier(\'' + url + '\', this)">Copier le lien</button>' +
+    '<a href="https://wa.me/?text=' + texte + '" target="_blank"><button class="small">WhatsApp</button></a>';
+}
+
+async function telecharger(id, token) {
+  const res = await fetch('/api/sign?id=' + id + '&token=' + token + '&pdf=1', { headers: adminCode ? { 'x-sign-code': adminCode } : {} });
+  const blob = await res.blob();
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'document-signe-' + id + '.pdf';
+  a.click();
+}
+
+chargerListe();
+</script>
+</body>
+</html>
