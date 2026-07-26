@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-25T05:45:00Z",
+  "generated_at": "2026-07-26T05:45:00Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -108,13 +108,6 @@
       "label": "SARTROUVILLE",
       "days": [
         {
-          "date": "2026-07-28",
-          "weekday": "mardi",
-          "status": "none",
-          "hours": null,
-          "note": "Saade ABS, autres OFF (modif planning du 21/07 après-midi)"
-        },
-        {
           "date": "2026-08-04",
           "weekday": "mardi",
           "status": "none",
@@ -144,6 +137,7 @@
         }
       ],
       "notes": [
+        "Mar 28/07 : centre fermé — tout le personnel en congé (planning modifié le 25/07, le jour sans ophta est résolu par la fermeture)",
         "Fermeture annoncée du 10 au 22/08 (note du planning) mais lignes encore remplies — à confirmer",
         "Lun 03/08 : couverture Slimane « à confirmer »",
         "Lun 21/09 : centre fermé (Kippour)"
