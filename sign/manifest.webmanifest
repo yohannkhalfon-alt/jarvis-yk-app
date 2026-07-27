@@ -1,0 +1,17 @@
+{
+  "name": "JARVIS SIGN — Signature électronique",
+  "short_name": "JARVIS SIGN",
+  "description": "Envoi et signature électronique de documents — zéro abonnement",
+  "start_url": "/sign/",
+  "scope": "/sign/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#04060C",
+  "theme_color": "#04060C",
+  "lang": "fr",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

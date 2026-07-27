@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#04060C" />
+<link rel="icon" type="image/png" href="icon-192.png" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<title>Signature du document</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg:#04060C; --panel:rgba(10,16,28,0.72); --line:rgba(79,216,235,0.18);
+    --blue:#1B6FD8; --cyan:#4FD8EB; --txt:#C8D6E5; --dim:#6B7C93; --ok:#33d17a;
+  }
+  body {
+    background:var(--bg); color:var(--txt); font-family:'Rajdhani',sans-serif; min-height:100vh;
+    background-image:radial-gradient(ellipse 80% 50% at 50% -10%, rgba(27,111,216,0.13), transparent);
+  }
+  header { display:flex; align-items:center; gap:12px; padding:14px 20px; border-bottom:1px solid var(--line); }
+  h1 { font-family:'Orbitron'; font-size:15px; letter-spacing:2px; color:#EAF4FF; }
+  h1 span { color:var(--cyan); }
+  main { max-width:720px; margin:0 auto; padding:20px 16px 60px; display:flex; flex-direction:column; gap:16px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:18px; }
+  .titre { font-size:19px; font-weight:700; color:#EAF4FF; }
+  .meta { font-size:13px; color:var(--dim); margin-top:4px; }
+  iframe { width:100%; height:440px; border:1px solid var(--line); border-radius:10px; background:#fff; }
+  .pdflink { font-size:13px; margin-top:8px; }
+  a { color:var(--cyan); }
+  h2 { font-family:'Orbitron'; font-size:12px; letter-spacing:2px; color:var(--cyan); text-transform:uppercase; margin-bottom:12px; }
+  canvas.pad { width:100%; height:170px; background:#fff; border-radius:10px; border:1px solid var(--line); touch-action:none; cursor:crosshair; display:block; }
+  .padrow { display:flex; justify-content:space-between; align-items:center; margin-top:8px; }
+  .hint { font-size:12px; color:var(--dim); }
+  button {
+    font-family:'Rajdhani'; font-weight:700; font-size:14px; letter-spacing:1px; cursor:pointer;
+    border-radius:10px; border:1px solid var(--line); padding:9px 16px; background:rgba(79,216,235,.08); color:var(--cyan);
+  }
+  button.primary { background:linear-gradient(135deg,var(--blue),#0d4ea0); color:#fff; border:none; padding:13px 24px; font-size:16px; width:100%; margin-top:14px; }
+  button.primary:hover { filter:brightness(1.15); }
+  button:disabled { opacity:.5; cursor:default; }
+  label.consent { display:flex; gap:10px; align-items:flex-start; font-size:14px; line-height:1.5; margin-top:14px; cursor:pointer; }
+  input[type=checkbox] { width:18px; height:18px; margin-top:2px; accent-color:var(--cyan); }
+  .msg { margin-top:10px; font-size:14px; }
+  .msg.err { color:#ff6b6b; }
+  .done { text-align:center; padding:30px 10px; }
+  .done .check { font-size:52px; color:var(--ok); }
+  .done h3 { font-size:20px; color:#EAF4FF; margin:12px 0 6px; }
+  .done p { color:var(--dim); font-size:14px; line-height:1.6; }
+  .vide { text-align:center; color:var(--dim); padding:60px 20px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>JARVIS·<span>SIGN</span></h1>
+</header>
+<main id="app"><div class="vide">Chargement du document…</div></main>
+<script>
+const $ = (s) => document.querySelector(s);
+const params = new URLSearchParams(location.search);
+const id = params.get('id'), token = params.get('token');
+const urlPdf = '/api/sign?id=' + encodeURIComponent(id) + '&token=' + encodeURIComponent(token) + '&pdf=1';
+let infos = null;
+
+const echap = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+
+async function init() {
+  if (!id || !token) { $('#app').innerHTML = '<div class="vide">Lien invalide.</div>'; return; }
+  try {
+    const res = await fetch('/api/sign?id=' + encodeURIComponent(id) + '&token=' + encodeURIComponent(token));
+    infos = await res.json();
+    if (!res.ok) throw new Error(infos.error || 'Erreur');
+  } catch (e) {
+    $('#app').innerHTML = '<div class="vide">' + echap(e.message) + '</div>';
+    return;
+  }
+  if (infos.moi.status === 'signe') { ecranFini(true); return; }
+  ecranSignature();
+}
+
+function ecranSignature() {
+  const autres = infos.autres.length
+    ? '<div class="meta">Autres signataires : ' + infos.autres.map((a) => echap(a.name) + (a.status === 'signe' ? ' ✓' : '')).join(', ') + '</div>'
+    : '';
+  $('#app').innerHTML =
+    '<div class="card">' +
+      '<div class="titre">' + echap(infos.title) + '</div>' +
+      '<div class="meta">Signataire : <b>' + echap(infos.moi.name) + '</b></div>' + autres +
+    '</div>' +
+    '<div class="card">' +
+      '<h2>Document à signer</h2>' +
+      '<iframe id="apercu"></iframe>' +
+      '<div class="pdflink">Aperçu illisible ? <a href="' + urlPdf + '" target="_blank">Ouvrir le PDF dans un nouvel onglet</a></div>' +
+    '</div>' +
+    '<div class="card">' +
+      '<h2>Votre signature</h2>' +
+      '<canvas class="pad" id="pad"></canvas>' +
+      '<div class="padrow"><span class="hint">Dessinez votre signature ci-dessus (doigt ou souris)</span><button id="effacer">Effacer</button></div>' +
+      '<label class="consent"><input type="checkbox" id="consent" />' +
+        'Je, <b>&nbsp;' + echap(infos.moi.name) + '&nbsp;</b>, déclare avoir lu le document « ' + echap(infos.title) + ' » et consens à le signer électroniquement. Ma signature, la date, mon adresse IP et mon navigateur seront enregistrés dans le certificat de signature.' +
+      '</label>' +
+      '<button class="primary" id="signer">✍ Signer le document</button>' +
+      '<div class="msg" id="msg"></div>' +
+    '</div>';
+
+  // Aperçu PDF via blob (l'iframe direct est bloqué par certains navigateurs mobiles)
+  fetch(urlPdf).then((r) => r.blob()).then((b) => { $('#apercu').src = URL.createObjectURL(b); });
+
+  initPad();
+  $('#signer').onclick = envoyer;
+}
+
+// ---- Pavé de signature ----
+let dessine = false, aDessine = false, ctx;
+function initPad() {
+  const c = $('#pad');
+  const r = c.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  c.width = r.width * dpr; c.height = 170 * dpr;
+  ctx = c.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.lineWidth = 2.4; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#12294a';
+  const pos = (ev) => {
+    const rect = c.getBoundingClientRect();
+    const p = ev.touches ? ev.touches[0] : ev;
+    return { x: p.clientX - rect.left, y: p.clientY - rect.top };
+  };
+  const debut = (ev) => { ev.preventDefault(); dessine = true; const p = pos(ev); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+  const trace = (ev) => { if (!dessine) return; ev.preventDefault(); const p = pos(ev); ctx.lineTo(p.x, p.y); ctx.stroke(); aDessine = true; };
+  const fin = () => { dessine = false; };
+  c.addEventListener('mousedown', debut); c.addEventListener('mousemove', trace); window.addEventListener('mouseup', fin);
+  c.addEventListener('touchstart', debut, { passive: false }); c.addEventListener('touchmove', trace, { passive: false }); c.addEventListener('touchend', fin);
+  $('#effacer').onclick = () => { ctx.clearRect(0, 0, c.width, c.height); aDessine = false; };
+}
+
+// Recadre la signature sur son contenu réel avant envoi (fond transparent)
+function signaturePng() {
+  const c = $('#pad');
+  const t = c.getContext('2d');
+  const img = t.getImageData(0, 0, c.width, c.height);
+  let minX = c.width, minY = c.height, maxX = 0, maxY = 0;
+  for (let y = 0; y < c.height; y++) for (let x = 0; x < c.width; x++) {
+    if (img.data[(y * c.width + x) * 4 + 3] > 10) {
+      if (x < minX) minX = x; if (x > maxX) maxX = x;
+      if (y < minY) minY = y; if (y > maxY) maxY = y;
+    }
+  }
+  if (maxX <= minX || maxY <= minY) return null;
+  const m = 8;
+  const out = document.createElement('canvas');
+  out.width = maxX - minX + m * 2; out.height = maxY - minY + m * 2;
+  out.getContext('2d').drawImage(c, minX - m, minY - m, out.width, out.height, 0, 0, out.width, out.height);
+  return out.toDataURL('image/png');
+}
+
+async function envoyer() {
+  const msg = $('#msg');
+  msg.className = 'msg'; msg.textContent = '';
+  if (!aDessine) { msg.className = 'msg err'; msg.textContent = 'Dessinez votre signature d’abord.'; return; }
+  if (!$('#consent').checked) { msg.className = 'msg err'; msg.textContent = 'Cochez la case de consentement.'; return; }
+  const png = signaturePng();
+  if (!png) { msg.className = 'msg err'; msg.textContent = 'Signature vide, réessayez.'; return; }
+  $('#signer').disabled = true; msg.textContent = 'Signature en cours…';
+  try {
+    const res = await fetch('/api/sign', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ action: 'sign', id, token, signaturePng: png, consent: true }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erreur');
+    infos = data;
+    ecranFini(false);
+  } catch (e) {
+    msg.className = 'msg err'; msg.textContent = e.message;
+    $('#signer').disabled = false;
+  }
+}
+
+function ecranFini(deja) {
+  const complet = infos.status === 'complet';
+  $('#app').innerHTML =
+    '<div class="card done">' +
+      '<div class="check">✓</div>' +
+      '<h3>' + (deja ? 'Document déjà signé' : 'Merci, ' + echap(infos.moi.name) + ' !') + '</h3>' +
+      '<p>' + (complet
+        ? 'Tous les signataires ont signé. Le document final inclut le certificat de signature.'
+        : 'Votre signature a bien été enregistrée. Le document sera finalisé quand tous les signataires auront signé.') + '</p>' +
+      '<p style="margin-top:16px;"><a href="' + urlPdf + '" target="_blank"><button>⬇ Télécharger le document' + (complet ? ' signé' : ' (état actuel)') + '</button></a></p>' +
+    '</div>';
+}
+
+init();
+</script>
+</body>
+</html>
