@@ -69,10 +69,31 @@ async function construirePdfSigne(store, env) {
     const col = i % parLigne, ligne = Math.floor(i / parLigne);
     const x = marge + col * (larg + 12);
     const y = marge + ligne * (haut + 26);
-    const dims = img.scaleToFit(larg - 10, haut - 24);
+    const dims = img.scaleToFit(larg - 10, haut - 32);
     derniere.drawRectangle({ x, y, width: larg, height: haut, borderColor: rgb(0.55, 0.6, 0.68), borderWidth: 0.8 });
-    derniere.drawImage(img, { x: x + 5, y: y + 19, width: dims.width, height: dims.height });
-    derniere.drawText(txt(`${s.name} — ${dateParis(s.signedAt)}`), { x: x + 5, y: y + 6, size: 6.5, font, color: rgb(0.25, 0.28, 0.35) });
+    derniere.drawImage(img, { x: x + 5, y: y + 26, width: dims.width, height: dims.height });
+    if ((s.mentions || []).length)
+      derniere.drawText(txt(s.mentions.join(" — ")), { x: x + 5, y: y + 15, size: 6, font: fontBold, color: rgb(0.18, 0.22, 0.3) });
+    derniere.drawText(txt(`${s.name} — ${dateParis(s.signedAt)}`), { x: x + 5, y: y + 5, size: 6.5, font, color: rgb(0.25, 0.28, 0.35) });
+  }
+
+  // Paraphe : initiales de chaque signataire en bas à droite de toutes les
+  // pages sauf la dernière (qui porte les signatures complètes).
+  if (env.paraphe && doc.getPageCount() > 1) {
+    const pages = doc.getPages();
+    for (let i = 0; i < env.signers.length; i++) {
+      if (env.signers[i].status !== "signe") continue;
+      const png = await store.get(`par/${env.id}/${i}`, { type: "arrayBuffer" });
+      if (!png) continue;
+      const ini = await doc.embedPng(png);
+      const d = ini.scaleToFit(46, 24);
+      for (let p = 0; p < pages.length - 1; p++) {
+        pages[p].drawImage(ini, {
+          x: pages[p].getWidth() - 20 - 54 * (i + 1) + (54 - d.width) / 2,
+          y: 14, width: d.width, height: d.height,
+        });
+      }
+    }
   }
 
   // Quand tout le monde a signé : page de certificat (piste d'audit).
@@ -92,11 +113,13 @@ async function construirePdfSigne(store, env) {
     ligne("Document", env.title);
     ligne("Identifiant", env.id);
     ligne("Empreinte SHA-256", env.hashOriginal.slice(0, 32));
-    ligne("(original)", env.hashOriginal.slice(32), 24);
+    ligne("(original)", env.hashOriginal.slice(32), env.paraphe ? 18 : 24);
+    if (env.paraphe) ligne("Paraphe", "initiales apposées en bas de chaque page", 24);
     for (const s of env.signers) {
       page.drawText(txt(`Signataire : ${s.name}`), { x: 60, y, size: 11, font: fontBold, color: bleu });
       y -= 18;
       if (s.email) ligne("Email", s.email);
+      if ((s.mentions || []).length) ligne("Mentions cochées", s.mentions.join(", "));
       ligne("Signé le", dateParis(s.signedAt));
       ligne("Adresse IP", s.ip || "inconnue");
       ligne("Navigateur", (s.ua || "inconnu").slice(0, 90), 26);
@@ -155,6 +178,8 @@ const vueSignataire = (env, idx) => ({
   title: env.title,
   status: env.status,
   createdAt: env.createdAt,
+  mentions: env.mentions || [],
+  paraphe: Boolean(env.paraphe),
   moi: { name: env.signers[idx].name, status: env.signers[idx].status, signedAt: env.signers[idx].signedAt || null },
   autres: env.signers.filter((_, i) => i !== idx).map((s) => ({ name: s.name, status: s.status })),
 });
@@ -214,7 +239,7 @@ export default async (req) => {
     // --- Création d'une demande (admin) ---
     if (body.action === "create") {
       if (!adminOk(req)) return json({ error: "Code admin invalide" }, 403);
-      const { title, pdfBase64, signers, fromEmail } = body;
+      const { title, pdfBase64, signers, fromEmail, mentions, paraphe } = body;
       if (!title || !pdfBase64 || !Array.isArray(signers) || !signers.length)
         return json({ error: "Titre, PDF et au moins un signataire requis" }, 400);
       if (signers.some((s) => !s.name || !String(s.name).trim()))
@@ -234,6 +259,9 @@ export default async (req) => {
         createdAt: new Date().toISOString(),
         hashOriginal: sha256(pdf),
         fromEmail: String(fromEmail || "").slice(0, 120),
+        // mentions manuscrites requises (ex : "Lu et approuvé") et paraphe de chaque page
+        mentions: Array.isArray(mentions) ? mentions.slice(0, 3).map((m) => String(m).slice(0, 60)) : [],
+        paraphe: Boolean(paraphe),
         dlToken: randomBytes(16).toString("hex"),
         status: "attente",
         signers: signers.slice(0, 8).map((s) => ({
@@ -257,11 +285,21 @@ export default async (req) => {
       if (idx < 0) return json({ error: "Lien invalide" }, 403);
       if (env.signers[idx].status === "signe") return json({ error: "Vous avez déjà signé ce document" }, 409);
       if (!consent) return json({ error: "Le consentement est obligatoire" }, 400);
+      if ((env.mentions || []).length && body.mentionsAccepted !== true)
+        return json({ error: "Vous devez cocher les mentions requises" }, 400);
       const m = /^data:image\/png;base64,(.+)$/.exec(signaturePng || "");
       if (!m) return json({ error: "Signature manquante" }, 400);
+      let paraphePng = null;
+      if (env.paraphe) {
+        const mp = /^data:image\/png;base64,(.+)$/.exec(body.paraphePng || "");
+        if (!mp) return json({ error: "Le paraphe (initiales) est requis" }, 400);
+        paraphePng = Buffer.from(mp[1], "base64");
+      }
 
       const png = Buffer.from(m[1], "base64");
       await store.set(`sig/${id}/${idx}`, png.buffer.slice(png.byteOffset, png.byteOffset + png.byteLength));
+      if (paraphePng) await store.set(`par/${id}/${idx}`, paraphePng.buffer.slice(paraphePng.byteOffset, paraphePng.byteOffset + paraphePng.byteLength));
+      env.signers[idx].mentions = env.mentions || [];
       env.signers[idx].status = "signe";
       env.signers[idx].signedAt = new Date().toISOString();
       env.signers[idx].ip = req.headers.get("x-nf-client-connection-ip") || req.headers.get("x-forwarded-for") || "";
@@ -279,7 +317,7 @@ export default async (req) => {
       const { id } = body;
       const env = await store.get(`env/${id}.json`, { type: "json" });
       if (!env) return json({ error: "Demande introuvable" }, 404);
-      for (let i = 0; i < env.signers.length; i++) await store.delete(`sig/${id}/${i}`);
+      for (let i = 0; i < env.signers.length; i++) { await store.delete(`sig/${id}/${i}`); await store.delete(`par/${id}/${i}`); }
       await store.delete(`signed/${id}`);
       await store.delete(`pdf/${id}`);
       await store.delete(`env/${id}.json`);

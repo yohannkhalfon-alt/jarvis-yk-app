@@ -30,7 +30,8 @@
   a { color:var(--cyan); }
   h2 { font-family:'Orbitron'; font-size:12px; letter-spacing:2px; color:var(--cyan); text-transform:uppercase; margin-bottom:12px; }
   canvas.pad { width:100%; height:170px; background:#fff; border-radius:10px; border:1px solid var(--line); touch-action:none; cursor:crosshair; display:block; }
-  .padrow { display:flex; justify-content:space-between; align-items:center; margin-top:8px; }
+  canvas.pad.petit { height:110px; }
+  .padrow { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:8px; }
   .hint { font-size:12px; color:var(--dim); }
   button {
     font-family:'Rajdhani'; font-weight:700; font-size:14px; letter-spacing:1px; cursor:pointer;
@@ -39,8 +40,8 @@
   button.primary { background:linear-gradient(135deg,var(--blue),#0d4ea0); color:#fff; border:none; padding:13px 24px; font-size:16px; width:100%; margin-top:14px; }
   button.primary:hover { filter:brightness(1.15); }
   button:disabled { opacity:.5; cursor:default; }
-  label.consent { display:flex; gap:10px; align-items:flex-start; font-size:14px; line-height:1.5; margin-top:14px; cursor:pointer; }
-  input[type=checkbox] { width:18px; height:18px; margin-top:2px; accent-color:var(--cyan); }
+  label.consent { display:flex; gap:10px; align-items:flex-start; font-size:14px; line-height:1.5; margin-top:12px; cursor:pointer; }
+  input[type=checkbox] { width:18px; height:18px; margin-top:2px; accent-color:var(--cyan); flex:none; }
   .msg { margin-top:10px; font-size:14px; }
   .msg.err { color:#ff6b6b; }
   .done { text-align:center; padding:30px 10px; }
@@ -60,7 +61,7 @@ const $ = (s) => document.querySelector(s);
 const params = new URLSearchParams(location.search);
 const id = params.get('id'), token = params.get('token');
 const urlPdf = '/api/sign?id=' + encodeURIComponent(id) + '&token=' + encodeURIComponent(token) + '&pdf=1';
-let infos = null;
+let infos = null, padSig = null, padPar = null;
 
 const echap = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 
@@ -82,6 +83,15 @@ function ecranSignature() {
   const autres = infos.autres.length
     ? '<div class="meta">Autres signataires : ' + infos.autres.map((a) => echap(a.name) + (a.status === 'signe' ? ' ✓' : '')).join(', ') + '</div>'
     : '';
+  const parapheCard = infos.paraphe
+    ? '<div class="card"><h2>Votre paraphe (initiales)</h2>' +
+      '<canvas class="pad petit" id="padPar"></canvas>' +
+      '<div class="padrow"><span class="hint">Dessinez vos initiales — elles seront apposées en bas à droite de chaque page du document</span><button id="effacerPar">Effacer</button></div></div>'
+    : '';
+  const mentionsHtml = (infos.mentions || []).map((m) =>
+    '<label class="consent"><input type="checkbox" class="mention" /> Je coche la mention «&nbsp;<b>' + echap(m) + '</b>&nbsp;» — elle sera inscrite près de ma signature.</label>'
+  ).join('');
+
   $('#app').innerHTML =
     '<div class="card">' +
       '<div class="titre">' + echap(infos.title) + '</div>' +
@@ -92,10 +102,12 @@ function ecranSignature() {
       '<iframe id="apercu"></iframe>' +
       '<div class="pdflink">Aperçu illisible ? <a href="' + urlPdf + '" target="_blank">Ouvrir le PDF dans un nouvel onglet</a></div>' +
     '</div>' +
+    parapheCard +
     '<div class="card">' +
       '<h2>Votre signature</h2>' +
-      '<canvas class="pad" id="pad"></canvas>' +
-      '<div class="padrow"><span class="hint">Dessinez votre signature ci-dessus (doigt ou souris)</span><button id="effacer">Effacer</button></div>' +
+      '<canvas class="pad" id="padSig"></canvas>' +
+      '<div class="padrow"><span class="hint">Dessinez votre signature ci-dessus (doigt ou souris)</span><button id="effacerSig">Effacer</button></div>' +
+      mentionsHtml +
       '<label class="consent"><input type="checkbox" id="consent" />' +
         'Je, <b>&nbsp;' + echap(infos.moi.name) + '&nbsp;</b>, déclare avoir lu le document « ' + echap(infos.title) + ' » et consens à le signer électroniquement. Ma signature, la date, mon adresse IP et mon navigateur seront enregistrés dans le certificat de signature.' +
       '</label>' +
@@ -106,36 +118,37 @@ function ecranSignature() {
   // Aperçu PDF via blob (l'iframe direct est bloqué par certains navigateurs mobiles)
   fetch(urlPdf).then((r) => r.blob()).then((b) => { $('#apercu').src = URL.createObjectURL(b); });
 
-  initPad();
+  padSig = creerPad('padSig', 'effacerSig');
+  if (infos.paraphe) padPar = creerPad('padPar', 'effacerPar');
   $('#signer').onclick = envoyer;
 }
 
-// ---- Pavé de signature ----
-let dessine = false, aDessine = false, ctx;
-function initPad() {
-  const c = $('#pad');
-  const r = c.getBoundingClientRect();
+// ---- Pavés de dessin (signature et paraphe) ----
+function creerPad(idCanvas, idBouton) {
+  const c = document.getElementById(idCanvas);
+  const rect = c.getBoundingClientRect();
   const dpr = window.devicePixelRatio || 1;
-  c.width = r.width * dpr; c.height = 170 * dpr;
-  ctx = c.getContext('2d');
+  c.width = rect.width * dpr; c.height = rect.height * dpr;
+  const ctx = c.getContext('2d');
   ctx.scale(dpr, dpr);
   ctx.lineWidth = 2.4; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#12294a';
+  let dessine = false, plein = false;
   const pos = (ev) => {
-    const rect = c.getBoundingClientRect();
+    const r = c.getBoundingClientRect();
     const p = ev.touches ? ev.touches[0] : ev;
-    return { x: p.clientX - rect.left, y: p.clientY - rect.top };
+    return { x: p.clientX - r.left, y: p.clientY - r.top };
   };
   const debut = (ev) => { ev.preventDefault(); dessine = true; const p = pos(ev); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
-  const trace = (ev) => { if (!dessine) return; ev.preventDefault(); const p = pos(ev); ctx.lineTo(p.x, p.y); ctx.stroke(); aDessine = true; };
+  const trace = (ev) => { if (!dessine) return; ev.preventDefault(); const p = pos(ev); ctx.lineTo(p.x, p.y); ctx.stroke(); plein = true; };
   const fin = () => { dessine = false; };
   c.addEventListener('mousedown', debut); c.addEventListener('mousemove', trace); window.addEventListener('mouseup', fin);
   c.addEventListener('touchstart', debut, { passive: false }); c.addEventListener('touchmove', trace, { passive: false }); c.addEventListener('touchend', fin);
-  $('#effacer').onclick = () => { ctx.clearRect(0, 0, c.width, c.height); aDessine = false; };
+  document.getElementById(idBouton).onclick = () => { ctx.clearRect(0, 0, c.width, c.height); plein = false; };
+  return { canvas: c, aDessine: () => plein };
 }
 
-// Recadre la signature sur son contenu réel avant envoi (fond transparent)
-function signaturePng() {
-  const c = $('#pad');
+// Recadre le dessin sur son contenu réel avant envoi (fond transparent)
+function rogner(c) {
   const t = c.getContext('2d');
   const img = t.getImageData(0, 0, c.width, c.height);
   let minX = c.width, minY = c.height, maxX = 0, maxY = 0;
@@ -156,16 +169,21 @@ function signaturePng() {
 async function envoyer() {
   const msg = $('#msg');
   msg.className = 'msg'; msg.textContent = '';
-  if (!aDessine) { msg.className = 'msg err'; msg.textContent = 'Dessinez votre signature d’abord.'; return; }
+  if (!padSig.aDessine()) { msg.className = 'msg err'; msg.textContent = 'Dessinez votre signature d’abord.'; return; }
+  if (padPar && !padPar.aDessine()) { msg.className = 'msg err'; msg.textContent = 'Dessinez aussi votre paraphe (initiales).'; return; }
+  const mentions = [...document.querySelectorAll('.mention')];
+  if (mentions.some((m) => !m.checked)) { msg.className = 'msg err'; msg.textContent = 'Cochez toutes les mentions requises.'; return; }
   if (!$('#consent').checked) { msg.className = 'msg err'; msg.textContent = 'Cochez la case de consentement.'; return; }
-  const png = signaturePng();
+  const png = rogner(padSig.canvas);
   if (!png) { msg.className = 'msg err'; msg.textContent = 'Signature vide, réessayez.'; return; }
+  const pngPar = padPar ? rogner(padPar.canvas) : null;
+  if (padPar && !pngPar) { msg.className = 'msg err'; msg.textContent = 'Paraphe vide, réessayez.'; return; }
   $('#signer').disabled = true; msg.textContent = 'Signature en cours…';
   try {
     const res = await fetch('/api/sign', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ action: 'sign', id, token, signaturePng: png, consent: true }),
+      body: JSON.stringify({ action: 'sign', id, token, signaturePng: png, paraphePng: pngPar, mentionsAccepted: true, consent: true }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Erreur');
