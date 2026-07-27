@@ -56,6 +56,8 @@
   button.small { padding:6px 12px; font-size:12px; }
   button.danger { border-color:rgba(255,107,107,.3); color:#ff6b6b; background:rgba(255,107,107,.06); }
   button.danger:hover { background:rgba(255,107,107,.14); }
+  label.opt { display:flex; align-items:center; gap:8px; font-size:14px; color:var(--txt); text-transform:none; letter-spacing:0; margin:6px 0; cursor:pointer; }
+  label.opt input { width:17px; height:17px; accent-color:var(--cyan); }
   button:disabled { opacity:.5; cursor:default; }
   .chip { display:inline-block; font-size:11px; font-weight:700; letter-spacing:1px; padding:3px 10px; border-radius:20px; text-transform:uppercase; }
   .chip.attente { background:rgba(245,197,66,.12); color:var(--warn); }
@@ -97,6 +99,10 @@
     <div class="hint">Le PDF signé sera automatiquement renvoyé sur cette boîte quand tous les signataires auront signé.</div>
     <label>Fichier PDF (max 3,5 Mo)</label>
     <input type="file" id="pdf" accept="application/pdf" />
+    <label>Options pour les signataires</label>
+    <label class="opt"><input type="checkbox" id="optLu" checked /> Mention « Lu et approuvé » à cocher</label>
+    <label class="opt"><input type="checkbox" id="optAccord" /> Mention « Bon pour accord » à cocher</label>
+    <label class="opt"><input type="checkbox" id="optParaphe" /> Paraphe (initiales) en bas de chaque page</label>
     <label>Signataires</label>
     <div id="signataires"></div>
     <button class="small" id="addSigner">+ Ajouter un signataire</button>
@@ -170,7 +176,11 @@ $('#creer').onclick = async () => {
     const { envelope } = await api('/api/sign', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ action: 'create', title: titre, pdfBase64: b64, signers, fromEmail }),
+      body: JSON.stringify({
+        action: 'create', title: titre, pdfBase64: b64, signers, fromEmail,
+        mentions: [$('#optLu').checked && 'Lu et approuvé', $('#optAccord').checked && 'Bon pour accord'].filter(Boolean),
+        paraphe: $('#optParaphe').checked,
+      }),
     });
     if (fromEmail) localStorage.setItem('signFrom', fromEmail);
     msg.className = 'msg ok'; msg.textContent = 'Demande créée ! Envoie chaque lien au bon signataire :';
@@ -221,6 +231,7 @@ async function chargerListe() {
       '<span class="date">' + new Date(e.createdAt).toLocaleDateString('fr-FR') + '</span>' +
       '</div>' +
       (e.fromEmail ? '<div class="hint">📤 Boîte d’envoi : ' + echap(e.fromEmail) + notifTxt(e) + '</div>' : '') +
+      (((e.mentions || []).length || e.paraphe) ? '<div class="hint">📋 ' + [...(e.mentions || []), e.paraphe ? 'Paraphe chaque page' : null].filter(Boolean).join(' · ') + '</div>' : '') +
       e.signers.map((s) => '<div class="sgn"><span class="nm">' + echap(s.name) + '</span>' +
         '<span class="st ' + s.status + '">' + (s.status === 'signe' ? '✓ Signé' : '⏳ En attente') + '</span>' +
         (s.status !== 'signe' ? '<span class="liens">' + blocLienInline(e, s) + '</span>' : '') +
