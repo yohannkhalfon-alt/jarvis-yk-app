@@ -53,6 +53,12 @@ const txt = (s) => String(s ?? "").replace(/[^\x20-\x7E -ÿ]/g, "?");
 const dateParis = (iso) =>
   new Date(iso).toLocaleString("fr-FR", { timeZone: "Europe/Paris", dateStyle: "long", timeStyle: "medium" });
 
+// Date affichée près de la signature : celle choisie par le signataire
+// ("Fait le JJ/MM/AAAA"), sinon la date réelle de signature. Le certificat
+// d'audit conserve toujours l'horodatage réel.
+const dateAffichee = (s) =>
+  s.dateAffichee ? "Fait le " + s.dateAffichee.split("-").reverse().join("/") : dateParis(s.signedAt);
+
 // Reconstruit le PDF signé à partir de l'original + toutes les signatures déjà
 // recueillies. Idempotent : on repart de l'original à chaque fois.
 async function construirePdfSigne(store, env) {
@@ -88,7 +94,7 @@ async function construirePdfSigne(store, env) {
           pg.drawText(txt(s.mentions.join(" — ")), { x: cx - 70, y: ty, size: 6, font: fontBold, color: rgb(0.18, 0.22, 0.3) });
           ty -= 7;
         }
-        pg.drawText(txt(`${s.name} — ${dateParis(s.signedAt)}`), { x: cx - 70, y: ty, size: 6.5, font, color: rgb(0.25, 0.28, 0.35) });
+        pg.drawText(txt(`${s.name} — ${dateAffichee(s)}`), { x: cx - 70, y: ty, size: 6.5, font, color: rgb(0.25, 0.28, 0.35) });
       }
       continue;
     }
@@ -102,7 +108,7 @@ async function construirePdfSigne(store, env) {
     derniere.drawImage(img, { x: x + 5, y: y + 26, width: dims.width, height: dims.height });
     if ((s.mentions || []).length)
       derniere.drawText(txt(s.mentions.join(" — ")), { x: x + 5, y: y + 15, size: 6, font: fontBold, color: rgb(0.18, 0.22, 0.3) });
-    derniere.drawText(txt(`${s.name} — ${dateParis(s.signedAt)}`), { x: x + 5, y: y + 5, size: 6.5, font, color: rgb(0.25, 0.28, 0.35) });
+    derniere.drawText(txt(`${s.name} — ${dateAffichee(s)}`), { x: x + 5, y: y + 5, size: 6.5, font, color: rgb(0.25, 0.28, 0.35) });
   }
 
   // Paraphe : initiales de chaque signataire en bas à droite de toutes les
@@ -149,6 +155,7 @@ async function construirePdfSigne(store, env) {
       if (s.email) ligne("Email", s.email);
       if ((s.mentions || []).length) ligne("Mentions cochées", s.mentions.join(", "));
       ligne("Signé le", dateParis(s.signedAt));
+      if (s.dateAffichee) ligne("Date inscrite", "Fait le " + s.dateAffichee.split("-").reverse().join("/"));
       ligne("Adresse IP", s.ip || "inconnue");
       ligne("Navigateur", (s.ua || "inconnu").slice(0, 90), 26);
     }
@@ -372,6 +379,7 @@ export default async (req) => {
       await store.set(`sig/${id}/${idx}`, png.buffer.slice(png.byteOffset, png.byteOffset + png.byteLength));
       if (paraphePng) await store.set(`par/${id}/${idx}`, paraphePng.buffer.slice(paraphePng.byteOffset, paraphePng.byteOffset + paraphePng.byteLength));
       env.signers[idx].mentions = env.mentions || [];
+      if (/^\d{4}-\d{2}-\d{2}$/.test(body.dateSignature || "")) env.signers[idx].dateAffichee = body.dateSignature;
       env.signers[idx].status = "signe";
       env.signers[idx].signedAt = new Date().toISOString();
       env.signers[idx].ip = req.headers.get("x-nf-client-connection-ip") || req.headers.get("x-forwarded-for") || "";
