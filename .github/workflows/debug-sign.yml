@@ -1,0 +1,31 @@
+name: debug-sign
+# Diagnostic de JARVIS SIGN depuis un runner GitHub (l'environnement de
+# maintenance de JARVIS ne peut pas atteindre netlify.app directement).
+on:
+  workflow_dispatch:
+    inputs:
+      code:
+        description: "Code admin JARVIS SIGN"
+        required: true
+      base:
+        description: "Base URL"
+        default: "https://jarvis-yk-app.netlify.app"
+
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: État des demandes et taille des PDF
+        env:
+          CODE: ${{ github.event.inputs.code }}
+          BASE: ${{ github.event.inputs.base || 'https://jarvis-yk-app.netlify.app' }}
+        run: |
+          JSON=$(curl -s -H "x-sign-code: $CODE" "$BASE/api/sign?list=1")
+          echo "=== Demandes (tokens masqués) ==="
+          echo "$JSON" | jq '[.envelopes[] | {id, title, status, createdAt, fromEmail, paraphe, mentions, positions, notif, signers: [.signers[] | {name, email, status, signedAt, dateAffichee}]}]' || echo "$JSON"
+          echo "=== Taille du PDF servi par demande ==="
+          for id in $(echo "$JSON" | jq -r '.envelopes[].id'); do
+            size=$(curl -s -o /tmp/doc.pdf -w "%{size_download}" -H "x-sign-code: $CODE" "$BASE/api/sign?id=$id&pdf=1")
+            pages=$(strings /tmp/doc.pdf | grep -c "/Type /Page$" || true)
+            echo "$id : $size octets"
+          done
