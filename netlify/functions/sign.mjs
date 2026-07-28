@@ -91,10 +91,11 @@ async function construirePdfSigne(store, env) {
         pg.drawImage(img, { x: cx - dims.width / 2, y: cy - dims.height / 2, width: dims.width, height: dims.height });
         let ty = cy - dims.height / 2 - 6;
         if ((s.mentions || []).length) {
-          pg.drawText(txt(s.mentions.join(" — ")), { x: cx - 70, y: ty, size: 6, font: fontBold, color: rgb(0.18, 0.22, 0.3) });
+          pg.drawText(txt(s.mentions.join(", ")), { x: cx - 70, y: ty, size: 6, font: fontBold, color: rgb(0.18, 0.22, 0.3) });
           ty -= 7;
         }
-        pg.drawText(txt(`${s.name} — ${dateAffichee(s)}`), { x: cx - 70, y: ty, size: 6.5, font, color: rgb(0.25, 0.28, 0.35) });
+        pg.drawText(txt(s.name), { x: cx - 70, y: ty, size: 6.5, font, color: rgb(0.25, 0.28, 0.35) });
+        pg.drawText(txt(dateAffichee(s)), { x: cx - 70, y: ty - 7, size: 6.5, font, color: rgb(0.25, 0.28, 0.35) });
       }
       continue;
     }
@@ -103,12 +104,13 @@ async function construirePdfSigne(store, env) {
     const col = i % parLigne, ligne = Math.floor(i / parLigne);
     const x = marge + col * (larg + 12);
     const y = marge + ligne * (haut + 26);
-    const dims = img.scaleToFit(larg - 10, haut - 32);
+    const dims = img.scaleToFit(larg - 10, haut - 36);
     derniere.drawRectangle({ x, y, width: larg, height: haut, borderColor: rgb(0.55, 0.6, 0.68), borderWidth: 0.8 });
-    derniere.drawImage(img, { x: x + 5, y: y + 26, width: dims.width, height: dims.height });
+    derniere.drawImage(img, { x: x + 5, y: y + 30, width: dims.width, height: dims.height });
     if ((s.mentions || []).length)
-      derniere.drawText(txt(s.mentions.join(" — ")), { x: x + 5, y: y + 15, size: 6, font: fontBold, color: rgb(0.18, 0.22, 0.3) });
-    derniere.drawText(txt(`${s.name} — ${dateAffichee(s)}`), { x: x + 5, y: y + 5, size: 6.5, font, color: rgb(0.25, 0.28, 0.35) });
+      derniere.drawText(txt(s.mentions.join(", ")), { x: x + 5, y: y + 21, size: 6, font: fontBold, color: rgb(0.18, 0.22, 0.3) });
+    derniere.drawText(txt(s.name), { x: x + 5, y: y + 13, size: 6.5, font, color: rgb(0.25, 0.28, 0.35) });
+    derniere.drawText(txt(dateAffichee(s)), { x: x + 5, y: y + 5, size: 6.5, font, color: rgb(0.25, 0.28, 0.35) });
   }
 
   // Paraphe : initiales de chaque signataire en bas à droite de toutes les
