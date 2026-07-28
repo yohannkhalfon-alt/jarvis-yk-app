@@ -41,6 +41,9 @@
   button.primary:hover { filter:brightness(1.15); }
   button:disabled { opacity:.5; cursor:default; }
   label.consent { display:flex; gap:10px; align-items:flex-start; font-size:14px; line-height:1.5; margin-top:12px; cursor:pointer; }
+  .champdate { display:flex; align-items:center; gap:10px; margin-top:14px; flex-wrap:wrap; font-size:14px; }
+  .champdate input { background:rgba(4,6,12,.6); border:1px solid var(--line); border-radius:10px; color:var(--txt); font-family:inherit; font-size:15px; padding:8px 12px; outline:none; color-scheme:dark; }
+  .champdate input:focus { border-color:var(--cyan); }
   input[type=checkbox] { width:18px; height:18px; margin-top:2px; accent-color:var(--cyan); flex:none; }
   .msg { margin-top:10px; font-size:14px; }
   .msg.err { color:#ff6b6b; }
@@ -108,6 +111,8 @@ function ecranSignature() {
       '<canvas class="pad" id="padSig"></canvas>' +
       '<div class="padrow"><span class="hint">Dessinez votre signature ci-dessus (doigt ou souris)</span><button id="effacerSig">Effacer</button></div>' +
       mentionsHtml +
+      '<div class="champdate"><span>Date à inscrire sur le document :</span><input type="date" id="dateSig" /></div>' +
+      '<div class="hint">« Fait le … » apparaîtra près de votre signature. La date et l’heure réelles de signature restent enregistrées dans le certificat.</div>' +
       '<label class="consent"><input type="checkbox" id="consent" />' +
         'Je, <b>&nbsp;' + echap(infos.moi.name) + '&nbsp;</b>, déclare avoir lu le document « ' + echap(infos.title) + ' » et consens à le signer électroniquement. Ma signature, la date, mon adresse IP et mon navigateur seront enregistrés dans le certificat de signature.' +
       '</label>' +
@@ -120,6 +125,8 @@ function ecranSignature() {
 
   padSig = creerPad('padSig', 'effacerSig');
   if (infos.paraphe) padPar = creerPad('padPar', 'effacerPar');
+  // date du jour (heure de Paris) proposée par défaut, modifiable
+  $('#dateSig').value = new Intl.DateTimeFormat('fr-CA', { timeZone: 'Europe/Paris' }).format(new Date());
   $('#signer').onclick = envoyer;
 }
 
@@ -183,7 +190,7 @@ async function envoyer() {
     const res = await fetch('/api/sign', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ action: 'sign', id, token, signaturePng: png, paraphePng: pngPar, mentionsAccepted: true, consent: true }),
+      body: JSON.stringify({ action: 'sign', id, token, signaturePng: png, paraphePng: pngPar, mentionsAccepted: true, consent: true, dateSignature: $('#dateSig').value || null }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Erreur');
