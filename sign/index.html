@@ -97,7 +97,7 @@
     <input type="email" id="fromEmail" placeholder="Ex : direction.argenteuil@toncentre.fr" maxlength="120" list="boites" />
     <datalist id="boites"></datalist>
     <div class="hint">Le PDF signé sera automatiquement renvoyé sur cette boîte quand tous les signataires auront signé.</div>
-    <label>Fichier PDF (max 3,5 Mo)</label>
+    <label>Fichier PDF (max 10 Mo)</label>
     <input type="file" id="pdf" accept="application/pdf" />
     <label>Options pour les signataires</label>
     <label class="opt"><input type="checkbox" id="optLu" checked /> Mention « Lu et approuvé » à cocher</label>
@@ -163,25 +163,37 @@ $('#creer').onclick = async () => {
     email: r.querySelector('.s-email').value.trim(),
   })).filter((s) => s.name);
   if (!titre || !fichier || !signers.length) { msg.className = 'msg err'; msg.textContent = 'Titre, PDF et au moins un signataire (avec nom) requis.'; return; }
-  if (fichier.size > 3.5 * 1024 * 1024) { msg.className = 'msg err'; msg.textContent = 'PDF trop lourd (max 3,5 Mo). Compresse-le d’abord.'; return; }
+  if (fichier.size > 10 * 1024 * 1024) { msg.className = 'msg err'; msg.textContent = 'PDF trop lourd (max 10 Mo). Compresse-le d’abord (ex : ilovepdf.com).'; return; }
 
   $('#creer').disabled = true; msg.textContent = 'Création en cours…';
   try {
-    const b64 = await new Promise((ok, ko) => {
+    const lireB64 = (blob) => new Promise((ok, ko) => {
       const fr = new FileReader();
       fr.onload = () => ok(fr.result.split(',')[1]);
       fr.onerror = ko;
-      fr.readAsDataURL(fichier);
+      fr.readAsDataURL(blob);
     });
-    const { envelope } = await api('/api/sign', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        action: 'create', title: titre, pdfBase64: b64, signers, fromEmail,
-        mentions: [$('#optLu').checked && 'Lu et approuvé', $('#optAccord').checked && 'Bon pour accord'].filter(Boolean),
-        paraphe: $('#optParaphe').checked,
-      }),
-    });
+    const corps = {
+      action: 'create', title: titre, signers, fromEmail,
+      mentions: [$('#optLu').checked && 'Lu et approuvé', $('#optAccord').checked && 'Bon pour accord'].filter(Boolean),
+      paraphe: $('#optParaphe').checked,
+    };
+    const poster = (b) => api('/api/sign', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(b) });
+    const MORCEAU = 2 * 1024 * 1024;
+    if (fichier.size <= MORCEAU) {
+      corps.pdfBase64 = await lireB64(fichier);
+    } else {
+      // Gros PDF : envoi en morceaux de 2 Mo (limite Netlify : 6 Mo/requête)
+      const { uploadId, uploadToken } = await poster({ action: 'upload-start' });
+      const n = Math.ceil(fichier.size / MORCEAU);
+      for (let i = 0; i < n; i++) {
+        msg.textContent = 'Envoi du PDF… ' + (i + 1) + '/' + n;
+        await poster({ action: 'upload-chunk', uploadId, uploadToken, index: i, dataBase64: await lireB64(fichier.slice(i * MORCEAU, (i + 1) * MORCEAU)) });
+      }
+      msg.textContent = 'Assemblage du document…';
+      corps.uploadId = uploadId; corps.uploadToken = uploadToken; corps.chunks = n;
+    }
+    const { envelope } = await poster(corps);
     if (fromEmail) localStorage.setItem('signFrom', fromEmail);
     msg.className = 'msg ok'; msg.textContent = 'Demande créée ! Envoie chaque lien au bon signataire :';
     $('#resultat').innerHTML = envelope.signers.map((s) => blocLien(envelope, s)).join('');
