@@ -222,7 +222,9 @@ const vueSignataire = (env, idx) => ({
 });
 
 export default async (req) => {
-  const store = getStore("sign");
+  // consistance forte : sans elle, une lecture juste après la signature peut
+  // servir une version périmée (PDF signé absent → original renvoyé)
+  const store = getStore({ name: "sign", consistency: "strong" });
   const url = new URL(req.url);
 
   if (req.method === "GET") {
