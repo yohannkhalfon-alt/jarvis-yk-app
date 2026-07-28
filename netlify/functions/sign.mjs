@@ -32,6 +32,11 @@ import { createHash, randomBytes } from "node:crypto";
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json" } });
 
+// Un PDF > ~3 Mo dépasse la limite de 6 Mo par requête Netlify (base64 inclus) :
+// le tableau de bord l'envoie alors en morceaux (upload-start / upload-chunk,
+// stockés sous up/{uploadId}/{i}) que "create" réassemble. Limite globale :
+const MAX_PDF = 10 * 1024 * 1024;
+
 const sha256 = (buf) => createHash("sha256").update(Buffer.from(buf)).digest("hex");
 
 // Autorisation admin : si SIGN_ADMIN_CODE est défini sur Netlify, le tableau de
@@ -202,8 +207,9 @@ export default async (req) => {
       if (idx < 0 && !dlOk && !adminOk(req)) return json({ error: "Lien invalide" }, 403);
 
       if (url.searchParams.get("pdf")) {
-        const pdf = (await store.get(`signed/${id}`, { type: "arrayBuffer" })) ||
-                    (await store.get(`pdf/${id}`, { type: "arrayBuffer" }));
+        // stream : évite la limite de 6 Mo des réponses bufferisées
+        const pdf = (await store.get(`signed/${id}`, { type: "stream" })) ||
+                    (await store.get(`pdf/${id}`, { type: "stream" }));
         if (!pdf) return json({ error: "PDF introuvable" }, 404);
         return new Response(pdf, {
           headers: {
@@ -236,16 +242,52 @@ export default async (req) => {
     const body = await req.json().catch(() => null);
     if (!body) return json({ error: "JSON invalide" }, 400);
 
+    // --- Téléversement en morceaux (PDF > ~2 Mo) ---
+    if (body.action === "upload-start") {
+      if (!adminOk(req)) return json({ error: "Code admin invalide" }, 403);
+      const uploadId = randomBytes(8).toString("hex");
+      const uploadToken = randomBytes(16).toString("hex");
+      await store.setJSON(`up/${uploadId}/meta`, { token: uploadToken, at: new Date().toISOString() });
+      return json({ uploadId, uploadToken });
+    }
+    if (body.action === "upload-chunk") {
+      const meta = await store.get(`up/${body.uploadId}/meta`, { type: "json" });
+      if (!meta || meta.token !== body.uploadToken) return json({ error: "Téléversement invalide" }, 403);
+      const part = Buffer.from(String(body.dataBase64 || ""), "base64");
+      if (!part.length || part.length > 4 * 1024 * 1024) return json({ error: "Morceau invalide" }, 400);
+      await store.set(`up/${body.uploadId}/${Number(body.index) || 0}`, part.buffer.slice(part.byteOffset, part.byteOffset + part.byteLength));
+      return json({ ok: true });
+    }
+
     // --- Création d'une demande (admin) ---
     if (body.action === "create") {
       if (!adminOk(req)) return json({ error: "Code admin invalide" }, 403);
       const { title, pdfBase64, signers, fromEmail, mentions, paraphe } = body;
-      if (!title || !pdfBase64 || !Array.isArray(signers) || !signers.length)
+      if (!title || (!pdfBase64 && !body.uploadId) || !Array.isArray(signers) || !signers.length)
         return json({ error: "Titre, PDF et au moins un signataire requis" }, 400);
       if (signers.some((s) => !s.name || !String(s.name).trim()))
         return json({ error: "Chaque signataire doit avoir un nom" }, 400);
 
-      const pdf = Buffer.from(pdfBase64, "base64");
+      let pdf;
+      if (body.uploadId) {
+        // réassemblage des morceaux téléversés
+        const meta = await store.get(`up/${body.uploadId}/meta`, { type: "json" });
+        if (!meta || meta.token !== body.uploadToken) return json({ error: "Téléversement invalide" }, 403);
+        const parts = [];
+        const n = Math.min(Number(body.chunks) || 0, 40);
+        for (let i = 0; i < n; i++) {
+          const p = await store.get(`up/${body.uploadId}/${i}`, { type: "arrayBuffer" });
+          if (!p) return json({ error: `Morceau ${i + 1}/${n} manquant, réessayez l'envoi` }, 400);
+          parts.push(Buffer.from(p));
+        }
+        pdf = Buffer.concat(parts);
+        for (let i = 0; i < n; i++) await store.delete(`up/${body.uploadId}/${i}`);
+        await store.delete(`up/${body.uploadId}/meta`);
+      } else {
+        pdf = Buffer.from(pdfBase64, "base64");
+      }
+      if (!pdf.length || pdf.length > MAX_PDF)
+        return json({ error: `PDF trop lourd (max ${Math.round(MAX_PDF / 1024 / 1024)} Mo)` }, 400);
       try {
         await PDFDocument.load(pdf); // vérifie que c'est bien un PDF lisible
       } catch {

@@ -16,7 +16,8 @@ Toute modification de variable nécessite un redéploiement pour être prise en 
 
 ## Fonctionnement
 
-1. Un associé crée une demande : titre, PDF (≤ 3,5 Mo), boîte d'envoi du centre,
+1. Un associé crée une demande : titre, PDF (≤ 10 Mo, envoyé en morceaux au-delà
+   de 2 Mo pour contourner la limite de 6 Mo/requête de Netlify), boîte d'envoi du centre,
    options (mentions « Lu et approuvé » / « Bon pour accord », paraphe chaque page),
    signataires (≤ 8).
 2. L'app génère un lien nominatif sécurisé par signataire — à envoyer soi-même
