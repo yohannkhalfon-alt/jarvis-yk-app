@@ -1,15 +1,14 @@
 name: debug-sign
 # Diagnostic de JARVIS SIGN depuis un runner GitHub (l'environnement de
 # maintenance de JARVIS ne peut pas atteindre netlify.app directement).
+#
+# SÉCURITÉ : le dépôt est public, donc les journaux de ce workflow sont
+# publics. Le code admin est lu depuis le secret GitHub SIGN_ADMIN_CODE
+# (Settings → Secrets and variables → Actions), jamais depuis un input :
+# les secrets sont automatiquement masqués dans les journaux. Les tokens
+# des signataires et les emails sont exclus de la sortie.
 on:
   workflow_dispatch:
-    inputs:
-      code:
-        description: "Code admin JARVIS SIGN"
-        required: true
-      base:
-        description: "Base URL"
-        default: "https://jarvis-yk-app.netlify.app"
 
 jobs:
   diag:
@@ -17,15 +16,18 @@ jobs:
     steps:
       - name: État des demandes et taille des PDF
         env:
-          CODE: ${{ github.event.inputs.code }}
-          BASE: ${{ github.event.inputs.base || 'https://jarvis-yk-app.netlify.app' }}
+          CODE: ${{ secrets.SIGN_ADMIN_CODE }}
+          BASE: https://jarvis-yk-app.netlify.app
         run: |
+          if [ -z "$CODE" ]; then
+            echo "Secret SIGN_ADMIN_CODE absent : le configurer dans Settings → Secrets and variables → Actions."
+            exit 1
+          fi
           JSON=$(curl -s -H "x-sign-code: $CODE" "$BASE/api/sign?list=1")
-          echo "=== Demandes (tokens masqués) ==="
-          echo "$JSON" | jq '[.envelopes[] | {id, title, status, createdAt, fromEmail, paraphe, mentions, positions, notif, signers: [.signers[] | {name, email, status, signedAt, dateAffichee}]}]' || echo "$JSON"
+          echo "=== Demandes (tokens et emails masqués) ==="
+          echo "$JSON" | jq '[.envelopes[] | {id, title, status, createdAt, paraphe, mentions, positions, notif, signers: [.signers[] | {name, status, signedAt, dateAffichee}]}]' || echo "erreur de parsing"
           echo "=== Taille du PDF servi par demande ==="
           for id in $(echo "$JSON" | jq -r '.envelopes[].id'); do
-            size=$(curl -s -o /tmp/doc.pdf -w "%{size_download}" -H "x-sign-code: $CODE" "$BASE/api/sign?id=$id&pdf=1")
-            pages=$(strings /tmp/doc.pdf | grep -c "/Type /Page$" || true)
+            size=$(curl -s -o /dev/null -w "%{size_download}" -H "x-sign-code: $CODE" "$BASE/api/sign?id=$id&pdf=1")
             echo "$id : $size octets"
           done
