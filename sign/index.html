@@ -58,6 +58,15 @@
   button.danger:hover { background:rgba(255,107,107,.14); }
   label.opt { display:flex; align-items:center; gap:8px; font-size:14px; color:var(--txt); text-transform:none; letter-spacing:0; margin:6px 0; cursor:pointer; }
   label.opt input { width:17px; height:17px; accent-color:var(--cyan); }
+  /* écran de placement des signatures */
+  #placeur { display:none; position:fixed; inset:0; background:rgba(4,6,12,.97); z-index:50; overflow-y:auto; padding:12px; }
+  #placeur .barre { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:10px; }
+  .chipS { padding:6px 12px; border:1px solid var(--line); border-radius:20px; cursor:pointer; font-size:13px; font-weight:600; color:var(--txt); background:transparent; }
+  .chipS.actif { background:rgba(79,216,235,.18); border-color:var(--cyan); color:var(--cyan); }
+  #plWrap { position:relative; margin:0 auto; max-width:860px; border:1px solid var(--line); border-radius:8px; overflow:hidden; touch-action:manipulation; }
+  #plCanvas { display:block; width:100%; background:#fff; }
+  .marq { position:absolute; transform:translate(-50%,-50%); border:2px dashed var(--cyan); border-radius:6px; padding:3px 9px; font-size:11px; font-weight:700; background:rgba(255,255,255,.82); color:#0a2540; cursor:pointer; white-space:nowrap; }
+  #placeur .nav { display:flex; gap:8px; align-items:center; justify-content:center; margin:12px 0; flex-wrap:wrap; }
   button:disabled { opacity:.5; cursor:default; }
   .chip { display:inline-block; font-size:11px; font-weight:700; letter-spacing:1px; padding:3px 10px; border-radius:20px; text-transform:uppercase; }
   .chip.attente { background:rgba(245,197,66,.12); color:var(--warn); }
@@ -106,6 +115,11 @@
     <label>Signataires</label>
     <div id="signataires"></div>
     <button class="small" id="addSigner">+ Ajouter un signataire</button>
+    <div style="margin-top:14px;">
+      <button class="small" id="placer">📍 Placer les signatures sur le document</button>
+      <span class="hint" id="resumePos" style="margin-left:8px;"></span>
+    </div>
+    <div class="hint">Facultatif : touche l'endroit exact (encadré « Signature », etc.) où chaque signataire doit signer. Sans placement, les signatures sont ajoutées en bas de la dernière page.</div>
     <div style="margin-top:18px;">
       <button class="primary" id="creer">Créer la demande</button>
     </div>
@@ -119,6 +133,23 @@
   </div>
 
 </main>
+
+<div id="placeur">
+  <div class="barre">
+    <span class="hint" style="flex-basis:100%;">Touche l'endroit où doit signer :</span>
+    <span id="plChips"></span>
+  </div>
+  <div id="plWrap"><canvas id="plCanvas"></canvas></div>
+  <div class="nav">
+    <button class="small" id="plPrev">◀ Page</button>
+    <span class="hint" id="plNum"></span>
+    <button class="small" id="plNext">Page ▶</button>
+    <button class="small danger" id="plVider">Tout effacer</button>
+    <button class="primary" id="plOk" style="width:auto; margin:0; padding:9px 20px; font-size:14px;">✓ Valider les emplacements</button>
+  </div>
+  <div class="hint" style="text-align:center;">Touche un repère déjà posé pour le retirer. Chaque signataire peut signer à plusieurs endroits.</div>
+</div>
+
 <script>
 const $ = (s) => document.querySelector(s);
 let adminCode = localStorage.getItem('signCode') || '';
@@ -151,6 +182,96 @@ function ligneSigner(nom = '', email = '') {
 ligneSigner();
 $('#addSigner').onclick = () => { if ($('#signataires').children.length < 8) ligneSigner(); };
 
+// ---- Placement des signatures sur le document ----
+let positions = [];   // {s: index signataire, page: 0-based, x: 0-1, y: 0-1}
+let plDoc = null, plPage = 1, plActif = 0;
+const COULEURS = ['#4FD8EB', '#f5c542', '#33d17a', '#ff8ba0', '#b18cff', '#ffa94d', '#63e6be', '#e599f7'];
+
+$('#pdf').addEventListener('change', () => { positions = []; plDoc = null; majResumePos(); });
+
+function majResumePos() {
+  $('#resumePos').textContent = positions.length ? '✓ ' + positions.length + ' emplacement(s) placé(s)' : '';
+}
+
+let pdfjsPret = null;
+function chargerPdfjs() {
+  if (!pdfjsPret) pdfjsPret = new Promise((ok, ko) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.onload = () => { pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; ok(); };
+    s.onerror = () => { pdfjsPret = null; ko(new Error('Aperçu PDF indisponible (connexion ?)')); };
+    document.head.appendChild(s);
+  });
+  return pdfjsPret;
+}
+
+function nomsSigners() {
+  return [...document.querySelectorAll('#signataires .s-nom')].map((i) => i.value.trim()).filter(Boolean);
+}
+
+$('#placer').onclick = async () => {
+  const msg = $('#msgCreate');
+  msg.className = 'msg'; msg.textContent = '';
+  const fichier = $('#pdf').files[0];
+  if (!fichier) { msg.className = 'msg err'; msg.textContent = 'Choisis d’abord le fichier PDF.'; return; }
+  if (!nomsSigners().length) { msg.className = 'msg err'; msg.textContent = 'Renseigne d’abord le nom des signataires.'; return; }
+  msg.textContent = 'Chargement de l’aperçu…';
+  try {
+    await chargerPdfjs();
+    if (!plDoc) plDoc = await pdfjsLib.getDocument({ data: await fichier.arrayBuffer() }).promise;
+    plActif = 0; plPage = 1;
+    $('#placeur').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    plChips();
+    await plRendre();
+    msg.textContent = '';
+  } catch (e) { msg.className = 'msg err'; msg.textContent = e.message; }
+};
+
+function plChips() {
+  $('#plChips').innerHTML = nomsSigners().map((n, i) =>
+    '<button class="chipS' + (i === plActif ? ' actif' : '') + '" style="border-color:' + (i === plActif ? COULEURS[i % 8] : '') + '" data-i="' + i + '">' + echap(n) + '</button>').join(' ');
+  document.querySelectorAll('#plChips .chipS').forEach((b) => b.onclick = () => { plActif = +b.dataset.i; plChips(); });
+}
+
+async function plRendre() {
+  const page = await plDoc.getPage(plPage);
+  const wrap = $('#plWrap'), canvas = $('#plCanvas');
+  const vp1 = page.getViewport({ scale: 1 });
+  const cible = Math.min(wrap.clientWidth || 700, 860);
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const vp = page.getViewport({ scale: (cible / vp1.width) * dpr });
+  canvas.width = vp.width; canvas.height = vp.height;
+  await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+  $('#plNum').textContent = 'Page ' + plPage + ' / ' + plDoc.numPages;
+  plMarqueurs();
+}
+
+function plMarqueurs() {
+  document.querySelectorAll('.marq').forEach((m) => m.remove());
+  const noms = nomsSigners();
+  positions.forEach((p, idx) => {
+    if (p.page !== plPage - 1) return;
+    const d = document.createElement('div');
+    d.className = 'marq';
+    d.style.left = (p.x * 100) + '%'; d.style.top = (p.y * 100) + '%';
+    d.style.borderColor = COULEURS[p.s % 8];
+    d.textContent = '✍ ' + (noms[p.s] || 'Signataire ' + (p.s + 1));
+    d.onclick = (e) => { e.stopPropagation(); positions.splice(idx, 1); plMarqueurs(); };
+    $('#plWrap').appendChild(d);
+  });
+}
+
+$('#plWrap').onclick = (e) => {
+  const r = $('#plWrap').getBoundingClientRect();
+  positions.push({ s: plActif, page: plPage - 1, x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height });
+  plMarqueurs();
+};
+$('#plPrev').onclick = async () => { if (plPage > 1) { plPage--; await plRendre(); } };
+$('#plNext').onclick = async () => { if (plDoc && plPage < plDoc.numPages) { plPage++; await plRendre(); } };
+$('#plVider').onclick = () => { positions = []; plMarqueurs(); };
+$('#plOk').onclick = () => { $('#placeur').style.display = 'none'; document.body.style.overflow = ''; majResumePos(); };
+
 // ---- Création ----
 $('#creer').onclick = async () => {
   const msg = $('#msgCreate');
@@ -178,6 +299,7 @@ $('#creer').onclick = async () => {
       mentions: [$('#optLu').checked && 'Lu et approuvé', $('#optAccord').checked && 'Bon pour accord'].filter(Boolean),
       paraphe: $('#optParaphe').checked,
     };
+    if (positions.length) corps.positions = positions;
     const poster = (b) => api('/api/sign', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(b) });
     const MORCEAU = 2 * 1024 * 1024;
     if (fichier.size <= MORCEAU) {
@@ -198,6 +320,7 @@ $('#creer').onclick = async () => {
     msg.className = 'msg ok'; msg.textContent = 'Demande créée ! Envoie chaque lien au bon signataire :';
     $('#resultat').innerHTML = envelope.signers.map((s) => blocLien(envelope, s)).join('');
     $('#titre').value = ''; $('#pdf').value = ''; $('#signataires').innerHTML = ''; ligneSigner();
+    positions = []; plDoc = null; majResumePos();
     chargerListe();
   } catch (e) {
     msg.className = 'msg err'; msg.textContent = e.message;

@@ -62,7 +62,10 @@ async function construirePdfSigne(store, env) {
   const fontBold = await doc.embedFont(StandardFonts.HelveticaBold);
   const derniere = doc.getPage(doc.getPageCount() - 1);
 
-  // Cartouches de signature en bas de la dernière page, un par signataire.
+  // Signatures : soit aux emplacements choisis à la création (posées sans
+  // cadre, dans les encadrés existants du document), soit en cartouches
+  // automatiques en bas de la dernière page.
+  const pagesDoc = doc.getPages();
   const larg = 170, haut = 64, marge = 24;
   const parLigne = Math.max(1, Math.floor((derniere.getWidth() - marge * 2) / (larg + 12)));
   for (let i = 0; i < env.signers.length; i++) {
@@ -71,6 +74,26 @@ async function construirePdfSigne(store, env) {
     const png = await store.get(`sig/${env.id}/${i}`, { type: "arrayBuffer" });
     if (!png) continue;
     const img = await doc.embedPng(png);
+    const posMoi = (env.positions || []).filter((p) => p.s === i);
+
+    if (posMoi.length) {
+      // placement manuel : (x, y) en fractions de page, origine en haut à gauche
+      for (const p of posMoi) {
+        const pg = pagesDoc[Math.min(p.page, pagesDoc.length - 1)];
+        const dims = img.scaleToFit(140, 44);
+        const cx = pg.getWidth() * p.x, cy = pg.getHeight() * (1 - p.y);
+        pg.drawImage(img, { x: cx - dims.width / 2, y: cy - dims.height / 2, width: dims.width, height: dims.height });
+        let ty = cy - dims.height / 2 - 6;
+        if ((s.mentions || []).length) {
+          pg.drawText(txt(s.mentions.join(" — ")), { x: cx - 70, y: ty, size: 6, font: fontBold, color: rgb(0.18, 0.22, 0.3) });
+          ty -= 7;
+        }
+        pg.drawText(txt(`${s.name} — ${dateParis(s.signedAt)}`), { x: cx - 70, y: ty, size: 6.5, font, color: rgb(0.25, 0.28, 0.35) });
+      }
+      continue;
+    }
+
+    // cartouche automatique (aucun emplacement choisi pour ce signataire)
     const col = i % parLigne, ligne = Math.floor(i / parLigne);
     const x = marge + col * (larg + 12);
     const y = marge + ligne * (haut + 26);
@@ -262,7 +285,7 @@ export default async (req) => {
     // --- Création d'une demande (admin) ---
     if (body.action === "create") {
       if (!adminOk(req)) return json({ error: "Code admin invalide" }, 403);
-      const { title, pdfBase64, signers, fromEmail, mentions, paraphe } = body;
+      const { title, pdfBase64, signers, fromEmail, mentions, paraphe, positions } = body;
       if (!title || (!pdfBase64 && !body.uploadId) || !Array.isArray(signers) || !signers.length)
         return json({ error: "Titre, PDF et au moins un signataire requis" }, 400);
       if (signers.some((s) => !s.name || !String(s.name).trim()))
@@ -304,6 +327,13 @@ export default async (req) => {
         // mentions manuscrites requises (ex : "Lu et approuvé") et paraphe de chaque page
         mentions: Array.isArray(mentions) ? mentions.slice(0, 3).map((m) => String(m).slice(0, 60)) : [],
         paraphe: Boolean(paraphe),
+        // emplacements de signature choisis à la création : {s: index signataire,
+        // page (0-based), x/y en fractions de page (origine haut-gauche)}
+        positions: Array.isArray(positions)
+          ? positions.slice(0, 32)
+              .filter((p) => p && Number.isInteger(p.s) && p.s >= 0 && p.s < Math.min(signers.length, 8) && Number.isFinite(p.x) && Number.isFinite(p.y))
+              .map((p) => ({ s: p.s, page: Math.max(0, Math.floor(p.page || 0)), x: Math.min(1, Math.max(0, p.x)), y: Math.min(1, Math.max(0, p.y)) }))
+          : [],
         dlToken: randomBytes(16).toString("hex"),
         status: "attente",
         signers: signers.slice(0, 8).map((s) => ({
