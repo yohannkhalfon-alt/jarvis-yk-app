@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-27T05:45:00Z",
+  "generated_at": "2026-07-28T05:45:00Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -22,13 +22,6 @@
     "argenteuil": {
       "label": "ARGENTEUIL",
       "days": [
-        {
-          "date": "2026-08-01",
-          "weekday": "samedi",
-          "status": "none",
-          "hours": null,
-          "note": "Slimane, Papapostolou, Nizard, Hajjar tous OFF"
-        },
         {
           "date": "2026-08-06",
           "weekday": "jeudi",
@@ -59,6 +52,7 @@
         }
       ],
       "notes": [
+        "Sam 01/08 : couvert par le Dr Slim 09h-19h (ajouté au planning le 27/07)",
         "Semaines du 10 au 22/08 non renseignées dans le planning (fermeture estivale ?)",
         "Lun 21/09 : centre fermé (Kippour)",
         "Ven 25/09 : couverture Slimane « à confirmer »"
