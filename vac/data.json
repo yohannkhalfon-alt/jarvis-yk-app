@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-29T05:45:00Z",
+  "generated_at": "2026-07-30T06:00:00Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -135,6 +135,31 @@
         "Fermeture annoncée du 10 au 22/08 (note du planning) mais lignes encore remplies — à confirmer",
         "Lun 03/08 : couverture Slimane « à confirmer »",
         "Lun 21/09 : centre fermé (Kippour)"
+      ]
+    },
+    "antony": {
+      "label": "ANTONY",
+      "days": [
+        {
+          "date": "2026-09-18",
+          "weekday": "vendredi",
+          "status": "none",
+          "hours": null,
+          "note": "Meskini ABS, Alessandro OFF, aucun autre ophta"
+        },
+        {
+          "date": "2026-09-25",
+          "weekday": "vendredi",
+          "status": "none",
+          "hours": null,
+          "note": "Meskini ABS, Alessandro OFF, Ghorayeb OFF"
+        }
+      ],
+      "notes": [
+        "Centre ajouté au suivi le 30/07 (dossier Dropbox PLANNING ANTONY partagé le 27/07)",
+        "Semaines du 10 au 22/08 non renseignées dans le planning (fermeture estivale ?)",
+        "Lun 21/09 : centre fermé (Kippour)",
+        "Dr Vo Viet Anh prévu les samedis 03/10 et 17/10 (note du planning)"
       ]
     }
   }
