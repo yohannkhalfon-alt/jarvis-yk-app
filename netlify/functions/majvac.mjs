@@ -14,6 +14,7 @@ const CENTRES = {
   annecy:       { label: "ANNECY",       match: ["annecy", "alery"] },
   tremblay:     { label: "TREMBLAY",     match: ["tremblay", "gilbert berger"] },
   sartrouville: { label: "SARTROUVILLE", match: ["sartrouville", "general de gaulle", "cgg"] },
+  antony:       { label: "ANTONY",       match: ["antony", "haut de seine", "hauts de seine"] },
 };
 
 const MOIS = ["JANVIER", "FEVRIER", "MARS", "AVRIL", "MAI", "JUIN", "JUILLET", "AOUT", "SEPTEMBRE", "OCTOBRE", "NOVEMBRE", "DECEMBRE"];

@@ -60,7 +60,7 @@ Puis **Deploys → Trigger deploy** pour relancer un déploiement.
 - Le bouton **WhatsApp** ouvre WhatsApp avec le message pré-rempli (lien `wa.me`) —
   tu choisis le destinataire et tu confirmes l'envoi.
 
-Centres couverts : Argenteuil, Annecy, Tremblay, Sartrouville
+Centres couverts : Argenteuil, Annecy, Tremblay, Sartrouville, Antony
 (configurables en tête de `netlify/functions/majvac.mjs`).
 
 <!-- build 20/07 22h05 -->
