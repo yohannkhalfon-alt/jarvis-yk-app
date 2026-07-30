@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-30T06:00:00Z",
+  "generated_at": "2026-07-30T05:50:00Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -102,20 +102,6 @@
       "label": "SARTROUVILLE",
       "days": [
         {
-          "date": "2026-08-04",
-          "weekday": "mardi",
-          "status": "none",
-          "hours": null,
-          "note": "Saade ABS, autres OFF (modif planning du 21/07)"
-        },
-        {
-          "date": "2026-08-27",
-          "weekday": "jeudi",
-          "status": "none",
-          "hours": null,
-          "note": "Chahine ABS, autres OFF"
-        },
-        {
           "date": "2026-08-29",
           "weekday": "samedi",
           "status": "none",
@@ -131,7 +117,8 @@
         }
       ],
       "notes": [
-        "Mar 28/07 : centre fermé — tout le personnel en congé (planning modifié le 25/07, le jour sans ophta est résolu par la fermeture)",
+        "Mar 04/08 : couvert par le Dr Slim 09h-19h (ajouté au planning le 28/07)",
+        "Jeu 27/08 : couvert par le Dr Diop 09h-19h (ajouté au planning le 28/07)",
         "Fermeture annoncée du 10 au 22/08 (note du planning) mais lignes encore remplies — à confirmer",
         "Lun 03/08 : couverture Slimane « à confirmer »",
         "Lun 21/09 : centre fermé (Kippour)"
