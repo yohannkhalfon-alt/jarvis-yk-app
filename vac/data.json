@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-30T05:50:00Z",
+  "generated_at": "2026-07-31T05:50:00Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -107,16 +107,10 @@
           "status": "none",
           "hours": null,
           "note": "Slimane ABS, autres OFF"
-        },
-        {
-          "date": "2026-09-02",
-          "weekday": "mercredi",
-          "status": "none",
-          "hours": null,
-          "note": "Addala ABS, autres OFF"
         }
       ],
       "notes": [
+        "Mer 02/09 : Addala désormais notée présente dans le planning d'août (modifié le 30/07) mais encore ABS dans le fichier de septembre (du 21/07) — jour retiré, à confirmer",
         "Mar 04/08 : couvert par le Dr Slim 09h-19h (ajouté au planning le 28/07)",
         "Jeu 27/08 : couvert par le Dr Diop 09h-19h (ajouté au planning le 28/07)",
         "Fermeture annoncée du 10 au 22/08 (note du planning) mais lignes encore remplies — à confirmer",
