@@ -1,12 +1,7 @@
 {
-  "generated_at": "2026-07-31T05:50:00Z",
+  "generated_at": "2026-08-01T05:50:00Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
-    {
-      "mois": 7,
-      "annee": 2026,
-      "nom": "JUILLET"
-    },
     {
       "mois": 8,
       "annee": 2026,
@@ -16,6 +11,11 @@
       "mois": 9,
       "annee": 2026,
       "nom": "SEPTEMBRE"
+    },
+    {
+      "mois": 10,
+      "annee": 2026,
+      "nom": "OCTOBRE"
     }
   ],
   "centres": {
@@ -49,6 +49,20 @@
           "status": "none",
           "hours": null,
           "note": "Slimane, Papapostolou, Nizard, Hajjar tous OFF"
+        },
+        {
+          "date": "2026-10-09",
+          "weekday": "vendredi",
+          "status": "none",
+          "hours": null,
+          "note": "Slimane, Papapostolou, Hajjar tous OFF"
+        },
+        {
+          "date": "2026-10-23",
+          "weekday": "vendredi",
+          "status": "none",
+          "hours": null,
+          "note": "Slimane, Papapostolou, Hajjar tous OFF"
         }
       ],
       "notes": [
@@ -65,7 +79,8 @@
         "Semaine du 03 au 07/08 : couverte par le Dr Diop 09h-19h (ajouté au planning le 23/07 — remplace Bendellali)",
         "Fermeture estivale du 08 au 23/08 (CP collectifs) — Adina reprend le 24/08",
         "Ema : dernier jour le 31/07",
-        "Semaine du 07 au 12/09 : couverte par Dr Charakidas (09h-19h lun-jeu + sam)"
+        "Semaine du 07 au 12/09 : couverte par Dr Charakidas (09h-19h lun-jeu + sam)",
+        "Semaines du 05 au 17/10 : couvertes par un « Dr » dont le nom n'est pas encore renseigné dans le planning"
       ]
     },
     "tremblay": {
@@ -134,13 +149,41 @@
           "status": "none",
           "hours": null,
           "note": "Meskini ABS, Alessandro OFF, Ghorayeb OFF"
+        },
+        {
+          "date": "2026-10-02",
+          "weekday": "vendredi",
+          "status": "none",
+          "hours": null,
+          "note": "Meskini ABS, Alessandro et Vo Viet OFF"
+        },
+        {
+          "date": "2026-10-10",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Meskini et Alessandro OFF, pas de remplaçant"
+        },
+        {
+          "date": "2026-10-24",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Meskini et Alessandro OFF, pas de remplaçant"
+        },
+        {
+          "date": "2026-10-31",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Meskini et Alessandro OFF, pas de remplaçant"
         }
       ],
       "notes": [
         "Centre ajouté au suivi le 30/07 (dossier Dropbox PLANNING ANTONY partagé le 27/07)",
         "Semaines du 10 au 22/08 non renseignées dans le planning (fermeture estivale ?)",
         "Lun 21/09 : centre fermé (Kippour)",
-        "Dr Vo Viet Anh prévu les samedis 03/10 et 17/10 (note du planning)"
+        "Dr Vo Viet Anh assure les samedis 03/10 et 17/10 — les autres samedis d'octobre restent sans ophta"
       ]
     }
   }
