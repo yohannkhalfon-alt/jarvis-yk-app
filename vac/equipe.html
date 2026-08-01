@@ -21,9 +21,12 @@ min-height:100vh;padding-bottom:30px}
 .hrs{font-variant-numeric:tabular-nums;font-weight:600}
 .wrap{max-width:520px;margin:0 auto;padding:0 16px}
 header{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:14px 16px;
+padding-top:calc(14px + env(safe-area-inset-top));
 border-bottom:1px solid var(--line);background:rgba(4,6,12,.72);backdrop-filter:blur(8px)}
-.back{color:var(--dim);text-decoration:none;font-size:12px;letter-spacing:1.5px}
-.back:hover{color:var(--cyan)}
+.back{color:var(--cyan);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:1px;
+border:1.5px solid rgba(79,216,235,.45);border-radius:9px;padding:9px 13px;
+background:rgba(79,216,235,.08);white-space:nowrap}
+.back:hover{color:#EAF4FF}
 .brand{font-family:'Orbitron';font-weight:700;letter-spacing:2.5px;font-size:14px;color:#EAF4FF}
 .brand b{color:var(--cyan)}
 .status{margin-left:auto;display:flex;align-items:center;gap:6px}
@@ -68,7 +71,7 @@ thead .nmeta{background:var(--bg)}
 </head>
 <body>
 <header>
-  <a class="back" href="/">‹ RETOUR</a>
+  <a class="back" href="index.html">◂ Accueil</a>
   <span class="brand">MAJ <b>VAC</b></span>
   <span class="status"><span id="dot" class="dot"></span><span id="stat" class="cap">Chargement…</span></span>
 </header>
