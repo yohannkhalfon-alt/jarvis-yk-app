@@ -41,9 +41,10 @@
 
   header {
     display:flex; align-items:center; gap:12px; padding:14px 18px;
+    padding-top:calc(14px + env(safe-area-inset-top));
     border-bottom:1px solid var(--line); background:rgba(4,6,12,.6); backdrop-filter:blur(8px);
   }
-  .back { color:var(--dim); text-decoration:none; font-size:13px; letter-spacing:1px; }
+  .back { color:var(--dim); text-decoration:none; font-size:13px; letter-spacing:1px; padding:9px 10px; margin:-9px -4px; }
   .back:hover { color:var(--cyan); }
   .core { width:30px; height:30px; position:relative; flex:none; }
   .core::before, .core::after {
