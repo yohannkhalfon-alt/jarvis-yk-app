@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#04060C" />
+<title>Rappels CDD — MAJ VAC</title>
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg:#04060C; --panel:rgba(10,16,28,0.72); --line:rgba(79,216,235,0.18);
+    --cyan:#4FD8EB; --txt:#C8D6E5; --dim:#6B7C93;
+    --red:#FF5D6C; --orange:#FFB454; --green:#33d17a;
+  }
+  body {
+    background:var(--bg); color:var(--txt); font-family:'Rajdhani',sans-serif;
+    min-height:100vh; display:flex; flex-direction:column;
+    background-image:radial-gradient(ellipse 80% 50% at 50% -10%, rgba(27,111,216,0.13), transparent);
+  }
+  @keyframes spin { from{transform:rotate(0);} to{transform:rotate(360deg);} }
+  header {
+    display:flex; align-items:center; gap:12px; padding:14px 18px;
+    border-bottom:1px solid var(--line); background:rgba(4,6,12,.6);
+  }
+  .back { color:var(--dim); text-decoration:none; font-size:13px; letter-spacing:1px; }
+  h1 { font-family:'Orbitron'; font-size:15px; letter-spacing:2px; color:#EAF4FF; font-weight:700; }
+  h1 span { color:var(--cyan); }
+  main { flex:1; width:100%; max-width:560px; margin:0 auto; padding:20px 16px 40px; }
+  .intro { font-size:13px; color:var(--dim); line-height:1.5; margin-bottom:16px; }
+  .spin { display:inline-block; width:14px; height:14px; border-radius:50%; border:2px solid rgba(79,216,235,.25); border-top-color:var(--cyan); animation:spin .9s linear infinite; vertical-align:-2px; }
+  .card {
+    border:1px solid var(--line); background:var(--panel); border-radius:12px;
+    padding:13px 14px; margin-bottom:11px;
+  }
+  .card.hot { border-color:rgba(255,180,84,.6); }
+  .top { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .badge {
+    font-size:10.5px; font-weight:700; letter-spacing:1px; padding:3px 9px; border-radius:999px;
+    background:rgba(79,216,235,.12); color:var(--cyan); text-transform:uppercase;
+  }
+  .badge.hot { background:rgba(255,180,84,.15); color:var(--orange); }
+  .badge.now { background:rgba(255,93,108,.15); color:var(--red); }
+  .nom { font-size:17px; font-weight:700; color:#EAF4FF; }
+  .det { font-size:13.5px; color:var(--txt); margin-top:4px; }
+  .det b { color:var(--cyan); font-weight:700; }
+  .acts { display:flex; gap:8px; margin-top:10px; }
+  .acts a, .acts button {
+    flex:1; text-align:center; border-radius:9px; padding:10px 0; font-size:13px; font-weight:700;
+    letter-spacing:.5px; cursor:pointer; font-family:'Rajdhani'; text-decoration:none;
+  }
+  .wa { background:#1FAF5E; border:none; color:#04140B; }
+  .cp { background:transparent; border:1.5px solid rgba(79,216,235,.5); color:var(--cyan); }
+  .empty { text-align:center; color:var(--dim); font-size:14px; padding:30px 0; line-height:1.6; }
+  .err { color:var(--orange); font-size:12.5px; margin-top:10px; }
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="index.html">◂ MAJ VAC</a>
+  <h1>RAPPELS<span>·CDD</span></h1>
+</header>
+<main>
+  <p class="intro">Vacations des médecins remplaçants sur les 14 prochains jours.
+  Un appui sur <b>WhatsApp</b> ouvre le message de rappel tout prêt — choisis le contact du médecin et envoie.</p>
+  <div id="liste"><span class="spin"></span> Lecture des plannings…</div>
+</main>
+<script>
+const CENTRES = [
+  {id:"argenteuil",label:"Argenteuil"},
+  {id:"annecy",label:"Annecy"},
+  {id:"tremblay",label:"Tremblay"},
+  {id:"sartrouville",label:"Sartrouville"},
+  {id:"antony",label:"Antony"},
+];
+const MOIS_FR = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+const JOLI_JOUR = { lundi:"lundi", mardi:"mardi", mercredi:"mercredi", jeudi:"jeudi", vendredi:"vendredi", samedi:"samedi", dimanche:"dimanche" };
+const AUJ = new Date().toLocaleDateString('fr-CA');
+
+function joliNom(brut) {
+  const n = brut.replace(/^dr\.?\s+/i, "").trim().toLowerCase();
+  return n.replace(/(^|[\s-])([a-zà-ÿ])/g, (m, sep, c) => sep + c.toUpperCase());
+}
+function joliDate(iso, weekday) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return (JOLI_JOUR[weekday] || weekday) + " " + d + " " + MOIS_FR[m-1];
+}
+function joliHeures(h) {
+  // "09H-19H" → "de 9h à 19h"
+  const m = h.match(/^(\d{1,2})H?(\d{2})?-(\d{1,2})H?(\d{2})?$/i);
+  if (!m) return h;
+  const f = (hh, mn) => parseInt(hh,10) + "h" + (mn && mn !== "00" ? mn : "");
+  return "de " + f(m[1], m[2]) + " à " + f(m[3], m[4]);
+}
+function ecart(iso) {
+  const un = 24*3600*1000;
+  return Math.round((new Date(iso+"T12:00:00") - new Date(AUJ+"T12:00:00")) / un);
+}
+function message(v, centreLabel) {
+  return "Bonjour Docteur " + joliNom(v.nom) + ",\n" +
+    "J'espère que vous allez bien. Je me permets de vous rappeler votre vacation du " +
+    joliDate(v.date, v.weekday) + " " + joliHeures(v.heures) +
+    " au centre d'ophtalmologie de " + centreLabel + ".\n" +
+    "À très bientôt,\nGroupe Ophtalmologie Medical";
+}
+function copier(btn, txt) {
+  const done = () => { btn.textContent = "✓ Copié"; setTimeout(() => btn.textContent = "📋 Copier", 1500); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done);
+  else { const ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); done(); }
+}
+
+async function charger() {
+  const tout = [];
+  const erreurs = [];
+  await Promise.all(CENTRES.map(async (c) => {
+    try {
+      const r = await fetch("../api/majvac?centre=" + c.id + "&vue=cdd");
+      const d = await r.json();
+      if (d.error) { erreurs.push(c.label + " : " + d.error); return; }
+      (d.vacations || []).forEach(v => tout.push({ ...v, centre: c.label }));
+      (d.erreurs || []).forEach(e => erreurs.push(c.label + " : " + e));
+    } catch (e) { erreurs.push(c.label + " : " + e.message); }
+  }));
+  tout.sort((a, b) => a.date.localeCompare(b.date) || a.centre.localeCompare(b.centre));
+
+  const el = document.getElementById("liste");
+  if (!tout.length) {
+    el.innerHTML = '<div class="empty">Aucune vacation de remplaçant<br>dans les 14 prochains jours.</div>' +
+      (erreurs.length ? '<div class="err">' + erreurs.join("<br>") + '</div>' : "");
+    return;
+  }
+  el.innerHTML = tout.map((v, i) => {
+    const e = ecart(v.date);
+    const badge = e === 0 ? '<span class="badge now">Aujourd’hui</span>'
+      : e === 1 ? '<span class="badge hot">Demain</span>'
+      : e === 2 ? '<span class="badge hot">J-2 — à rappeler</span>'
+      : '<span class="badge">J-' + e + '</span>';
+    const msg = message(v, v.centre);
+    return '<div class="card' + (e <= 2 ? ' hot' : '') + '">' +
+      '<div class="top">' + badge + '<span class="nom">Dr ' + joliNom(v.nom) + '</span></div>' +
+      '<div class="det"><b>' + v.centre + '</b> · ' + joliDate(v.date, v.weekday) + ' · ' + v.heures + '</div>' +
+      '<div class="acts">' +
+        '<a class="wa" href="https://wa.me/?text=' + encodeURIComponent(msg) + '" target="_blank">📲 WhatsApp</a>' +
+        '<button class="cp" onclick="copier(this, MSGS[' + i + '])">📋 Copier</button>' +
+      '</div></div>';
+  }).join("") + (erreurs.length ? '<div class="err">' + erreurs.join("<br>") + '</div>' : "");
+  window.MSGS = tout.map(v => message(v, v.centre));
+}
+charger();
+</script>
+</body>
+</html>

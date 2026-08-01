@@ -343,6 +343,20 @@ function calculerJours(grille, ophtasSet) {
 // ---------- Vue « Équipe » (qui travaille, par rôle) ----------
 const ROLE_LABEL = { ophta: "Ophtalmologue", ortho: "Orthoptistes", secretaire: "Secrétaires" };
 
+// Médecins permanents par centre : tout autre ophtalmologue planifié est un
+// CDD / remplaçant, à rappeler avant sa vacation (vue "cdd").
+const PERMANENTS = {
+  argenteuil:   ["SLIMANE", "PAPAPOSTOLOU", "NIZARD", "HAJJAR", "HAJAR"],
+  annecy:       ["ADINA", "EMA"],
+  tremblay:     ["SEBE", "SLIMANE", "ADALLA"],
+  sartrouville: ["PAPAPOSTOLOU", "SLIMANE", "SAADE", "CHAHINE", "ADDALA"],
+  antony:       ["MESKINI", "ALESSANDRO"],
+};
+const estPermanent = (centreId, nom) => {
+  const n = norm(nom).replace(/^DR\.?\s+/, "");
+  return (PERMANENTS[centreId] || []).some((p) => n === p || n.startsWith(p + " "));
+};
+
 // Rôle d'une personne : ophta si classée comme telle, sinon d'après le bloc
 // (bloc 2 = orthoptistes, bloc 3+ = secrétaires ; bloc 1 par défaut = ophta).
 function roleDe(nom, bloc, ophtasSet) {
@@ -543,6 +557,56 @@ export default async (req) => {
           fichiers: fichiersE,
           erreurs: erreursE,
         });
+      }
+
+      // ----- Vue « CDD » : vacations des remplaçants sur les 14 prochains jours -----
+      if (vue === "cdd") {
+        const p = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Paris" }));
+        const joursCibles = [];
+        for (let i = 0; i < 14; i++) {
+          const x = new Date(Date.UTC(p.getFullYear(), p.getMonth(), p.getDate() + i, 12));
+          if (x.getUTCDay() !== 0) joursCibles.push(x.toISOString().slice(0, 10)); // pas le dimanche
+        }
+        const moisNeeded = [...new Set(joursCibles.map((iso) => iso.slice(0, 7)))].map((ym) => {
+          const [a, mm] = ym.split("-").map(Number);
+          return { mois: mm, annee: a, nom: MOIS[mm - 1] };
+        });
+        const grillesC = [];
+        const erreursC = [];
+        for (const m of moisNeeded) {
+          const f = await trouverPlanning(token, centre, m);
+          if (!f) {
+            erreursC.push(`Planning ${m.nom} ${m.annee} introuvable`);
+            continue;
+          }
+          const buffer = await dropboxDownload(token, f.id);
+          grillesC.push(parseGrille(xlsxVersLignes(buffer), m.mois, m.annee));
+        }
+        const ophtasSetC = grillesC.length ? await classifierOphtas(grillesC, centreId, centre.label) : new Set();
+        const vacations = [];
+        const vus = new Set();
+        for (const g of grillesC) {
+          for (const pers of g.personnes.values()) {
+            if (roleDe(pers.nom, pers.bloc, ophtasSetC) !== "ophta") continue;
+            if (estPermanent(centreId, pers.nom)) continue;
+            for (const [iso, cell] of pers.cellules) {
+              if (!joursCibles.includes(iso)) continue;
+              const c = lireCellule(cell);
+              if (!c.travail) continue;
+              const cle = `${iso}|${norm(pers.nom)}`;
+              if (vus.has(cle)) continue;
+              vus.add(cle);
+              vacations.push({
+                date: iso,
+                weekday: JOURS_FR[new Date(iso + "T12:00:00Z").getUTCDay()],
+                nom: pers.nom.trim(),
+                heures: `${fmtH(c.debut)}-${fmtH(c.fin)}`,
+              });
+            }
+          }
+        }
+        vacations.sort((a, b) => a.date.localeCompare(b.date) || a.nom.localeCompare(b.nom));
+        return reponse({ centre: centreId, label: centre.label, vue: "cdd", vacations, erreurs: erreursC });
       }
 
       const fichiers = [];
