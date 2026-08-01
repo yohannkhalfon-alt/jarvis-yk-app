@@ -127,7 +127,7 @@ function initials(n){ n=n.replace(/^Dr\.?\s+/i,"").trim(); const p=n.split(/\s+/
 function renderChips(){
   document.getElementById("chips").innerHTML = CENTRES.map(c =>
     `<button class="chip ${c.id===centre?'active':''}" data-c="${c.id}">${c.label}</button>`).join("");
-  document.querySelectorAll(".chip").forEach(b => b.onclick = () => { centre=b.dataset.c; sync(); load(); });
+  document.querySelectorAll(".chip").forEach(b => b.onclick = () => { centre=b.dataset.c; renderChips(); sync(); load(); });
 }
 function setStatus(t,err){ document.getElementById("stat").textContent=t; document.getElementById("dot").className="dot"+(err?" err":""); }
 function sync(){ const u=new URL(location); u.searchParams.set("centre",centre); u.searchParams.set("semaine",semaine); history.replaceState(null,"",u); }
