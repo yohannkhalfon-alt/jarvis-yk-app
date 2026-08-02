@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T05:50:00Z",
+  "generated_at": "2026-08-02T05:36:00Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -22,6 +22,13 @@
     "argenteuil": {
       "label": "ARGENTEUIL",
       "days": [
+        {
+          "date": "2026-08-01",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Slim passé en ABS (vacation non honorée) — planning modifié le 01/08 à 17h, constaté a posteriori"
+        },
         {
           "date": "2026-08-06",
           "weekday": "jeudi",
@@ -66,7 +73,7 @@
         }
       ],
       "notes": [
-        "Sam 01/08 : couvert par le Dr Slim 09h-19h (ajouté au planning le 27/07)",
+        "Sam 01/08 : le Dr Slim (prévu 09h-19h) n'est pas venu — passé en ABS dans le planning le 01/08",
         "Semaines du 10 au 22/08 non renseignées dans le planning (fermeture estivale ?)",
         "Lun 21/09 : centre fermé (Kippour)",
         "Ven 25/09 : couverture Slimane « à confirmer »"
