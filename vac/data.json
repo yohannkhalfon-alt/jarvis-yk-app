@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03T05:34:28Z",
+  "generated_at": "2026-08-04T05:35:35Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -30,11 +30,11 @@
           "note": "Slim passé en ABS (vacation non honorée) — planning modifié le 01/08 à 17h, constaté a posteriori"
         },
         {
-          "date": "2026-08-06",
-          "weekday": "jeudi",
+          "date": "2026-08-03",
+          "weekday": "lundi",
           "status": "none",
           "hours": null,
-          "note": "Slimane et Papapostolou ABS, autres OFF (modif planning du 20/07)"
+          "note": "Hajjar passé de 09h-19h à ABS (planning modifié le 03/08 au matin, constaté a posteriori)"
         },
         {
           "date": "2026-08-24",
@@ -74,6 +74,7 @@
       ],
       "notes": [
         "Sam 01/08 : le Dr Slim (prévu 09h-19h) n'est pas venu — passé en ABS dans le planning le 01/08",
+        "Jeu 06/08 : désormais couvert par le Dr Bafjaish 09h-19h (ajouté au planning le 03/08 — Slimane et Papapostolou restent ABS)",
         "Semaines du 10 au 22/08 non renseignées dans le planning (fermeture estivale ?)",
         "Lun 21/09 : centre fermé (Kippour)",
         "Ven 25/09 : couverture Slimane « à confirmer »"
@@ -136,7 +137,7 @@
         "Mar 04/08 : couvert par le Dr Slim 09h-19h (ajouté au planning le 28/07)",
         "Jeu 27/08 : couvert par le Dr Diop 09h-19h (ajouté au planning le 28/07)",
         "Fermeture annoncée du 10 au 22/08 (note du planning) mais lignes encore remplies — à confirmer",
-        "Lun 03/08 : couverture Slimane « à confirmer »",
+        "Lun 03/08 : couverture Slimane confirmée (le « à conf » a été retiré du planning le 03/08)",
         "Lun 21/09 : centre fermé (Kippour)"
       ]
     },
@@ -190,7 +191,8 @@
         "Centre ajouté au suivi le 30/07 (dossier Dropbox PLANNING ANTONY partagé le 27/07)",
         "Semaines du 10 au 22/08 non renseignées dans le planning (fermeture estivale ?)",
         "Lun 21/09 : centre fermé (Kippour)",
-        "Dr Vo Viet Anh assure les samedis 03/10 et 17/10 — les autres samedis d'octobre restent sans ophta"
+        "Dr Vo Viet Anh assure les samedis 03/10 et 17/10 — les autres samedis d'octobre restent sans ophta",
+        "Ligne « Slim » ajoutée au bloc ophta du planning d'août pour les semaines du 10 au 22/08, encore sans horaires (modif du 03/08)"
       ]
     }
   }
