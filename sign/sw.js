@@ -1,7 +1,7 @@
 // Service worker JARVIS SIGN — cache le "shell" statique pour un lancement
 // instantané en mode appli. Les appels /api/ restent toujours en réseau
 // (jamais de cache : statuts et documents doivent être frais).
-const CACHE = "jarvis-sign-v6";
+const CACHE = "jarvis-sign-v7";
 const SHELL = ["/sign/", "/sign/index.html", "/sign/signer.html", "/sign/icon-192.png", "/sign/icon-512.png", "/sign/manifest.webmanifest"];
 
 self.addEventListener("install", (e) => {

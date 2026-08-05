@@ -217,6 +217,7 @@ const vueSignataire = (env, idx) => ({
   createdAt: env.createdAt,
   mentions: env.mentions || [],
   paraphe: Boolean(env.paraphe),
+  dateImposee: env.dateImposee || null,
   moi: { name: env.signers[idx].name, status: env.signers[idx].status, signedAt: env.signers[idx].signedAt || null },
   autres: env.signers.filter((_, i) => i !== idx).map((s) => ({ name: s.name, status: s.status })),
 });
@@ -296,7 +297,7 @@ export default async (req) => {
     // --- Création d'une demande (admin) ---
     if (body.action === "create") {
       if (!adminOk(req)) return json({ error: "Code admin invalide" }, 403);
-      const { title, pdfBase64, signers, fromEmail, mentions, paraphe, positions } = body;
+      const { title, pdfBase64, signers, fromEmail, mentions, paraphe, positions, dateImposee } = body;
       if (!title || (!pdfBase64 && !body.uploadId) || !Array.isArray(signers) || !signers.length)
         return json({ error: "Titre, PDF et au moins un signataire requis" }, 400);
       if (signers.some((s) => !s.name || !String(s.name).trim()))
@@ -338,6 +339,9 @@ export default async (req) => {
         // mentions manuscrites requises (ex : "Lu et approuvé") et paraphe de chaque page
         mentions: Array.isArray(mentions) ? mentions.slice(0, 3).map((m) => String(m).slice(0, 60)) : [],
         paraphe: Boolean(paraphe),
+        // date fixée par l'expéditeur : inscrite telle quelle sur le document,
+        // le signataire ne peut pas la changer
+        dateImposee: /^\d{4}-\d{2}-\d{2}$/.test(dateImposee || "") ? dateImposee : null,
         // emplacements de signature choisis à la création : {s: index signataire,
         // page (0-based), x/y en fractions de page (origine haut-gauche)}
         positions: Array.isArray(positions)
@@ -383,7 +387,9 @@ export default async (req) => {
       await store.set(`sig/${id}/${idx}`, png.buffer.slice(png.byteOffset, png.byteOffset + png.byteLength));
       if (paraphePng) await store.set(`par/${id}/${idx}`, paraphePng.buffer.slice(paraphePng.byteOffset, paraphePng.byteOffset + paraphePng.byteLength));
       env.signers[idx].mentions = env.mentions || [];
-      if (/^\d{4}-\d{2}-\d{2}$/.test(body.dateSignature || "")) env.signers[idx].dateAffichee = body.dateSignature;
+      // la date fixée par l'expéditeur prime sur celle du signataire
+      if (env.dateImposee) env.signers[idx].dateAffichee = env.dateImposee;
+      else if (/^\d{4}-\d{2}-\d{2}$/.test(body.dateSignature || "")) env.signers[idx].dateAffichee = body.dateSignature;
       env.signers[idx].status = "signe";
       env.signers[idx].signedAt = new Date().toISOString();
       env.signers[idx].ip = req.headers.get("x-nf-client-connection-ip") || req.headers.get("x-forwarded-for") || "";

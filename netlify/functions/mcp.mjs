@@ -65,6 +65,7 @@ const TOOLS = [
         mentions: { type: "array", items: { type: "string" }, description: "Mentions à faire cocher, ex [\"Lu et approuvé\"]" },
         paraphe: { type: "boolean", description: "Initiales apposées en bas de chaque page" },
         from_email: { type: "string", description: "Boîte email du centre qui recevra automatiquement le PDF signé" },
+        date_imposee: { type: "string", description: "Date (AAAA-MM-JJ) inscrite sur le document (« Fait le … ») — fixée par l'expéditeur, le signataire ne peut pas la changer" },
       },
       required: ["title", "pdf_base64", "signers"],
     },
@@ -117,7 +118,7 @@ async function chargerEnv(origin, documentId) {
 const STATUTS = { attente: "en_attente", partiel: "partiellement_signe", complet: "signe" };
 
 async function outilCreate(origin, args) {
-  const { title, pdf_base64, signers, mentions, paraphe, from_email } = args;
+  const { title, pdf_base64, signers, mentions, paraphe, from_email, date_imposee } = args;
   const res = await appelSign(origin, {
     body: {
       action: "create",
@@ -127,6 +128,7 @@ async function outilCreate(origin, args) {
       mentions: mentions || [],
       paraphe: Boolean(paraphe),
       fromEmail: from_email || "",
+      dateImposee: date_imposee || null,
     },
   });
   const data = await res.json();
