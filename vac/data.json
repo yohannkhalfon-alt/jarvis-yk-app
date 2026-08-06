@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-05T05:48:32Z",
+  "generated_at": "2026-08-06T05:38:23Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -133,7 +133,7 @@
         }
       ],
       "notes": [
-        "Mer 02/09 : Addala désormais notée présente dans le planning d'août (modifié le 30/07) mais encore ABS dans le fichier de septembre (du 21/07) — jour retiré, à confirmer",
+        "Mer 02/09 : contradiction toujours pas résolue — les deux fichiers ont été retouchés le 05/08 et disent encore l'inverse (août : Addala présente ; septembre : ABS). Jour non compté, à trancher avec le centre",
         "Mar 04/08 : couvert par le Dr Slim 09h-19h (ajouté au planning le 28/07)",
         "Jeu 27/08 : couvert par le Dr Diop 09h-19h (ajouté au planning le 28/07)",
         "Fermeture annoncée du 10 au 22/08 (note du planning) mais lignes encore remplies — à confirmer",
