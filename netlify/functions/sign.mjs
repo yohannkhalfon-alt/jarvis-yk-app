@@ -187,11 +187,11 @@ async function notifierCompletion(store, env, origin) {
     const b64 = Buffer.from(pdf).toString("base64");
     const lien = `${origin}/api/sign?id=${env.id}&token=${env.dlToken}&pdf=1`;
     const noms = env.signers.map((s) => s.name).join(", ");
-    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+    const envoyer = (expediteur) => fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: { "api-key": key, "content-type": "application/json" },
       body: JSON.stringify({
-        sender: { name: "JARVIS SIGN", email: process.env.BREVO_FROM || env.fromEmail },
+        sender: { name: "JARVIS SIGN", email: expediteur },
         to: [{ email: env.fromEmail }],
         subject: `Document signé : ${env.title}`,
         htmlContent:
@@ -203,8 +203,17 @@ async function notifierCompletion(store, env, origin) {
           : undefined,
       }),
     });
+    // expéditeur = la boîte du centre choisie dans l'app ; si Brevo la refuse
+    // (adresse non validée chez eux), repli sur l'adresse validée BREVO_FROM
+    const secours = process.env.BREVO_FROM;
+    let expediteur = env.fromEmail || secours;
+    let res = await envoyer(expediteur);
+    if (!res.ok && secours && expediteur !== secours) {
+      expediteur = secours;
+      res = await envoyer(secours);
+    }
     if (!res.ok) throw new Error((await res.text()).slice(0, 200));
-    env.notif = { sent: true, to: env.fromEmail, at: new Date().toISOString() };
+    env.notif = { sent: true, to: env.fromEmail, from: expediteur, at: new Date().toISOString() };
   } catch (e) {
     env.notif = { error: String(e.message || e).slice(0, 200) };
   }
@@ -217,6 +226,7 @@ const vueSignataire = (env, idx) => ({
   createdAt: env.createdAt,
   mentions: env.mentions || [],
   paraphe: Boolean(env.paraphe),
+  dateImposee: env.dateImposee || null,
   moi: { name: env.signers[idx].name, status: env.signers[idx].status, signedAt: env.signers[idx].signedAt || null },
   autres: env.signers.filter((_, i) => i !== idx).map((s) => ({ name: s.name, status: s.status })),
 });
@@ -296,7 +306,7 @@ export default async (req) => {
     // --- Création d'une demande (admin) ---
     if (body.action === "create") {
       if (!adminOk(req)) return json({ error: "Code admin invalide" }, 403);
-      const { title, pdfBase64, signers, fromEmail, mentions, paraphe, positions } = body;
+      const { title, pdfBase64, signers, fromEmail, mentions, paraphe, positions, dateImposee } = body;
       if (!title || (!pdfBase64 && !body.uploadId) || !Array.isArray(signers) || !signers.length)
         return json({ error: "Titre, PDF et au moins un signataire requis" }, 400);
       if (signers.some((s) => !s.name || !String(s.name).trim()))
@@ -338,6 +348,9 @@ export default async (req) => {
         // mentions manuscrites requises (ex : "Lu et approuvé") et paraphe de chaque page
         mentions: Array.isArray(mentions) ? mentions.slice(0, 3).map((m) => String(m).slice(0, 60)) : [],
         paraphe: Boolean(paraphe),
+        // date fixée par l'expéditeur : inscrite telle quelle sur le document,
+        // le signataire ne peut pas la changer
+        dateImposee: /^\d{4}-\d{2}-\d{2}$/.test(dateImposee || "") ? dateImposee : null,
         // emplacements de signature choisis à la création : {s: index signataire,
         // page (0-based), x/y en fractions de page (origine haut-gauche)}
         positions: Array.isArray(positions)
@@ -383,7 +396,9 @@ export default async (req) => {
       await store.set(`sig/${id}/${idx}`, png.buffer.slice(png.byteOffset, png.byteOffset + png.byteLength));
       if (paraphePng) await store.set(`par/${id}/${idx}`, paraphePng.buffer.slice(paraphePng.byteOffset, paraphePng.byteOffset + paraphePng.byteLength));
       env.signers[idx].mentions = env.mentions || [];
-      if (/^\d{4}-\d{2}-\d{2}$/.test(body.dateSignature || "")) env.signers[idx].dateAffichee = body.dateSignature;
+      // la date fixée par l'expéditeur prime sur celle du signataire
+      if (env.dateImposee) env.signers[idx].dateAffichee = env.dateImposee;
+      else if (/^\d{4}-\d{2}-\d{2}$/.test(body.dateSignature || "")) env.signers[idx].dateAffichee = body.dateSignature;
       env.signers[idx].status = "signe";
       env.signers[idx].signedAt = new Date().toISOString();
       env.signers[idx].ip = req.headers.get("x-nf-client-connection-ip") || req.headers.get("x-forwarded-for") || "";

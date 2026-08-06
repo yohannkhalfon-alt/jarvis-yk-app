@@ -111,7 +111,9 @@ function ecranSignature() {
       '<canvas class="pad" id="padSig"></canvas>' +
       '<div class="padrow"><span class="hint">Dessinez votre signature ci-dessus (doigt ou souris)</span><button id="effacerSig">Effacer</button></div>' +
       mentionsHtml +
-      '<div class="champdate"><span>Date à inscrire sur le document :</span><input type="date" id="dateSig" /></div>' +
+      (infos.dateImposee
+        ? '<div class="champdate"><span>Date inscrite sur le document : <b>Fait le ' + infos.dateImposee.split('-').reverse().join('/') + '</b> (fixée par l’expéditeur)</span></div>'
+        : '<div class="champdate"><span>Date à inscrire sur le document :</span><input type="date" id="dateSig" /></div>') +
       '<div class="hint">« Fait le … » apparaîtra près de votre signature. La date et l’heure réelles de signature restent enregistrées dans le certificat.</div>' +
       '<label class="consent"><input type="checkbox" id="consent" />' +
         'Je, <b>&nbsp;' + echap(infos.moi.name) + '&nbsp;</b>, déclare avoir lu le document « ' + echap(infos.title) + ' » et consens à le signer électroniquement. Ma signature, la date, mon adresse IP et mon navigateur seront enregistrés dans le certificat de signature.' +
@@ -125,8 +127,8 @@ function ecranSignature() {
 
   padSig = creerPad('padSig', 'effacerSig');
   if (infos.paraphe) padPar = creerPad('padPar', 'effacerPar');
-  // date du jour (heure de Paris) proposée par défaut, modifiable
-  $('#dateSig').value = new Intl.DateTimeFormat('fr-CA', { timeZone: 'Europe/Paris' }).format(new Date());
+  // date du jour (heure de Paris) proposée par défaut, sauf date imposée par l'expéditeur
+  if ($('#dateSig')) $('#dateSig').value = new Intl.DateTimeFormat('fr-CA', { timeZone: 'Europe/Paris' }).format(new Date());
   $('#signer').onclick = envoyer;
 }
 
@@ -190,7 +192,7 @@ async function envoyer() {
     const res = await fetch('/api/sign', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ action: 'sign', id, token, signaturePng: png, paraphePng: pngPar, mentionsAccepted: true, consent: true, dateSignature: $('#dateSig').value || null }),
+      body: JSON.stringify({ action: 'sign', id, token, signaturePng: png, paraphePng: pngPar, mentionsAccepted: true, consent: true, dateSignature: $('#dateSig') ? $('#dateSig').value || null : null }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Erreur');
