@@ -28,6 +28,12 @@
            padding:14px; border-radius:12px; margin:4px 0 6px; font-size:16px; }
   .hide { display:none; }
   .logo { width:72px; height:72px; border-radius:18px; margin-bottom:10px; box-shadow:0 6px 20px rgba(0,0,0,.4); }
+  .wifi { width:46px; height:46px; margin:2px auto 10px; display:block; color:var(--acc); }
+  .wifi .arc { fill:none; stroke:currentColor; stroke-width:2.4; stroke-linecap:round; opacity:.22; animation:wifipulse 1.6s ease-in-out infinite; }
+  .wifi .dot { fill:currentColor; opacity:.22; animation:wifipulse 1.6s ease-in-out infinite; }
+  .wifi .dot { animation-delay:0s; } .wifi .a1 { animation-delay:.2s; } .wifi .a2 { animation-delay:.4s; } .wifi .a3 { animation-delay:.6s; }
+  .wifi.on .arc, .wifi.on .dot { opacity:1; animation:none; }
+  @keyframes wifipulse { 0%,100% { opacity:.22; } 45% { opacity:1; } }
 </style>
 </head>
 <body>
@@ -43,6 +49,12 @@
   </div>
 
   <div id="main" class="hide">
+    <svg id="wifi" class="wifi" viewBox="0 0 24 24" aria-hidden="true">
+      <path class="arc a3" d="M2 8.5a15 15 0 0 1 20 0"/>
+      <path class="arc a2" d="M5 12a10.5 10.5 0 0 1 14 0"/>
+      <path class="arc a1" d="M8 15.5a6 6 0 0 1 8 0"/>
+      <circle class="dot" cx="12" cy="19" r="1.6"/>
+    </svg>
     <!-- Mode QR -->
     <div id="qrmode">
       <p>Scanne ce QR avec le téléphone du compte à surveiller :<br>
@@ -104,6 +116,7 @@ async function poll() {
     if (r.status === 401) { fail("Jeton invalide."); return; }
     const d = await r.json();
     if (d.connected) {
+      $("#wifi").classList.add("on");
       $("#qrmode").classList.add("hide");
       $("#pairmode").classList.add("hide");
       $("#done").classList.remove("hide");
