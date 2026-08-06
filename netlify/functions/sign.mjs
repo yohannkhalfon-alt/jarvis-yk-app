@@ -187,11 +187,11 @@ async function notifierCompletion(store, env, origin) {
     const b64 = Buffer.from(pdf).toString("base64");
     const lien = `${origin}/api/sign?id=${env.id}&token=${env.dlToken}&pdf=1`;
     const noms = env.signers.map((s) => s.name).join(", ");
-    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+    const envoyer = (expediteur) => fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: { "api-key": key, "content-type": "application/json" },
       body: JSON.stringify({
-        sender: { name: "JARVIS SIGN", email: process.env.BREVO_FROM || env.fromEmail },
+        sender: { name: "JARVIS SIGN", email: expediteur },
         to: [{ email: env.fromEmail }],
         subject: `Document signé : ${env.title}`,
         htmlContent:
@@ -203,8 +203,17 @@ async function notifierCompletion(store, env, origin) {
           : undefined,
       }),
     });
+    // expéditeur = la boîte du centre choisie dans l'app ; si Brevo la refuse
+    // (adresse non validée chez eux), repli sur l'adresse validée BREVO_FROM
+    const secours = process.env.BREVO_FROM;
+    let expediteur = env.fromEmail || secours;
+    let res = await envoyer(expediteur);
+    if (!res.ok && secours && expediteur !== secours) {
+      expediteur = secours;
+      res = await envoyer(secours);
+    }
     if (!res.ok) throw new Error((await res.text()).slice(0, 200));
-    env.notif = { sent: true, to: env.fromEmail, at: new Date().toISOString() };
+    env.notif = { sent: true, to: env.fromEmail, from: expediteur, at: new Date().toISOString() };
   } catch (e) {
     env.notif = { error: String(e.message || e).slice(0, 200) };
   }

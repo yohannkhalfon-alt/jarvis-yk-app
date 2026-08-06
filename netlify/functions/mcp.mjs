@@ -150,7 +150,7 @@ async function outilCreate(origin, args) {
 async function outilSend(origin, args) {
   const env = await chargerEnv(origin, args.document_id);
   const cle = process.env.BREVO_API_KEY;
-  const expediteur = process.env.BREVO_FROM || env.fromEmail || "";
+  const expediteur = env.fromEmail || process.env.BREVO_FROM || "";
   const resultats = [];
   for (const s of env.signers) {
     if (s.status === "signe") {
@@ -161,11 +161,11 @@ async function outilSend(origin, args) {
     const entree = { name: s.name, email: s.email || null, link: lien, whatsapp: lienWhatsApp(s.name, env.title, lien), email_envoye: false };
     if (cle && expediteur && s.email) {
       try {
-        const r = await fetch("https://api.brevo.com/v3/smtp/email", {
+        const envoyer = (from) => fetch("https://api.brevo.com/v3/smtp/email", {
           method: "POST",
           headers: { "api-key": cle, "content-type": "application/json" },
           body: JSON.stringify({
-            sender: { name: "JARVIS SIGN", email: expediteur },
+            sender: { name: "JARVIS SIGN", email: from },
             to: [{ email: s.email, name: s.name }],
             subject: `Signature requise : ${env.title}`,
             htmlContent:
@@ -176,6 +176,10 @@ async function outilSend(origin, args) {
               `<p style="color:#888;font-size:12px;">JARVIS SIGN — signature électronique</p>`,
           }),
         });
+        // expéditeur = la boîte du centre en priorité, repli sur BREVO_FROM
+        const secours = process.env.BREVO_FROM;
+        let r = await envoyer(expediteur);
+        if (!r.ok && secours && expediteur !== secours) r = await envoyer(secours);
         if (!r.ok) throw new Error((await r.text()).slice(0, 160));
         entree.email_envoye = true;
       } catch (e) {
