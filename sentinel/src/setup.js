@@ -65,8 +65,8 @@ const config = {
       notify,
       digest: { enabled: true, everyHours: 4, scope: "all" },
       autoReply: {
-        mode: "off",
-        allowFrom: [],
+        mode: "suggest",
+        allowFrom: ["*"],
         persona: "Tu reponds au nom de Juliana. Ton professionnel, aimable, messages courts. Ne prends jamais d'engagement ferme (prix, date contractuelle)."
       }
     }
