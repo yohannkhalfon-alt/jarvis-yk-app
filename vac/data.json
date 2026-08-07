@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-07T07:35:17Z",
+  "generated_at": "2026-08-07T07:46:50Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -41,7 +41,7 @@
           "weekday": "lundi",
           "status": "none",
           "hours": null,
-          "note": "Slimane ABS, autres OFF — les heures Charakidas saisies sur cette colonne sont une erreur (ses CDD du 06/08 portent sur les 28 et 29/08)"
+          "note": "Slimane ABS, autres OFF, aucun remplaçant"
         },
         {
           "date": "2026-10-09",
@@ -61,7 +61,7 @@
       "notes": [
         "Sam 01/08 : le Dr Slim (prévu 09h-19h) n'est pas venu — passé en ABS dans le planning le 01/08",
         "Jeu 06/08 : désormais couvert par le Dr Bafjaish 09h-19h (ajouté au planning le 03/08 — Slimane et Papapostolou restent ABS)",
-        "Ven 28 et sam 29/08 : couverts par le Dr Charakidas (CDD du 06/08, remplacement Slimane, 9h-19h) — dans le planning ses heures ont été saisies par erreur sur les colonnes lun 24/mar 25, à corriger",
+        "Ven 28 et sam 29/08 : couverts par le Dr Charakidas 9h-19h (CDD du 06/08, remplacement Slimane) — planning corrigé le 07/08",
         "Semaines du 10 au 22/08 non renseignées dans le planning (fermeture estivale ?)",
         "Lun 21/09 : centre fermé (Kippour)",
         "Ven 25/09 : couverture Slimane « à confirmer »"
