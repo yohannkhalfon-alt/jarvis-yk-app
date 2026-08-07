@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-06T05:38:23Z",
+  "generated_at": "2026-08-07T06:08:30Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -37,13 +37,6 @@
           "note": "Hajjar passé de 09h-19h à ABS (planning modifié le 03/08 au matin, constaté a posteriori)"
         },
         {
-          "date": "2026-08-24",
-          "weekday": "lundi",
-          "status": "none",
-          "hours": null,
-          "note": "Slimane ABS, autres OFF"
-        },
-        {
           "date": "2026-08-28",
           "weekday": "vendredi",
           "status": "none",
@@ -75,6 +68,7 @@
       "notes": [
         "Sam 01/08 : le Dr Slim (prévu 09h-19h) n'est pas venu — passé en ABS dans le planning le 01/08",
         "Jeu 06/08 : désormais couvert par le Dr Bafjaish 09h-19h (ajouté au planning le 03/08 — Slimane et Papapostolou restent ABS)",
+        "Lun 24/08 et mar 25/08 : couverts par le Dr Charakidas 09h-19h (ajouté au planning le 06/08) — le 24/08 n'est plus sans ophta",
         "Semaines du 10 au 22/08 non renseignées dans le planning (fermeture estivale ?)",
         "Lun 21/09 : centre fermé (Kippour)",
         "Ven 25/09 : couverture Slimane « à confirmer »"
