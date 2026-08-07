@@ -1,0 +1,173 @@
+{
+  "generated_at": "2026-08-07T07:46:50Z",
+  "source": "Scan JARVIS via connecteur Dropbox",
+  "periode": [
+    {
+      "mois": 8,
+      "annee": 2026,
+      "nom": "AOUT"
+    },
+    {
+      "mois": 9,
+      "annee": 2026,
+      "nom": "SEPTEMBRE"
+    },
+    {
+      "mois": 10,
+      "annee": 2026,
+      "nom": "OCTOBRE"
+    }
+  ],
+  "centres": {
+    "argenteuil": {
+      "label": "ARGENTEUIL",
+      "days": [
+        {
+          "date": "2026-08-01",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Slim passé en ABS (vacation non honorée) — planning modifié le 01/08 à 17h, constaté a posteriori"
+        },
+        {
+          "date": "2026-08-03",
+          "weekday": "lundi",
+          "status": "none",
+          "hours": null,
+          "note": "Hajjar passé de 09h-19h à ABS (planning modifié le 03/08 au matin, constaté a posteriori)"
+        },
+        {
+          "date": "2026-08-24",
+          "weekday": "lundi",
+          "status": "none",
+          "hours": null,
+          "note": "Slimane ABS, autres OFF, aucun remplaçant"
+        },
+        {
+          "date": "2026-10-09",
+          "weekday": "vendredi",
+          "status": "none",
+          "hours": null,
+          "note": "Slimane, Papapostolou, Hajjar tous OFF"
+        },
+        {
+          "date": "2026-10-23",
+          "weekday": "vendredi",
+          "status": "none",
+          "hours": null,
+          "note": "Slimane, Papapostolou, Hajjar tous OFF"
+        }
+      ],
+      "notes": [
+        "Sam 01/08 : le Dr Slim (prévu 09h-19h) n'est pas venu — passé en ABS dans le planning le 01/08",
+        "Jeu 06/08 : désormais couvert par le Dr Bafjaish 09h-19h (ajouté au planning le 03/08 — Slimane et Papapostolou restent ABS)",
+        "Ven 28 et sam 29/08 : couverts par le Dr Charakidas 9h-19h (CDD du 06/08, remplacement Slimane) — planning corrigé le 07/08",
+        "Semaines du 10 au 22/08 non renseignées dans le planning (fermeture estivale ?)",
+        "Lun 21/09 : centre fermé (Kippour)",
+        "Ven 25/09 : couverture Slimane « à confirmer »"
+      ]
+    },
+    "annecy": {
+      "label": "ANNECY",
+      "days": [],
+      "notes": [
+        "Semaine du 03 au 07/08 : couverte par le Dr Diop 09h-19h (ajouté au planning le 23/07 — remplace Bendellali)",
+        "Fermeture estivale du 08 au 23/08 (CP collectifs) — Adina reprend le 24/08",
+        "Ema : dernier jour le 31/07",
+        "Semaine du 07 au 12/09 : couverte par Dr Charakidas (09h-19h lun-jeu + sam)",
+        "Semaines du 05 au 17/10 : couvertes par un « Dr » dont le nom n'est pas encore renseigné dans le planning"
+      ]
+    },
+    "tremblay": {
+      "label": "TREMBLAY",
+      "days": [
+        {
+          "date": "2026-08-26",
+          "weekday": "mercredi",
+          "status": "none",
+          "hours": null,
+          "note": "Sebe OFF, Slimane ABS, Adalla OFF"
+        },
+        {
+          "date": "2026-09-01",
+          "weekday": "mardi",
+          "status": "none",
+          "hours": null,
+          "note": "Adalla ABS, Slimane/Sebe/Clemente OFF"
+        },
+        {
+          "date": "2026-09-04",
+          "weekday": "vendredi",
+          "status": "none",
+          "hours": null,
+          "note": "Adalla ABS, autres OFF"
+        },
+        {
+          "date": "2026-09-07",
+          "weekday": "lundi",
+          "status": "none",
+          "hours": null,
+          "note": "Adalla passée en ABS (modif planning du 06/08), Sebe ABS, Slimane OFF — Faiza/Vanaja/Le Bras présents"
+        }
+      ],
+      "notes": [
+        "Semaines du 10 au 22/08 non renseignées dans le planning",
+        "Lun 21/09 : centre fermé (Kippour)"
+      ]
+    },
+    "sartrouville": {
+      "label": "SARTROUVILLE",
+      "days": [
+        {
+          "date": "2026-08-29",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Slimane ABS, autres OFF"
+        }
+      ],
+      "notes": [
+        "Mer 02/09 : contradiction toujours pas résolue — les deux fichiers ont été retouchés le 05/08 et disent encore l'inverse (août : Addala présente ; septembre : ABS). Jour non compté, à trancher avec le centre",
+        "Mar 04/08 : couvert par le Dr Slim 09h-19h (ajouté au planning le 28/07)",
+        "Jeu 27/08 : couvert par le Dr Diop 09h-19h (ajouté au planning le 28/07)",
+        "Fermeture annoncée du 10 au 22/08 (note du planning) mais lignes encore remplies — à confirmer",
+        "Lun 03/08 : couverture Slimane confirmée (le « à conf » a été retiré du planning le 03/08)",
+        "Lun 21/09 : centre fermé (Kippour)"
+      ]
+    },
+    "antony": {
+      "label": "ANTONY",
+      "days": [
+        {
+          "date": "2026-10-10",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Meskini et Alessandro OFF, pas de remplaçant"
+        },
+        {
+          "date": "2026-10-24",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Meskini et Alessandro OFF, pas de remplaçant"
+        },
+        {
+          "date": "2026-10-31",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Meskini et Alessandro OFF, pas de remplaçant"
+        }
+      ],
+      "notes": [
+        "Centre ajouté au suivi le 30/07 (dossier Dropbox PLANNING ANTONY partagé le 27/07)",
+        "Semaines du 10 au 22/08 non renseignées dans le planning (fermeture estivale ?)",
+        "Lun 21/09 : centre fermé (Kippour)",
+        "Dr Vo Viet Anh assure les samedis 03/10 et 17/10 — les autres samedis d'octobre restent sans ophta",
+        "Ligne « Slim » ajoutée au bloc ophta du planning d'août pour les semaines du 10 au 22/08, encore sans horaires (modif du 03/08)",
+        "Ven 18/09, 25/09 et 02/10 : désormais couverts par Alessandro 09h-18h30 (modif plannings du 06/08)"
+      ]
+    }
+  }
+}
