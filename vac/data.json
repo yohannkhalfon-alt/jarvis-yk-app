@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-07T06:08:30Z",
+  "generated_at": "2026-08-07T07:21:25Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -108,6 +108,13 @@
           "status": "none",
           "hours": null,
           "note": "Adalla ABS, autres OFF"
+        },
+        {
+          "date": "2026-09-07",
+          "weekday": "lundi",
+          "status": "none",
+          "hours": null,
+          "note": "Adalla passée en ABS (modif planning du 06/08), Sebe ABS, Slimane OFF — Faiza/Vanaja/Le Bras présents"
         }
       ],
       "notes": [
@@ -139,27 +146,6 @@
       "label": "ANTONY",
       "days": [
         {
-          "date": "2026-09-18",
-          "weekday": "vendredi",
-          "status": "none",
-          "hours": null,
-          "note": "Meskini ABS, Alessandro OFF, aucun autre ophta"
-        },
-        {
-          "date": "2026-09-25",
-          "weekday": "vendredi",
-          "status": "none",
-          "hours": null,
-          "note": "Meskini ABS, Alessandro OFF, Ghorayeb OFF"
-        },
-        {
-          "date": "2026-10-02",
-          "weekday": "vendredi",
-          "status": "none",
-          "hours": null,
-          "note": "Meskini ABS, Alessandro et Vo Viet OFF"
-        },
-        {
           "date": "2026-10-10",
           "weekday": "samedi",
           "status": "none",
@@ -186,7 +172,8 @@
         "Semaines du 10 au 22/08 non renseignées dans le planning (fermeture estivale ?)",
         "Lun 21/09 : centre fermé (Kippour)",
         "Dr Vo Viet Anh assure les samedis 03/10 et 17/10 — les autres samedis d'octobre restent sans ophta",
-        "Ligne « Slim » ajoutée au bloc ophta du planning d'août pour les semaines du 10 au 22/08, encore sans horaires (modif du 03/08)"
+        "Ligne « Slim » ajoutée au bloc ophta du planning d'août pour les semaines du 10 au 22/08, encore sans horaires (modif du 03/08)",
+        "Ven 18/09, 25/09 et 02/10 : désormais couverts par Alessandro 09h-18h30 (modif plannings du 06/08)"
       ]
     }
   }
