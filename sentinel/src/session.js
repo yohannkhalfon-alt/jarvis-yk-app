@@ -191,8 +191,10 @@ export async function startAccount(account, config) {
     // Commandes de pilotage (depuis le numero notify, en 1-a-1)
     const isController = bare(senderJid) === bare(account.notify) && !isGroup;
     if (isController) {
-      if (text.startsWith("!")) { await handleCommand(sock, text.trim()); return; }
-      const h = digestHours(text);
+      const t = text.trim();
+      const word = t.replace(/^!/, "").split(/\s+/)[0].toLowerCase();
+      if (["ok", "non", "no", "pause", "go", "aide", "help", "digest"].includes(word)) { await handleCommand(sock, t.replace(/^!/, "")); return; }
+      const h = digestHours(t);
       if (h) { await sock.sendMessage(notifyJid, { text: `⏳ Je prépare ta veille sur ${h % 24 === 0 ? h / 24 + " jour(s)" : h + "h"}…` }); await runDigest(true, h); return; }
     }
 
@@ -216,31 +218,34 @@ export async function startAccount(account, config) {
 
     if (ar.mode === "auto") {
       await sock.sendMessage(jid, { text: draft });
-      await sock.sendMessage(notifyJid, { text: `🤖 [${displayName}] Reponse auto a ${chatName} :\n${draft}` });
+      await sock.sendMessage(notifyJid, { text: `🤖 Réponse envoyée à *${chatName}* :\n${draft}` });
     } else {
       const id = (++ctx.pendingSeq).toString(36);
       ctx.pending.set(id, { jid, chatName, draft });
       await sock.sendMessage(notifyJid, {
-        text: `💬 [${displayName}] Brouillon ${id} pour ${chatName} :\n${draft}\n\n→ !ok ${id} (envoyer)  ·  !ok ${id} <texte> (corriger)  ·  !no ${id} (ignorer)`
+        text: `✉️ *${chatName}* t'a écrit\n_Réponse proposée_ 👇\n\n${draft}\n\n▸ *ok ${id}*  envoyer\n▸ *ok ${id} ton texte*  corriger puis envoyer\n▸ *non ${id}*  ignorer`
       });
     }
   }
 
   async function handleCommand(sock, text) {
     const [cmd, id, ...rest] = text.split(/\s+/);
+    const c = (cmd || "").toLowerCase();
     const reply = (t) => sock.sendMessage(notifyJid, { text: t });
-    if (cmd === "!aide") return reply(`📋 Veille ${displayName}\nTape simplement une période pour un résumé :\n• 24h  (1 jour)\n• 48h  (2 jours)\n• semaine  (7 jours)\n• mois  (30 jours)\n\nAutres : !ok <id> [texte] · !no <id> · !pause · !go`);
-    if (cmd === "!pause") { ctx.paused = true; saveState(); return reply(`⏸️ [${displayName}] Reponses en pause.`); }
-    if (cmd === "!go") { ctx.paused = false; saveState(); return reply(`▶️ [${displayName}] Reponses reactivees.`); }
-    if (cmd === "!digest") return runDigest(true);
-    if (cmd === "!ok" || cmd === "!no") {
+    if (c === "aide" || c === "help") return reply(
+      `👋 *Assistant ${displayName}*\n\n📊 *Résumés* — tape une période :\n• *24h*  (aujourd'hui)\n• *48h*  (2 jours)\n• *semaine*  (7 jours)\n• *mois*  (30 jours)\n\n✉️ *Brouillons de réponse* :\n• *ok <n>*  envoyer\n• *ok <n> ton texte*  corriger\n• *non <n>*  ignorer\n\n⏯️ *pause* / *go*  couper / relancer les brouillons`
+    );
+    if (c === "pause") { ctx.paused = true; saveState(); return reply(`⏸️ Brouillons en pause. Tape *go* pour relancer.`); }
+    if (c === "go") { ctx.paused = false; saveState(); return reply(`▶️ Brouillons réactivés.`); }
+    if (c === "digest") return runDigest(true);
+    if (c === "ok" || c === "non" || c === "no") {
       const p = ctx.pending.get(id);
-      if (!p) return reply(`Brouillon ${id || "?"} introuvable.`);
+      if (!p) return reply(`Brouillon *${id || "?"}* introuvable (déjà traité, peut-être ?).`);
       ctx.pending.delete(id);
-      if (cmd === "!no") return reply(`🗑️ Brouillon ${id} ignore.`);
+      if (c === "non" || c === "no") return reply(`✖️ Brouillon *${id}* ignoré.`);
       const finalText = rest.length ? rest.join(" ") : p.draft;
       await sock.sendMessage(p.jid, { text: finalText });
-      return reply(`✅ Envoye a ${p.chatName}.`);
+      return reply(`✅ Envoyé à *${p.chatName}*.`);
     }
   }
 
@@ -268,7 +273,10 @@ export async function startAccount(account, config) {
     if (!chats.length) {
       if (forced) await sock.sendMessage(notifyJid, { text: `📭 [${displayName}] Rien à résumer sur ${periodeLabel}.` });
     } else {
-      const sections = await buildDigest(displayName, chats);
+      const now = new Date();
+      const p2 = (n) => String(n).padStart(2, "0");
+      const todayStr = `${now.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: config.timezone || "Europe/Paris" })} (${now.getFullYear()}-${p2(now.getMonth() + 1)}-${p2(now.getDate())})`;
+      const sections = await buildDigest(displayName, chats, todayStr);
       const periode = forced ? ` · ${periodeLabel}` : "";
       const header = `📋 *Veille ${displayName}${periode}* — ${new Date().toLocaleString("fr-FR", { timeZone: config.timezone || "Europe/Paris" })}`;
       const full = header + "\n\n" + (sections.length ? sections.join("\n\n") : "RAS.");
