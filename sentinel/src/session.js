@@ -242,7 +242,9 @@ export async function startAccount(account, config) {
   async function runDigest(forced = false) {
     const sock = ctx.sock;
     if (!sock) return;
-    const sinceTs = ctx.lastDigestTs;
+    // Digest force (!digest) : on regarde une fenetre recente (48h) pour produire un vrai resume.
+    // Digest automatique : on repart du dernier resume (incremental).
+    const sinceTs = forced ? (Date.now() - (config.digestLookbackHours || 48) * HOUR) : ctx.lastDigestTs;
     const scope = account.digest?.scope || "all";
     const byChat = new Map();
     for (const c of archive.listChats()) {
