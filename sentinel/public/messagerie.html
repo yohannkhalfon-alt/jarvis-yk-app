@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sentinelle</title>
 <link rel="icon" type="image/png" href="/logo.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/logo.png">
+<meta name="theme-color" content="#080C16">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sentinelle">
 <style>
   :root{
     --ink-0:#080C16; --ink-1:#0E1526; --ink-2:#161F36; --ink-3:#1E2A47;
@@ -102,6 +109,7 @@
   <input id="tok" type="password" placeholder="Jeton d'accès" autocomplete="off">
   <button onclick="login()">Ouvrir</button>
   <p id="lerr" class="err"></p>
+  <button id="installBtn" onclick="doInstall()" style="display:none;background:transparent;border:1px solid var(--line);color:var(--muted);padding:10px 18px;box-shadow:none;font-weight:500;font-size:.9rem;margin-top:6px">📲 Installer l'application</button>
 </div>
 
 <div id="app">
@@ -242,6 +250,14 @@ function escapeHtml(s){ return String(s??"").replace(/[&<>"]/g,(c)=>({"&":"&amp;
 function escapeAttr(s){ return escapeHtml(s).replace(/'/g,"&#39;"); }
 
 setInterval(()=>{ if($("#app").style.display==="grid" && !$("#q").value.trim()) loadChats(); },20000);
+
+// ————— App installable (PWA) —————
+if("serviceWorker" in navigator){ navigator.serviceWorker.register("/sw.js").catch(()=>{}); }
+let deferredPrompt=null;
+window.addEventListener("beforeinstallprompt",(e)=>{ e.preventDefault(); deferredPrompt=e; const b=$("#installBtn"); if(b) b.style.display="inline-block"; });
+async function doInstall(){ if(!deferredPrompt) return; deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt=null; $("#installBtn").style.display="none"; }
+window.addEventListener("appinstalled",()=>{ const b=$("#installBtn"); if(b) b.style.display="none"; });
+
 if(TOK) start();
 </script>
 </body>

@@ -40,6 +40,14 @@ export function startApi(accounts, config) {
       try { return send(res, 200, fs.readFileSync(CONNEXION, "utf8"), "text/html; charset=utf-8"); }
       catch { return send(res, 500, "Page connexion introuvable"); }
     }
+    if (p === "/manifest.webmanifest") {
+      try { return send(res, 200, fs.readFileSync(path.join(PUB, "manifest.webmanifest"), "utf8"), "application/manifest+json; charset=utf-8"); }
+      catch { return send(res, 404, "not found", "text/plain"); }
+    }
+    if (p === "/sw.js") {
+      try { return send(res, 200, fs.readFileSync(path.join(PUB, "sw.js"), "utf8"), "text/javascript; charset=utf-8"); }
+      catch { return send(res, 404, "not found", "text/plain"); }
+    }
     const ext = path.extname(p).toLowerCase();
     if (STATIC[ext]) {
       try { return send(res, 200, fs.readFileSync(path.join(PUB, path.basename(p))), STATIC[ext]); }
