@@ -251,8 +251,16 @@ function escapeAttr(s){ return escapeHtml(s).replace(/'/g,"&#39;"); }
 
 setInterval(()=>{ if($("#app").style.display==="grid" && !$("#q").value.trim()) loadChats(); },20000);
 
-// ————— App installable (PWA) —————
-if("serviceWorker" in navigator){ navigator.serviceWorker.register("/sw.js").catch(()=>{}); }
+// ————— App installable (PWA) + reset cache (localhost:8787/?reset) —————
+if(location.search.indexOf("reset")>=0){
+  (async()=>{
+    try{ if("serviceWorker" in navigator){ const rs=await navigator.serviceWorker.getRegistrations(); await Promise.all(rs.map(r=>r.unregister())); } }catch(e){}
+    try{ if(window.caches){ const ks=await caches.keys(); await Promise.all(ks.map(k=>caches.delete(k))); } }catch(e){}
+    location.replace("/");
+  })();
+} else if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("/sw.js").catch(()=>{});
+}
 let deferredPrompt=null;
 window.addEventListener("beforeinstallprompt",(e)=>{ e.preventDefault(); deferredPrompt=e; const b=$("#installBtn"); if(b) b.style.display="inline-block"; });
 async function doInstall(){ if(!deferredPrompt) return; deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt=null; $("#installBtn").style.display="none"; }
