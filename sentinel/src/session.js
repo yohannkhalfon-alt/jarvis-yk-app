@@ -69,7 +69,8 @@ export async function startAccount(account, config) {
     fs.writeFileSync(stateFile, JSON.stringify({ paused: ctx.paused, lastDigestTs: ctx.lastDigestTs }));
 
   const notifyJid = toJid(account.notify);
-  const log = (...a) => console.log(`[${account.id}]`, ...a);
+  const displayName = account.label || account.id;
+  const log = (...a) => console.log(`[${displayName}]`, ...a);
   const handle = {
     account, archive,
     getQr: () => ctx.qr,
@@ -189,7 +190,11 @@ export async function startAccount(account, config) {
 
     // Commandes de pilotage (depuis le numero notify, en 1-a-1)
     const isController = bare(senderJid) === bare(account.notify) && !isGroup;
-    if (isController && text.startsWith("!")) { await handleCommand(sock, text.trim()); return; }
+    if (isController) {
+      if (text.startsWith("!")) { await handleCommand(sock, text.trim()); return; }
+      const h = digestHours(text);
+      if (h) { await sock.sendMessage(notifyJid, { text: `⏳ Je prépare ta veille sur ${h % 24 === 0 ? h / 24 + " jour(s)" : h + "h"}…` }); await runDigest(true, h); return; }
+    }
 
     const rec = await toRecord(sock, msg, true);
     if (rec) archive.add(rec);
@@ -206,17 +211,17 @@ export async function startAccount(account, config) {
 
     const chatName = rec?.chatName || bare(jid);
     const history = archive.messages(jid, { limit: 20 }).map((m) => `${m.fromMe ? "moi" : m.sender}: ${m.text}`);
-    const draft = await draftReply(ar.persona || `Tu reponds au nom de ${account.id}.`, chatName, history);
+    const draft = await draftReply(ar.persona || `Tu reponds au nom de ${displayName}.`, chatName, history);
     if (!draft) return;
 
     if (ar.mode === "auto") {
       await sock.sendMessage(jid, { text: draft });
-      await sock.sendMessage(notifyJid, { text: `🤖 [${account.id}] Reponse auto a ${chatName} :\n${draft}` });
+      await sock.sendMessage(notifyJid, { text: `🤖 [${displayName}] Reponse auto a ${chatName} :\n${draft}` });
     } else {
       const id = (++ctx.pendingSeq).toString(36);
       ctx.pending.set(id, { jid, chatName, draft });
       await sock.sendMessage(notifyJid, {
-        text: `💬 [${account.id}] Brouillon ${id} pour ${chatName} :\n${draft}\n\n→ !ok ${id} (envoyer)  ·  !ok ${id} <texte> (corriger)  ·  !no ${id} (ignorer)`
+        text: `💬 [${displayName}] Brouillon ${id} pour ${chatName} :\n${draft}\n\n→ !ok ${id} (envoyer)  ·  !ok ${id} <texte> (corriger)  ·  !no ${id} (ignorer)`
       });
     }
   }
@@ -224,9 +229,9 @@ export async function startAccount(account, config) {
   async function handleCommand(sock, text) {
     const [cmd, id, ...rest] = text.split(/\s+/);
     const reply = (t) => sock.sendMessage(notifyJid, { text: t });
-    if (cmd === "!aide") return reply(`Commandes [${account.id}] : !digest, !ok <id> [texte], !no <id>, !pause, !go, !aide`);
-    if (cmd === "!pause") { ctx.paused = true; saveState(); return reply(`⏸️ [${account.id}] Reponses en pause.`); }
-    if (cmd === "!go") { ctx.paused = false; saveState(); return reply(`▶️ [${account.id}] Reponses reactivees.`); }
+    if (cmd === "!aide") return reply(`📋 Veille ${displayName}\nTape simplement une période pour un résumé :\n• 24h  (1 jour)\n• 48h  (2 jours)\n• semaine  (7 jours)\n• mois  (30 jours)\n\nAutres : !ok <id> [texte] · !no <id> · !pause · !go`);
+    if (cmd === "!pause") { ctx.paused = true; saveState(); return reply(`⏸️ [${displayName}] Reponses en pause.`); }
+    if (cmd === "!go") { ctx.paused = false; saveState(); return reply(`▶️ [${displayName}] Reponses reactivees.`); }
     if (cmd === "!digest") return runDigest(true);
     if (cmd === "!ok" || cmd === "!no") {
       const p = ctx.pending.get(id);
@@ -239,12 +244,13 @@ export async function startAccount(account, config) {
     }
   }
 
-  async function runDigest(forced = false) {
+  async function runDigest(forced = false, lookbackHours = null) {
     const sock = ctx.sock;
     if (!sock) return;
-    // Digest force (!digest) : on regarde une fenetre recente (48h) pour produire un vrai resume.
+    // Digest force (mot-cle ou !digest) : fenetre recente choisie (defaut 48h).
     // Digest automatique : on repart du dernier resume (incremental).
-    const sinceTs = forced ? (Date.now() - (config.digestLookbackHours || 48) * HOUR) : ctx.lastDigestTs;
+    const hours = lookbackHours || config.digestLookbackHours || 48;
+    const sinceTs = forced ? (Date.now() - hours * HOUR) : ctx.lastDigestTs;
     const scope = account.digest?.scope || "all";
     const byChat = new Map();
     for (const c of archive.listChats()) {
@@ -257,17 +263,19 @@ export async function startAccount(account, config) {
         lines: msgs.map((m) => `[${new Date(m.ts).toTimeString().slice(0, 5)}] ${m.fromMe ? "moi" : m.sender}: ${m.text}`)
       });
     }
+    const periodeLabel = hours % 24 === 0 ? `${hours / 24} jour(s)` : `${hours}h`;
     const chats = [...byChat.values()].filter((c) => c.lines.length >= (forced ? 1 : 3));
     if (!chats.length) {
-      if (forced) await sock.sendMessage(notifyJid, { text: `📭 [${account.id}] Rien a resumer.` });
+      if (forced) await sock.sendMessage(notifyJid, { text: `📭 [${displayName}] Rien à résumer sur ${periodeLabel}.` });
     } else {
-      const sections = await buildDigest(account.id, chats);
-      const header = `📋 *Veille ${account.id}* — ${new Date().toLocaleString("fr-FR", { timeZone: config.timezone || "Europe/Paris" })}`;
+      const sections = await buildDigest(displayName, chats);
+      const periode = forced ? ` · ${periodeLabel}` : "";
+      const header = `📋 *Veille ${displayName}${periode}* — ${new Date().toLocaleString("fr-FR", { timeZone: config.timezone || "Europe/Paris" })}`;
       const full = header + "\n\n" + (sections.length ? sections.join("\n\n") : "RAS.");
       for (let i = 0; i < full.length; i += 3500) await sock.sendMessage(notifyJid, { text: full.slice(i, i + 3500) });
     }
-    ctx.lastDigestTs = Date.now();
-    saveState();
+    // Un résumé ad-hoc (mot-clé / !digest) ne perturbe pas le cycle automatique.
+    if (!forced) { ctx.lastDigestTs = Date.now(); saveState(); }
   }
 
   const everyHours = account.digest?.everyHours || 4;
@@ -278,6 +286,20 @@ export async function startAccount(account, config) {
   await connect();
   log(`Demarre — archive complete, digest ${account.digest?.enabled === false ? "off" : everyHours + "h"}, reponses: ${account.autoReply?.mode || "off"}.`);
   return handle;
+}
+
+// Reconnait un mot-cle de periode tape directement (sans "!") -> nombre d'heures.
+// Ex : "24h", "48h", "2j", "semaine", "mois", "digest".
+function digestHours(text) {
+  const t = String(text).trim().toLowerCase().replace(/^!/, "");
+  let m;
+  if (["digest", "resume", "résumé", "veille"].includes(t)) return 48;
+  if (["jour", "1jour", "aujourdhui", "aujourd'hui"].includes(t)) return 24;
+  if (["semaine", "1semaine", "1sem", "sem"].includes(t)) return 168;
+  if (["mois", "1mois"].includes(t)) return 720;
+  if ((m = t.match(/^(\d{1,4})\s*h$/))) return Math.min(parseInt(m[1], 10), 24 * 90);
+  if ((m = t.match(/^(\d{1,3})\s*j(ours?)?$/))) return Math.min(parseInt(m[1], 10) * 24, 24 * 90);
+  return null;
 }
 
 function isAllowed(allowFrom, jid) {
