@@ -1,6 +1,6 @@
 // Service worker Sentinelle : rend l'app installable + chargement instantané.
 // Les données (/api/*) passent toujours par le réseau (jamais mises en cache).
-const CACHE = "sentinelle-v1";
+const CACHE = "sentinelle-v2";
 const SHELL = ["/", "/logo.png", "/logo-512.png", "/manifest.webmanifest"];
 
 self.addEventListener("install", (e) => {
