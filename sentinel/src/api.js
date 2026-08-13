@@ -58,7 +58,15 @@ export function startApi(accounts, config) {
       const acc = byId.get(url.searchParams.get("account") || accounts[0]?.account.id);
       if (!acc) return send(res, 404, { error: "compte inconnu" });
 
+      const bareNum = (jid) => String(jid || "").split(":")[0].split("@")[0];
       if (p === "/api/accounts") return send(res, 200, accounts.map((a) => ({ id: a.account.id, ...a.status() })));
+      if (p === "/api/rename") {
+        const jid = url.searchParams.get("jid") || url.searchParams.get("number");
+        if (!jid) return send(res, 400, { error: "numéro requis" });
+        if (jid.endsWith("@g.us")) return send(res, 400, { error: "renommage réservé aux contacts" });
+        acc.contacts.set(jid, url.searchParams.get("name") || "");
+        return send(res, 200, { ok: true, name: acc.contacts.get(jid) });
+      }
       if (p === "/api/qr") {
         const st = acc.status();
         if (st.connected) return send(res, 200, { connected: true });
@@ -77,7 +85,11 @@ export function startApi(accounts, config) {
           .then((code) => send(res, 200, { code }))
           .catch((e) => send(res, 200, { error: e.message }));
       }
-      if (p === "/api/chats") return send(res, 200, acc.archive.listChats());
+      if (p === "/api/chats") {
+        const chats = acc.archive.listChats().map((c) => ({ ...c }));
+        for (const c of chats) if (!c.isGroup) { const n = acc.contacts.get(c.jid); if (n) c.name = n; }
+        return send(res, 200, chats);
+      }
       if (p === "/api/messages") {
         const jid = url.searchParams.get("jid");
         if (!jid) return send(res, 400, { error: "jid requis" });
@@ -87,7 +99,11 @@ export function startApi(accounts, config) {
       if (p === "/api/search") {
         const q = (url.searchParams.get("q") || "").trim();
         if (q.length < 2) return send(res, 400, { error: "requete trop courte" });
-        return send(res, 200, acc.archive.search(q));
+        const hits = acc.archive.search(q).map((m) => {
+          if (!String(m.chat).endsWith("@g.us")) { const n = acc.contacts.get(m.chat); if (n) return { ...m, chatName: n }; }
+          return m;
+        });
+        return send(res, 200, hits);
       }
       if (p === "/api/media") {
         const file = path.basename(url.searchParams.get("file") || "");

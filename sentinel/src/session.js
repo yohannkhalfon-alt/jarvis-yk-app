@@ -3,6 +3,7 @@ import pino from "pino";
 import fs from "fs";
 import path from "path";
 import { Archive } from "./archive.js";
+import { Contacts } from "./contacts.js";
 import { buildDigest } from "./digest.js";
 import { draftReply } from "./autoreply.js";
 
@@ -49,6 +50,7 @@ function mediaNode(m) {
 export async function startAccount(account, config) {
   const dataDir = path.join(process.cwd(), "data", account.id);
   const archive = new Archive(path.join(dataDir, "archive"));
+  const contacts = new Contacts(path.join(dataDir, "contacts.json"));
   const stateFile = path.join(dataDir, "state.json");
   const persisted = fs.existsSync(stateFile) ? JSON.parse(fs.readFileSync(stateFile, "utf8")) : {};
 
@@ -72,7 +74,7 @@ export async function startAccount(account, config) {
   const displayName = account.label || account.id;
   const log = (...a) => console.log(`[${displayName}]`, ...a);
   const handle = {
-    account, archive,
+    account, archive, contacts,
     getQr: () => ctx.qr,
     getPairing: () => ctx.pairingCode,
     status: () => ({ connected: ctx.connected, paused: ctx.paused }),
@@ -264,7 +266,7 @@ export async function startAccount(account, config) {
       const msgs = archive.messages(c.jid, { limit: 300 }).filter((m) => m.ts >= sinceTs);
       if (!msgs.length) continue;
       byChat.set(c.jid, {
-        jid: c.jid, name: c.name,
+        jid: c.jid, name: (!c.isGroup && contacts.get(c.jid)) || c.name,
         lines: msgs.map((m) => `[${new Date(m.ts).toTimeString().slice(0, 5)}] ${m.fromMe ? "moi" : m.sender}: ${m.text}`)
       });
     }

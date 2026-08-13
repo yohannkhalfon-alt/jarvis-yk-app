@@ -80,6 +80,8 @@
   #head{padding:16px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;background:rgba(14,21,38,.7);backdrop-filter:blur(8px)}
   #head .h-av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:600;color:#0c1220;background:linear-gradient(140deg,#c9d4ea,#8ea0c4);font-size:14px}
   #head .h-nm{font-family:var(--ff-display);font-size:1.15rem}
+  .rename{margin-left:auto;background:transparent;border:1px solid var(--line);border-radius:9px;padding:5px 9px;font-size:.85rem;color:var(--muted);transition:.2s}
+  .rename:hover{border-color:var(--gold);color:var(--gold)}
   #msgs{flex:1;overflow-y:auto;padding:22px 22px 28px;display:flex;flex-direction:column;gap:6px}
   .m{max-width:64%;padding:9px 13px;border-radius:12px;font-size:.92rem;line-height:1.45;white-space:pre-wrap;word-break:break-word;box-shadow:0 1px 2px rgba(0,0,0,.25)}
   .m.me{align-self:flex-end;background:var(--out);border-radius:12px 12px 4px 12px}
@@ -194,7 +196,8 @@ async function openChat(node){
   const jid=decodeURIComponent(node.dataset.jid);
   CUR=jid;
   const grp=node.dataset.grp==="1";
-  $("#head").innerHTML=`<div class="h-av ${grp?"grp":""}" style="${grp?"background:linear-gradient(140deg,var(--gold),var(--gold-deep));color:#1a1204":""}">${grp?"#":escapeHtml(initials(node.dataset.name))}</div><span class="h-nm">${escapeHtml(node.dataset.name)}</span>`;
+  const pen = grp ? "" : `<button class="rename" title="Renommer ce contact" onclick="renameCurrent()">✏️</button>`;
+  $("#head").innerHTML=`<div class="h-av ${grp?"grp":""}" style="${grp?"background:linear-gradient(140deg,var(--gold),var(--gold-deep));color:#1a1204":""}">${grp?"#":escapeHtml(initials(node.dataset.name))}</div><span class="h-nm">${escapeHtml(node.dataset.name)}</span>${pen}`;
   $("#app").classList.add("reading");
   const msgs=await api("/api/messages",{jid});
   renderMsgs(msgs,false);
@@ -231,6 +234,16 @@ function onSearch(){
   },300);
 }
 function openChatByJid(jid){ const n=document.querySelector(`.chat[data-jid="${encodeURIComponent(jid)}"]`); if(n) openChat(n); }
+
+async function renameCurrent(){
+  if(!CUR || CUR.endsWith("@g.us")) return;
+  const cur=document.querySelector(".chat.active");
+  const name=prompt("Nom de ce contact (laisser vide pour retirer) :", cur?cur.dataset.name:"");
+  if(name===null) return;
+  await api("/api/rename",{jid:CUR,name});
+  await loadChats();
+  openChatByJid(CUR);
+}
 
 function mediaSrc(file){ return "/api/media?token="+encodeURIComponent(TOK)+"&account="+encodeURIComponent(ACC)+"&file="+encodeURIComponent(file); }
 function mediaHtml(md){
