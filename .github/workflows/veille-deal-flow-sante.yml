@@ -1,0 +1,59 @@
+name: Veille deal flow sante
+
+on:
+  workflow_dispatch:
+    inputs:
+      JOURS_HISTORIQUE:
+        description: "Nombre de jours d'historique a balayer"
+        required: false
+        default: "2"
+  # ------------------------------------------------------------------
+  # CRON DESACTIVE volontairement tant que les resultats du backfill
+  # n'ont pas ete valides. Pour l'activer, decommenter les 2 lignes :
+  #
+  # schedule:
+  #   - cron: '0 4 * * *'
+  # ------------------------------------------------------------------
+
+jobs:
+  veille:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Lancer la veille
+        run: node veille-deal-flow-sante/veille.mjs
+        env:
+          JOURS_HISTORIQUE: ${{ inputs.JOURS_HISTORIQUE || vars.JOURS_HISTORIQUE || '2' }}
+          AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_TOKEN }}
+          AIRTABLE_BASE_ID: ${{ secrets.AIRTABLE_BASE_ID }}
+          AIRTABLE_TABLE: ${{ secrets.AIRTABLE_TABLE }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          OUTPUT_JSON: resultats-veille.json
+
+      # Les resultats sont publies dans le log (1 ligne JSON par dossier) pour
+      # pouvoir etre recuperes sans telecharger l'artefact.
+      - name: Publier les resultats dans le log
+        if: always()
+        run: |
+          if [ -f resultats-veille.json ]; then
+            echo "===VEILLE-STATS==="
+            jq -c '.stats' resultats-veille.json
+            echo "===VEILLE-DOSSIERS==="
+            jq -c '.dossiers[]' resultats-veille.json
+            echo "===VEILLE-FIN==="
+          fi
+
+      - name: Archiver les resultats
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultats-veille
+          path: resultats-veille.json
+          if-no-files-found: ignore
+          retention-days: 14
