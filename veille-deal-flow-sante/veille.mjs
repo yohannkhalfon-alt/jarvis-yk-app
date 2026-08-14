@@ -188,7 +188,7 @@ function extractSiren(rec, listepersonnes) {
     String(rec.commercant || ""),
   ].join(" ");
   const candidates = [];
-  const re = /(?<!\d)(\d(?:[ . ]?\d){8})(?!\d)/g;
+  const re = /(?<!\d)(\d(?:[ . ]?\d){8})(?!\d)/g;
   let m;
   while ((m = re.exec(haystack)) !== null) {
     const s = m[1].replace(/\D/g, "");
@@ -234,8 +234,11 @@ async function enrichSiren(siren) {
   lastRechCall = Date.now();
   let result = null;
   try {
-    const data = await fetchJson(`${RECH_URL}?q=siren:${siren}&per_page=1`);
-    result = (data.results && data.results[0]) || null;
+    // NB : la syntaxe "q=siren:XXX" n'est pas supportee (0 resultat silencieux).
+    // On passe le SIREN nu dans q et on verifie la correspondance exacte.
+    const data = await fetchJson(`${RECH_URL}?q=${siren}&per_page=1`);
+    const hit = (data.results && data.results[0]) || null;
+    result = hit && hit.siren === siren ? hit : null;
   } catch (e) {
     log(`  ! enrichissement ${siren} en echec: ${e.message}`);
   }
@@ -247,7 +250,7 @@ async function enrichSiren(siren) {
 
 function scoreProcedure(rec, jugement) {
   const textes = [];
-  if (jugement && typeof jugement === "object") {
+  if (jugement && typeof jugement === "object) {
     textes.push(jugement.nature, jugement.complementJugement);
   } else if (typeof jugement === "string") {
     textes.push(jugement);
