@@ -1,6 +1,11 @@
 name: Veille deal flow sante
 
 on:
+  # TEMPORAIRE : declencheur push pour lancer le backfill 30 jours depuis la
+  # branche (workflow_dispatch n'est pas disponible tant que le workflow
+  # n'existe pas sur main). A retirer apres le backfill.
+  push:
+    branches: [claude/veille-deal-flow-sante-4h0ddi]
   workflow_dispatch:
     inputs:
       JOURS_HISTORIQUE:
@@ -29,7 +34,8 @@ jobs:
       - name: Lancer la veille
         run: node veille-deal-flow-sante/veille.mjs
         env:
-          JOURS_HISTORIQUE: ${{ inputs.JOURS_HISTORIQUE || vars.JOURS_HISTORIQUE || '2' }}
+          # TEMPORAIRE : defaut 30 pour le backfill declenche par push. Remettre '2' ensuite.
+          JOURS_HISTORIQUE: ${{ inputs.JOURS_HISTORIQUE || vars.JOURS_HISTORIQUE || '30' }}
           AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_TOKEN }}
           AIRTABLE_BASE_ID: ${{ secrets.AIRTABLE_BASE_ID }}
           AIRTABLE_TABLE: ${{ secrets.AIRTABLE_TABLE }}
