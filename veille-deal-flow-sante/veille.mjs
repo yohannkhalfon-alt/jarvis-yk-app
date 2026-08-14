@@ -250,7 +250,7 @@ async function enrichSiren(siren) {
 
 function scoreProcedure(rec, jugement) {
   const textes = [];
-  if (jugement && typeof jugement === "object) {
+  if (jugement && typeof jugement === "object") {
     textes.push(jugement.nature, jugement.complementJugement);
   } else if (typeof jugement === "string") {
     textes.push(jugement);
