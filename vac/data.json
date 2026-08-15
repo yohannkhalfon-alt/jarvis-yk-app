@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-14T05:42:50Z",
+  "generated_at": "2026-08-15T05:35:28Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -117,16 +117,9 @@
     },
     "sartrouville": {
       "label": "SARTROUVILLE",
-      "days": [
-        {
-          "date": "2026-08-29",
-          "weekday": "samedi",
-          "status": "none",
-          "hours": null,
-          "note": "Slimane ABS, autres OFF"
-        }
-      ],
+      "days": [],
       "notes": [
+        "Sam 29/08 : désormais couvert par le Dr Fdili 9h-19h (ajouté au planning le 14/08 — Slimane reste ABS)",
         "Mer 02/09 : contradiction toujours pas résolue — les deux fichiers ont été retouchés le 05/08 et disent encore l'inverse (août : Addala présente ; septembre : ABS). Jour non compté, à trancher avec le centre",
         "Mar 04/08 : couvert par le Dr Slim 09h-19h (ajouté au planning le 28/07)",
         "Jeu 27/08 : couvert par le Dr Diop 09h-19h (ajouté au planning le 28/07)",
