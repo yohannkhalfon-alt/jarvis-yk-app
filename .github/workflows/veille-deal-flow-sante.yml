@@ -7,13 +7,8 @@ on:
         description: "Nombre de jours d'historique a balayer"
         required: false
         default: "2"
-  # ------------------------------------------------------------------
-  # CRON DESACTIVE volontairement tant que les resultats du backfill
-  # n'ont pas ete valides. Pour l'activer, decommenter les 2 lignes :
-  #
-  # schedule:
-  #   - cron: '0 4 * * *'
-  # ------------------------------------------------------------------
+  schedule:
+    - cron: '0 4 * * *'
 
 jobs:
   veille:
