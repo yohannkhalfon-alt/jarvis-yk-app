@@ -10,7 +10,7 @@ if [ "${CLAUDE_CODE_REMOTE:-}" != "true" ]; then
 fi
 
 MARKETPLACE="superpowers-marketplace"
-PLUGINS=("superpowers")
+PLUGINS=("superpowers" "superpowers-chrome")
 
 # Idempotent : `marketplace add` echoue si le marketplace est deja declare.
 if ! claude plugin marketplace list 2>/dev/null | grep -qx "  > $MARKETPLACE"; then
