@@ -1,0 +1,4 @@
+# Config du site astrologia-love (base directory : astrologia/).
+# Isole ce site de la config racine du dépôt (fonctions JARVIS, etc.).
+[build]
+  publish = "."

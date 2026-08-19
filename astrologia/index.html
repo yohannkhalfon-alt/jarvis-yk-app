@@ -13,13 +13,13 @@
 <meta property="og:site_name" content="AStrologIA" />
 <meta property="og:title" content="AStrologIA 🔮 — Vos messages face aux astres" />
 <meta property="og:description" content="Qui aime le plus ? Red flags, compatibilité astrale vs réalité, horoscope du couple. Gratuit, 100% privé : rien ne quitte votre téléphone." />
-<meta property="og:url" content="https://jarvis-yk-app.netlify.app/astrologia/" />
-<meta property="og:image" content="https://jarvis-yk-app.netlify.app/astrologia/og.png" />
+<meta property="og:url" content="https://astrologia-love.netlify.app/" />
+<meta property="og:image" content="https://astrologia-love.netlify.app/og.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="AStrologIA 🔮 — Vos messages face aux astres" />
-<meta name="twitter:image" content="https://jarvis-yk-app.netlify.app/astrologia/og.png" />
+<meta name="twitter:image" content="https://astrologia-love.netlify.app/og.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
@@ -2046,7 +2046,7 @@ function downloadStoryImage(){
   center(S.score + '/100', 1650, '900 160px Unbounded, Outfit, sans-serif', '#ffffff');
   center(t('img.real'), 1710, '600 30px Outfit, sans-serif', '#6b70a0');
   center(t('img.cta'), 1826, '600 28px Outfit, sans-serif', '#8b7bff');
-  center('jarvis-yk-app.netlify.app/astrologia', 1876, '800 30px Outfit, sans-serif', '#e8c56b');
+  center('astrologia-love.netlify.app', 1876, '800 30px Outfit, sans-serif', '#e8c56b');
 
   openImageModal(cv);
 }
@@ -2302,7 +2302,7 @@ function bindWaitlists(){
 /* défi couple : le partage qui déclenche l'analyse en face */
 $('#btnDefi').addEventListener('click', async () => {
   const S = LAST_STATS; if (!S) return;
-  const txt = t('defi.txt', { score: S.score, url: location.origin.startsWith('http') ? location.origin + location.pathname : 'https://jarvis-yk-app.netlify.app/astrologia/' });
+  const txt = t('defi.txt', { score: S.score, url: location.origin.startsWith('http') ? location.origin + location.pathname : 'https://astrologia-love.netlify.app/' });
   try {
     if (navigator.share) await navigator.share({ text: txt });
     else { await navigator.clipboard.writeText(txt); tipShow(t('copy.done'), innerWidth/2, innerHeight/2); setTimeout(tipHide, 1600); }
