@@ -1,7 +1,7 @@
 ---
 name: astrologia-growth
 description: >
-  Machine de croissance d'AStrologIA (jarvis-yk-app.netlify.app/astrologia/) —
+  Machine de croissance d'AStrologIA (astrologia-love.netlify.app/) —
   production de vidéos TikTok/Reels via Higgsfield, prédiction de viralité,
   publication, kit de marque, hooks FR/EN/ES, et pilotage de la boucle virale.
   Déclencher pour : "vidéo du jour", "contenu astrologia", "poste sur tiktok",
@@ -12,7 +12,7 @@ description: >
 # AStrologIA — Machine de croissance
 
 ## L'app
-- URL publique : https://jarvis-yk-app.netlify.app/astrologia/ (domaine dédié à venir — vérifier avant de publier du contenu)
+- URL publique : https://astrologia-love.netlify.app/ (domaine dédié à venir — vérifier avant de publier du contenu)
 - Pitch : « Tes messages WhatsApp face aux astres. Un seul dira la vérité. » Analyse 100% locale, gratuite, FR/EN/ES.
 - Monétisation : Pack Cosmique 4,99€ (Stripe Payment Link — vérifier s'il est actif dans l'app), waitlists « pack-cosmique » et « rencontres » (Netlify Forms, dashboard Netlify → Forms).
 
