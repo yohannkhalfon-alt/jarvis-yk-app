@@ -434,6 +434,14 @@
   #imgModal .mrow2 { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
   .hnext { text-align: center; color: var(--faint); font-size: 12.5px; margin-top: 6px; line-height: 1.6; }
 
+  /* ============ waitlists (pack cosmique, rencontres) ============ */
+  .wl { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .wl input { flex: 1; min-width: 180px; background: rgba(0,0,0,.3); border: 1px solid var(--line); border-radius: 12px;
+    padding: 12px 14px; color: var(--ink); font-family: inherit; font-size: 14px; }
+  .wl input:focus { outline: none; border-color: var(--violet); }
+  .wl .btn { padding: 12px 16px; font-size: 13px; }
+  .wl-ok { margin-top: 12px; font-weight: 700; color: var(--green); font-size: 13.5px; }
+
   footer { position: relative; z-index: 1; text-align: center; padding: 30px 16px 40px; color: var(--faint); font-size: 12.5px; line-height: 1.7; }
   footer b { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
@@ -463,6 +471,14 @@
 </header>
 
 <div id="tip" role="status"></div>
+
+<!-- formulaires statiques détectés par Netlify Forms au déploiement (capture d'emails sans serveur) -->
+<form name="pack-cosmique" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="email" name="email" /><input type="text" name="lang" /><input type="text" name="bot-field" />
+</form>
+<form name="rencontres" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="email" name="email" /><input type="text" name="lang" /><input type="text" name="sign" /><input type="text" name="bot-field" />
+</form>
 
 <div id="skyload" aria-hidden="true"><div class="ring"></div><div class="line" id="skyline"></div></div>
 
@@ -574,6 +590,7 @@
     </div>
     <div class="cards" id="cards"></div>
     <div class="actions">
+      <button class="btn gold" id="btnDefi" data-i18n="defi.btn"></button>
       <button class="btn gold" id="btnImage" data-i18n="btn.image"></button>
       <button class="btn primary" id="btnShare" data-i18n="btn.share"></button>
       <button class="btn ghost" id="btnReset" data-i18n="btn.reset"></button>
@@ -1781,10 +1798,44 @@ function renderGrid(S){
     `<div class="plabel you">${YOU_W}</div><div style="font-weight:800; font-size:17px; margin:2px 0 2px;">${S.archYou.g} ${esc(S.archYou.name)}</div><p class="quip" style="margin-top:0;">${esc(S.archYou.tag)}</p>
      <div class="plabel other" style="margin-top:14px;">${oShort}</div><div style="font-weight:800; font-size:17px; margin:2px 0 2px;">${S.archOther.g} ${esc(S.archOther.name)}</div><p class="quip" style="margin-top:0;">${esc(S.archOther.tag)}</p>`));
 
+  // 🌍 vous vs le monde — percentiles estimés en local (profils types, rien n'est envoyé)
+  const pcts = [];
+  const bothResp = [py.respMedian, po.respMedian].filter(v => v != null);
+  if (bothResp.length === 2){
+    const mn = (bothResp[0] + bothResp[1]) / 2 / 60000;
+    const p = mn < 2 ? 99 : mn < 5 ? 95 : mn < 15 ? 86 : mn < 30 ? 74 : mn < 60 ? 61 : mn < 180 ? 42 : mn < 720 ? 21 : 8;
+    if (p >= 50) pcts.push(t('pct.resp', { p }));
+  }
+  const dtShare = py.doubleTexts / Math.max(1, py.msgs);
+  if (dtShare > .06) pcts.push(t('pct.dt', { p: dtShare > .2 ? 3 : dtShare > .12 ? 10 : 25 }));
+  if (S.streak >= 7) pcts.push(t('pct.streak', { p: S.streak >= 60 ? 99 : S.streak >= 30 ? 95 : S.streak >= 14 ? 85 : 70 }));
+  const perDay = S.total / Math.max(1, S.days);
+  if (perDay >= 20) pcts.push(t('pct.vol', { p: perDay >= 120 ? 98 : perDay >= 60 ? 92 : perDay >= 35 ? 80 : 65 }));
+  if (pcts.length){
+    html.push(card('astro', t('g.world.h'),
+      `<ul class="flags">${pcts.map(x => `<li><span class="fe">🏅</span><span>${esc(x)}</span></li>`).join('')}</ul>
+       <p class="quip" style="font-size:11.5px;">${t('pct.note')}</p>`));
+  }
+
+  // 🌟 pack cosmique (préinscription -50%) et 💘 waitlist rencontres — Netlify Forms
+  html.push(card('astro', t('pack.h'),
+    `<p class="quip" style="margin-top:0;">${t('pack.teaser')}</p>
+     <div class="wl" data-wl="pack-cosmique">
+       <input type="email" placeholder="${t('wl.ph')}" aria-label="email" />
+       <button class="btn gold" type="button">${t('pack.cta')}</button>
+     </div>`));
+  html.push(card('', t('meet.h'),
+    `<p class="quip" style="margin-top:0;">${t('meet.teaser', { sign: signName(A.other.sign) })}</p>
+     <div class="wl" data-wl="rencontres">
+       <input type="email" placeholder="${t('wl.ph')}" aria-label="email" />
+       <button class="btn primary" type="button">${t('meet.cta')}</button>
+     </div>`));
+
   $('#cards').innerHTML = html.join('');
   drawTimeline(S);
   drawHeatmap(S);
   drawRespChart(S);
+  bindWaitlists();
   animateIn();
   const ch = $('#cardHoro');
   ch.addEventListener('click', openHoro);
@@ -2231,6 +2282,33 @@ $('#btnDemo').addEventListener('click', () => {
 $('#btnBackHome').addEventListener('click', () => show('scr-home'));
 $('#btnReset').addEventListener('click', resetAll);
 $('#btnReplay').addEventListener('click', openStory);
+/* waitlists → Netlify Forms (POST url-encodé vers la racine du site) */
+function bindWaitlists(){
+  document.querySelectorAll('.wl').forEach(wl => {
+    const btn = wl.querySelector('button'), input = wl.querySelector('input');
+    btn.addEventListener('click', async () => {
+      const email = input.value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){
+        tipShow(t('wl.err'), innerWidth/2, innerHeight/2); setTimeout(tipHide, 1800); return;
+      }
+      const body = new URLSearchParams({ 'form-name': wl.dataset.wl, email, lang: L });
+      if (wl.dataset.wl === 'rencontres' && ASTRO) body.set('sign', ASTRO.you.sign.k);
+      try { await fetch('/', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: body.toString() }); } catch(e){ /* hors Netlify : on note quand même */ }
+      wl.innerHTML = `<p class="wl-ok">${t('wl.ok')}</p>`;
+    });
+  });
+}
+
+/* défi couple : le partage qui déclenche l'analyse en face */
+$('#btnDefi').addEventListener('click', async () => {
+  const S = LAST_STATS; if (!S) return;
+  const txt = t('defi.txt', { score: S.score, url: location.origin.startsWith('http') ? location.origin + location.pathname : 'https://jarvis-yk-app.netlify.app/astrologia/' });
+  try {
+    if (navigator.share) await navigator.share({ text: txt });
+    else { await navigator.clipboard.writeText(txt); tipShow(t('copy.done'), innerWidth/2, innerHeight/2); setTimeout(tipHide, 1600); }
+  } catch(e){ /* annulé */ }
+});
+
 $('#btnImage').addEventListener('click', downloadStoryImage);
 $('#btnShare').addEventListener('click', async () => {
   const S = LAST_STATS; if (!S) return;
