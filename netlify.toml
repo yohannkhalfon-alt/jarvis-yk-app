@@ -4,3 +4,11 @@
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
+
+# AStrologIA a déménagé sur son propre site : redirection permanente
+# des anciens liens (QR codes, partages) vers le nouveau domaine.
+[[redirects]]
+  from = "/astrologia/*"
+  to = "https://astrologia-love.netlify.app/:splat"
+  status = 301
+  force = true
