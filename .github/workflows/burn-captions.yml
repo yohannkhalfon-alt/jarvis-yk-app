@@ -1,0 +1,50 @@
+name: burn-captions
+
+# Grave les textes espagnols sur la vidéo « Osmose Virgo × Piscis »
+# (générée sur Higgsfield) et publie le résultat dans astrologia/_promo/
+# → servi par le site : https://astrologia-love.netlify.app/_promo/
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  burn:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Installer ffmpeg et polices
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+
+      - name: Graver les textes
+        run: |
+          set -euo pipefail
+          curl -sSfL "https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260820_224658_c4f95b0c-79d3-4689-af6a-46af664aee47.mp4" -o /tmp/in.mp4
+          printf 'Existe UN dúo perfecto\nen el zodiaco' > /tmp/t1.txt
+          printf 'Virgo × Piscis\nsignos exactamente opuestos' > /tmp/t2.txt
+          printf 'Y en astrología, los opuestos\nson almas espejo' > /tmp/t3.txt
+          printf '¿Vuestros mensajes lo confirman?\nAnaliza tu conversación\nGRATIS · link en bio' > /tmp/t4.txt
+          F=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf
+          COMMON="fontfile=$F:fontcolor=white:borderw=7:bordercolor=black@0.85:line_spacing=16:x=(w-text_w)/2"
+          ffmpeg -y -loglevel error -i /tmp/in.mp4 -vf "\
+            drawtext=$COMMON:fontsize=58:y=h*0.12:textfile=/tmp/t1.txt:enable='between(t,0.3,3)',\
+            drawtext=$COMMON:fontsize=58:y=h*0.12:textfile=/tmp/t2.txt:enable='between(t,3,7)',\
+            drawtext=$COMMON:fontsize=54:y=h*0.12:textfile=/tmp/t3.txt:enable='between(t,7,10)',\
+            drawtext=$COMMON:fontsize=50:y=h*0.11:textfile=/tmp/t4.txt:enable='between(t,10,13)'" \
+            -c:v libx264 -crf 20 -preset medium -pix_fmt yuv420p -movflags +faststart -c:a copy /tmp/out.mp4
+          mkdir -p astrologia/_promo
+          cp /tmp/out.mp4 "astrologia/_promo/osmosis-virgo-piscis-es.mp4"
+          ls -la astrologia/_promo/
+
+      - name: Committer
+        run: |
+          git config user.name "promo-bot"
+          git config user.email "promo-bot@users.noreply.github.com"
+          git add astrologia/_promo
+          git commit -m "Vidéo promo : Osmose Virgo × Piscis, textes ES incrustés" || echo "rien à committer"
+          git push origin main
