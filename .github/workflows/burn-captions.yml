@@ -25,22 +25,29 @@ jobs:
         run: |
           set -euo pipefail
           curl -sSfL "https://d8j0ntlcm91z4.cloudfront.net/user_3F7uFKlMKoif7n7wiaaLt70kEHz/hf_20260820_224658_c4f95b0c-79d3-4689-af6a-46af664aee47.mp4" -o /tmp/in.mp4
+          # police de la marque (Unbounded, celle des titres de l'app)
+          curl -sSfL "https://raw.githubusercontent.com/google/fonts/main/ofl/unbounded/Unbounded%5Bwght%5D.ttf" -o /tmp/Unbounded.ttf
           printf 'Existe UN dúo perfecto\nen el zodiaco' > /tmp/t1.txt
           printf 'Virgo × Piscis\nsignos exactamente opuestos' > /tmp/t2.txt
           printf 'Y en astrología, los opuestos\nson almas espejo' > /tmp/t3.txt
           printf '¿Vuestros mensajes lo confirman?\nAnaliza tu conversación\nGRATIS · link en bio' > /tmp/t4.txt
-          F=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf
-          COMMON="fontfile=$F:fontcolor=white:borderw=7:bordercolor=black@0.85:line_spacing=16:x=(w-text_w)/2"
+          F=/tmp/Unbounded.ttf
+          # doré de la marque, ombre portée douce, léger contour sombre, fondu entrée/sortie
+          GOLD="fontfile=$F:fontcolor=0xE8C56B:shadowcolor=black@0.75:shadowx=0:shadowy=4:borderw=2:bordercolor=0x0B0D1E@0.6:line_spacing=20:x=(w-text_w)/2"
+          WHITE="fontfile=$F:fontcolor=0xF4EEDF:shadowcolor=black@0.75:shadowx=0:shadowy=4:borderw=2:bordercolor=0x0B0D1E@0.6:line_spacing=18:x=(w-text_w)/2"
+          FADE1="alpha='if(lt(t,0.5),0,if(lt(t,1.0),(t-0.5)/0.5,if(gt(t,2.6),max(0,(3.0-t)/0.4),1)))'"
+          FADE2="alpha='if(lt(t,3.2),0,if(lt(t,3.7),(t-3.2)/0.5,if(gt(t,6.6),max(0,(7.0-t)/0.4),1)))'"
+          FADE3="alpha='if(lt(t,7.2),0,if(lt(t,7.7),(t-7.2)/0.5,if(gt(t,9.6),max(0,(10.0-t)/0.4),1)))'"
+          FADE4="alpha='if(lt(t,10.2),0,if(lt(t,10.7),(t-10.2)/0.5,1))'"
           ffmpeg -y -loglevel error -i /tmp/in.mp4 -vf "\
-            drawtext=$COMMON:fontsize=58:y=h*0.12:textfile=/tmp/t1.txt:enable='between(t,0.3,3)',\
-            drawtext=$COMMON:fontsize=58:y=h*0.12:textfile=/tmp/t2.txt:enable='between(t,3,7)',\
-            drawtext=$COMMON:fontsize=54:y=h*0.12:textfile=/tmp/t3.txt:enable='between(t,7,10)',\
-            drawtext=$COMMON:fontsize=50:y=h*0.11:textfile=/tmp/t4.txt:enable='between(t,10,13)'" \
+            drawtext=$GOLD:fontsize=46:y=h*0.12:textfile=/tmp/t1.txt:$FADE1,\
+            drawtext=$GOLD:fontsize=46:y=h*0.12:textfile=/tmp/t2.txt:$FADE2,\
+            drawtext=$GOLD:fontsize=42:y=h*0.12:textfile=/tmp/t3.txt:$FADE3,\
+            drawtext=$WHITE:fontsize=38:y=h*0.11:textfile=/tmp/t4.txt:$FADE4" \
             -c:v libx264 -crf 20 -preset medium -pix_fmt yuv420p -movflags +faststart -c:a copy /tmp/out.mp4
           mkdir -p astrologia/_promo
           cp /tmp/out.mp4 "astrologia/_promo/osmosis-virgo-piscis-es.mp4"
           ls -la astrologia/_promo/
-
       - name: Committer
         run: |
           git config user.name "promo-bot"
