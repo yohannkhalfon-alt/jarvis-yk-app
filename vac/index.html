@@ -394,10 +394,16 @@ async function init() {
         info.manquantes.map(m => '<code>' + m + '</code>').join(' ') +
         '<br>Voir le fichier <code>MAJVAC-SETUP.md</code> du projet pour les créer (5 min).';
     }
-    // Restaurer le dernier résultat (mode live)
+    // Au chargement (mode live) : afficher le plus récent entre le dernier scan
+    // enregistré sur l'appareil et les données publiées par JARVIS chaque matin.
+    // Un vieux scan en cache ne doit pas réafficher des jours corrigés depuis.
     try {
       const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
-      if (saved && saved.resultats) {
+      const auto = await chargerAuto(true);
+      const tsAuto = auto && auto.generated_at ? new Date(auto.generated_at).getTime() : 0;
+      if (auto && auto.centres && (!saved || !saved.ts || saved.ts < tsAuto)) {
+        appliquerAuto(auto);
+      } else if (saved && saved.resultats) {
         resultats = saved.resultats;
         centres.forEach(c => majChipDepuisResultat(c.id));
         afficherResultat(saved.periode, saved.ts);

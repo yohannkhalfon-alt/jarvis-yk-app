@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-22T05:37:42Z",
+  "generated_at": "2026-08-22T11:40:39Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -37,13 +37,6 @@
           "note": "Hajjar passé de 09h-19h à ABS (planning modifié le 03/08 au matin, constaté a posteriori)"
         },
         {
-          "date": "2026-08-24",
-          "weekday": "lundi",
-          "status": "none",
-          "hours": null,
-          "note": "Slimane ABS, autres OFF, aucun remplaçant"
-        },
-        {
           "date": "2026-10-09",
           "weekday": "vendredi",
           "status": "none",
@@ -59,6 +52,7 @@
         }
       ],
       "notes": [
+        "Lun 24/08 : centre fermé (décision du 22/08 — Slimane ABS, aucun remplaçant trouvé) — réouverture mardi 25/08 avec Papapostolou 09h-19h",
         "Sam 01/08 : le Dr Slim (prévu 09h-19h) n'est pas venu — passé en ABS dans le planning le 01/08",
         "Jeu 06/08 : désormais couvert par le Dr Bafjaish 09h-19h (ajouté au planning le 03/08 — Slimane et Papapostolou restent ABS)",
         "Ven 28 et sam 29/08 : couverts par le Dr Charakidas 9h-19h (CDD du 06/08, remplacement Slimane) — planning corrigé le 07/08",
