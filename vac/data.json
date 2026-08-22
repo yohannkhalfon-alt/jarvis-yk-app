@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-21T05:35:39Z",
+  "generated_at": "2026-08-22T05:37:42Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -108,11 +108,20 @@
           "status": "none",
           "hours": null,
           "note": "Adalla passée en ABS (modif planning du 06/08), Sebe ABS, Slimane OFF — Faiza/Vanaja/Le Bras présents"
+        },
+        {
+          "date": "2026-10-12",
+          "weekday": "lundi",
+          "status": "none",
+          "hours": null,
+          "note": "Adalla passée en ABS (modif planning du 21/08), Sebe ABS, Slimane et Di Clémente OFF — le personnel non-ophta travaille"
         }
       ],
       "notes": [
         "Semaines du 10 au 22/08 non renseignées dans le planning",
-        "Lun 21/09 : centre fermé (Kippour)"
+        "Lun 21/09 : centre fermé (Kippour)",
+        "Sam 03/10 : désormais couvert par Adalla 09h-19h (la ligne Di Clémente a été retirée — modif du 21/08)",
+        "Sam 17/10 : Adalla ET Di Clémente notés 09h-19h le même jour (modif du 21/08) — or Di Clémente est désormais planifié à Antony ce jour-là : sa ligne Tremblay semble être un reliquat à nettoyer, à vérifier avec le centre"
       ]
     },
     "sartrouville": {
@@ -157,7 +166,7 @@
         "Centre ajouté au suivi le 30/07 (dossier Dropbox PLANNING ANTONY partagé le 27/07)",
         "Semaines du 10 au 22/08 non renseignées dans le planning (fermeture estivale ?)",
         "Lun 21/09 : centre fermé (Kippour)",
-        "Dr Vo Viet Anh assure les samedis 03/10 et 17/10 — les autres samedis d'octobre restent sans ophta",
+        "Samedis 03/10 et 17/10 : désormais assurés par le Dr Di Clémente 09h-19h (remplace le Dr Vo Viet Anh — modif planning du 21/08) ; les autres samedis d'octobre restent sans ophta",
         "Ligne « Slim » ajoutée au bloc ophta du planning d'août pour les semaines du 10 au 22/08, encore sans horaires (modif du 03/08)",
         "Ven 18/09, 25/09 et 02/10 : désormais couverts par Alessandro 09h-18h30 (modif plannings du 06/08)"
       ]
