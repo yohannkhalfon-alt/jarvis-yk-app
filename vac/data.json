@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-22T11:40:39Z",
+  "generated_at": "2026-08-23T05:36:45Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -108,14 +108,14 @@
           "weekday": "lundi",
           "status": "none",
           "hours": null,
-          "note": "Adalla passée en ABS (modif planning du 21/08), Sebe ABS, Slimane et Di Clémente OFF — le personnel non-ophta travaille"
+          "note": "Adalla passée en ABS (modif planning du 21/08), Sebe ABS, Slimane OFF — le personnel non-ophta travaille"
         }
       ],
       "notes": [
         "Semaines du 10 au 22/08 non renseignées dans le planning",
         "Lun 21/09 : centre fermé (Kippour)",
-        "Sam 03/10 : désormais couvert par Adalla 09h-19h (la ligne Di Clémente a été retirée — modif du 21/08)",
-        "Sam 17/10 : Adalla ET Di Clémente notés 09h-19h le même jour (modif du 21/08) — or Di Clémente est désormais planifié à Antony ce jour-là : sa ligne Tremblay semble être un reliquat à nettoyer, à vérifier avec le centre"
+        "Semaine du 01 au 05/09 : Adalla désormais ABS toute la semaine (modif du 22/08) — Slimane couvre mer 02 et jeu 03, Clemente le sam 05 ; mar 01 et ven 04 restent sans ophta",
+        "Samedis 03/10 et 17/10 : couverts par Adalla 09h-19h (la ligne Di Clémente a été retirée du planning d'octobre — modif du 21/08 ; correction du 23/08 : l'alerte « double couverture le 17/10 » signalée la veille était erronée)"
       ]
     },
     "sartrouville": {
