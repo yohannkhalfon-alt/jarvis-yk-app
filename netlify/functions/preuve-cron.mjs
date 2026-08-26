@@ -71,4 +71,8 @@ export default async () => {
   return new Response(JSON.stringify(bilan), { headers: { "content-type": "application/json" } });
 };
 
-export const config = { path: "/api/preuve-cron", schedule: "*/15 * * * *" };
+// Fonction planifiée : Netlify interdit d'y associer un chemin HTTP public.
+// Déclenchement manuel possible via /.netlify/functions/preuve-cron (Netlify UI),
+// et la reprise d'un dossier précis reste accessible par
+// POST /api/sign {action:"reprise-horodatage", id} (réservé à l'admin).
+export const config = { schedule: "*/15 * * * *" };
