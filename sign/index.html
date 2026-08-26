@@ -116,6 +116,21 @@
       <input type="date" id="dateImposee" style="width:auto; padding:6px 10px; font-size:14px;" disabled />
     </label>
     <div class="hint">Si coché, c'est cette date qui apparaîtra près des signatures (« Fait le … ») — le signataire ne pourra pas la changer. Sinon, le signataire choisit sa date.</div>
+    <label class="opt" style="margin-top:14px;"><input type="checkbox" id="optPreuve" /> <b>Mode RH — dossier de preuve légal</b> (contrats, avenants, ruptures)</label>
+    <div id="blocPreuve" style="display:none; border:1px solid var(--line); border-radius:12px; padding:14px; margin-top:8px;">
+      <div class="hint">Vérification d'identité par SMS, horodatage qualifié RFC 3161, clause d'acceptation expresse et dossier de preuve exportable. Un numéro de mobile est requis pour chaque signataire.</div>
+      <label>Type de document</label>
+      <select id="preuveType" style="width:100%; background:rgba(4,6,12,.6); border:1px solid var(--line); border-radius:10px; color:var(--txt); font-family:inherit; font-size:15px; padding:10px 12px; outline:none;">
+        <option value="contrat_travail">Contrat de travail</option>
+        <option value="avenant">Avenant au contrat de travail</option>
+        <option value="renouvellement_essai">Renouvellement de période d'essai</option>
+        <option value="rupture_conventionnelle">Rupture conventionnelle</option>
+        <option value="note_service">Note de service / document informatif</option>
+      </select>
+      <label>Entité juridique émettrice</label>
+      <input type="text" id="preuveEmetteur" placeholder="Ex : SAS COKEYA" maxlength="120" />
+      <div id="preuveVars"></div>
+    </div>
     <label>Signataires</label>
     <div id="signataires"></div>
     <button class="small" id="addSigner">+ Ajouter un signataire</button>
@@ -177,12 +192,34 @@ function ligneSigner(nom = '', email = '') {
   div.className = 'row';
   div.innerHTML = '<input type="text" placeholder="Nom du signataire" class="s-nom" maxlength="80" />' +
                   '<input type="email" placeholder="Email (facultatif)" class="s-email" maxlength="120" />' +
+                  '<input type="tel" placeholder="Mobile (06…)" class="s-tel" maxlength="20" style="display:none; max-width:150px;" />' +
                   '<button class="small s-del" title="Retirer">✕</button>';
   div.querySelector('.s-nom').value = nom;
   div.querySelector('.s-email').value = email;
   div.querySelector('.s-del').onclick = () => { if ($('#signataires').children.length > 1) div.remove(); };
   $('#signataires').appendChild(div);
+  div.querySelector('.s-tel').style.display = $('#optPreuve').checked ? '' : 'none';
 }
+
+// ---- mode RH : champs mobile + variables de clause ----
+const VARS_CLAUSE = {
+  renouvellement_essai: [['DURÉE', 'Ex : 3 mois'], ['DATE FIN', 'Ex : 30 novembre 2026']],
+  avenant: [['DATE EFFET', 'Ex : 1er septembre 2026']],
+  contrat_travail: [], rupture_conventionnelle: [], note_service: [],
+};
+function majVarsClause() {
+  const champs = VARS_CLAUSE[$('#preuveType').value] || [];
+  $('#preuveVars').innerHTML = champs.map(([cle, ph]) =>
+    '<label>' + echap(cle) + '</label><input type="text" class="p-var" data-cle="' + echap(cle) + '" placeholder="' + echap(ph) + '" maxlength="80" />').join('');
+}
+function majModePreuve() {
+  const actif = $('#optPreuve').checked;
+  $('#blocPreuve').style.display = actif ? '' : 'none';
+  document.querySelectorAll('.s-tel').forEach((i) => { i.style.display = actif ? '' : 'none'; });
+  if (actif) majVarsClause();
+}
+$('#optPreuve').onchange = majModePreuve;
+$('#preuveType').onchange = majVarsClause;
 ligneSigner();
 $('#addSigner').onclick = () => { if ($('#signataires').children.length < 8) ligneSigner(); };
 
@@ -293,6 +330,7 @@ $('#creer').onclick = async () => {
   const signers = [...document.querySelectorAll('#signataires .row')].map((r) => ({
     name: r.querySelector('.s-nom').value.trim(),
     email: r.querySelector('.s-email').value.trim(),
+    tel: r.querySelector('.s-tel').value.trim(),
   })).filter((s) => s.name);
   if (!titre || !fichier || !signers.length) { msg.className = 'msg err'; msg.textContent = 'Titre, PDF et au moins un signataire (avec nom) requis.'; return; }
   if (fichier.size > 10 * 1024 * 1024) { msg.className = 'msg err'; msg.textContent = 'PDF trop lourd (max 10 Mo). Compresse-le d’abord (ex : ilovepdf.com).'; return; }
@@ -311,6 +349,19 @@ $('#creer').onclick = async () => {
       paraphe: $('#optParaphe').checked,
     };
     if ($('#optDate').checked && $('#dateImposee').value) corps.dateImposee = $('#dateImposee').value;
+    if ($('#optPreuve').checked) {
+      const vars = {};
+      document.querySelectorAll('.p-var').forEach((i) => { vars[i.dataset.cle] = i.value.trim(); });
+      const manquante = [...document.querySelectorAll('.p-var')].find((i) => !i.value.trim());
+      if (manquante) { msg.className = 'msg err'; msg.textContent = 'Renseignez « ' + manquante.dataset.cle +' » (utilisé dans la clause d’acceptation).'; $('#creer').disabled = false; return; }
+      if (signers.some((s) => !s.tel)) { msg.className = 'msg err'; msg.textContent = 'Mode RH : un numéro de mobile est requis pour chaque signataire (vérification SMS).'; $('#creer').disabled = false; return; }
+      corps.preuve = {
+        type: $('#preuveType').value,
+        emetteur: $('#preuveEmetteur').value.trim(),
+        gestionnaire: fromEmail,
+        vars,
+      };
+    }
     if (positions.length) corps.positions = positions;
     const poster = (b) => api('/api/sign', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(b) });
     const MORCEAU = 2 * 1024 * 1024;
@@ -378,6 +429,9 @@ async function chargerListe() {
       '<span class="date">' + new Date(e.createdAt).toLocaleDateString('fr-FR') + '</span>' +
       '</div>' +
       (e.fromEmail ? '<div class="hint">📤 Boîte d’envoi : ' + echap(e.fromEmail) + notifTxt(e) + '</div>' : '') +
+      (e.preuve ? '<div class="hint">⚖ Dossier de preuve — ' + echap(e.preuve.type.replace(/_/g, ' ')) +
+        (e.preuve.finaliseLe ? ' · horodaté RFC 3161 · UUID ' + echap((e.preuve.uuid || '').slice(0, 8)) : '') +
+        (e.status === 'attente_horodatage' ? ' · <span style="color:#f5c542;">horodatage en attente (reprise automatique)</span>' : '') + '</div>' : '') +
       (((e.mentions || []).length || e.paraphe || e.dateImposee) ? '<div class="hint">📋 ' + [...(e.mentions || []), e.paraphe ? 'Paraphe chaque page' : null, e.dateImposee ? 'Fait le ' + e.dateImposee.split('-').reverse().join('/') : null].filter(Boolean).join(' · ') + '</div>' : '') +
       e.signers.map((s) => '<div class="sgn"><span class="nm">' + echap(s.name) + '</span>' +
         '<span class="st ' + s.status + '">' + (s.status === 'signe' ? '✓ Signé' : '⏳ En attente') + '</span>' +
@@ -385,7 +439,8 @@ async function chargerListe() {
         '</div>').join('') +
       '<div style="margin-top:10px; display:flex; gap:6px; flex-wrap:wrap;"><button class="small" onclick="telecharger(\'' + e.id + '\', \'' + e.signers[0].token + '\')">' +
       (e.status === 'complet' ? '⬇ Télécharger le PDF signé' : '⬇ Voir le PDF (état actuel)') + '</button>' +
-      '<button class="small danger" onclick="supprimer(\'' + e.id + '\', \'' + echap(e.title).replace(/'/g, "\\'") + '\')">🗑 Supprimer</button></div>' +
+      (e.preuve && e.preuve.finaliseLe ? '<button class="small" onclick="dossierPreuve(\'' + e.id + '\')">⚖ Dossier de preuve</button>' : '') +
+      '<button class="small danger" onclick="supprimer(\'' + e.id + '\', \'' + echap(e.title).replace(/'/g, "\\'") + '\')">🗑 ' + (e.preuve && e.preuve.finaliseLe ? 'Annuler' : 'Supprimer') + '</button></div>' +
       '</div>'
     ).join('');
   } catch (e) {
@@ -418,6 +473,15 @@ async function supprimer(id, titre) {
     });
     chargerListe();
   } catch (e) { alert(e.message); }
+}
+
+async function dossierPreuve(id) {
+  const res = await fetch('/api/sign?id=' + id + '&preuve=1', { headers: adminCode ? { 'x-sign-code': adminCode } : {} });
+  if (!res.ok) { alert('Dossier indisponible : ' + ((await res.json().catch(() => ({}))).error || res.status)); return; }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(await res.blob());
+  a.download = 'DossierPreuve-' + id + '.pdf';
+  a.click();
 }
 
 async function telecharger(id, token) {
