@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-26T05:34:50Z",
+  "generated_at": "2026-08-27T05:35:30Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -120,10 +120,18 @@
     },
     "sartrouville": {
       "label": "SARTROUVILLE",
-      "days": [],
+      "days": [
+        {
+          "date": "2026-09-02",
+          "weekday": "mercredi",
+          "status": "none",
+          "hours": null,
+          "note": "Addala ABS — contradiction août/septembre tranchée le 26/08 (les deux fichiers disent désormais ABS) ; Papapostolou/Slimane/Saade/Chahine OFF, personnel présent"
+        }
+      ],
       "notes": [
         "Sam 29/08 : désormais couvert par le Dr Fdili 9h-19h (ajouté au planning le 14/08 — Slimane reste ABS)",
-        "Mer 02/09 : contradiction toujours pas résolue — les deux fichiers ont encore été retouchés le 25/08 et disent toujours l'inverse (août : Addala présente ; septembre : ABS). Jour non compté, à trancher avec le centre",
+        "Mer 02/09 : contradiction résolue le 26/08 — Addala désormais ABS dans les deux fichiers → jour ajouté aux jours sans ophta",
         "Mar 04/08 : couvert par le Dr Slim 09h-19h (ajouté au planning le 28/07)",
         "Jeu 27/08 : couvert par le Dr Diop 09h-19h (ajouté au planning le 28/07)",
         "Fermeture annoncée du 10 au 22/08 (note du planning) mais lignes encore remplies — à confirmer",
