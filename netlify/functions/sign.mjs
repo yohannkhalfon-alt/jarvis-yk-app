@@ -261,7 +261,7 @@ async function envoyerCopies(store, env, origin) {
           htmlContent:
             `<p>Bonjour ${echapHtml(s.name)},</p>` +
             `<p>Vous trouverez en pièce jointe votre exemplaire du document <b>${echapHtml(env.title)}</b> (${echapHtml(nature)}), signé le ${preuve.dateFrEtUtc(env.preuve.finaliseLe)}.</p>` +
-            `<p><b>Conservez ce document.</b> En cas de besoin, vous pouvez aussi le retélécharger pendant 90 jours depuis votre lien de signature (un code SMS vous sera demandé).</p>`,
+            `<p><b>Conservez ce document.</b> En cas de besoin, vous pouvez aussi le retélécharger pendant 90 jours depuis votre lien de signature (un code de vérification vous sera demandé).</p>`,
           attachment: [{ name: env.title.replace(/[^\w. -]/g, "_") + "-signe.pdf", content: pdfFinal.toString("base64") }],
         }),
       });
@@ -328,7 +328,7 @@ const vueSignataire = (env, idx) => ({
   preuveMode: Boolean(env.preuve),
   docType: env.preuve ? (preuve.TYPES_DOCUMENT[env.preuve.type] || env.preuve.type) : null,
   clauseTexte: env.preuve ? env.signers[idx].clauseTexte || null : null,
-  telMasque: env.preuve ? preuve.masquerTel(env.signers[idx].tel) : null,
+  emailMasque: env.preuve ? preuve.masquerEmail(env.signers[idx].email) : null,
   otpEnvois: env.preuve ? (env.signers[idx].otp?.envois || 0) : 0,
   finalise: Boolean(env.preuve?.finaliseLe),
   id: env.id,
@@ -380,7 +380,7 @@ export default async (req) => {
         if (env.preuve) {
           // Mode probatoire : lecture bufferisée (déchiffrement + contrôle d'empreinte)
           if (env.preuve.finaliseLe && idx >= 0 && !dlOk && !adminOk(req))
-            return json({ error: "Document finalisé : utilisez le téléchargement sécurisé par code SMS" }, 403);
+            return json({ error: "Document finalisé : utilisez le lien reçu par email ou demandez une copie au gestionnaire" }, 403);
           const estSigne = Boolean(await store.get(`signed/${id}`, { type: "arrayBuffer" })) || env.preuve.finaliseLe;
           const octets = estSigne ? await lireSigne(store, env) : await lireOriginal(store, env);
           if (!octets) return json({ error: "PDF introuvable" }, 404);
@@ -533,9 +533,9 @@ export default async (req) => {
           retentionJours: Math.max(30, Number(body.preuve.retentionJours) || preuve.RETENTION_DEFAUT[body.preuve.type]),
         };
         for (let i = 0; i < env.signers.length; i++) {
-          const tel = preuve.normaliserTel((signers[i] || {}).tel);
-          if (!tel) return json({ error: `Numéro de mobile invalide pour ${env.signers[i].name} (format 06… ou +33…) : requis pour l'OTP SMS` }, 400);
-          env.signers[i].tel = tel;
+          // Module 1 : le code de vérification part par email → adresse obligatoire
+          if (!/^[^@\s]+@[^@\s.]+\.[^@\s]+$/.test(env.signers[i].email || ""))
+            return json({ error: `Adresse email valide requise pour ${env.signers[i].name} : elle reçoit le code de vérification` }, 400);
           try {
             // substitution côté serveur ; toute variable restante est bloquante
             env.signers[i].clauseTexte = preuve.rendreClause(clause.texte, { "NOM PRÉNOM": env.signers[i].name, ...(body.preuve.vars || {}) });
@@ -574,7 +574,7 @@ export default async (req) => {
         if (!preuve.mentionConforme(body.mentionTapee))
           return json({ error: `Saisissez exactement la mention « ${preuve.MENTION_ATTENDUE} »` }, 400);
         // Module 1 : validation OTP obligatoire
-        if (!s.otp?.hash) return json({ error: "Demandez d'abord votre code SMS" }, 400);
+        if (!s.otp?.hash) return json({ error: "Demandez d'abord votre code de vérification" }, 400);
         if (new Date(s.otp.exp) < new Date()) {
           await preuve.journaliser(store, id, "otp_tentative", { signataire: s.name, resultat: "echec (code expiré)" });
           await store.setJSON(`env/${id}.json`, env);
@@ -629,42 +629,42 @@ export default async (req) => {
       return json(vueSignataire(env, idx));
     }
 
-    // --- Module 1 : demande d'un code OTP par SMS ---
+    // --- Module 1 : demande d'un code de vérification (envoyé par email) ---
     if (body.action === "otp") {
       const env = await store.get(`env/${body.id}.json`, { type: "json" });
       if (!env) return json({ error: "Demande introuvable" }, 404);
       const idx = env.signers.findIndex((s) => s.token === body.token);
       if (idx < 0) return json({ error: "Lien invalide" }, 403);
-      if (!env.preuve) return json({ error: "Cette demande n'utilise pas la vérification SMS" }, 400);
+      if (!env.preuve) return json({ error: "Cette demande n'utilise pas la vérification par code" }, 400);
       const s = env.signers[idx];
       if (s.status === "signe") return json({ error: "Vous avez déjà signé ce document" }, 409);
       s.otp = s.otp || { envois: 0, tentatives: 0 };
       if (s.otp.envois >= 5) {
         await preuve.journaliser(store, body.id, "incident", { signataire: s.name, detail: "5 envois OTP atteints : blocage" });
         await preuve.alerter(env.fromEmail, "Blocage OTP — " + env.title,
-          `<p><b>${echapHtml(s.name)}</b> a atteint la limite de 5 envois de code SMS. Vérifiez son numéro (${preuve.masquerTel(s.tel)}) ou organisez une signature en présentiel.</p>`);
+          `<p><b>${echapHtml(s.name)}</b> a atteint la limite de 5 envois de code. Vérifiez son adresse (${preuve.masquerEmail(s.email)}) ou organisez une signature en présentiel.</p>`);
         await store.setJSON(`env/${body.id}.json`, env);
         return json({ error: "Limite de 5 envois atteinte : le gestionnaire a été alerté" }, 429);
       }
       const code = preuve.genererOtp();
       try {
-        const envoi = await preuve.envoyerSms(s.tel, `JARVIS SIGN : votre code de signature est ${code}. Valable 10 minutes.`);
+        const envoi = await preuve.envoyerOtpEmail(s.email, code, env.title, process.env.BREVO_FROM || env.fromEmail);
         s.otp.hash = preuve.hasherOtp(code); // jamais en clair
         s.otp.exp = new Date(Date.now() + 10 * 60000).toISOString();
         s.otp.tentatives = 0;
         s.otp.envois += 1;
         s.otp.messageId = envoi.messageId;
         s.otp.statutLivraison = envoi.statut;
-        await preuve.journaliser(store, body.id, "otp_envoi", { signataire: s.name, messageId: envoi.messageId, detail: preuve.masquerTel(s.tel) });
+        await preuve.journaliser(store, body.id, "otp_envoi", { signataire: s.name, messageId: envoi.messageId, detail: preuve.masquerEmail(s.email) });
         await store.setJSON(`env/${body.id}.json`, env);
-        return json({ envoye: true, telMasque: preuve.masquerTel(s.tel), envois: s.otp.envois });
+        return json({ envoye: true, emailMasque: preuve.masquerEmail(s.email), envois: s.otp.envois });
       } catch (e) {
         s.otp.statutLivraison = "echec";
         await preuve.journaliser(store, body.id, "otp_livraison", { signataire: s.name, statut: "echec", detail: String(e.message || e).slice(0, 160) });
-        await preuve.alerter(env.fromEmail, "Échec d'envoi du code SMS — " + env.title,
-          `<p>Le code SMS n'a pas pu être envoyé à <b>${echapHtml(s.name)}</b> (${preuve.masquerTel(s.tel)}).</p><p>Motif : ${echapHtml(String(e.message || e).slice(0, 200))}</p>`);
+        await preuve.alerter(env.fromEmail, "Échec d'envoi du code de vérification — " + env.title,
+          `<p>Le code n'a pas pu être envoyé à <b>${echapHtml(s.name)}</b> (${preuve.masquerEmail(s.email)}).</p><p>Motif : ${echapHtml(String(e.message || e).slice(0, 200))}</p>`);
         await store.setJSON(`env/${body.id}.json`, env);
-        return json({ error: "Échec d'envoi du SMS : le gestionnaire a été alerté" }, 502);
+        return json({ error: "Échec d'envoi du code : le gestionnaire a été alerté" }, 502);
       }
     }
 

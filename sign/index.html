@@ -118,7 +118,7 @@
     <div class="hint">Si coché, c'est cette date qui apparaîtra près des signatures (« Fait le … ») — le signataire ne pourra pas la changer. Sinon, le signataire choisit sa date.</div>
     <label class="opt" style="margin-top:14px;"><input type="checkbox" id="optPreuve" /> <b>Mode RH — dossier de preuve légal</b> (contrats, avenants, ruptures)</label>
     <div id="blocPreuve" style="display:none; border:1px solid var(--line); border-radius:12px; padding:14px; margin-top:8px;">
-      <div class="hint">Vérification d'identité par SMS, horodatage qualifié RFC 3161, clause d'acceptation expresse et dossier de preuve exportable. Un numéro de mobile est requis pour chaque signataire.</div>
+      <div class="hint">Vérification d'identité par code email, horodatage RFC 3161, clause d'acceptation expresse et dossier de preuve exportable. Une adresse email est requise pour chaque signataire : elle reçoit le code de vérification.</div>
       <label>Type de document</label>
       <select id="preuveType" style="width:100%; background:rgba(4,6,12,.6); border:1px solid var(--line); border-radius:10px; color:var(--txt); font-family:inherit; font-size:15px; padding:10px 12px; outline:none;">
         <option value="contrat_travail">Contrat de travail</option>
@@ -192,13 +192,11 @@ function ligneSigner(nom = '', email = '') {
   div.className = 'row';
   div.innerHTML = '<input type="text" placeholder="Nom du signataire" class="s-nom" maxlength="80" />' +
                   '<input type="email" placeholder="Email (facultatif)" class="s-email" maxlength="120" />' +
-                  '<input type="tel" placeholder="Mobile (06…)" class="s-tel" maxlength="20" style="display:none; max-width:150px;" />' +
                   '<button class="small s-del" title="Retirer">✕</button>';
   div.querySelector('.s-nom').value = nom;
   div.querySelector('.s-email').value = email;
   div.querySelector('.s-del').onclick = () => { if ($('#signataires').children.length > 1) div.remove(); };
   $('#signataires').appendChild(div);
-  div.querySelector('.s-tel').style.display = $('#optPreuve').checked ? '' : 'none';
 }
 
 // ---- mode RH : champs mobile + variables de clause ----
@@ -215,7 +213,6 @@ function majVarsClause() {
 function majModePreuve() {
   const actif = $('#optPreuve').checked;
   $('#blocPreuve').style.display = actif ? '' : 'none';
-  document.querySelectorAll('.s-tel').forEach((i) => { i.style.display = actif ? '' : 'none'; });
   if (actif) majVarsClause();
 }
 $('#optPreuve').onchange = majModePreuve;
@@ -330,7 +327,6 @@ $('#creer').onclick = async () => {
   const signers = [...document.querySelectorAll('#signataires .row')].map((r) => ({
     name: r.querySelector('.s-nom').value.trim(),
     email: r.querySelector('.s-email').value.trim(),
-    tel: r.querySelector('.s-tel').value.trim(),
   })).filter((s) => s.name);
   if (!titre || !fichier || !signers.length) { msg.className = 'msg err'; msg.textContent = 'Titre, PDF et au moins un signataire (avec nom) requis.'; return; }
   if (fichier.size > 10 * 1024 * 1024) { msg.className = 'msg err'; msg.textContent = 'PDF trop lourd (max 10 Mo). Compresse-le d’abord (ex : ilovepdf.com).'; return; }
@@ -354,7 +350,7 @@ $('#creer').onclick = async () => {
       document.querySelectorAll('.p-var').forEach((i) => { vars[i.dataset.cle] = i.value.trim(); });
       const manquante = [...document.querySelectorAll('.p-var')].find((i) => !i.value.trim());
       if (manquante) { msg.className = 'msg err'; msg.textContent = 'Renseignez « ' + manquante.dataset.cle +' » (utilisé dans la clause d’acceptation).'; $('#creer').disabled = false; return; }
-      if (signers.some((s) => !s.tel)) { msg.className = 'msg err'; msg.textContent = 'Mode RH : un numéro de mobile est requis pour chaque signataire (vérification SMS).'; $('#creer').disabled = false; return; }
+      if (signers.some((s) => !s.email)) { msg.className = 'msg err'; msg.textContent = 'Mode RH : une adresse email est requise pour chaque signataire (elle reçoit le code de vérification).'; $('#creer').disabled = false; return; }
       corps.preuve = {
         type: $('#preuveType').value,
         emetteur: $('#preuveEmetteur').value.trim(),

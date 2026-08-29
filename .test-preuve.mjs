@@ -1,5 +1,5 @@
 // Tests du module « dossier de preuve légal » (spec v1.0).
-// Couvre : unités (OTP, E.164, clauses, DER RFC 3161, chiffrement) et
+// Couvre : unités (OTP, masquage email, clauses, DER RFC 3161, chiffrement) et
 // intégration de bout en bout (parcours complet de signature probatoire),
 // avec un faux Brevo + une fausse TSA locale, puis un test d'intégration
 // avec l'autorité RÉELLE (DFN) si le réseau l'autorise.
@@ -22,17 +22,16 @@ process.env.BREVO_API_KEY = "cle-test";
 process.env.BREVO_FROM = "direction@test.fr";
 process.env.PREUVE_CLE_AES = "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff";
 
-let echecs = 0, smsEnvoyes = [], emailsEnvoyes = [];
+let echecs = 0, emailsEnvoyes = [];
 const ok = (label, cond) => { console.log(cond ? "✔" : "✘ ÉCHEC", label); if (!cond) echecs++; };
 
-// ---- faux Brevo (SMS + email) ----
+// ---- faux Brevo (emails : codes de vérification, copies, alertes) ----
 const brevo = createServer((req, res) => {
   let body = "";
   req.on("data", (c) => (body += c));
   req.on("end", () => {
     const j = JSON.parse(body || "{}");
-    if (req.url.includes("transactionalSMS")) { smsEnvoyes.push(j); res.writeHead(201, { "content-type": "application/json" }); res.end(JSON.stringify({ messageId: "sms-" + smsEnvoyes.length })); }
-    else { emailsEnvoyes.push(j); res.writeHead(201, { "content-type": "application/json" }); res.end(JSON.stringify({ messageId: "mail-" + emailsEnvoyes.length })); }
+    emailsEnvoyes.push(j); res.writeHead(201, { "content-type": "application/json" }); res.end(JSON.stringify({ messageId: "mail-" + emailsEnvoyes.length }));
   });
 });
 await new Promise((r) => brevo.listen(8978, r));
@@ -111,9 +110,8 @@ ok("OTP : 6 chiffres, CSPRNG, non répétitif", [...codes].every((c) => /^\d{6}$
 const h = P.hasherOtp("123456");
 ok("OTP : hash bcrypt, jamais en clair", h.startsWith("$2") && !h.includes("123456"));
 ok("OTP : vérification correcte", P.verifierOtp("123456", h) && !P.verifierOtp("123457", h));
-ok("E.164 : 0612345678 → +33612345678", P.normaliserTel("06 12 34 56 78") === "+33612345678");
-ok("E.164 : numéro invalide rejeté", P.normaliserTel("12345") === null);
-ok("Masquage : +336******78", P.masquerTel("+33612345678") === "+336******78");
+ok("Masquage email : nom conservé partiellement", P.masquerEmail("marie.martin@test.fr") === "m******n@test.fr");
+ok("Masquage email : adresse vide tolérée", P.masquerEmail("") === "");
 
 // Module 3 — chiffrement
 const clair = Buffer.from("document confidentiel");
@@ -144,14 +142,14 @@ const pdfB64 = Buffer.from(await doc.save()).toString("base64");
 let res = await appel("POST", "/api/sign", {
   action: "create", title: "Contrat de travail — Marie Martin", pdfBase64: pdfB64,
   fromEmail: "direction@test.fr",
-  signers: [{ name: "Marie Martin", email: "marie@test.fr", tel: "0612345678" }],
+  signers: [{ name: "Marie Martin", email: "marie@test.fr" }],
   preuve: { type: "contrat_travail", emetteur: "SAS COKEYA", gestionnaire: "yohann@test.fr" },
 }, { "x-sign-code": "secret42" });
 const env = (await res.json()).envelope;
 ok("Création probatoire acceptée", res.status === 200 && env.preuve?.chiffre === true);
 ok("Empreinte source enregistrée", /^[0-9a-f]{64}$/.test(env.preuve.hashSource));
 ok("Clause substituée et versionnée", env.signers[0].clauseTexte.includes("Marie Martin") && env.signers[0].clauseVersion === 1);
-ok("Téléphone normalisé E.164", env.signers[0].tel === "+33612345678");
+ok("Email du signataire conservé", env.signers[0].email === "marie@test.fr");
 
 // PDF chiffré au repos
 const brut = await fetch("http://localhost:8977/test/sign/pdf%2F" + env.id, { headers: { authorization: "Bearer tok" } }).then((r) => r.arrayBuffer()).catch(() => null);
@@ -159,10 +157,10 @@ ok("PDF chiffré au repos (pas de %PDF en clair)", brut ? !Buffer.from(brut).sub
 
 // Création sans téléphone → refus
 res = await appel("POST", "/api/sign", {
-  action: "create", title: "Sans tel", pdfBase64: pdfB64, signers: [{ name: "X" }],
-  preuve: { type: "avenant" },
+  action: "create", title: "Sans email", pdfBase64: pdfB64, signers: [{ name: "X" }],
+  preuve: { type: "avenant", vars: { "DATE EFFET": "01/09/2026" } },
 }, { "x-sign-code": "secret42" });
-ok("Création refusée sans mobile valide", res.status === 400);
+ok("Création refusée sans email valide", res.status === 400);
 
 const tok = env.signers[0].token;
 const q = `?id=${env.id}&token=${tok}`;
@@ -183,8 +181,10 @@ ok("Signature refusée sans OTP demandé", res.status === 400);
 
 // Envoi OTP
 res = await appel("POST", "/api/sign", { action: "otp", id: env.id, token: tok });
-ok("OTP envoyé par SMS", res.status === 200 && smsEnvoyes.length === 1 && smsEnvoyes[0].recipient === "+33612345678");
-const codeReel = smsEnvoyes[0].content.match(/(\d{6})/)[1];
+const mailsOtp = () => emailsEnvoyes.filter((e) => /code de signature/i.test(e.subject || ""));
+ok("Code envoyé par email au signataire", res.status === 200 && mailsOtp().length === 1 && mailsOtp()[0].to[0].email === "marie@test.fr");
+ok("Code visible uniquement dans l'email du signataire", /Votre code de signature : \d{6}/.test(mailsOtp()[0].subject));
+const codeReel = mailsOtp()[0].subject.match(/(\d{6})/)[1];
 
 // Portes du Module 6
 res = await signer({ otp: codeReel, mentionTapee: "Bon pour accord" });
@@ -204,7 +204,7 @@ ok("OTP : code invalidé refusé même s'il était correct", res.status === 400)
 
 // Nouveau code, puis signature réussie
 await appel("POST", "/api/sign", { action: "otp", id: env.id, token: tok });
-const code2 = smsEnvoyes[1].content.match(/(\d{6})/)[1];
+const code2 = mailsOtp()[1].subject.match(/(\d{6})/)[1];
 res = await signer({ otp: code2, clauseAcceptee: true, mentionTapee: "bon pour accord", ecran: "412x915 mobile" });
 const vue = await res.json();
 ok("Signature acceptée (OTP + clause + mention)", res.status === 200 && vue.moi?.status === "signe" && vue.status === "complet");
@@ -261,13 +261,13 @@ console.log("\n=== INTÉGRATION : panne de l'autorité d'horodatage ===");
 tsaEnPanne = true;
 res = await appel("POST", "/api/sign", {
   action: "create", title: "Avenant — Test panne", pdfBase64: pdfB64, fromEmail: "direction@test.fr",
-  signers: [{ name: "Paul Durand", email: "paul@test.fr", tel: "0698765432" }],
+  signers: [{ name: "Paul Durand", email: "paul@test.fr" }],
   preuve: { type: "avenant", vars: { "DATE EFFET": "01/09/2026" } },
 }, { "x-sign-code": "secret42" });
 const env2 = (await res.json()).envelope;
 const tok2 = env2.signers[0].token;
 await appel("POST", "/api/sign", { action: "otp", id: env2.id, token: tok2 });
-const code3 = smsEnvoyes[smsEnvoyes.length - 1].content.match(/(\d{6})/)[1];
+const code3 = mailsOtp()[mailsOtp().length - 1].subject.match(/(\d{6})/)[1];
 res = await appel("POST", "/api/sign", { action: "sign", id: env2.id, token: tok2, signaturePng: png, consent: true, mentionsAccepted: true, otp: code3, clauseAcceptee: true, mentionTapee: "Bon pour accord" });
 const vue2 = await res.json();
 ok("Panne TSA : statut EN_ATTENTE_HORODATAGE, pas 'complet'", vue2.status === "attente_horodatage");

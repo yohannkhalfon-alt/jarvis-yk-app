@@ -3,7 +3,7 @@
 // Regroupe les briques probatoires utilisées par /api/sign et le cron :
 //   - chiffrement applicatif AES-256-GCM (clé PREUVE_CLE_AES, séparée des données)
 //   - journal d'événements en UTC, en append-only (evt/{id})
-//   - OTP SMS : génération cryptographique, hash bcrypt, envoi via Brevo
+//   - OTP par email : génération cryptographique, hash bcrypt, envoi via Brevo
 //   - horodatage RFC 3161 : requête DER, appel de l'autorité, jeton + chaîne
 //   - clauses d'acceptation expresse versionnées, substitution côté serveur
 //   - alertes email au gestionnaire (Brevo)
@@ -70,23 +70,44 @@ export function normaliserTel(brut) {
 }
 export const masquerTel = (t) => (t ? t.slice(0, 4) + "******" + t.slice(-2) : "");
 
-// ---------- OTP SMS ----------
+// ---------- OTP (code à usage unique, envoyé par email) ----------
 export const genererOtp = () => String(randomInt(0, 1_000_000)).padStart(6, "0"); // CSPRNG (node:crypto)
 export const hasherOtp = (code) => bcrypt.hashSync(code, 10); // jamais stocké en clair
 export const verifierOtp = (code, hash) => bcrypt.compareSync(String(code || ""), hash || ""); // comparaison bcrypt (non sensible au timing sur le code)
 
-export async function envoyerSms(tel, contenu) {
+// Canal de vérification : EMAIL (gratuit, 300 envois/jour inclus chez Brevo).
+// Le code part sur la boîte personnelle du signataire, distincte du canal par
+// lequel le gestionnaire lui a transmis son lien (WhatsApp, SMS, en main propre).
+export async function envoyerOtpEmail(email, code, titre, expediteur) {
   const cle = process.env.BREVO_API_KEY;
-  if (!cle) throw new Error("BREVO_API_KEY non configurée (SMS indisponible)");
-  const res = await fetch(BREVO_BASE() + "/v3/transactionalSMS/sms", {
+  if (!cle) throw new Error("BREVO_API_KEY non configurée (envoi du code indisponible)");
+  const res = await fetch(BREVO_BASE() + "/v3/smtp/email", {
     method: "POST",
     headers: { "api-key": cle, "content-type": "application/json" },
-    body: JSON.stringify({ type: "transactional", sender: "JARVISSIGN", recipient: tel, content: contenu }),
+    body: JSON.stringify({
+      sender: { name: "JARVIS SIGN", email: expediteur || process.env.BREVO_FROM },
+      to: [{ email }],
+      subject: `Votre code de signature : ${code}`,
+      htmlContent:
+        `<p>Votre code de signature pour le document <b>${echapHtmlLib(titre)}</b> :</p>` +
+        `<p style="font-size:30px;font-weight:bold;letter-spacing:8px;margin:18px 0;">${code}</p>` +
+        `<p>Ce code est valable <b>10 minutes</b> et ne peut servir qu'une fois.</p>` +
+        `<p style="color:#888;font-size:12px;">Si vous n'êtes pas à l'origine de cette demande, ignorez ce message et prévenez l'expéditeur du document.</p>`,
+    }),
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error("Envoi SMS refusé (" + res.status + ") : " + JSON.stringify(data).slice(0, 160));
-  return { messageId: String(data.messageId || data.reference || ""), statut: "envoye" };
+  if (!res.ok) throw new Error("Envoi du code refusé (" + res.status + ") : " + JSON.stringify(data).slice(0, 160));
+  return { messageId: String(data.messageId || ""), statut: "envoye" };
 }
+
+const echapHtmlLib = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+// Masque une adresse pour l'affichage et le dossier de preuve : j***n@gmail.com
+export const masquerEmail = (e) => {
+  const [nom, domaine] = String(e || "").split("@");
+  if (!domaine) return "";
+  return (nom.length <= 2 ? nom[0] + "*" : nom[0] + "*".repeat(Math.min(nom.length - 2, 6)) + nom.slice(-1)) + "@" + domaine;
+};
 
 // ---------- alerte email au gestionnaire ----------
 export async function alerter(destinataire, sujet, html) {
@@ -245,8 +266,8 @@ const LIBELLES_EVT = {
   envoi_notification: "Envoi de la notification au signataire",
   ouverture: "Ouverture du document par le signataire",
   document_servi: "Document transmis au signataire (empreinte contrôlée)",
-  otp_envoi: "Envoi du code OTP par SMS",
-  otp_livraison: "Statut de livraison du SMS",
+  otp_envoi: "Envoi du code de vérification par email",
+  otp_livraison: "Statut de livraison du code",
   otp_tentative: "Tentative de saisie du code OTP",
   clause_acceptee: "Acceptation expresse de la clause",
   signature: "Validation de la signature",
@@ -332,8 +353,8 @@ export async function construireDossierPreuve(store, env) {
     if (s.ua) ligne(ctx, "Navigateur", s.ua.slice(0, 140));
     if (s.ecran) ligne(ctx, "Écran / appareil", s.ecran);
     if (s.email) ligne(ctx, "Email", s.email);
-    if (s.tel) ligne(ctx, "Téléphone OTP", masquerTel(s.tel));
-    if (s.otp?.messageId) ligne(ctx, "Livraison SMS", "identifiant " + s.otp.messageId + (s.otp.statutLivraison ? " - " + s.otp.statutLivraison : ""));
+    if (s.email) ligne(ctx, "Boîte de réception du code", masquerEmail(s.email));
+    if (s.otp?.messageId) ligne(ctx, "Livraison du code", "identifiant " + s.otp.messageId + (s.otp.statutLivraison ? " - " + s.otp.statutLivraison : ""));
     if (s.clauseTexte) ligne(ctx, "Clause acceptée (v" + (s.clauseVersion || 1) + ")", s.clauseTexte);
     if (s.mentionTapee) ligne(ctx, "Mention saisie au clavier", '"' + s.mentionTapee + '"');
     if (s.hashApres) ligne(ctx, "Empreinte après sa signature", s.hashApres);

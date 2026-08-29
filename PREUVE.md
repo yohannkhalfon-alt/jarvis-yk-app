@@ -18,7 +18,8 @@ demande finalisée (bouton « ⚖ Dossier de preuve »).
 ## 2. Le niveau de signature et ses conséquences
 
 L'application produit une **signature électronique simple** au sens du
-règlement eIDAS, renforcée par une vérification d'identité par SMS.
+règlement eIDAS, renforcée par une vérification d'identité par code à usage
+unique envoyé sur la boîte email du signataire.
 
 - Les [articles 1366](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032042461)
   et [1367](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032042456) du Code civil
@@ -35,7 +36,7 @@ règlement eIDAS, renforcée par une vérification d'identité par SMS.
 
 | Garantie | Ce qu'elle démontre | Comment |
 |---|---|---|
-| **Identité** | Que c'est bien la personne attendue qui a signé | Code à 6 chiffres envoyé sur son mobile personnel, à saisir pour valider. Sans ce code, aucune signature n'est possible. |
+| **Identité** | Que c'est bien la personne attendue qui a signé | Code à 6 chiffres envoyé sur sa boîte email personnelle, à saisir pour valider. Sans ce code, aucune signature n'est possible. |
 | **Date** | Que la signature date bien du jour indiqué | Jeton d'horodatage délivré par une **autorité tierce indépendante** (RFC 3161). L'heure de nos serveurs, modifiable par nous, n'aurait aucune valeur ; celle de l'autorité est opposable. |
 | **Intégrité** | Que le document produit est exactement celui signé | Trois empreintes numériques (SHA-256) : à la création, à l'affichage au signataire, après signature. La moindre modification d'un octet change l'empreinte et fait échouer la vérification. |
 | **Consentement** | Que le signataire a accepté en connaissance de cause | Clause d'acceptation expresse propre au type d'acte, à cocher **et** mention « Bon pour accord » à recopier au clavier. Deux gestes délibérés, distincts d'un simple clic. |
@@ -49,9 +50,10 @@ règlement eIDAS, renforcée par une vérification d'identité par SMS.
    empreinte finale, autorité d'horodatage.
 2. **Chronologie** — tous les événements horodatés à la seconde, y compris les
    tentatives de code erronées et les incidents éventuels.
-3. **Éléments techniques** — adresse IP, navigateur, appareil, email, mobile
-   partiellement masqué, identifiants de livraison SMS et email, les trois
-   empreintes, la clause exactement telle qu'affichée et la mention saisie.
+3. **Éléments techniques** — adresse IP, navigateur, appareil, boîte de
+   réception du code (partiellement masquée), identifiants de livraison des
+   emails, les trois empreintes, la clause exactement telle qu'affichée et la
+   mention saisie.
 4. **Vérification indépendante** — le mode d'emploi, commandes comprises,
    pour qu'un expert refasse lui-même les vérifications.
 
@@ -79,7 +81,7 @@ Ces commandes sont testées automatiquement à chaque modification du code.
 ## 6. Ce qui bloque une signature
 
 Il n'existe **aucun mode dégradé silencieux**. La signature est refusée si :
-le code SMS est absent, faux, expiré ou épuisé (3 essais, 5 envois) ; la clause
+le code de vérification est absent, faux, expiré ou épuisé (3 essais, 5 envois) ; la clause
 n'est pas cochée ou la mention mal recopiée ; le document affiché diverge du
 document source ; l'autorité d'horodatage est injoignable — le dossier reste
 alors « en attente d'horodatage », **jamais présenté comme finalisé**, avec
@@ -100,8 +102,15 @@ dossier de preuve est elle-même journalisée.
 
 - **Pas de présomption légale** (voir §2) : le dossier facilite la preuve, il ne
   la renverse pas d'office comme le ferait une signature qualifiée.
-- **Le SMS prouve la détention du téléphone**, pas l'identité civile. Le numéro
-  doit donc être celui du dossier du salarié, saisi par le gestionnaire.
+- **Le code par email prouve l'accès à la boîte de réception**, pas l'identité
+  civile. L'adresse doit donc être celle figurant au dossier du salarié, saisie
+  par le gestionnaire. Deux conséquences pratiques : transmettez le **lien de
+  signature par un autre canal** que cet email (WhatsApp, SMS, en main propre)
+  pour que la vérification porte bien sur deux canaux distincts ; et sachez
+  qu'une boîte email est réputée plus facile à compromettre qu'un téléphone —
+  le canal SMS (environ 0,045 € par envoi) reste disponible en changeant une
+  ligne de configuration si le conseil juridique l'exige pour les actes à
+  fort enjeu.
 - **Autorité d'horodatage** : DFN (Allemagne, UE) par défaut — conforme RFC 3161
   et vérifiable, mais non « qualifiée » au sens de la liste de confiance
   européenne. Le passage à une autorité qualifiée (Certigna, Universign) se fait
@@ -114,7 +123,7 @@ dossier de preuve est elle-même journalisée.
 ## 9. Avant utilisation sur des contrats de travail
 
 Conformément à la spécification, ce module ne doit être employé sur de vrais
-contrats qu'après : recette technique complète (faite : 49 tests automatisés),
+contrats qu'après : recette technique complète (faite : 50 tests automatisés),
 **test de bout en bout sur un document réel avec lecture du dossier produit**,
 et **validation du parcours par le conseil juridique du groupe**.
 
@@ -130,7 +139,7 @@ Variables d'environnement Netlify :
 | Variable | Rôle |
 |---|---|
 | `PREUVE_CLE_AES` | Clé de chiffrement des PDF (64 caractères hexadécimaux). **Sans elle, le mode RH est indisponible.** |
-| `BREVO_API_KEY` | Envoi des SMS (OTP) et des emails. Nécessite des crédits SMS. |
+| `BREVO_API_KEY` | Envoi des emails : codes de vérification, copies signées, alertes. Plan gratuit : 300 envois/jour. |
 | `BREVO_FROM` | Adresse expéditrice validée chez Brevo. |
 | `TSA_URL` | Autorité d'horodatage (défaut : `http://zeitstempel.dfn.de`). |
 | `TSA_URL_SECOURS` | Autorité de secours (défaut : `https://freetsa.org/tsr`). |
@@ -139,4 +148,4 @@ Variables d'environnement Netlify :
 
 Fichiers : `netlify/functions/lib/preuve.mjs` (briques probatoires),
 `netlify/functions/sign.mjs` (parcours), `netlify/functions/preuve-cron.mjs`
-(reprises, relances, purges), `.test-preuve.mjs` (49 tests).
+(reprises, relances, purges), `.test-preuve.mjs` (50 tests).

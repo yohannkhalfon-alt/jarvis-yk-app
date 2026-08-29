@@ -44,7 +44,7 @@
   .champdate { display:flex; align-items:center; gap:10px; margin-top:14px; flex-wrap:wrap; font-size:14px; }
   .champdate input { background:rgba(4,6,12,.6); border:1px solid var(--line); border-radius:10px; color:var(--txt); font-family:inherit; font-size:15px; padding:8px 12px; outline:none; color-scheme:dark; }
   .champdate input:focus { border-color:var(--cyan); }
-  /* module probatoire : clause d'acceptation + OTP SMS */
+  /* module probatoire : clause d'acceptation + code de vérification */
   .clause { background:rgba(27,111,216,.08); border:1px solid var(--line); border-radius:12px; padding:14px; margin-top:8px; font-size:14px; line-height:1.6; }
   .clause b { color:#EAF4FF; }
   .mention input[type=text] { width:100%; background:rgba(4,6,12,.6); border:1px solid var(--line); border-radius:10px; color:var(--txt); font-family:inherit; font-size:16px; padding:11px 13px; outline:none; margin-top:6px; }
@@ -127,9 +127,9 @@ function ecranSignature() {
         '<label class="consent"><input type="checkbox" id="clauseOk" /> Je coche cette case pour accepter expressément la clause ci-dessus.</label>' +
         '<div class="mention"><label class="hint" style="display:block;margin-top:10px;">Recopiez exactement la mention <b>Bon pour accord</b> :</label>' +
         '<input type="text" id="mentionTapee" placeholder="Bon pour accord" autocomplete="off" autocapitalize="off" /></div>' +
-        '<div class="otp"><b style="font-size:14px;color:#EAF4FF;">Vérification de votre identité par SMS</b>' +
-        '<div class="hint">Un code à 6 chiffres sera envoyé au ' + echap(infos.telMasque || '') + '. Il est valable 10 minutes.</div>' +
-        '<div class="rangee"><button id="envoiOtp">📱 Recevoir mon code</button>' +
+        '<div class="otp"><b style="font-size:14px;color:#EAF4FF;">Vérification de votre identité</b>' +
+        '<div class="hint">Un code à 6 chiffres sera envoyé à ' + echap(infos.emailMasque || '') + '. Il est valable 10 minutes (pensez à vérifier vos indésirables).</div>' +
+        '<div class="rangee"><button id="envoiOtp">✉ Recevoir mon code</button>' +
         '<input type="text" id="otpCode" inputmode="numeric" maxlength="6" placeholder="000000" disabled /></div>' +
         '<div class="hint" id="otpEtat"></div></div>'
       ) : '') +
@@ -176,7 +176,7 @@ async function demanderOtp() {
     $('#otpCode').disabled = false;
     $('#otpCode').focus();
     etat.style.color = '#33d17a';
-    etat.textContent = '✓ Code envoyé au ' + data.telMasque + ' (envoi ' + data.envois + '/5). Valable 10 minutes.';
+    etat.textContent = '✓ Code envoyé à ' + data.emailMasque + ' (envoi ' + data.envois + '/5). Valable 10 minutes.';
     b.textContent = 'Renvoyer le code';
     let reste = 30;
     const tic = setInterval(() => {
@@ -245,7 +245,7 @@ async function envoyer() {
     if (!$('#clauseOk').checked) { msg.className = 'msg err'; msg.textContent = 'Cochez la clause d’acceptation expresse.'; return; }
     const saisie = ($('#mentionTapee').value || '').trim().toLowerCase();
     if (saisie !== 'bon pour accord') { msg.className = 'msg err'; msg.textContent = 'Recopiez exactement la mention « Bon pour accord ».'; return; }
-    if (!/^\d{6}$/.test(($('#otpCode').value || '').trim())) { msg.className = 'msg err'; msg.textContent = 'Saisissez le code à 6 chiffres reçu par SMS.'; return; }
+    if (!/^\d{6}$/.test(($('#otpCode').value || '').trim())) { msg.className = 'msg err'; msg.textContent = 'Saisissez le code à 6 chiffres reçu par email.'; return; }
   }
   const png = rogner(padSig.canvas);
   if (!png) { msg.className = 'msg err'; msg.textContent = 'Signature vide, réessayez.'; return; }
