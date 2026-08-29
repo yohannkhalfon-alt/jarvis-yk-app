@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-28T05:36:08Z",
+  "generated_at": "2026-08-29T05:36:12Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -63,22 +63,15 @@
     },
     "annecy": {
       "label": "ANNECY",
-      "days": [
-        {
-          "date": "2026-09-21",
-          "weekday": "lundi",
-          "status": "none",
-          "hours": null,
-          "note": "Adina notée « FERMÉ » (Kippour — modif du 27/08) mais le personnel est planifié 09h-19h (Raphaël, Maéva, Amandine B, Elena…) — à clarifier : fermeture réelle du centre ou jour sans ophta"
-        }
-      ],
+      "days": [],
       "notes": [
         "Semaine du 03 au 07/08 : couverte par le Dr Diop 09h-19h (ajouté au planning le 23/07 — remplace Bendellali)",
-        "Fermeture estivale du 08 au 23/08 (CP collectifs) — Adina reprend le 24/08",
+        "Fermeture estivale du 08 au 23/08 (CP collectifs) — Adina a repris le 24/08 ; ven 28/08 : centre fermé (modif du 28/08)",
         "Ema : dernier jour le 31/07",
         "Semaine du 07 au 12/09 : couverte par Dr Charakidas (09h-19h lun-jeu + sam)",
-        "Semaines du 05 au 17/10 : couvertes par un « Dr » dont le nom n'est pas encore renseigné dans le planning",
-        "Lun 21/09 : la ligne Adina dit « FERMÉ » (Kippour) mais le personnel reste planifié — si le centre ferme réellement, le jour sera retiré"
+        "Lun 21/09 : centre fermé (Kippour) — confirmé le 28/08 : tout le personnel est désormais noté « Fermé » (le jour « sans ophta » signalé la veille a été retiré)",
+        "Vendredis : centre fermé à partir du 11/09 (sauf ven 04/09 et ven 25/09, ouverts avec Adina)",
+        "Semaines du 12 au 24/10 : couvertes par un « Dr » dont le nom n'est pas encore renseigné (lun-jeu + sam) — Adina assure les semaines du 05-10/10 et du 26-31/10 (précision du 28/08)"
       ]
     },
     "tremblay": {
@@ -163,9 +156,10 @@
         "Centre ajouté au suivi le 30/07 (dossier Dropbox PLANNING ANTONY partagé le 27/07)",
         "Semaines du 10 au 22/08 non renseignées dans le planning (fermeture estivale ?)",
         "Lun 21/09 : centre fermé (Kippour)",
-        "Samedis d'octobre : 03 et 17/10 assurés par le Dr Di Clémente, 10/10 désormais assuré par le Dr Abid 09h-19h (nouveau remplaçant, modif du 27/08) — seuls les 24 et 31/10 restent sans ophta",
+        "Samedis d'octobre : 03 et 17/10 — le fichier affiche Di Clémente mais une note du 28/08 indique « NOTER 03/10 ET 17/10 DR VO VIET ANH » ; 10/10 assuré par le Dr Abid 09h-19h — seuls les 24 et 31/10 restent sans ophta",
         "Ligne « Slim » ajoutée au bloc ophta du planning d'août pour les semaines du 10 au 22/08, encore sans horaires (modif du 03/08)",
-        "Ven 18/09, 25/09 et 02/10 : désormais couverts par Alessandro 09h-18h30 (modif plannings du 06/08)"
+        "Ven 18/09, 25/09 et 02/10 : désormais couverts par Alessandro 09h-18h30 (modif plannings du 06/08)",
+        "Septembre : Meskini ABS la plupart des lun/mar/ven — couverture assurée (Alessandro, Rosati ven 11/09, Hager sam 12/09, Di Clémente sam 19/09, Ghorayeb sam 26/09, Adam-Mohamed sam 05/09)"
       ]
     }
   }
