@@ -160,7 +160,11 @@ function xlsxVersTexte(buffer) {
 // ---------- Analyse déterministe de la grille ----------
 // Structure attendue : lignes d'en-têtes "LUNDI 06/07  MARDI 07/07 …" (JJ/MM),
 // puis des blocs de lignes-personnes séparés par des lignes vides.
-const RE_ENTETE = /^(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\.?\s+(\d{1,2})[\/.](\d{1,2})(?!\d)/i;
+// Jours en français OU en anglais : certains fichiers (Annecy sept/oct 2026)
+// mélangent "lundi 31/08" et "Monday 07/09" — sans l'anglais, les semaines
+// suivantes s'écrasaient sur les colonnes de la 1ère semaine (faux jours sans ophta).
+const RE_ENTETE = /^(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\.?\s+(\d{1,2})[\/.](\d{1,2})(?!\d)/i;
+const JOUR_EN_FR = { monday: "lundi", tuesday: "mardi", wednesday: "mercredi", thursday: "jeudi", friday: "vendredi", saturday: "samedi", sunday: "dimanche" };
 // Mots (sans accents) qui signifient "absent / ne travaille pas", même si la cellule contient des heures.
 const RE_ABSENT = /(^|[^a-z])(off|abs|absente?|cp|rtt|ssolde|sans\s+solde|arret|conge|formation|ferme|feries?|ferie|preavis|malade|maladie)($|[^a-z])/;
 const RE_FERME = /(^|[^a-z])(ferme|feries?|ferie)($|[^a-z])/;
@@ -231,7 +235,8 @@ function parseGrille(lignes, moisFichier, anneeFichier) {
         const an = anneePourMois(mm, moisFichier, anneeFichier);
         const iso = `${an}-${String(mm).padStart(2, "0")}-${String(jj).padStart(2, "0")}`;
         colonnes.set(i, iso);
-        if (!dates.has(iso)) dates.set(iso, { enTete: m[1].toLowerCase() });
+        const jour = m[1].toLowerCase();
+        if (!dates.has(iso)) dates.set(iso, { enTete: JOUR_EN_FR[jour] || jour });
       }
       blocCourant = 1; // premier bloc sous chaque en-tête = ophtalmologues (convention)
       enBlanc = false;
