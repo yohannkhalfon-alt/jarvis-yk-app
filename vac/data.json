@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-29T05:36:12Z",
+  "generated_at": "2026-08-30T05:35:17Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -85,13 +85,6 @@
           "note": "Sebe OFF, Slimane ABS, Adalla OFF"
         },
         {
-          "date": "2026-09-04",
-          "weekday": "vendredi",
-          "status": "none",
-          "hours": null,
-          "note": "Adalla ABS, autres OFF"
-        },
-        {
           "date": "2026-09-07",
           "weekday": "lundi",
           "status": "none",
@@ -109,7 +102,7 @@
       "notes": [
         "Semaines du 10 au 22/08 non renseignées dans le planning",
         "Lun 21/09 : centre fermé (Kippour)",
-        "Mar 01/09 : finalement couvert par Adalla 09h-16h30 (modif du 27/08 — journée écourtée, tout le centre finit à 16h30) ; ven 04 et lun 07/09 restent sans ophta (Adalla ABS), Slimane couvre mer 02 et jeu 03, Clemente le sam 05",
+        "Mar 01/09 couvert par Adalla 09h-16h30 ; ven 04/09 finalement couvert par Slimane 09h-19h (modif du 29/08) — ⚠️ le planning d'Argenteuil affiche AUSSI Slimane 09h-19h ce même vendredi 04/09, un des deux plannings est à corriger ; lun 07/09 reste sans ophta (Adalla ABS), Clemente couvre le sam 05",
         "Samedis 03/10 et 17/10 : couverts par Adalla 09h-19h (la ligne Di Clémente a été retirée du planning d'octobre — modif du 21/08 ; correction du 23/08 : l'alerte « double couverture le 17/10 » signalée la veille était erronée)"
       ]
     },
