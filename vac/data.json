@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-02T05:34:52Z",
+  "generated_at": "2026-09-03T05:35:02Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -31,13 +31,6 @@
         },
         {
           "date": "2026-09-12",
-          "weekday": "samedi",
-          "status": "none",
-          "hours": null,
-          "note": "Samedi sans ophta — Hajjar retiré du planning (modif du 31/08), Slimane et Papapostolou OFF"
-        },
-        {
-          "date": "2026-09-19",
           "weekday": "samedi",
           "status": "none",
           "hours": null,
@@ -144,6 +137,7 @@
       ],
       "notes": [
         "⚠️ Modif du 31/08 : Hajjar a été retiré de TOUS les samedis de septembre à novembre — plus aucun samedi couvert à Argenteuil (le personnel non-ophta reste planifié)",
+        "Sam 19/09 : finalement couvert par le Dr Rosati 9h-19h (ajouté au planning le 02/09) — les samedis 05, 12 et 26/09 restent sans ophta",
         "Ven 04/09 : Slimane 09h-19h — ⚠️ conflit : le planning de Tremblay l'affiche AUSSI 09h-19h ce même vendredi (modif du 29/08), un des deux plannings est à corriger ; si Argenteuil le libère, le ven 04/09 devient aussi sans ophta ici (Papapostolou et Hajjar OFF)",
         "Lun 21/09 : centre fermé (Kippour)",
         "Ven 25/09 : couverture Slimane « à confirmer »",
