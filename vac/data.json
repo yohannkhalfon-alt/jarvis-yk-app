@@ -1,0 +1,256 @@
+{
+  "generated_at": "2026-09-04T05:35:06Z",
+  "source": "Scan JARVIS via connecteur Dropbox",
+  "periode": [
+    {
+      "mois": 9,
+      "annee": 2026,
+      "nom": "SEPTEMBRE"
+    },
+    {
+      "mois": 10,
+      "annee": 2026,
+      "nom": "OCTOBRE"
+    },
+    {
+      "mois": 11,
+      "annee": 2026,
+      "nom": "NOVEMBRE"
+    }
+  ],
+  "centres": {
+    "argenteuil": {
+      "label": "ARGENTEUIL",
+      "days": [
+        {
+          "date": "2026-09-05",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — Hajjar retiré du planning (modif du 31/08), Slimane et Papapostolou OFF"
+        },
+        {
+          "date": "2026-09-12",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — Hajjar retiré du planning (modif du 31/08), Slimane et Papapostolou OFF"
+        },
+        {
+          "date": "2026-09-26",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — Hajjar retiré du planning (modif du 31/08), Slimane et Papapostolou OFF"
+        },
+        {
+          "date": "2026-10-03",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — Hajjar retiré du planning (modif du 31/08), Slimane et Papapostolou OFF"
+        },
+        {
+          "date": "2026-10-09",
+          "weekday": "vendredi",
+          "status": "none",
+          "hours": null,
+          "note": "Slimane, Papapostolou, Hajjar tous OFF"
+        },
+        {
+          "date": "2026-10-10",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — Hajjar retiré du planning (modif du 31/08), Slimane et Papapostolou OFF"
+        },
+        {
+          "date": "2026-10-17",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — Hajjar retiré du planning (modif du 31/08), Slimane et Papapostolou OFF"
+        },
+        {
+          "date": "2026-10-23",
+          "weekday": "vendredi",
+          "status": "none",
+          "hours": null,
+          "note": "Slimane, Papapostolou, Hajjar tous OFF"
+        },
+        {
+          "date": "2026-10-24",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — Hajjar retiré du planning (modif du 31/08), Slimane et Papapostolou OFF"
+        },
+        {
+          "date": "2026-10-31",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — Hajjar retiré du planning (modif du 31/08), Slimane et Papapostolou OFF"
+        },
+        {
+          "date": "2026-11-06",
+          "weekday": "vendredi",
+          "status": "none",
+          "hours": null,
+          "note": "Slimane, Papapostolou, Hajjar tous OFF — personnel présent"
+        },
+        {
+          "date": "2026-11-07",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — aucun ophtalmologue planifié"
+        },
+        {
+          "date": "2026-11-14",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — aucun ophtalmologue planifié"
+        },
+        {
+          "date": "2026-11-20",
+          "weekday": "vendredi",
+          "status": "none",
+          "hours": null,
+          "note": "Slimane, Papapostolou, Hajjar tous OFF — personnel présent"
+        },
+        {
+          "date": "2026-11-21",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — aucun ophtalmologue planifié"
+        },
+        {
+          "date": "2026-11-28",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — aucun ophtalmologue planifié"
+        }
+      ],
+      "notes": [
+        "⚠️ Modif du 31/08 : Hajjar a été retiré de TOUS les samedis de septembre à novembre — plus aucun samedi couvert à Argenteuil (le personnel non-ophta reste planifié)",
+        "Sam 19/09 : finalement couvert par le Dr Rosati 9h-19h (ajouté au planning le 02/09) — les samedis 05, 12 et 26/09 restent sans ophta",
+        "Ven 04/09 : Slimane 09h-19h — ⚠️ conflit : le planning de Tremblay l'affiche AUSSI 09h-19h ce même vendredi (modif du 29/08), un des deux plannings est à corriger ; si Argenteuil le libère, le ven 04/09 devient aussi sans ophta ici (Papapostolou et Hajjar OFF)",
+        "Lun 21/09 : centre fermé (Kippour)",
+        "Ven 25/09 : couverture Slimane « à confirmer »",
+        "Mer 11/11 : férié (Armistice) — exclu du décompte"
+      ]
+    },
+    "annecy": {
+      "label": "ANNECY",
+      "days": [],
+      "notes": [
+        "Semaine du 07 au 12/09 : couverte par le Dr Charakidas (09h-19h lun-jeu + sam)",
+        "Lun 21/09 : centre fermé (Kippour) — confirmé le 28/08, tout le personnel noté « Fermé »",
+        "Vendredis : centre fermé à partir du 11/09 (sauf ven 04/09 et ven 25/09, ouverts avec Adina)",
+        "Semaines du 12 au 24/10 et du 02 au 14/11 : couvertes par un « Dr » dont le nom n'est pas encore renseigné (lun-jeu + sam) — Adina assure les autres semaines",
+        "Mer 11/11 : férié — Raphaël en congé paternité du 18/11 au 18/12 (personnel)"
+      ]
+    },
+    "tremblay": {
+      "label": "TREMBLAY",
+      "days": [
+        {
+          "date": "2026-09-07",
+          "weekday": "lundi",
+          "status": "none",
+          "hours": null,
+          "note": "Adalla ABS, Sebe ABS, Slimane OFF — le personnel non-ophta travaille"
+        },
+        {
+          "date": "2026-10-12",
+          "weekday": "lundi",
+          "status": "none",
+          "hours": null,
+          "note": "Adalla ABS, Sebe ABS, Slimane OFF — le personnel non-ophta travaille"
+        }
+      ],
+      "notes": [
+        "Semaine de rentrée : mar 01/09 Adalla 09h-16h30, mer 02 + jeu 03/09 Slimane, sam 05/09 Dr Clemente",
+        "Ven 04/09 : couvert par Slimane 09h-19h (modif du 29/08) — ⚠️ le planning d'Argenteuil affiche AUSSI Slimane 09h-19h ce même vendredi, un des deux est à corriger",
+        "Lun 21/09 : centre fermé (Kippour — Adalla absente, personnel en CP)",
+        "Samedis 03/10 et 17/10 : couverts par Adalla",
+        "Novembre : entièrement couvert (Adalla, Slimane les mercredis) — mer 11/11 férié"
+      ]
+    },
+    "sartrouville": {
+      "label": "SARTROUVILLE",
+      "days": [
+        {
+          "date": "2026-09-02",
+          "weekday": "mercredi",
+          "status": "none",
+          "hours": null,
+          "note": "Addala ABS — Papapostolou/Slimane/Saade/Chahine OFF, personnel présent"
+        }
+      ],
+      "notes": [
+        "Mer 02/09 : Addala ABS (contradiction août/septembre tranchée le 26/08 — les deux fichiers disent ABS)",
+        "Lun 21/09 : centre fermé (Kippour)",
+        "Novembre : entièrement couvert (Papapostolou lun+ven, Saade mar, Addala mer, Chahine jeu, Slimane sam) — le mer 11/11 n'est pas noté férié dans le fichier, Addala y est planifiée"
+      ]
+    },
+    "antony": {
+      "label": "ANTONY",
+      "days": [
+        {
+          "date": "2026-10-24",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Meskini et Alessandro OFF, pas de remplaçant"
+        },
+        {
+          "date": "2026-10-31",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Meskini et Alessandro OFF, pas de remplaçant"
+        },
+        {
+          "date": "2026-11-07",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Aucun remplaçant encore planifié (Meskini et Alessandro OFF)"
+        },
+        {
+          "date": "2026-11-14",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Aucun remplaçant encore planifié (Meskini et Alessandro OFF)"
+        },
+        {
+          "date": "2026-11-21",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Aucun remplaçant encore planifié (Meskini et Alessandro OFF)"
+        },
+        {
+          "date": "2026-11-28",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Aucun remplaçant encore planifié (Meskini et Alessandro OFF)"
+        }
+      ],
+      "notes": [
+        "Lun 21/09 : centre fermé (Kippour)",
+        "Septembre : Meskini ABS la plupart des lun/mar/ven — couverture assurée (Alessandro + Adam-Mohamed sam 05/09, Rosati ven 11/09, Hager sam 12/09, Di Clémente sam 19/09, Ghorayeb sam 26/09)",
+        "Samedis d'octobre : 03 et 17/10 affichés Di Clémente (note du 28/08 : « NOTER 03/10 ET 17/10 DR VO VIET ANH » — fichier pas encore modifié), 10/10 Dr Abid — seuls les 24 et 31/10 restent sans ophta",
+        "Samedis de novembre (07, 14, 21, 28/11) : aucun remplaçant encore planifié — probablement à pourvoir, comme les samedis d'octobre avant l'arrivée de Di Clémente/Abid",
+        "Mer 11/11 : férié — exclu du décompte"
+      ]
+    }
+  }
+}
