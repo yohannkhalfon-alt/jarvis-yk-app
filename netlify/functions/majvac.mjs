@@ -244,7 +244,13 @@ function parseGrille(lignes, moisFichier, anneeFichier) {
     }
 
     if (!colonnes) continue;
-    if (vide) {
+    // Une ligne sans AUCUNE cellule dans les colonnes de dates est un séparateur :
+    // commentaire en marge (« Amandine B : 1er et 2ème samedi mois » chez Annecy)
+    // ou semaine non renseignée. La compter comme personne créait des fantômes et,
+    // pire, masquait la ligne vide entre deux blocs — les secrétaires remontaient
+    // alors d'un bloc et étaient affichées comme orthoptistes dans la vue Équipe.
+    const aDesDates = [...colonnes.keys()].some((i) => cells[i]);
+    if (vide || !aDesDates) {
       enBlanc = true;
       continue;
     }
