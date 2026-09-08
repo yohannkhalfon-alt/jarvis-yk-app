@@ -1,8 +1,8 @@
-// Conversion Word → PDF : exécute le vrai code du navigateur (sign/docx2pdf.js
-// + sign/vendor/*) dans Chromium, sur de vrais fichiers .docx, et vérifie que
-// le PDF produit est lisible, paginé et assez léger pour l'envoi.
+// Tests navigateur du tableau de bord : conversion Word → PDF (le vrai code de
+// sign/docx2pdf.js + sign/vendor/*, dans Chromium, sur de vrais .docx) et
+// options de la demande de signature.
 //
-//   node .test-docx.mjs
+//   node .test-navigateur.mjs
 //
 // Playwright n'est pas une dépendance du projet (il ne doit pas alourdir le
 // build Netlify) : si absent, le test le dit et s'arrête sans échouer.
@@ -97,7 +97,73 @@ if (!long.erreur) {
 ok("aucune erreur JavaScript pendant les conversions", erreursConsole.length === 0 || (console.log("   →", erreursConsole), false));
 ok("le convertisseur ne laisse rien dans la page", await page.evaluate(() => !document.querySelector(".docx-wrapper, section.jsdocx")));
 
+// --- Option « Je choisis mon texte » : la mention libre doit arriver telle
+// quelle dans la demande envoyée au serveur. ---
+console.log("\n=== Options de la demande ===");
+await page.reload();
+ok("le champ de mention libre est verrouillé tant que la case n'est pas cochée",
+  await page.evaluate(() => document.querySelector("#texteLibre").disabled));
+
+const envoye = await page.evaluate(async () => {
+  const clic = (sel) => { const e = document.querySelector(sel); e.checked = true; e.dispatchEvent(new Event("change")); };
+  clic("#optLu"); clic("#optTexte");
+  const verrou = document.querySelector("#texteLibre").disabled;
+  document.querySelector("#texteLibre").value = "  Reçu un exemplaire du règlement intérieur  ";
+  document.querySelector("#titre").value = "Note de service";
+  document.querySelector("#signataires .s-nom").value = "Jennifer Dupont";
+
+  // Un PDF minimal suffit : on n'appelle pas vraiment le serveur.
+  const pdf = new File([new Uint8Array([37, 80, 68, 70, 45, 49, 46, 52])], "n.pdf", { type: "application/pdf" });
+  const dt = new DataTransfer(); dt.items.add(pdf);
+  const champ = document.querySelector("#pdf");
+  champ.files = dt.files;
+  champ.dispatchEvent(new Event("change"));
+  await new Promise((r) => setTimeout(r, 50));
+
+  let corps = null;
+  const vrai = window.fetch;
+  window.fetch = async (url, opt) => {
+    if (String(url).includes("/api/sign") && opt && opt.method === "POST") {
+      corps = JSON.parse(opt.body);
+      return new Response(JSON.stringify({ envelope: { id: "x", title: "t", signers: [{ name: "Jennifer Dupont", token: "tk" }] } }), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    return vrai(url, opt);
+  };
+  document.querySelector("#creer").click();
+  await new Promise((r) => setTimeout(r, 400));
+  window.fetch = vrai;
+  return { corps, verrou, apres: { coche: document.querySelector("#optTexte").checked, valeur: document.querySelector("#texteLibre").value } };
+});
+
+ok("cocher la case déverrouille le champ", envoye.verrou === false);
+ok("la mention libre part avec les mentions cochées",
+  !!envoye.corps && Array.isArray(envoye.corps.mentions) && envoye.corps.mentions.length === 2);
+ok("la mention libre est envoyée sans espaces superflus",
+  !!envoye.corps && envoye.corps.mentions[1] === "Reçu un exemplaire du règlement intérieur");
+ok("le formulaire est remis à zéro après création",
+  envoye.apres.coche === false && envoye.apres.valeur === "");
+
+const refus = await page.evaluate(async () => {
+  const c = document.querySelector("#optTexte"); c.checked = true; c.dispatchEvent(new Event("change"));
+  document.querySelector("#texteLibre").value = "   ";
+  document.querySelector("#titre").value = "Note";
+  document.querySelector("#signataires .s-nom").value = "Jennifer";
+  const pdf = new File([new Uint8Array([37, 80, 68, 70])], "n.pdf", { type: "application/pdf" });
+  const dt = new DataTransfer(); dt.items.add(pdf);
+  const champ = document.querySelector("#pdf"); champ.files = dt.files; champ.dispatchEvent(new Event("change"));
+  await new Promise((r) => setTimeout(r, 50));
+  let appele = false;
+  const vrai = window.fetch;
+  window.fetch = async (...a) => { if (String(a[0]).includes("/api/sign") && a[1] && a[1].method === "POST") appele = true; return vrai(...a); };
+  document.querySelector("#creer").click();
+  await new Promise((r) => setTimeout(r, 200));
+  window.fetch = vrai;
+  return { appele, msg: document.querySelector("#msgCreate").textContent };
+});
+ok("case cochée mais texte vide : rien n'est envoyé", refus.appele === false);
+ok("case cochée mais texte vide : message clair", /mention libre/i.test(refus.msg));
+
 await nav.close();
 serveur.close();
-console.log(echecs ? `\n${echecs} échec(s).` : "\nTous les tests de conversion Word passent.");
+console.log(echecs ? `\n${echecs} échec(s).` : "\nTous les tests navigateur passent.");
 process.exit(echecs ? 1 : 0);

@@ -63,6 +63,24 @@ const liste = (await res.json()).envelopes;
 ok("Liste admin (sans code configuré)", res.status === 200 && liste.length === 1);
 ok("Date imposée appliquée aux signatures", liste[0].signers.every((s) => s.dateAffichee === "2026-09-15"));
 
+console.log("\n=== Mention libre (« Je choisis mon texte ») ===");
+const LONGUE = "Reçu un exemplaire du règlement intérieur et de la charte informatique du centre";
+res = await call("POST", "/api/sign", {
+  action: "create", title: "Note de service", pdfBase64: pdfB64,
+  mentions: ["Lu et approuvé", "Bon pour accord", LONGUE],
+  signers: [{ name: "Jennifer Dupont" }],
+});
+const envL = (await res.json()).envelope;
+ok("Les trois mentions sont conservées", envL.mentions.length === 3);
+ok("La mention libre garde ses accents", /règlement intérieur/.test(envL.mentions[2]));
+ok("La mention libre est tronquée à 60 caractères", envL.mentions[2].length === 60);
+res = await call("GET", `/api/sign?id=${envL.id}&token=${envL.signers[0].token}`);
+ok("Le signataire voit la mention libre", (await res.json()).mentions[2] === envL.mentions[2]);
+res = await call("POST", "/api/sign", { action: "sign", id: envL.id, token: envL.signers[0].token, signaturePng: png, consent: true, mentionsAccepted: true });
+ok("Signature avec mention libre acceptée", res.status === 200);
+res = await call("GET", `/api/sign?id=${envL.id}&token=${envL.signers[0].token}&pdf=1`);
+ok("Le PDF s'imprime malgré les accents de la mention libre", res.status === 200 && (await PDFDocument.load(await res.arrayBuffer())).getPageCount() === 4);
+
 // Téléversement en morceaux
 res = await call("POST", "/api/sign", { action: "upload-start" });
 const { uploadId, uploadToken } = await res.json();

@@ -116,6 +116,9 @@
     <label>Options pour les signataires</label>
     <label class="opt"><input type="checkbox" id="optLu" checked /> Mention « Lu et approuvé » à cocher</label>
     <label class="opt"><input type="checkbox" id="optAccord" /> Mention « Bon pour accord » à cocher</label>
+    <label class="opt"><input type="checkbox" id="optTexte" /> « Je choisis mon texte » — mention libre à cocher :</label>
+    <input type="text" id="texteLibre" placeholder="Ex : Reçu un exemplaire du règlement intérieur" maxlength="60" disabled />
+    <div class="hint">Cette phrase apparaîtra près de la signature, exactement comme « Lu et approuvé ». 60 caractères maximum.</div>
     <label class="opt"><input type="checkbox" id="optParaphe" /> Paraphe (initiales) en bas de chaque page</label>
     <label class="opt"><input type="checkbox" id="optDate" /> « Je choisis ma date » — date inscrite sur le document :
       <input type="date" id="dateImposee" style="width:auto; padding:6px 10px; font-size:14px;" disabled />
@@ -227,6 +230,11 @@ ligneSigner();
 $('#addSigner').onclick = () => { if ($('#signataires').children.length < 8) ligneSigner(); };
 
 // « Je choisis ma date » : champ actif seulement quand l'option est cochée
+$('#optTexte').onchange = () => {
+  $('#texteLibre').disabled = !$('#optTexte').checked;
+  if ($('#optTexte').checked) $('#texteLibre').focus();
+};
+
 $('#optDate').onchange = () => {
   $('#dateImposee').disabled = !$('#optDate').checked;
   if ($('#optDate').checked && !$('#dateImposee').value)
@@ -366,7 +374,9 @@ $('#creer').onclick = async () => {
     name: r.querySelector('.s-nom').value.trim(),
     email: r.querySelector('.s-email').value.trim(),
   })).filter((s) => s.name);
+  const texteLibre = $('#optTexte').checked ? $('#texteLibre').value.trim() : '';
   if (!titre || !fichier || !signers.length) { msg.className = 'msg err'; msg.textContent = 'Titre, document et au moins un signataire (avec nom) requis.'; return; }
+  if ($('#optTexte').checked && !texteLibre) { msg.className = 'msg err'; msg.textContent = 'Écris ta mention libre, ou décoche « Je choisis mon texte ».'; $('#texteLibre').focus(); return; }
   if (fichier.size > 10 * 1024 * 1024) {
     msg.className = 'msg err';
     msg.textContent = docConverti
@@ -385,7 +395,7 @@ $('#creer').onclick = async () => {
     });
     const corps = {
       action: 'create', title: titre, signers, fromEmail,
-      mentions: [$('#optLu').checked && 'Lu et approuvé', $('#optAccord').checked && 'Bon pour accord'].filter(Boolean),
+      mentions: [$('#optLu').checked && 'Lu et approuvé', $('#optAccord').checked && 'Bon pour accord', texteLibre].filter(Boolean),
       paraphe: $('#optParaphe').checked,
     };
     if ($('#optDate').checked && $('#dateImposee').value) corps.dateImposee = $('#dateImposee').value;
@@ -422,7 +432,7 @@ $('#creer').onclick = async () => {
     if (fromEmail) localStorage.setItem('signFrom', fromEmail);
     msg.className = 'msg ok'; msg.textContent = 'Demande créée ! Envoie chaque lien au bon signataire :';
     $('#resultat').innerHTML = envelope.signers.map((s) => blocLien(envelope, s)).join('');
-    $('#titre').value = ''; $('#pdf').value = ''; docPdf = null; docConverti = false; $('#infoDoc').className = ''; $('#infoDoc').innerHTML = ''; $('#signataires').innerHTML = ''; ligneSigner();
+    $('#titre').value = ''; $('#pdf').value = ''; $('#optTexte').checked = false; $('#texteLibre').value = ''; $('#texteLibre').disabled = true; docPdf = null; docConverti = false; $('#infoDoc').className = ''; $('#infoDoc').innerHTML = ''; $('#signataires').innerHTML = ''; ligneSigner();
     positions = []; plDoc = null; majResumePos();
     chargerListe();
   } catch (e) {
