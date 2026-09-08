@@ -111,6 +111,12 @@ dossier de preuve est elle-même journalisée.
   le canal SMS (environ 0,045 € par envoi) reste disponible en changeant une
   ligne de configuration si le conseil juridique l'exige pour les actes à
   fort enjeu.
+- **Documents Word** : un fichier `.docx` est converti en PDF sur le poste du
+  gestionnaire, avant tout envoi. C'est ce PDF — affiché pour vérification avant
+  l'envoi — qui fait foi : les trois empreintes et l'horodatage portent sur lui,
+  jamais sur le fichier Word d'origine. Le PDF issu d'une conversion contient
+  l'image de chaque page (texte non sélectionnable). Pour un acte à fort enjeu,
+  préférer un PDF exporté directement depuis Word.
 - **Autorité d'horodatage** : DFN (Allemagne, UE) par défaut — conforme RFC 3161
   et vérifiable, mais non « qualifiée » au sens de la liste de confiance
   européenne. Le passage à une autorité qualifiée (Certigna, Universign) se fait

@@ -84,6 +84,9 @@
   .msg { font-size:14px; margin-top:10px; }
   .msg.err { color:#ff6b6b; } .msg.ok { color:var(--ok); }
   .hint { font-size:12px; color:var(--dim); margin-top:6px; line-height:1.5; }
+  #infoDoc:not(:empty) { border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-top:8px; font-size:13px; }
+  #infoDoc.conv { border-color:rgba(79,216,235,.45); }
+  #infoDoc.err { border-color:#ff6b6b; color:#ff6b6b; }
   .vide { color:var(--dim); text-align:center; padding:20px; font-size:14px; }
   a { color:var(--cyan); }
 </style>
@@ -106,8 +109,10 @@
     <input type="email" id="fromEmail" placeholder="Ex : direction.argenteuil@toncentre.fr" maxlength="120" list="boites" />
     <datalist id="boites"></datalist>
     <div class="hint">Le PDF signé sera automatiquement renvoyé sur cette boîte quand tous les signataires auront signé.</div>
-    <label>Fichier PDF (max 10 Mo)</label>
-    <input type="file" id="pdf" accept="application/pdf" />
+    <label>Document — PDF ou Word (max 10 Mo)</label>
+    <input type="file" id="pdf" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+    <div class="hint">Un fichier Word (.docx) est converti automatiquement en PDF sur votre appareil : il ne part nulle part ailleurs.</div>
+    <div id="infoDoc"></div>
     <label>Options pour les signataires</label>
     <label class="opt"><input type="checkbox" id="optLu" checked /> Mention « Lu et approuvé » à cocher</label>
     <label class="opt"><input type="checkbox" id="optAccord" /> Mention « Bon pour accord » à cocher</label>
@@ -169,6 +174,7 @@
   <div class="hint" style="text-align:center;">Touche un repère déjà posé pour le retirer. Chaque signataire peut signer à plusieurs endroits.</div>
 </div>
 
+<script src="docx2pdf.js"></script>
 <script>
 const $ = (s) => document.querySelector(s);
 let adminCode = localStorage.getItem('signCode') || '';
@@ -232,7 +238,39 @@ let positions = [];   // {s: index signataire, page: 0-based, x: 0-1, y: 0-1}
 let plDoc = null, plPage = 1, plActif = 0;
 const COULEURS = ['#4FD8EB', '#f5c542', '#33d17a', '#ff8ba0', '#b18cff', '#ffa94d', '#63e6be', '#e599f7'];
 
-$('#pdf').addEventListener('change', () => { positions = []; plDoc = null; majResumePos(); });
+// Document effectivement envoyé : le PDF choisi, ou le PDF issu de la
+// conversion d'un fichier Word. Toujours un PDF à ce stade.
+let docPdf = null;
+let docConverti = false;   // vrai si le PDF provient d'un fichier Word
+
+const poids = (o) => (o / 1024 / 1024).toFixed(1).replace('.', ',') + ' Mo';
+
+$('#pdf').addEventListener('change', async () => {
+  positions = []; plDoc = null; docPdf = null; docConverti = false; majResumePos();
+  const info = $('#infoDoc'); info.className = ''; info.innerHTML = '';
+  const msg = $('#msgCreate'); msg.className = 'msg'; msg.textContent = '';
+  const f = $('#pdf').files[0];
+  if (!f) return;
+
+  if (!window.JarvisDocx || !(JarvisDocx.estWord(f) || JarvisDocx.estVieuxWord(f))) { docPdf = f; return; }
+
+  $('#creer').disabled = true;
+  try {
+    const { fichier, pages } = await JarvisDocx.convertir(f, (etape) => { msg.textContent = etape; });
+    docPdf = fichier; docConverti = true;
+    msg.textContent = '';
+    info.className = 'conv';
+    info.innerHTML = '<b>Word converti en PDF</b> — ' + pages + ' page(s), ' + poids(fichier.size) + '. ' +
+      '<button type="button" class="small" id="voirConv">Vérifier l’aperçu</button>' +
+      '<div class="hint">Vérifiez la mise en page avant d’envoyer : c’est ce PDF qui sera signé. ' +
+      'Si le rendu ne convient pas, exportez le PDF depuis Word (Fichier → Enregistrer sous → PDF) et choisissez-le ici.</div>';
+    $('#voirConv').onclick = () => window.open(URL.createObjectURL(docPdf), '_blank');
+  } catch (e) {
+    docPdf = null;
+    info.className = 'err'; info.textContent = e.message;
+  }
+  $('#creer').disabled = false;
+});
 
 function majResumePos() {
   $('#resumePos').textContent = positions.length ? '✓ ' + positions.length + ' emplacement(s) placé(s)' : '';
@@ -257,8 +295,8 @@ function nomsSigners() {
 $('#placer').onclick = async () => {
   const msg = $('#msgCreate');
   msg.className = 'msg'; msg.textContent = '';
-  const fichier = $('#pdf').files[0];
-  if (!fichier) { msg.className = 'msg err'; msg.textContent = 'Choisis d’abord le fichier PDF.'; return; }
+  const fichier = docPdf;
+  if (!fichier) { msg.className = 'msg err'; msg.textContent = 'Choisis d’abord le document (PDF ou Word).'; return; }
   if (!nomsSigners().length) { msg.className = 'msg err'; msg.textContent = 'Renseigne d’abord le nom des signataires.'; return; }
   msg.textContent = 'Chargement de l’aperçu…';
   try {
@@ -323,13 +361,19 @@ $('#creer').onclick = async () => {
   msg.className = 'msg'; msg.textContent = '';
   const titre = $('#titre').value.trim();
   const fromEmail = $('#fromEmail').value.trim();
-  const fichier = $('#pdf').files[0];
+  const fichier = docPdf;
   const signers = [...document.querySelectorAll('#signataires .row')].map((r) => ({
     name: r.querySelector('.s-nom').value.trim(),
     email: r.querySelector('.s-email').value.trim(),
   })).filter((s) => s.name);
-  if (!titre || !fichier || !signers.length) { msg.className = 'msg err'; msg.textContent = 'Titre, PDF et au moins un signataire (avec nom) requis.'; return; }
-  if (fichier.size > 10 * 1024 * 1024) { msg.className = 'msg err'; msg.textContent = 'PDF trop lourd (max 10 Mo). Compresse-le d’abord (ex : ilovepdf.com).'; return; }
+  if (!titre || !fichier || !signers.length) { msg.className = 'msg err'; msg.textContent = 'Titre, document et au moins un signataire (avec nom) requis.'; return; }
+  if (fichier.size > 10 * 1024 * 1024) {
+    msg.className = 'msg err';
+    msg.textContent = docConverti
+      ? 'Document Word converti trop lourd (max 10 Mo). Exportez plutôt le PDF depuis Word (Fichier → Enregistrer sous → PDF).'
+      : 'PDF trop lourd (max 10 Mo). Compresse-le d’abord (ex : ilovepdf.com).';
+    return;
+  }
 
   $('#creer').disabled = true; msg.textContent = 'Création en cours…';
   try {
@@ -378,7 +422,7 @@ $('#creer').onclick = async () => {
     if (fromEmail) localStorage.setItem('signFrom', fromEmail);
     msg.className = 'msg ok'; msg.textContent = 'Demande créée ! Envoie chaque lien au bon signataire :';
     $('#resultat').innerHTML = envelope.signers.map((s) => blocLien(envelope, s)).join('');
-    $('#titre').value = ''; $('#pdf').value = ''; $('#signataires').innerHTML = ''; ligneSigner();
+    $('#titre').value = ''; $('#pdf').value = ''; docPdf = null; docConverti = false; $('#infoDoc').className = ''; $('#infoDoc').innerHTML = ''; $('#signataires').innerHTML = ''; ligneSigner();
     positions = []; plDoc = null; majResumePos();
     chargerListe();
   } catch (e) {
