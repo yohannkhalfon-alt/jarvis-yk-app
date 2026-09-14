@@ -164,10 +164,39 @@ function xlsxVersTexte(buffer) {
 // mélangent "lundi 31/08" et "Monday 07/09" — sans l'anglais, les semaines
 // suivantes s'écrasaient sur les colonnes de la 1ère semaine (faux jours sans ophta).
 const RE_ENTETE = /^(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\.?\s+(\d{1,2})[\/.](\d{1,2})(?!\d)/i;
+// Formats longs avec nom de mois et année (Annecy nov 2026) : « Monday, November 02, 2026 »
+// et « samedi 14 Novembre 2026 » — sans eux, aucune colonne du mois n'est reconnue.
+const MOIS_NOMS = {
+  janvier: 1, january: 1, fevrier: 2, february: 2, mars: 3, march: 3, avril: 4, april: 4,
+  mai: 5, may: 5, juin: 6, june: 6, juillet: 7, july: 7, aout: 8, august: 8,
+  septembre: 9, september: 9, octobre: 10, october: 10, novembre: 11, november: 11,
+  decembre: 12, december: 12,
+};
+const JOURS_RE = "lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche|monday|tuesday|wednesday|thursday|friday|saturday|sunday";
+const RE_ENTETE_LONG_EN = new RegExp(`^(${JOURS_RE}),?\\s+([a-z]+)\\s+(\\d{1,2}),?\\s+(\\d{4})`, "i");
+const RE_ENTETE_LONG_FR = new RegExp(`^(${JOURS_RE}),?\\s+(\\d{1,2})\\s+([a-z]+)\\s+(\\d{4})`, "i");
 const JOUR_EN_FR = { monday: "lundi", tuesday: "mardi", wednesday: "mercredi", thursday: "jeudi", friday: "vendredi", saturday: "samedi", sunday: "dimanche" };
+
+// Une cellule d'en-tête → { jour, jj, mm, an } (an null pour le format court JJ/MM).
+function lireEnTete(texte) {
+  const brut = String(texte || "");
+  let m = brut.match(RE_ENTETE);
+  if (m) return { jour: m[1].toLowerCase(), jj: parseInt(m[2], 10), mm: parseInt(m[3], 10), an: null };
+  const t = stripAccents(brut).trim();
+  m = t.match(RE_ENTETE_LONG_EN);
+  if (m && MOIS_NOMS[m[2].toLowerCase()])
+    return { jour: m[1].toLowerCase(), jj: parseInt(m[3], 10), mm: MOIS_NOMS[m[2].toLowerCase()], an: parseInt(m[4], 10) };
+  m = t.match(RE_ENTETE_LONG_FR);
+  if (m && MOIS_NOMS[m[3].toLowerCase()])
+    return { jour: m[1].toLowerCase(), jj: parseInt(m[2], 10), mm: MOIS_NOMS[m[3].toLowerCase()], an: parseInt(m[4], 10) };
+  return null;
+}
 // Mots (sans accents) qui signifient "absent / ne travaille pas", même si la cellule contient des heures.
 const RE_ABSENT = /(^|[^a-z])(off|abs|absente?|cp|rtt|ssolde|sans\s+solde|arret|conge|formation|ferme|feries?|ferie|preavis|malade|maladie)($|[^a-z])/;
 const RE_FERME = /(^|[^a-z])(ferme|feries?|ferie)($|[^a-z])/;
+// « FERIE » est une propriété du JOUR (jour férié → centre fermé), contrairement à
+// « Fermé » qui peut viser une seule personne (vendredis/samedis individuels d'Annecy).
+const RE_FERIE = /(^|[^a-z])feries?($|[^a-z])/;
 const JOURS_FR = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
 
 function anneePourMois(mm, moisFichier, anneeFichier) {
@@ -217,7 +246,7 @@ function parseGrille(lignes, moisFichier, anneeFichier) {
     const vide = cells.every((c) => !c);
     const headerCols = [];
     cells.forEach((c, i) => {
-      const m = String(c).match(RE_ENTETE);
+      const m = lireEnTete(c);
       if (m) headerCols.push([i, m]);
     });
 
@@ -229,14 +258,12 @@ function parseGrille(lignes, moisFichier, anneeFichier) {
     if (estEnTete) {
       colonnes = new Map();
       for (const [i, m] of headerCols) {
-        const jj = parseInt(m[2], 10);
-        const mm = parseInt(m[3], 10);
+        const { jj, mm } = m;
         if (jj < 1 || jj > 31 || mm < 1 || mm > 12) continue;
-        const an = anneePourMois(mm, moisFichier, anneeFichier);
+        const an = m.an || anneePourMois(mm, moisFichier, anneeFichier);
         const iso = `${an}-${String(mm).padStart(2, "0")}-${String(jj).padStart(2, "0")}`;
         colonnes.set(i, iso);
-        const jour = m[1].toLowerCase();
-        if (!dates.has(iso)) dates.set(iso, { enTete: JOUR_EN_FR[jour] || jour });
+        if (!dates.has(iso)) dates.set(iso, { enTete: JOUR_EN_FR[m.jour] || m.jour });
       }
       blocCourant = 1; // premier bloc sous chaque en-tête = ophtalmologues (convention)
       enBlanc = false;
@@ -261,7 +288,7 @@ function parseGrille(lignes, moisFichier, anneeFichier) {
 
     const idxNom = cells.findIndex((c) => c);
     const nomBrut = cells[idxNom];
-    if (!nomBrut || RE_ENTETE.test(nomBrut) || norm(nomBrut) === "NOMS") continue;
+    if (!nomBrut || lireEnTete(nomBrut) || norm(nomBrut) === "NOMS") continue;
 
     const cle = norm(nomBrut);
     if (!personnes.has(cle)) personnes.set(cle, { nom: nomBrut.trim(), blocs: {}, cellules: new Map() });
@@ -304,12 +331,15 @@ function calculerJours(grille, ophtasSet) {
     let autresTravaillent = false;
     let cellules = 0;
     let fermees = 0;
+    let feriees = 0;
 
     for (const p of grille.personnes.values()) {
       const cell = p.cellules.get(iso);
       if (!cell) continue;
       cellules += 1;
-      if (RE_FERME.test(stripAccents(cell).toLowerCase())) fermees += 1;
+      const cellNorm = stripAccents(cell).toLowerCase();
+      if (RE_FERME.test(cellNorm)) fermees += 1;
+      if (RE_FERIE.test(cellNorm)) feriees += 1;
       const c = lireCellule(cell);
       if (!c.travail) continue;
       if (ophtasSet.has(norm(p.nom))) {
@@ -321,7 +351,8 @@ function calculerJours(grille, ophtasSet) {
     }
 
     if (cellules === 0) continue; // colonne vide (semaine non renseignée)
-    if (fermees >= cellules) continue; // tout le monde "Fermé"/"Férié" → centre fermé
+    if (feriees > 0) continue; // « FERIE » dans la colonne → jour férié, centre fermé (règle YK 14/09)
+    if (fermees >= cellules) continue; // tout le monde "Fermé" → centre fermé
     if (!autresTravaillent && intervalles.length === 0) continue; // personne ne travaille
 
     const weekday = JOURS_FR[wd];
