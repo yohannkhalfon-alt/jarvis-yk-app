@@ -191,6 +191,18 @@ function lireEnTete(texte) {
     return { jour: m[1].toLowerCase(), jj: parseInt(m[2], 10), mm: MOIS_NOMS[m[3].toLowerCase()], an: parseInt(m[4], 10) };
   return null;
 }
+
+// Cellule numérique = date Excel brute (numéro de série, ex. « 46328 ») : arrive
+// quand la lib xlsx ne sait pas rendre le format de date du fichier. Acceptée
+// uniquement dans une ligne « NOMS » pour ne pas confondre avec un nombre quelconque.
+const RE_SERIE_EXCEL = /^4[4-8]\d{3}(\.0+)?$/; // ≈ années 2020-2033
+
+function serieVersEnTete(texte) {
+  const t = String(texte || "").trim();
+  if (!RE_SERIE_EXCEL.test(t)) return null;
+  const dt = new Date(Date.UTC(1899, 11, 30) + Math.round(parseFloat(t)) * 86400000);
+  return { jour: JOURS_FR[dt.getUTCDay()], jj: dt.getUTCDate(), mm: dt.getUTCMonth() + 1, an: dt.getUTCFullYear() };
+}
 // Mots (sans accents) qui signifient "absent / ne travaille pas", même si la cellule contient des heures.
 const RE_ABSENT = /(^|[^a-z])(off|abs|absente?|cp|rtt|ssolde|sans\s+solde|arret|conge|formation|ferme|feries?|ferie|preavis|malade|maladie)($|[^a-z])/;
 const RE_FERME = /(^|[^a-z])(ferme|feries?|ferie)($|[^a-z])/;
@@ -244,17 +256,16 @@ function parseGrille(lignes, moisFichier, anneeFichier) {
 
   for (const cells of lignes) {
     const vide = cells.every((c) => !c);
+    const aNoms = cells.some((c) => norm(c) === "NOMS");
     const headerCols = [];
     cells.forEach((c, i) => {
-      const m = lireEnTete(c);
+      const m = lireEnTete(c) || (aNoms ? serieVersEnTete(c) : null);
       if (m) headerCols.push([i, m]);
     });
 
     // Ligne d'en-tête : ≥2 dates, ou 1 date accompagnée de la cellule "NOMS"
     // (semaines à un seul jour, ex. "SAMEDI 01/08" ou "LUNDI 31/08").
-    const estEnTete =
-      headerCols.length >= 2 ||
-      (headerCols.length === 1 && cells.some((c) => norm(c) === "NOMS"));
+    const estEnTete = headerCols.length >= 2 || (headerCols.length === 1 && aNoms);
     if (estEnTete) {
       colonnes = new Map();
       for (const [i, m] of headerCols) {
