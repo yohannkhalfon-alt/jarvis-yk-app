@@ -1,0 +1,308 @@
+{
+  "generated_at": "2026-09-15T05:35:33Z",
+  "source": "Scan JARVIS via connecteur Dropbox",
+  "periode": [
+    {
+      "mois": 9,
+      "annee": 2026,
+      "nom": "SEPTEMBRE"
+    },
+    {
+      "mois": 10,
+      "annee": 2026,
+      "nom": "OCTOBRE"
+    },
+    {
+      "mois": 11,
+      "annee": 2026,
+      "nom": "NOVEMBRE"
+    }
+  ],
+  "centres": {
+    "argenteuil": {
+      "label": "ARGENTEUIL",
+      "days": [
+        {
+          "date": "2026-09-05",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — Hajjar retiré du planning (modif du 31/08), Slimane et Papapostolou OFF"
+        },
+        {
+          "date": "2026-10-24",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — Hajjar retiré du planning (modif du 31/08), Slimane et Papapostolou OFF"
+        },
+        {
+          "date": "2026-10-31",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — Hajjar retiré du planning (modif du 31/08), Slimane et Papapostolou OFF"
+        },
+        {
+          "date": "2026-11-28",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — aucun ophtalmologue planifié"
+        }
+      ],
+      "notes": [
+        "✅ Résolution de la crise des samedis (fichiers modifiés le 14/09) : Khallouk sam 12/09, Slimane sam 26/09 + ven 25/09 (plus de « à confirmer ») et ven 09/10 + 23/10, Rosati sam 19/09 + sam 03/10, Charakidas sam 10/10, sam 17/10, ven 06/11, sam 07/11, sam 14/11, ven 20/11, sam 21/11.",
+        "Restent à pourvoir : sam 24/10, sam 31/10 et sam 28/11 (aucun ophtalmologue planifié).",
+        "Rempla Charakidas à reporter sur décembre : 11, 12, 18 et 19/12 (note du planning novembre).",
+        "Sam 05/09 : resté sans ophta (historique).",
+        "Lun 21/09 : centre fermé (Kippour). Mer 11/11 : FERIE sur le planning = centre fermé.",
+        "RH septembre : départs — Mariana (STC au 05/09), Laurence (sans solde puis STC), Natasha (rupture PE, fin 17/09), Estelle (dernier jour 10/09) ; renforts Chakira, Salma, Amele, Vigand Thérèse."
+      ]
+    },
+    "annecy": {
+      "label": "ANNECY",
+      "days": [
+        {
+          "date": "2026-10-12",
+          "weekday": "lundi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-10-13",
+          "weekday": "mardi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-10-14",
+          "weekday": "mercredi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-10-15",
+          "weekday": "jeudi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-10-17",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-10-19",
+          "weekday": "lundi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-10-20",
+          "weekday": "mardi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-10-21",
+          "weekday": "mercredi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-10-22",
+          "weekday": "jeudi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-10-24",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-11-02",
+          "weekday": "lundi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-11-03",
+          "weekday": "mardi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-11-04",
+          "weekday": "mercredi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-11-05",
+          "weekday": "jeudi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-11-07",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-11-09",
+          "weekday": "lundi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-11-10",
+          "weekday": "mardi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-11-12",
+          "weekday": "jeudi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-11-14",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        }
+      ],
+      "notes": [
+        "🚨 Modif du 14/09 : le « Dr » (remplaçant non nommé) a été RETIRÉ des semaines du 12/10, 19/10, 02/11 et 09/11 — Adina est OFF sur ces semaines → 19 jours sans ophta (vendredis exclus : centre fermé ; 11/11 FERIE = fermé).",
+        "Ce retrait coïncide avec l'arrivée du Dr Charakidas à Argenteuil sur exactement ces semaines (sam 10+17/10, 06-07/11, 14/11, 20-21/11) — le « Dr » d'Annecy était probablement lui.",
+        "Septembre couvert : Adina + Dr Charakidas (semaine 07-12/09). Semaines du 16/11 au 05/12 : Adina présente.",
+        "Vendredis : centre fermé (à partir du 11/09, sauf 04/09 et 25/09). Lun 21/09 : centre fermé (Kippour).",
+        "Raphaël : congé paternité du 18/11 au 18/12 (dates à confirmer).",
+        "RH : départ Juliette (04/09) ; arrivée Lucie (samedis) ; Rose : fin de contrat d'apprentissage le 31/10."
+      ]
+    },
+    "tremblay": {
+      "label": "TREMBLAY",
+      "days": [
+        {
+          "date": "2026-09-04",
+          "weekday": "vendredi",
+          "status": "none",
+          "hours": null,
+          "note": "Correction rétroactive (fichier du 14/09) : Slimane était finalement à Argenteuil (conflit du 04/09 tranché), Adalla et Sebe ABS — journée passée sans ophta"
+        },
+        {
+          "date": "2026-11-02",
+          "weekday": "lundi",
+          "status": "none",
+          "hours": null,
+          "note": "Adalla ABS, Sebe ABS, Slimane OFF — le personnel non-ophta travaille"
+        }
+      ],
+      "notes": [
+        "Lun 07/09 finalement couvert par le Dr Hager et lun 12/10 par Adalla (corrections des fichiers) — jours retirés.",
+        "⚠️ Nouveau trou : lun 02/11 (Adalla ABS, Sebe ABS, Slimane OFF).",
+        "Lun 21/09 : centre fermé (Kippour). Mer 11/11 : FERIE = centre fermé.",
+        "Samedis d'octobre et de novembre couverts par Adalla ; mercredis par Slimane."
+      ]
+    },
+    "sartrouville": {
+      "label": "SARTROUVILLE",
+      "days": [
+        {
+          "date": "2026-09-02",
+          "weekday": "mercredi",
+          "status": "none",
+          "hours": null,
+          "note": "Addala ABS — Papapostolou/Slimane/Saade/Chahine OFF, personnel présent"
+        }
+      ],
+      "notes": [
+        "Mer 02/09 : Addala ABS (passé, historique).",
+        "Sam 26/09 : Slimane ABS mais couvert par Chahine.",
+        "Lun 21/09 : centre fermé (Kippour).",
+        "⚠️ Mer 11/11 (férié) : le planning affiche encore des horaires normaux (fichier du 26/08 pas mis à jour) — jour exclu par la règle férié = centre fermé.",
+        "Octobre et novembre entièrement couverts (rotation Papapostolou/Saade/Addala/Chahine/Slimane)."
+      ]
+    },
+    "antony": {
+      "label": "ANTONY",
+      "days": [
+        {
+          "date": "2026-10-24",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Meskini et Alessandro OFF, pas de remplaçant"
+        },
+        {
+          "date": "2026-10-31",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Meskini et Alessandro OFF, pas de remplaçant"
+        },
+        {
+          "date": "2026-11-07",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Aucun remplaçant encore planifié (Meskini et Alessandro OFF)"
+        },
+        {
+          "date": "2026-11-14",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Aucun remplaçant encore planifié (Meskini et Alessandro OFF)"
+        },
+        {
+          "date": "2026-11-21",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Aucun remplaçant encore planifié (Meskini et Alessandro OFF)"
+        },
+        {
+          "date": "2026-11-28",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Aucun remplaçant encore planifié (Meskini et Alessandro OFF)"
+        }
+      ],
+      "notes": [
+        "Samedis de septembre/octobre couverts : Adam-Mohamed 05/09, Rosati 11/09 (ven), Hager 12/09, Di Clemente 19/09 + 03/10 + 17/10 (la note « Vo Viet Anh » du 28/08 est caduque), Ghorayeb 26/09, Abid 10/10.",
+        "Restent sans ophta : sam 24/10, sam 31/10 et les 4 samedis de novembre (07, 14, 21, 28/11) — aucun remplaçant planifié (fichier novembre inchangé depuis le 27/07).",
+        "Meskini ABS la plupart des lun/mar/ven de septembre — couverture Alessandro + remplaçants.",
+        "Lun 21/09 (Kippour) : quasi tout le personnel en CP/OFF, seule Serena affichée 9h-19h (probable erreur de saisie) — jour traité comme fermeture.",
+        "Mer 11/11 : FERIE sur le planning = centre fermé."
+      ]
+    }
+  }
+}
