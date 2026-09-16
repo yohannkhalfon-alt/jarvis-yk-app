@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-15T05:35:33Z",
+  "generated_at": "2026-09-16T05:36:22Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -199,9 +199,9 @@
       ],
       "notes": [
         "🚨 Modif du 14/09 : le « Dr » (remplaçant non nommé) a été RETIRÉ des semaines du 12/10, 19/10, 02/11 et 09/11 — Adina est OFF sur ces semaines → 19 jours sans ophta (vendredis exclus : centre fermé ; 11/11 FERIE = fermé).",
+        "Semaine du 05/10 : ouverture exceptionnelle le ven 09/10 (Adina) et fermeture le sam 10/10 (inversion). Les autres vendredis restent fermés.",
         "Ce retrait coïncide avec l'arrivée du Dr Charakidas à Argenteuil sur exactement ces semaines (sam 10+17/10, 06-07/11, 14/11, 20-21/11) — le « Dr » d'Annecy était probablement lui.",
         "Septembre couvert : Adina + Dr Charakidas (semaine 07-12/09). Semaines du 16/11 au 05/12 : Adina présente.",
-        "Vendredis : centre fermé (à partir du 11/09, sauf 04/09 et 25/09). Lun 21/09 : centre fermé (Kippour).",
         "Raphaël : congé paternité du 18/11 au 18/12 (dates à confirmer).",
         "RH : départ Juliette (04/09) ; arrivée Lucie (samedis) ; Rose : fin de contrat d'apprentissage le 31/10."
       ]
@@ -246,7 +246,7 @@
         "Mer 02/09 : Addala ABS (passé, historique).",
         "Sam 26/09 : Slimane ABS mais couvert par Chahine.",
         "Lun 21/09 : centre fermé (Kippour).",
-        "⚠️ Mer 11/11 (férié) : le planning affiche encore des horaires normaux (fichier du 26/08 pas mis à jour) — jour exclu par la règle férié = centre fermé.",
+        "Mer 11/11 : corrigé en « FERME FERIE » dans le fichier (15/09).",
         "Octobre et novembre entièrement couverts (rotation Papapostolou/Saade/Addala/Chahine/Slimane)."
       ]
     },
