@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-16T05:36:22Z",
+  "generated_at": "2026-09-17T05:34:43Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -63,76 +63,6 @@
     "annecy": {
       "label": "ANNECY",
       "days": [
-        {
-          "date": "2026-10-12",
-          "weekday": "lundi",
-          "status": "none",
-          "hours": null,
-          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
-        },
-        {
-          "date": "2026-10-13",
-          "weekday": "mardi",
-          "status": "none",
-          "hours": null,
-          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
-        },
-        {
-          "date": "2026-10-14",
-          "weekday": "mercredi",
-          "status": "none",
-          "hours": null,
-          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
-        },
-        {
-          "date": "2026-10-15",
-          "weekday": "jeudi",
-          "status": "none",
-          "hours": null,
-          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
-        },
-        {
-          "date": "2026-10-17",
-          "weekday": "samedi",
-          "status": "none",
-          "hours": null,
-          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
-        },
-        {
-          "date": "2026-10-19",
-          "weekday": "lundi",
-          "status": "none",
-          "hours": null,
-          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
-        },
-        {
-          "date": "2026-10-20",
-          "weekday": "mardi",
-          "status": "none",
-          "hours": null,
-          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
-        },
-        {
-          "date": "2026-10-21",
-          "weekday": "mercredi",
-          "status": "none",
-          "hours": null,
-          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
-        },
-        {
-          "date": "2026-10-22",
-          "weekday": "jeudi",
-          "status": "none",
-          "hours": null,
-          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
-        },
-        {
-          "date": "2026-10-24",
-          "weekday": "samedi",
-          "status": "none",
-          "hours": null,
-          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
-        },
         {
           "date": "2026-11-02",
           "weekday": "lundi",
@@ -198,12 +128,12 @@
         }
       ],
       "notes": [
-        "🚨 Modif du 14/09 : le « Dr » (remplaçant non nommé) a été RETIRÉ des semaines du 12/10, 19/10, 02/11 et 09/11 — Adina est OFF sur ces semaines → 19 jours sans ophta (vendredis exclus : centre fermé ; 11/11 FERIE = fermé).",
-        "Semaine du 05/10 : ouverture exceptionnelle le ven 09/10 (Adina) et fermeture le sam 10/10 (inversion). Les autres vendredis restent fermés.",
-        "Ce retrait coïncide avec l'arrivée du Dr Charakidas à Argenteuil sur exactement ces semaines (sam 10+17/10, 06-07/11, 14/11, 20-21/11) — le « Dr » d'Annecy était probablement lui.",
+        "✅ Octobre résolu (fichier du 16/09) : le Dr ZABADANI KASSEM couvre les semaines du 12/10 et du 19/10, 9h-19h du lundi au samedi (vendredis inclus — le centre ouvre exceptionnellement les ven 16 et 23/10).",
+        "🚨 Novembre toujours à trou : 9 jours sans ophta sur les semaines du 02/11 et du 09/11 (Adina OFF, aucun remplaçant depuis le retrait du « Dr » le 14/09). Zabadani à solliciter pour ces 2 semaines ?",
+        "Semaine du 05/10 : ouverture exceptionnelle le ven 09/10 (Adina), fermeture le sam 10/10 (inversion).",
         "Septembre couvert : Adina + Dr Charakidas (semaine 07-12/09). Semaines du 16/11 au 05/12 : Adina présente.",
-        "Raphaël : congé paternité du 18/11 au 18/12 (dates à confirmer).",
-        "RH : départ Juliette (04/09) ; arrivée Lucie (samedis) ; Rose : fin de contrat d'apprentissage le 31/10."
+        "Autres vendredis : centre fermé. Mer 11/11 : FERIE = centre fermé.",
+        "Raphaël : congé paternité du 18/11 au 18/12 (dates à confirmer)."
       ]
     },
     "tremblay": {
@@ -261,13 +191,6 @@
           "note": "Meskini et Alessandro OFF, pas de remplaçant"
         },
         {
-          "date": "2026-10-31",
-          "weekday": "samedi",
-          "status": "none",
-          "hours": null,
-          "note": "Meskini et Alessandro OFF, pas de remplaçant"
-        },
-        {
           "date": "2026-11-07",
           "weekday": "samedi",
           "status": "none",
@@ -297,11 +220,11 @@
         }
       ],
       "notes": [
-        "Samedis de septembre/octobre couverts : Adam-Mohamed 05/09, Rosati 11/09 (ven), Hager 12/09, Di Clemente 19/09 + 03/10 + 17/10 (la note « Vo Viet Anh » du 28/08 est caduque), Ghorayeb 26/09, Abid 10/10.",
-        "Restent sans ophta : sam 24/10, sam 31/10 et les 4 samedis de novembre (07, 14, 21, 28/11) — aucun remplaçant planifié (fichier novembre inchangé depuis le 27/07).",
+        "✅ Sam 31/10 couvert par le Dr KARKAMANI (ajout du 16/09).",
+        "Samedis couverts : Adam-Mohamed 05/09, Hager 12/09, Di Clemente 19/09 + 03/10 + 17/10, Ghorayeb 26/09, Abid 10/10, Karkamani 31/10 ; Rosati ven 11/09.",
+        "Restent sans ophta : sam 24/10 et les 4 samedis de novembre (07, 14, 21, 28/11) — aucun remplaçant planifié.",
         "Meskini ABS la plupart des lun/mar/ven de septembre — couverture Alessandro + remplaçants.",
-        "Lun 21/09 (Kippour) : quasi tout le personnel en CP/OFF, seule Serena affichée 9h-19h (probable erreur de saisie) — jour traité comme fermeture.",
-        "Mer 11/11 : FERIE sur le planning = centre fermé."
+        "Mer 11/11 : FERIE FERME sur le planning = centre fermé."
       ]
     }
   }
