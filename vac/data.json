@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-17T05:34:43Z",
+  "generated_at": "2026-09-18T05:35:17Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -30,13 +30,6 @@
           "note": "Samedi sans ophta — Hajjar retiré du planning (modif du 31/08), Slimane et Papapostolou OFF"
         },
         {
-          "date": "2026-10-24",
-          "weekday": "samedi",
-          "status": "none",
-          "hours": null,
-          "note": "Samedi sans ophta — Hajjar retiré du planning (modif du 31/08), Slimane et Papapostolou OFF"
-        },
-        {
           "date": "2026-10-31",
           "weekday": "samedi",
           "status": "none",
@@ -52,8 +45,8 @@
         }
       ],
       "notes": [
+        "✅ Sam 24/10 couvert par le Dr BULGARU (ajout du 17/09). Restent : sam 31/10 et sam 28/11.",
         "✅ Résolution de la crise des samedis (fichiers modifiés le 14/09) : Khallouk sam 12/09, Slimane sam 26/09 + ven 25/09 (plus de « à confirmer ») et ven 09/10 + 23/10, Rosati sam 19/09 + sam 03/10, Charakidas sam 10/10, sam 17/10, ven 06/11, sam 07/11, sam 14/11, ven 20/11, sam 21/11.",
-        "Restent à pourvoir : sam 24/10, sam 31/10 et sam 28/11 (aucun ophtalmologue planifié).",
         "Rempla Charakidas à reporter sur décembre : 11, 12, 18 et 19/12 (note du planning novembre).",
         "Sam 05/09 : resté sans ophta (historique).",
         "Lun 21/09 : centre fermé (Kippour). Mer 11/11 : FERIE sur le planning = centre fermé.",
@@ -184,13 +177,6 @@
       "label": "ANTONY",
       "days": [
         {
-          "date": "2026-10-24",
-          "weekday": "samedi",
-          "status": "none",
-          "hours": null,
-          "note": "Meskini et Alessandro OFF, pas de remplaçant"
-        },
-        {
           "date": "2026-11-07",
           "weekday": "samedi",
           "status": "none",
@@ -220,9 +206,9 @@
         }
       ],
       "notes": [
+        "✅ Sam 24/10 couvert par le Dr SEGKOS (ajout du 17/09). Octobre est entièrement couvert — restent les 4 samedis de novembre (07, 14, 21, 28/11).",
         "✅ Sam 31/10 couvert par le Dr KARKAMANI (ajout du 16/09).",
         "Samedis couverts : Adam-Mohamed 05/09, Hager 12/09, Di Clemente 19/09 + 03/10 + 17/10, Ghorayeb 26/09, Abid 10/10, Karkamani 31/10 ; Rosati ven 11/09.",
-        "Restent sans ophta : sam 24/10 et les 4 samedis de novembre (07, 14, 21, 28/11) — aucun remplaçant planifié.",
         "Meskini ABS la plupart des lun/mar/ven de septembre — couverture Alessandro + remplaçants.",
         "Mer 11/11 : FERIE FERME sur le planning = centre fermé."
       ]
