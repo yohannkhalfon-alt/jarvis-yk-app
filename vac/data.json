@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-19T05:35:11Z",
+  "generated_at": "2026-09-20T05:38:28Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -30,6 +30,27 @@
           "note": "Samedi sans ophta — Hajjar retiré du planning (modif du 31/08), Slimane et Papapostolou OFF"
         },
         {
+          "date": "2026-09-29",
+          "weekday": "mardi",
+          "status": "none",
+          "hours": null,
+          "note": "Papapostolou ABS (28/09→02/10), Slimane/Hajjar OFF — le personnel travaille"
+        },
+        {
+          "date": "2026-09-30",
+          "weekday": "mercredi",
+          "status": "none",
+          "hours": null,
+          "note": "Papapostolou ABS (28/09→02/10), Slimane/Hajjar OFF — le personnel travaille"
+        },
+        {
+          "date": "2026-10-01",
+          "weekday": "jeudi",
+          "status": "none",
+          "hours": null,
+          "note": "Papapostolou ABS (28/09→02/10), Slimane/Hajar/Rosati OFF — le personnel travaille"
+        },
+        {
           "date": "2026-10-31",
           "weekday": "samedi",
           "status": "none",
@@ -45,6 +66,7 @@
         }
       ],
       "notes": [
+        "⚠️ Papapostolou ABSENT du lun 28/09 au ven 02/10 : mar 29/09, mer 30/09 et jeu 01/10 sans ophtalmologue (Slimane et Hajjar OFF ces jours-là). Remplaçant à trouver.",
         "✅ Sam 24/10 couvert par le Dr BULGARU (ajout du 17/09). Restent : sam 31/10 et sam 28/11.",
         "✅ Résolution de la crise des samedis (fichiers modifiés le 14/09) : Khallouk sam 12/09, Slimane sam 26/09 + ven 25/09 (plus de « à confirmer ») et ven 09/10 + 23/10, Rosati sam 19/09 + sam 03/10, Charakidas sam 10/10, sam 17/10, ven 06/11, sam 07/11, sam 14/11, ven 20/11, sam 21/11.",
         "Rempla Charakidas à reporter sur décembre : 11, 12, 18 et 19/12 (note du planning novembre).",
@@ -163,9 +185,24 @@
           "status": "none",
           "hours": null,
           "note": "Addala ABS — Papapostolou/Slimane/Saade/Chahine OFF, personnel présent"
+        },
+        {
+          "date": "2026-09-28",
+          "weekday": "lundi",
+          "status": "none",
+          "hours": null,
+          "note": "Papapostolou ABS (28/09→02/10) — rotation sans autre ophta ce jour-là"
+        },
+        {
+          "date": "2026-10-02",
+          "weekday": "vendredi",
+          "status": "none",
+          "hours": null,
+          "note": "Papapostolou ABS (28/09→02/10) — rotation sans autre ophta ce jour-là"
         }
       ],
       "notes": [
+        "⚠️ Papapostolou ABSENT du lun 28/09 au ven 02/10 : lun 28/09 et ven 02/10 sans ophtalmologue (aucun autre ophta dans la rotation ces jours-là). Ven 25/09 : Papapostolou présent 09h-18h (départ avancé, avion).",
         "Mer 02/09 : Addala ABS (passé, historique).",
         "Sam 26/09 : Slimane ABS mais couvert par Chahine.",
         "Lun 21/09 : centre fermé (Kippour).",
