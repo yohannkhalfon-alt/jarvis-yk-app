@@ -140,7 +140,7 @@
   <div class="seg" id="seg">
     <button data-r="7" onclick="setRange(7)">7 JOURS</button>
     <button data-r="30" onclick="setRange(30)">30 JOURS</button>
-    <button data-r="0" class="on" onclick="setRange(0)">3 MOIS</button>
+    <button data-r="0" class="on" onclick="setRange(0)">TOUT</button>
   </div>
 
   <div class="chips" id="chips"></div>
@@ -154,7 +154,7 @@
     </div>
   </div>
 
-  <div class="foot" id="footTxt">Période analysée : mois en cours + mois suivant · Source : Dropbox</div>
+  <div class="foot" id="footTxt">Période analysée : mois en cours + 3 suivants · Source : Dropbox</div>
 </main>
 
 <script>
@@ -244,7 +244,7 @@ function construireMessage(periode) {
       const days = joursFuturs(r).slice().sort((a,b) => (a.date||"").localeCompare(b.date||""));
       const totalFutur = (r.days || []).filter(d => !d.date || d.date >= AUJOURDHUI).length;
       if (!days.length) {
-        if (rangeJours && totalFutur > 0) lignes.push("✅ rien sur cette période (" + totalFutur + " jour" + (totalFutur > 1 ? "s" : "") + " plus tard → voir 3 MOIS)");
+        if (rangeJours && totalFutur > 0) lignes.push("✅ rien sur cette période (" + totalFutur + " jour" + (totalFutur > 1 ? "s" : "") + " plus tard → voir TOUT)");
         else lignes.push("✅ aucun jour sans ophta");
       }
       else for (const d of days) lignes.push(fmtJour(d));
@@ -276,7 +276,7 @@ function majChipDepuisResultat(id) {
   const partiels = days.filter(d => d.status === 'partial').length;
   if (!days.length) {
     if (rangeJours && totalFutur > 0)
-      setChip(id, '<span class="ok">0</span> <small class="mid">· ' + totalFutur + ' sur 3 mois</small>');
+      setChip(id, '<span class="ok">0</span> <small class="mid">· ' + totalFutur + ' sur la période</small>');
     else
       setChip(id, '<span class="ok">0 <small>tout couvert</small></span>');
   }

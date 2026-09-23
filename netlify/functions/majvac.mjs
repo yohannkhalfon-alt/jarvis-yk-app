@@ -552,7 +552,7 @@ export default async (req) => {
     const centreId = url.searchParams.get("centre");
     const vue = url.searchParams.get("vue"); // "equipe" → roster par rôle ; sinon jours sans ophta
     const semaineParam = url.searchParams.get("semaine"); // YYYY-MM-DD (jour dans la semaine voulue)
-    const nbMois = Math.min(Math.max(parseInt(url.searchParams.get("months") || "3", 10) || 3, 1), 3);
+    const nbMois = Math.min(Math.max(parseInt(url.searchParams.get("months") || "4", 10) || 4, 1), 6);
     // Un mois précis peut être demandé (scan découpé pour rester sous la limite de temps Netlify)
     const moisParam = parseInt(url.searchParams.get("mois") || "0", 10);
     const anneeParam = parseInt(url.searchParams.get("annee") || "0", 10);
@@ -669,7 +669,7 @@ export default async (req) => {
       for (const m of periode) {
         const f = await trouverPlanning(token, centre, m);
         if (!f) {
-          erreurs.push(`Planning ${m.nom} ${m.annee} introuvable`);
+          erreurs.push(`Planning ${m.nom} ${m.annee} pas encore déposé dans Dropbox`);
           continue;
         }
         const buffer = await dropboxDownload(token, f.id);
