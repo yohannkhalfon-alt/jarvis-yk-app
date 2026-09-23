@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-23T13:19:39Z",
+  "generated_at": "2026-09-23T13:45:21Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -50,6 +50,8 @@
         }
       ],
       "notes": [
+        "⚠️ DOUBLON Flavie (Argenteuil ↔ Sartrouville) : positionnée en travail sur LES DEUX centres les sam 26/09, sam 03/10, sam 24/10 et mer 28/10 — à vérifier (même personne ou homonymes ?)",
+        "⚠️ DOUBLON Flavie (Argenteuil ↔ Tremblay) : positionnée en travail sur LES DEUX centres le mer 21/10 — à vérifier (même personne ou homonymes ?)",
         "✅ Absence Papapostolou (28/09→02/10) couverte : Dr Sebakhi assure les mar 29/09, mer 30/09 et jeu 01/10 (09h-19h). Restent à couvrir : sam 31/10 et sam 28/11.",
         "✅ Sam 24/10 couvert par le Dr BULGARU (ajout du 17/09). Restent : sam 31/10 et sam 28/11.",
         "✅ Résolution de la crise des samedis (fichiers modifiés le 14/09) : Khallouk sam 12/09, Slimane sam 26/09 + ven 25/09 (plus de « à confirmer ») et ven 09/10 + 23/10, Rosati sam 19/09 + sam 03/10, Charakidas sam 10/10, sam 17/10, ven 06/11, sam 07/11, sam 14/11, ven 20/11, sam 21/11.",
@@ -226,6 +228,7 @@
         }
       ],
       "notes": [
+        "⚠️ DOUBLON Flavie (Argenteuil ↔ Tremblay) : positionnée en travail sur LES DEUX centres le mer 21/10 — à vérifier (même personne ou homonymes ?)",
         "Lun 07/09 finalement couvert par le Dr Hager et lun 12/10 par Adalla (corrections des fichiers) — jours retirés.",
         "⚠️ Nouveau trou : lun 02/11 (Adalla ABS, Sebe ABS, Slimane OFF).",
         "Lun 21/09 : centre fermé (Kippour). Mer 11/11 : FERIE = centre fermé.",
@@ -245,6 +248,7 @@
         }
       ],
       "notes": [
+        "⚠️ DOUBLON Flavie (Argenteuil ↔ Sartrouville) : positionnée en travail sur LES DEUX centres les sam 26/09, sam 03/10, sam 24/10 et mer 28/10 — à vérifier (même personne ou homonymes ?)",
         "✅ Absence Papapostolou (28/09→02/10) couverte : Dr Sebakhi assure les lun 28/09 et ven 02/10 (09h-19h). Plus aucun jour futur sans ophta à Sartrouville.",
         "Mer 02/09 : Addala ABS (passé, historique).",
         "Sam 26/09 : Slimane ABS mais couvert par Chahine.",
