@@ -44,6 +44,16 @@
   .champdate { display:flex; align-items:center; gap:10px; margin-top:14px; flex-wrap:wrap; font-size:14px; }
   .champdate input { background:rgba(4,6,12,.6); border:1px solid var(--line); border-radius:10px; color:var(--txt); font-family:inherit; font-size:15px; padding:8px 12px; outline:none; color-scheme:dark; }
   .champdate input:focus { border-color:var(--cyan); }
+  /* module probatoire : clause d'acceptation + code de vérification */
+  .clause { background:rgba(27,111,216,.08); border:1px solid var(--line); border-radius:12px; padding:14px; margin-top:8px; font-size:14px; line-height:1.6; }
+  .clause b { color:#EAF4FF; }
+  .mention input[type=text] { width:100%; background:rgba(4,6,12,.6); border:1px solid var(--line); border-radius:10px; color:var(--txt); font-family:inherit; font-size:16px; padding:11px 13px; outline:none; margin-top:6px; }
+  .mention input:focus { border-color:var(--cyan); }
+  .otp { border-top:1px solid var(--line); margin-top:16px; padding-top:14px; }
+  .otp .rangee { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:8px; }
+  .otp input { flex:1; min-width:150px; background:rgba(4,6,12,.6); border:1px solid var(--line); border-radius:10px; color:var(--txt); font-family:inherit; font-size:22px; letter-spacing:6px; text-align:center; padding:11px; outline:none; }
+  .otp input:focus { border-color:var(--cyan); }
+  .badge { display:inline-block; font-size:11px; font-weight:700; letter-spacing:1px; padding:3px 10px; border-radius:20px; background:rgba(51,209,122,.12); color:var(--ok); text-transform:uppercase; }
   input[type=checkbox] { width:18px; height:18px; margin-top:2px; accent-color:var(--cyan); flex:none; }
   .msg { margin-top:10px; font-size:14px; }
   .msg.err { color:#ff6b6b; }
@@ -111,6 +121,18 @@ function ecranSignature() {
       '<canvas class="pad" id="padSig"></canvas>' +
       '<div class="padrow"><span class="hint">Dessinez votre signature ci-dessus (doigt ou souris)</span><button id="effacerSig">Effacer</button></div>' +
       mentionsHtml +
+      // --- module probatoire (Module 6 puis Module 1) ---
+      (infos.preuveMode ? (
+        '<div class="clause"><b>Clause d’acceptation expresse</b><br />' + echap(infos.clauseTexte || '') + '</div>' +
+        '<label class="consent"><input type="checkbox" id="clauseOk" /> Je coche cette case pour accepter expressément la clause ci-dessus.</label>' +
+        '<div class="mention"><label class="hint" style="display:block;margin-top:10px;">Recopiez exactement la mention <b>Bon pour accord</b> :</label>' +
+        '<input type="text" id="mentionTapee" placeholder="Bon pour accord" autocomplete="off" autocapitalize="off" /></div>' +
+        '<div class="otp"><b style="font-size:14px;color:#EAF4FF;">Vérification de votre identité</b>' +
+        '<div class="hint">Un code à 6 chiffres sera envoyé à ' + echap(infos.emailMasque || '') + '. Il est valable 10 minutes (pensez à vérifier vos indésirables).</div>' +
+        '<div class="rangee"><button id="envoiOtp">✉ Recevoir mon code</button>' +
+        '<input type="text" id="otpCode" inputmode="numeric" maxlength="6" placeholder="000000" disabled /></div>' +
+        '<div class="hint" id="otpEtat"></div></div>'
+      ) : '') +
       (infos.dateImposee
         ? '<div class="champdate"><span>Date inscrite sur le document : <b>Fait le ' + infos.dateImposee.split('-').reverse().join('/') + '</b> (fixée par l’expéditeur)</span></div>'
         : '<div class="champdate"><span>Date à inscrire sur le document :</span><input type="date" id="dateSig" /></div>') +
@@ -130,6 +152,42 @@ function ecranSignature() {
   // date du jour (heure de Paris) proposée par défaut, sauf date imposée par l'expéditeur
   if ($('#dateSig')) $('#dateSig').value = new Intl.DateTimeFormat('fr-CA', { timeZone: 'Europe/Paris' }).format(new Date());
   $('#signer').onclick = envoyer;
+
+  if (infos.preuveMode) {
+    // journalise l'ouverture (chronologie du dossier de preuve)
+    fetch('/api/sign', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ action: 'ouverture', id, token, ecran: screen.width + 'x' + screen.height + (matchMedia('(pointer:coarse)').matches ? ' mobile' : ' bureau') }),
+    }).catch(() => {});
+    $('#envoiOtp').onclick = demanderOtp;
+  }
+}
+
+async function demanderOtp() {
+  const b = $('#envoiOtp'), etat = $('#otpEtat');
+  b.disabled = true; etat.style.color = ''; etat.textContent = 'Envoi du code…';
+  try {
+    const res = await fetch('/api/sign', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ action: 'otp', id, token }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erreur');
+    $('#otpCode').disabled = false;
+    $('#otpCode').focus();
+    etat.style.color = '#33d17a';
+    etat.textContent = '✓ Code envoyé à ' + data.emailMasque + ' (envoi ' + data.envois + '/5). Valable 10 minutes.';
+    b.textContent = 'Renvoyer le code';
+    let reste = 30;
+    const tic = setInterval(() => {
+      reste--;
+      b.textContent = reste > 0 ? 'Renvoyer (' + reste + 's)' : 'Renvoyer le code';
+      if (reste <= 0) { clearInterval(tic); b.disabled = false; }
+    }, 1000);
+  } catch (e) {
+    etat.style.color = '#ff6b6b'; etat.textContent = e.message;
+    b.disabled = false;
+  }
 }
 
 // ---- Pavés de dessin (signature et paraphe) ----
@@ -183,6 +241,12 @@ async function envoyer() {
   const mentions = [...document.querySelectorAll('.mention')];
   if (mentions.some((m) => !m.checked)) { msg.className = 'msg err'; msg.textContent = 'Cochez toutes les mentions requises.'; return; }
   if (!$('#consent').checked) { msg.className = 'msg err'; msg.textContent = 'Cochez la case de consentement.'; return; }
+  if (infos.preuveMode) {
+    if (!$('#clauseOk').checked) { msg.className = 'msg err'; msg.textContent = 'Cochez la clause d’acceptation expresse.'; return; }
+    const saisie = ($('#mentionTapee').value || '').trim().toLowerCase();
+    if (saisie !== 'bon pour accord') { msg.className = 'msg err'; msg.textContent = 'Recopiez exactement la mention « Bon pour accord ».'; return; }
+    if (!/^\d{6}$/.test(($('#otpCode').value || '').trim())) { msg.className = 'msg err'; msg.textContent = 'Saisissez le code à 6 chiffres reçu par email.'; return; }
+  }
   const png = rogner(padSig.canvas);
   if (!png) { msg.className = 'msg err'; msg.textContent = 'Signature vide, réessayez.'; return; }
   const pngPar = padPar ? rogner(padPar.canvas) : null;
@@ -192,7 +256,16 @@ async function envoyer() {
     const res = await fetch('/api/sign', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ action: 'sign', id, token, signaturePng: png, paraphePng: pngPar, mentionsAccepted: true, consent: true, dateSignature: $('#dateSig') ? $('#dateSig').value || null : null }),
+      body: JSON.stringify({
+        action: 'sign', id, token, signaturePng: png, paraphePng: pngPar, mentionsAccepted: true, consent: true,
+        dateSignature: $('#dateSig') ? $('#dateSig').value || null : null,
+        ...(infos.preuveMode ? {
+          clauseAcceptee: true,
+          mentionTapee: $('#mentionTapee').value.trim(),
+          otp: $('#otpCode').value.trim(),
+          ecran: screen.width + 'x' + screen.height + ' ' + (screen.colorDepth || '') + 'bit',
+        } : {}),
+      }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Erreur');
