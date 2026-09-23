@@ -282,7 +282,8 @@ function construireMessage(periode) {
         else lignes.push("✅ aucun jour sans ophta");
       }
       else for (const d of days) lignes.push(fmtJour(d));
-      if (r.erreurs && r.erreurs.length) for (const e of r.erreurs) lignes.push("⚠️ " + e);
+      // Les notes/erreurs (plannings pas encore déposés, alertes…) sont affichées
+      // dans l'encart séparé, volontairement hors du message copié/envoyé.
     }
     lignes.push("");
   }
@@ -290,16 +291,30 @@ function construireMessage(periode) {
 }
 
 function afficherDoublons() {
-  // Encart séparé, volontairement HORS du message copié/envoyé sur WhatsApp.
+  // Encart séparé (doublons + notes/plannings manquants), volontairement
+  // HORS du message copié/envoyé sur WhatsApp.
   const box = document.getElementById('doublonBox');
+  const lignes = [];
   const doublons = calculerDoublons();
-  if (!doublons.length) { box.style.display = 'none'; box.textContent = ''; return; }
-  const lignes = ["⚠️ DOUBLONS — même personne sur 2 centres :"];
-  for (const d of doublons) {
-    const dt = new Date(d.date + "T12:00:00");
-    const jm = isNaN(dt) ? d.date : JOURS_ABR[dt.getDay()] + " " + String(dt.getDate()).padStart(2,"0") + "/" + String(dt.getMonth()+1).padStart(2,"0");
-    lignes.push("• " + jm + " : " + d.nom + " — " + d.centres.join(" + "));
+  if (doublons.length) {
+    lignes.push("⚠️ DOUBLONS — même personne sur 2 centres :");
+    for (const d of doublons) {
+      const dt = new Date(d.date + "T12:00:00");
+      const jm = isNaN(dt) ? d.date : JOURS_ABR[dt.getDay()] + " " + String(dt.getDate()).padStart(2,"0") + "/" + String(dt.getMonth()+1).padStart(2,"0");
+      lignes.push("• " + jm + " : " + d.nom + " — " + d.centres.join(" + "));
+    }
   }
+  const notes = [];
+  for (const c of centres) {
+    const r = resultats[c.id];
+    if (r && r.erreurs && r.erreurs.length) for (const e of r.erreurs) notes.push("📍 " + c.label + " — " + e);
+  }
+  if (notes.length) {
+    if (lignes.length) lignes.push("");
+    lignes.push("ℹ️ NOTES (hors message) :");
+    lignes.push(...notes);
+  }
+  if (!lignes.length) { box.style.display = 'none'; box.textContent = ''; return; }
   box.textContent = lignes.join("\n");
   box.style.display = 'block';
 }
