@@ -693,6 +693,21 @@ export default async (req) => {
       }
       const days = [...parDate.values()].sort((a, b) => a.date.localeCompare(b.date));
 
+      // Présences par personne (jours travaillés) : sert au contrôle des doublons
+      // inter-centres côté client (même nom en travail le même jour sur 2 centres).
+      const presences = {};
+      for (const grille of grilles) {
+        for (const pers of grille.personnes.values()) {
+          for (const [iso, cell] of pers.cellules) {
+            if (!moisDemandes.has(iso.slice(0, 7))) continue;
+            if (!lireCellule(cell).travail) continue;
+            const nom = norm(pers.nom);
+            if (!presences[nom]) presences[nom] = [];
+            if (!presences[nom].includes(iso)) presences[nom].push(iso);
+          }
+        }
+      }
+
       return reponse({
         centre: centreId,
         label: centre.label,
@@ -700,6 +715,7 @@ export default async (req) => {
         fichiers,
         ophtalmologues: [...ophtasSet],
         days,
+        presences,
         erreurs,
       });
     } catch (e) {

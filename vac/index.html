@@ -223,6 +223,34 @@ function fmtJour(d) {
   return ligne;
 }
 
+// Doublons inter-centres : même personne en travail le même jour sur 2 centres.
+// Annecy (hors région parisienne) est exclu — ses homonymes IDF sont d'autres personnes.
+const DOUBLON_EXCLUS = ['annecy'];
+function calculerDoublons() {
+  const parPersonne = {};
+  for (const c of centres) {
+    if (DOUBLON_EXCLUS.indexOf(c.id) !== -1) continue;
+    const r = resultats[c.id];
+    if (!r || !r.presences) continue;
+    for (const nom in r.presences) {
+      for (const date of r.presences[nom]) {
+        if (date < AUJOURDHUI) continue;
+        if (!parPersonne[nom]) parPersonne[nom] = {};
+        if (!parPersonne[nom][date]) parPersonne[nom][date] = [];
+        if (parPersonne[nom][date].indexOf(c.label) === -1) parPersonne[nom][date].push(c.label);
+      }
+    }
+  }
+  const alertes = [];
+  for (const nom in parPersonne) {
+    for (const date in parPersonne[nom]) {
+      if (parPersonne[nom][date].length >= 2) alertes.push({ nom, date, centres: parPersonne[nom][date] });
+    }
+  }
+  alertes.sort((a, b) => a.date.localeCompare(b.date) || a.nom.localeCompare(b.nom));
+  return alertes;
+}
+
 function construireMessage(periode) {
   let lignes = ["🚨 JOURS SANS OPHTA"];
   if (rangeJours) {
@@ -235,6 +263,16 @@ function construireMessage(periode) {
     lignes.push("Période : " + p1 + " → " + (MOIS_FR[p2.nom] || p2.nom) + " " + p2.annee);
   }
   lignes.push("");
+  const doublons = calculerDoublons();
+  if (doublons.length) {
+    lignes.push("⚠️ DOUBLONS — même personne sur 2 centres :");
+    for (const d of doublons) {
+      const dt = new Date(d.date + "T12:00:00");
+      const jm = isNaN(dt) ? d.date : JOURS_ABR[dt.getDay()] + " " + String(dt.getDate()).padStart(2,"0") + "/" + String(dt.getMonth()+1).padStart(2,"0");
+      lignes.push("• " + jm + " : " + d.nom + " — " + d.centres.join(" + "));
+    }
+    lignes.push("");
+  }
   for (const c of centres) {
     const r = resultats[c.id];
     lignes.push("📍 " + c.label);
@@ -330,13 +368,16 @@ async function lancerScan() {
     const parts = await Promise.all(moisList.map(m =>
       fetchJsonSafe('../api/majvac?centre=' + c.id + (m ? '&mois=' + m.mois + '&annee=' + m.annee : ''))
     ));
-    const days = [], erreurs = [];
+    const days = [], erreurs = [], presences = {};
     let okCount = 0;
     for (const p of parts) {
       if (p.error) erreurs.push(p.error);
-      else { okCount++; days.push(...(p.days || [])); erreurs.push(...(p.erreurs || [])); if (!periode && p.periode) periode = p.periode; }
+      else {
+        okCount++; days.push(...(p.days || [])); erreurs.push(...(p.erreurs || [])); if (!periode && p.periode) periode = p.periode;
+        if (p.presences) for (const nom in p.presences) presences[nom] = (presences[nom] || []).concat(p.presences[nom]);
+      }
     }
-    resultats[c.id] = okCount === 0 ? { error: erreurs[0] || 'échec du scan' } : { days, erreurs: [...new Set(erreurs)] };
+    resultats[c.id] = okCount === 0 ? { error: erreurs[0] || 'échec du scan' } : { days, erreurs: [...new Set(erreurs)], presences };
     majChipDepuisResultat(c.id);
   }));
 
