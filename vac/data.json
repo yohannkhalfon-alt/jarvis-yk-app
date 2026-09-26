@@ -1,0 +1,282 @@
+{
+  "generated_at": "2026-09-26T05:40:03Z",
+  "source": "Scan JARVIS via connecteur Dropbox",
+  "periode": [
+    {
+      "mois": 9,
+      "annee": 2026,
+      "nom": "SEPTEMBRE"
+    },
+    {
+      "mois": 10,
+      "annee": 2026,
+      "nom": "OCTOBRE"
+    },
+    {
+      "mois": 11,
+      "annee": 2026,
+      "nom": "NOVEMBRE"
+    },
+    {
+      "mois": 12,
+      "annee": 2026,
+      "nom": "DECEMBRE"
+    }
+  ],
+  "centres": {
+    "argenteuil": {
+      "label": "ARGENTEUIL",
+      "days": [
+        {
+          "date": "2026-09-05",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — Hajjar retiré du planning (modif du 31/08), Slimane et Papapostolou OFF"
+        },
+        {
+          "date": "2026-10-31",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — Hajjar retiré du planning (modif du 31/08), Slimane et Papapostolou OFF"
+        },
+        {
+          "date": "2026-11-28",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — aucun ophtalmologue planifié"
+        }
+      ],
+      "notes": [
+        "✅ Doublons Flavie réglés (24/09) : elle est désormais ABS à Sartrouville les sam 26/09, 03/10, 24/10 et mer 28/10, et ABS à Tremblay le mer 21/10 → elle assure ces jours à Argenteuil.",
+        "✅ Absence Papapostolou (28/09→02/10) couverte : Dr Sebakhi assure les mar 29/09, mer 30/09 et jeu 01/10 (09h-19h). Restent à couvrir : sam 31/10 et sam 28/11.",
+        "✅ Sam 24/10 couvert par le Dr BULGARU (ajout du 17/09). Restent : sam 31/10 et sam 28/11.",
+        "✅ Résolution de la crise des samedis (fichiers modifiés le 14/09) : Khallouk sam 12/09, Slimane sam 26/09 + ven 25/09 (plus de « à confirmer ») et ven 09/10 + 23/10, Rosati sam 19/09 + sam 03/10, Charakidas sam 10/10, sam 17/10, ven 06/11, sam 07/11, sam 14/11, ven 20/11, sam 21/11.",
+        "Rempla Charakidas à reporter sur décembre : 11, 12, 18 et 19/12 (note du planning novembre).",
+        "Sam 05/09 : resté sans ophta (historique).",
+        "Lun 21/09 : centre fermé (Kippour). Mer 11/11 : FERIE sur le planning = centre fermé.",
+        "RH septembre : départs — Mariana (STC au 05/09), Laurence (sans solde puis STC), Natasha (rupture PE, fin 17/09), Estelle (dernier jour 10/09) ; renforts Chakira, Salma, Amele, Vigand Thérèse.",
+        "Planning DECEMBRE 2026 pas encore déposé dans Dropbox (seul Annecy l'a créé au 23/09)"
+      ]
+    },
+    "annecy": {
+      "label": "ANNECY",
+      "days": [
+        {
+          "date": "2026-11-02",
+          "weekday": "lundi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-11-03",
+          "weekday": "mardi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-11-04",
+          "weekday": "mercredi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-11-05",
+          "weekday": "jeudi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-11-07",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-11-09",
+          "weekday": "lundi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-11-10",
+          "weekday": "mardi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-11-12",
+          "weekday": "jeudi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-11-14",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
+        },
+        {
+          "date": "2026-12-07",
+          "weekday": "lundi",
+          "status": "none",
+          "hours": null,
+          "note": "Adina OFF, personnel présent, aucun ophtalmologue (planning décembre déposé le 22/09)"
+        },
+        {
+          "date": "2026-12-08",
+          "weekday": "mardi",
+          "status": "none",
+          "hours": null,
+          "note": "Adina OFF, personnel présent, aucun ophtalmologue (planning décembre déposé le 22/09)"
+        },
+        {
+          "date": "2026-12-09",
+          "weekday": "mercredi",
+          "status": "none",
+          "hours": null,
+          "note": "Adina OFF, personnel présent, aucun ophtalmologue (planning décembre déposé le 22/09)"
+        },
+        {
+          "date": "2026-12-10",
+          "weekday": "jeudi",
+          "status": "none",
+          "hours": null,
+          "note": "Adina OFF, personnel présent, aucun ophtalmologue (planning décembre déposé le 22/09)"
+        },
+        {
+          "date": "2026-12-12",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Adina OFF, personnel présent, aucun ophtalmologue (planning décembre déposé le 22/09)"
+        },
+        {
+          "date": "2026-12-14",
+          "weekday": "lundi",
+          "status": "none",
+          "hours": null,
+          "note": "Adina OFF, personnel présent, aucun ophtalmologue (planning décembre déposé le 22/09)"
+        },
+        {
+          "date": "2026-12-15",
+          "weekday": "mardi",
+          "status": "none",
+          "hours": null,
+          "note": "Adina OFF, personnel présent, aucun ophtalmologue (planning décembre déposé le 22/09)"
+        },
+        {
+          "date": "2026-12-16",
+          "weekday": "mercredi",
+          "status": "none",
+          "hours": null,
+          "note": "Adina OFF, personnel présent, aucun ophtalmologue (planning décembre déposé le 22/09)"
+        },
+        {
+          "date": "2026-12-17",
+          "weekday": "jeudi",
+          "status": "none",
+          "hours": null,
+          "note": "Adina OFF, personnel présent, aucun ophtalmologue (planning décembre déposé le 22/09)"
+        },
+        {
+          "date": "2026-12-19",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Adina OFF, personnel présent, aucun ophtalmologue (planning décembre déposé le 22/09)"
+        }
+      ],
+      "notes": [
+        "⚠️ Décembre : Adina absente les semaines du 07/12 et du 14/12 → 10 jours sans ophta (07-10 + 12/12, 14-17 + 19/12 ; vendredis fermés). Même schéma qu'en novembre — Zabadani à solliciter ? Semaines du 30/11, 21/12 et 28/12 couvertes par Adina. Raphaël (orthoptiste) en congé paternité tout décembre (jusqu'au 18/12 puis congé naissance).",
+        "✅ Octobre résolu (fichier du 16/09) : le Dr ZABADANI KASSEM couvre les semaines du 12/10 et du 19/10, 9h-19h du lundi au samedi (vendredis inclus — le centre ouvre exceptionnellement les ven 16 et 23/10).",
+        "🚨 Novembre toujours à trou : 9 jours sans ophta sur les semaines du 02/11 et du 09/11 (Adina OFF, aucun remplaçant depuis le retrait du « Dr » le 14/09). Zabadani à solliciter pour ces 2 semaines ?",
+        "Semaine du 05/10 : ouverture exceptionnelle le ven 09/10 (Adina), fermeture le sam 10/10 (inversion).",
+        "Septembre couvert : Adina + Dr Charakidas (semaine 07-12/09). Semaines du 16/11 au 05/12 : Adina présente.",
+        "Autres vendredis : centre fermé. Mer 11/11 : FERIE = centre fermé.",
+        "Raphaël : congé paternité du 18/11 au 18/12 (dates à confirmer)."
+      ]
+    },
+    "tremblay": {
+      "label": "TREMBLAY",
+      "days": [
+        {
+          "date": "2026-09-04",
+          "weekday": "vendredi",
+          "status": "none",
+          "hours": null,
+          "note": "Correction rétroactive (fichier du 14/09) : Slimane était finalement à Argenteuil (conflit du 04/09 tranché), Adalla et Sebe ABS — journée passée sans ophta"
+        },
+        {
+          "date": "2026-11-02",
+          "weekday": "lundi",
+          "status": "none",
+          "hours": null,
+          "note": "Adalla ABS, Sebe ABS, Slimane OFF — le personnel non-ophta travaille"
+        }
+      ],
+      "notes": [
+        "Lun 07/09 finalement couvert par le Dr Hager et lun 12/10 par Adalla (corrections des fichiers) — jours retirés.",
+        "⚠️ Nouveau trou : lun 02/11 (Adalla ABS, Sebe ABS, Slimane OFF).",
+        "Lun 21/09 : centre fermé (Kippour). Mer 11/11 : FERIE = centre fermé.",
+        "Samedis d'octobre et de novembre couverts par Adalla ; mercredis par Slimane.",
+        "Planning DECEMBRE 2026 pas encore déposé dans Dropbox (seul Annecy l'a créé au 23/09)"
+      ]
+    },
+    "sartrouville": {
+      "label": "SARTROUVILLE",
+      "days": [
+        {
+          "date": "2026-09-02",
+          "weekday": "mercredi",
+          "status": "none",
+          "hours": null,
+          "note": "Addala ABS — Papapostolou/Slimane/Saade/Chahine OFF, personnel présent"
+        }
+      ],
+      "notes": [
+        "Ven 25/09 : Papapostolou présent 09h-17h30 (départ avancé, avion) — journée couverte. Doublons Flavie réglés : ABS ici les sam 26/09, 03/10, 24/10 et mer 28/10 (elle est à Argenteuil).",
+        "✅ Absence Papapostolou (28/09→02/10) couverte : Dr Sebakhi assure les lun 28/09 et ven 02/10 (09h-19h). Plus aucun jour futur sans ophta à Sartrouville.",
+        "Mer 02/09 : Addala ABS (passé, historique).",
+        "Sam 26/09 : Slimane ABS mais couvert par Chahine.",
+        "Lun 21/09 : centre fermé (Kippour).",
+        "Mer 11/11 : corrigé en « FERME FERIE » dans le fichier (15/09).",
+        "Octobre et novembre entièrement couverts (rotation Papapostolou/Saade/Addala/Chahine/Slimane).",
+        "Planning DECEMBRE 2026 pas encore déposé dans Dropbox (seul Annecy l'a créé au 23/09)"
+      ]
+    },
+    "antony": {
+      "label": "ANTONY",
+      "days": [
+        {
+          "date": "2026-11-28",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Seul samedi de novembre encore sans ophta (07, 14 et 21/11 couverts par Di Clemente/Kepisis)"
+        }
+      ],
+      "notes": [
+        "Sam 10/10 : Rosati remplace Abid (09h-18h30) — journée couverte (modif du 24/09).",
+        "✅ Samedis de novembre presque tous couverts : 07/11 Di Clemente (09h-18h), 14/11 Kepisis (09h-19h), 21/11 Di Clemente (09h-18h). Reste le sam 28/11 à couvrir.",
+        "✅ Sam 24/10 couvert par le Dr SEGKOS (ajout du 17/09). Octobre est entièrement couvert — restent les 4 samedis de novembre (07, 14, 21, 28/11).",
+        "✅ Sam 31/10 couvert par le Dr KARKAMANI (ajout du 16/09).",
+        "Samedis couverts : Adam-Mohamed 05/09, Hager 12/09, Di Clemente 19/09 + 03/10 + 17/10, Ghorayeb 26/09, Rosati 10/10, Karkamani 31/10 ; Rosati ven 11/09.",
+        "Meskini ABS la plupart des lun/mar/ven de septembre — couverture Alessandro + remplaçants.",
+        "Mer 11/11 : FERIE FERME sur le planning = centre fermé.",
+        "Planning DECEMBRE 2026 pas encore déposé dans Dropbox (seul Annecy l'a créé au 23/09)"
+      ]
+    }
+  }
+}
