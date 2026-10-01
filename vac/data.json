@@ -1,12 +1,7 @@
 {
-  "generated_at": "2026-09-30T05:39:45Z",
+  "generated_at": "2026-10-01T05:43:16Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
-    {
-      "mois": 9,
-      "annee": 2026,
-      "nom": "SEPTEMBRE"
-    },
     {
       "mois": 10,
       "annee": 2026,
@@ -21,19 +16,17 @@
       "mois": 12,
       "annee": 2026,
       "nom": "DECEMBRE"
+    },
+    {
+      "mois": 1,
+      "annee": 2027,
+      "nom": "JANVIER"
     }
   ],
   "centres": {
     "argenteuil": {
       "label": "ARGENTEUIL",
       "days": [
-        {
-          "date": "2026-09-05",
-          "weekday": "samedi",
-          "status": "none",
-          "hours": null,
-          "note": "Samedi sans ophta — Hajjar retiré du planning (modif du 31/08), Slimane et Papapostolou OFF"
-        },
         {
           "date": "2026-10-31",
           "weekday": "samedi",
@@ -47,19 +40,36 @@
           "status": "none",
           "hours": null,
           "note": "Samedi sans ophta — aucun ophtalmologue planifié"
+        },
+        {
+          "date": "2026-12-05",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — Slimane, Papapostolou, Hajar, Charakidas OFF ; Doc Lou seulement le ven 04/12"
+        },
+        {
+          "date": "2026-12-09",
+          "weekday": "mercredi",
+          "status": "none",
+          "hours": null,
+          "note": "Sans ophta à confirmer — mention « FERIE / FERME » uniquement sur la ligne Papapostolou (le 09/12 n'est pas un férié réel) alors que les équipes travaillent ; aucun ophtalmo positionné"
+        },
+        {
+          "date": "2026-12-26",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — tous les ophtalmos OFF (Charakidas termine le 19/12)"
         }
       ],
       "notes": [
-        "⚠️ DOUBLON Flavie (scan 29/09) : le planning Argenteuil NOVEMBRE (modifié 28/09) la positionne 09h-19h les sam 07/11, sam 14/11, sam 21/11, mer 25/11 et sam 28/11 avec la mention « echange 78 », alors que le planning Sartrouville novembre (inchangé) la fait aussi travailler ces 5 mêmes jours — à vérifier : même personne ou homonymes ? L'« echange 78 » suggère un échange prévu pas encore reporté côté Sartrouville. (Les mer 04/11 et 18/11 « echange 93 » sont OK : Flavie est ABS à Tremblay.)",
-        "✅ Doublons Flavie réglés (24/09) : elle est désormais ABS à Sartrouville les sam 26/09, 03/10, 24/10 et mer 28/10, et ABS à Tremblay le mer 21/10 → elle assure ces jours à Argenteuil.",
-        "✅ Absence Papapostolou (28/09→02/10) couverte : Dr Sebakhi assure les mar 29/09, mer 30/09 et jeu 01/10 (09h-19h). Restent à couvrir : sam 31/10 et sam 28/11.",
-        "✅ Sam 24/10 couvert par le Dr BULGARU (ajout du 17/09). Restent : sam 31/10 et sam 28/11.",
-        "✅ Résolution de la crise des samedis (fichiers modifiés le 14/09) : Khallouk sam 12/09, Slimane sam 26/09 + ven 25/09 (plus de « à confirmer ») et ven 09/10 + 23/10, Rosati sam 19/09 + sam 03/10, Charakidas sam 10/10, sam 17/10, ven 06/11, sam 07/11, sam 14/11, ven 20/11, sam 21/11.",
-        "Rempla Charakidas à reporter sur décembre : 11, 12, 18 et 19/12 (note du planning novembre).",
-        "Sam 05/09 : resté sans ophta (historique).",
-        "Lun 21/09 : centre fermé (Kippour). Mer 11/11 : FERIE sur le planning = centre fermé.",
-        "RH septembre : départs — Mariana (STC au 05/09), Laurence (sans solde puis STC), Natasha (rupture PE, fin 17/09), Estelle (dernier jour 10/09) ; renforts Chakira, Salma, Amele, Vigand Thérèse.",
-        "Planning DECEMBRE 2026 pas encore déposé dans Dropbox (seul Annecy l'a créé au 23/09)"
+        "⚠️ NOUVEAU DOUBLON Flavie (scan 01/10) : sam 05/12 positionnée 09h-19h ici (« ECH S ») ET à Sartrouville (semaine du 30/11 du fichier Sartrouville novembre) — à vérifier : même personne ou homonymes ? Probable échange pas encore reporté.",
+        "✅ Doublons Flavie de novembre réglés : elle est désormais ABS A à Sartrouville les sam 07/11, 14/11, 21/11, mer 25/11 et sam 28/11 (fichier Sartrouville modifié le 28/09). Idem en octobre : ABS A à Sartrouville les sam 17/10, 24/10, mer 28/10 et sam 31/10.",
+        "📅 Planning DECEMBRE déposé le 01/10 : 3 trous détectés (sam 05/12, mer 09/12 à confirmer, sam 26/12). Charakidas assure bien les ven 11, sam 12, ven 18 et sam 19/12 ; Doc Lou (nouveau) le ven 04/12.",
+        "Octobre entièrement couvert hors sam 31/10 : Rosati sam 03/10, Charakidas sam 10/10 + 17/10, Bulgaru sam 24/10 ; Sebakhi jeu 01/10 (Papapostolou ABS).",
+        "Novembre : Charakidas ven 06 + sam 07, sam 14, ven 20 + sam 21/11. Reste sam 28/11 sans ophta. Mer 11/11 : FERIE = centre fermé. Ven 25/12 : FERIE = centre fermé.",
+        "Planning JANVIER 2027 pas encore déposé dans Dropbox (aucun centre au 01/10)."
       ]
     },
     "annecy": {
@@ -206,19 +216,13 @@
         "Semaine du 05/10 : ouverture exceptionnelle le ven 09/10 (Adina), fermeture le sam 10/10 (inversion).",
         "Septembre couvert : Adina + Dr Charakidas (semaine 07-12/09). Semaines du 16/11 au 05/12 : Adina présente.",
         "Autres vendredis : centre fermé. Mer 11/11 : FERIE = centre fermé.",
-        "Raphaël : congé paternité du 18/11 au 18/12 (dates à confirmer)."
+        "Raphaël : congé paternité du 18/11 au 18/12 (dates à confirmer).",
+        "Planning JANVIER 2027 pas encore déposé."
       ]
     },
     "tremblay": {
       "label": "TREMBLAY",
       "days": [
-        {
-          "date": "2026-09-04",
-          "weekday": "vendredi",
-          "status": "none",
-          "hours": null,
-          "note": "Correction rétroactive (fichier du 14/09) : Slimane était finalement à Argenteuil (conflit du 04/09 tranché), Adalla et Sebe ABS — journée passée sans ophta"
-        },
         {
           "date": "2026-11-02",
           "weekday": "lundi",
@@ -228,35 +232,22 @@
         }
       ],
       "notes": [
-        "Lun 07/09 finalement couvert par le Dr Hager et lun 12/10 par Adalla (corrections des fichiers) — jours retirés.",
-        "Note du planning novembre (modifié 28/09) : Adalla sera ABS les 04 et 05/12 — à surveiller quand le planning DECEMBRE sera déposé.",
-        "⚠️ Nouveau trou : lun 02/11 (Adalla ABS, Sebe ABS, Slimane OFF).",
-        "Lun 21/09 : centre fermé (Kippour). Mer 11/11 : FERIE = centre fermé.",
-        "Samedis d'octobre et de novembre couverts par Adalla ; mercredis par Slimane.",
-        "Planning DECEMBRE 2026 pas encore déposé dans Dropbox (seul Annecy l'a créé au 23/09)"
+        "⚠️ Trou : lun 02/11 (Adalla ABS, Sebe ABS, Slimane OFF).",
+        "Octobre entièrement couvert : Slimane prend les mar 13 + mer 14/10 (Adalla ABS le 13/10).",
+        "Note du planning novembre : Adalla sera ABS les 04 et 05/12 — à surveiller quand le planning DECEMBRE sera déposé.",
+        "Mer 11/11 : FERIE = centre fermé.",
+        "Plannings DECEMBRE 2026 et JANVIER 2027 pas encore déposés."
       ]
     },
     "sartrouville": {
       "label": "SARTROUVILLE",
-      "days": [
-        {
-          "date": "2026-09-02",
-          "weekday": "mercredi",
-          "status": "none",
-          "hours": null,
-          "note": "Addala ABS — Papapostolou/Slimane/Saade/Chahine OFF, personnel présent"
-        }
-      ],
+      "days": [],
       "notes": [
-        "⚠️ DOUBLON Flavie (scan 29/09) : positionnée 09h-19h ici ET à Argenteuil les sam 07/11, 14/11, 21/11, mer 25/11 et sam 28/11 (Argenteuil note « echange 78 ») — à vérifier : même personne ou homonymes ? Probable échange pas encore reporté sur le fichier Sartrouville.",
-        "Ven 25/09 : Papapostolou présent 09h-17h30 (départ avancé, avion) — journée couverte. Doublons Flavie réglés : ABS ici les sam 26/09, 03/10, 24/10 et mer 28/10 (elle est à Argenteuil).",
-        "✅ Absence Papapostolou (28/09→02/10) couverte : Dr Sebakhi assure les lun 28/09 et ven 02/10 (09h-19h). Plus aucun jour futur sans ophta à Sartrouville.",
-        "Mer 02/09 : Addala ABS (passé, historique).",
-        "Sam 26/09 : Slimane ABS mais couvert par Chahine.",
-        "Lun 21/09 : centre fermé (Kippour).",
-        "Mer 11/11 : corrigé en « FERME FERIE » dans le fichier (15/09).",
-        "Octobre et novembre entièrement couverts (rotation Papapostolou/Saade/Addala/Chahine/Slimane).",
-        "Planning DECEMBRE 2026 pas encore déposé dans Dropbox (seul Annecy l'a créé au 23/09)"
+        "⚠️ NOUVEAU DOUBLON Flavie (scan 01/10) : sam 05/12 positionnée 9h-19h ici ET à Argenteuil (« ECH S ») — à vérifier : même personne ou homonymes ? Probable échange pas encore reporté côté Sartrouville.",
+        "✅ Doublons Flavie réglés (fichiers du 28-30/09) : ABS A ici les sam 17/10, 24/10, mer 28/10, sam 31/10, sam 07/11, 14/11, 21/11, mer 25/11 et sam 28/11 — elle assure ces jours à Argenteuil.",
+        "Octobre, novembre et début décembre (jusqu'au 05/12) entièrement couverts : rotation Papapostolou/Saade/Addala/Chahine/Slimane + Sebakhi ven 02/10 (Papapostolou ABS).",
+        "Mer 11/11 : FERME FERIE = centre fermé.",
+        "Planning DECEMBRE 2026 pas encore déposé (la semaine du 30/11 au 05/12 figure dans le fichier novembre) ; JANVIER 2027 pas déposé."
       ]
     },
     "antony": {
@@ -271,14 +262,9 @@
         }
       ],
       "notes": [
-        "Sam 10/10 : Rosati remplace Abid (09h-18h30) — journée couverte (modif du 24/09).",
-        "✅ Samedis de novembre presque tous couverts : 07/11 Di Clemente (09h-18h), 14/11 Kepisis (09h-19h), 21/11 Di Clemente (09h-18h). Reste le sam 28/11 à couvrir.",
-        "✅ Sam 24/10 couvert par le Dr SEGKOS (ajout du 17/09). Octobre est entièrement couvert — restent les 4 samedis de novembre (07, 14, 21, 28/11).",
-        "✅ Sam 31/10 couvert par le Dr KARKAMANI (ajout du 16/09).",
-        "Samedis couverts : Adam-Mohamed 05/09, Hager 12/09, Di Clemente 19/09 + 03/10 + 17/10, Ghorayeb 26/09, Rosati 10/10, Karkamani 31/10 ; Rosati ven 11/09.",
-        "Meskini ABS la plupart des lun/mar/ven de septembre — couverture Alessandro + remplaçants.",
-        "Mer 11/11 : FERIE FERME sur le planning = centre fermé.",
-        "Planning DECEMBRE 2026 pas encore déposé dans Dropbox (seul Annecy l'a créé au 23/09)"
+        "Samedis de novembre : 07 + 21/11 Di Clemente, 14/11 Kepisis — reste sam 28/11 sans ophta.",
+        "Octobre entièrement couvert : Di Clemente sam 03 + 17/10, Rosati sam 10/10, Segkos sam 24/10, Karkamani sam 31/10 ; Alessandro assure jeu 01 + ven 02/10 (Meskini ABS).",
+        "Plannings DECEMBRE 2026 et JANVIER 2027 pas encore déposés."
       ]
     }
   }
