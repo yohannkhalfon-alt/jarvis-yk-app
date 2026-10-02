@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-01T05:43:16Z",
+  "generated_at": "2026-10-02T05:43:00Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -49,13 +49,6 @@
           "note": "Samedi sans ophta — Slimane, Papapostolou, Hajar, Charakidas OFF ; Doc Lou seulement le ven 04/12"
         },
         {
-          "date": "2026-12-09",
-          "weekday": "mercredi",
-          "status": "none",
-          "hours": null,
-          "note": "Sans ophta à confirmer — mention « FERIE / FERME » uniquement sur la ligne Papapostolou (le 09/12 n'est pas un férié réel) alors que les équipes travaillent ; aucun ophtalmo positionné"
-        },
-        {
           "date": "2026-12-26",
           "weekday": "samedi",
           "status": "none",
@@ -64,12 +57,12 @@
         }
       ],
       "notes": [
-        "⚠️ NOUVEAU DOUBLON Flavie (scan 01/10) : sam 05/12 positionnée 09h-19h ici (« ECH S ») ET à Sartrouville (semaine du 30/11 du fichier Sartrouville novembre) — à vérifier : même personne ou homonymes ? Probable échange pas encore reporté.",
-        "✅ Doublons Flavie de novembre réglés : elle est désormais ABS A à Sartrouville les sam 07/11, 14/11, 21/11, mer 25/11 et sam 28/11 (fichier Sartrouville modifié le 28/09). Idem en octobre : ABS A à Sartrouville les sam 17/10, 24/10, mer 28/10 et sam 31/10.",
-        "📅 Planning DECEMBRE déposé le 01/10 : 3 trous détectés (sam 05/12, mer 09/12 à confirmer, sam 26/12). Charakidas assure bien les ven 11, sam 12, ven 18 et sam 19/12 ; Doc Lou (nouveau) le ven 04/12.",
-        "Octobre entièrement couvert hors sam 31/10 : Rosati sam 03/10, Charakidas sam 10/10 + 17/10, Bulgaru sam 24/10 ; Sebakhi jeu 01/10 (Papapostolou ABS).",
-        "Novembre : Charakidas ven 06 + sam 07, sam 14, ven 20 + sam 21/11. Reste sam 28/11 sans ophta. Mer 11/11 : FERIE = centre fermé. Ven 25/12 : FERIE = centre fermé.",
-        "Planning JANVIER 2027 pas encore déposé dans Dropbox (aucun centre au 01/10)."
+        "⚠️ DOUBLON Flavie (scan 02/10) : sam 14/11 positionnée 09h-19h ici (« ECH S ») ET repassée 9h-19h à Sartrouville (fichier re-modifié le 02/10, elle y était ABS A la veille) — à vérifier : même personne ou homonymes ?",
+        "✅ Doublon du sam 05/12 réglé : Flavie ABS A dans le fichier Sartrouville DECEMBRE. Tous ses autres échanges (oct/nov/déc) sont cohérents.",
+        "✅ Mer 09/12 réglé : Papapostolou y travaille (le « FERIE/FERME » douteux a été corrigé). Ouamri (nouveau) assure le ven 04/12 ; Charakidas les ven 11 + sam 12 et ven 18 + sam 19/12.",
+        "Restent sans ophta : sam 31/10, sam 28/11, sam 05/12, sam 26/12.",
+        "Octobre couvert hors 31/10 : Rosati sam 03/10, Charakidas sam 10 + 17/10, Bulgaru sam 24/10. Novembre : Charakidas ven 06 + sam 07, 14, ven 20 + sam 21/11.",
+        "Mer 11/11 et ven 25/12 : FERIE = centre fermé. Planning JANVIER 2027 pas encore déposé."
       ]
     },
     "annecy": {
@@ -139,41 +132,6 @@
           "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
         },
         {
-          "date": "2026-12-07",
-          "weekday": "lundi",
-          "status": "none",
-          "hours": null,
-          "note": "Adina OFF, personnel présent, aucun ophtalmologue (planning décembre déposé le 22/09)"
-        },
-        {
-          "date": "2026-12-08",
-          "weekday": "mardi",
-          "status": "none",
-          "hours": null,
-          "note": "Adina OFF, personnel présent, aucun ophtalmologue (planning décembre déposé le 22/09)"
-        },
-        {
-          "date": "2026-12-09",
-          "weekday": "mercredi",
-          "status": "none",
-          "hours": null,
-          "note": "Adina OFF, personnel présent, aucun ophtalmologue (planning décembre déposé le 22/09)"
-        },
-        {
-          "date": "2026-12-10",
-          "weekday": "jeudi",
-          "status": "none",
-          "hours": null,
-          "note": "Adina OFF, personnel présent, aucun ophtalmologue (planning décembre déposé le 22/09)"
-        },
-        {
-          "date": "2026-12-12",
-          "weekday": "samedi",
-          "status": "none",
-          "hours": null,
-          "note": "Adina OFF, personnel présent, aucun ophtalmologue (planning décembre déposé le 22/09)"
-        },
-        {
           "date": "2026-12-14",
           "weekday": "lundi",
           "status": "none",
@@ -210,14 +168,12 @@
         }
       ],
       "notes": [
-        "⚠️ Décembre : Adina absente les semaines du 07/12 et du 14/12 → 10 jours sans ophta (07-10 + 12/12, 14-17 + 19/12 ; vendredis fermés). Même schéma qu'en novembre — Zabadani à solliciter ? Semaines du 30/11, 21/12 et 28/12 couvertes par Adina. Raphaël (orthoptiste) en congé paternité tout décembre (jusqu'au 18/12 puis congé naissance).",
-        "✅ Octobre résolu (fichier du 16/09) : le Dr ZABADANI KASSEM couvre les semaines du 12/10 et du 19/10, 9h-19h du lundi au samedi (vendredis inclus — le centre ouvre exceptionnellement les ven 16 et 23/10).",
-        "🚨 Novembre toujours à trou : 9 jours sans ophta sur les semaines du 02/11 et du 09/11 (Adina OFF, aucun remplaçant depuis le retrait du « Dr » le 14/09). Zabadani à solliciter pour ces 2 semaines ?",
-        "Semaine du 05/10 : ouverture exceptionnelle le ven 09/10 (Adina), fermeture le sam 10/10 (inversion).",
-        "Septembre couvert : Adina + Dr Charakidas (semaine 07-12/09). Semaines du 16/11 au 05/12 : Adina présente.",
-        "Autres vendredis : centre fermé. Mer 11/11 : FERIE = centre fermé.",
-        "Raphaël : congé paternité du 18/11 au 18/12 (dates à confirmer).",
-        "Planning JANVIER 2027 pas encore déposé."
+        "✅ Semaine du 07/12 entièrement couverte par le Dr Karkamani (lun 07 → sam 12/12) — 5 jours retirés.",
+        "⚠️ Reste la semaine du 14/12 sans ophta : lun 14, mar 15, mer 16, jeu 17 et sam 19/12 (Adina OFF, personne positionné). Zabadani (déjà présent semaines des 12 et 19/10) serait le candidat naturel.",
+        "Novembre : 9 jours sans ophta inchangés (semaines du 02/11 et du 09/11, Adina OFF). Mer 11/11 férié exclu.",
+        "Sam 05/12 : centre fermé (toute la colonne « Fermé »).",
+        "Raphaël (orthoptiste) : congé paternité jusqu'au 18/12, puis congé supplémentaire de naissance jusqu'au 17/02/27 (dates à confirmer). Amandine B : arrêt « en attente ».",
+        "Planning JANVIER 2027 pas encore déposé (le fichier décembre couvre jusqu'au sam 02/01 : Adina présente, ven 01/01 férié)."
       ]
     },
     "tremblay": {
@@ -229,25 +185,39 @@
           "status": "none",
           "hours": null,
           "note": "Adalla ABS, Sebe ABS, Slimane OFF — le personnel non-ophta travaille"
+        },
+        {
+          "date": "2026-12-04",
+          "weekday": "vendredi",
+          "status": "none",
+          "hours": null,
+          "note": "Sans ophta — Adalla ABS (annoncé sur le planning novembre), Sebe OFF, Slimane OFF"
+        },
+        {
+          "date": "2026-12-05",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Sans ophta — Adalla ABS, aucun autre ophtalmo positionné"
         }
       ],
       "notes": [
-        "⚠️ Trou : lun 02/11 (Adalla ABS, Sebe ABS, Slimane OFF).",
-        "Octobre entièrement couvert : Slimane prend les mar 13 + mer 14/10 (Adalla ABS le 13/10).",
-        "Note du planning novembre : Adalla sera ABS les 04 et 05/12 — à surveiller quand le planning DECEMBRE sera déposé.",
+        "⚠️ Trous : lun 02/11, et NOUVEAU (planning décembre déposé le 02/10) ven 04/12 + sam 05/12 (Adalla ABS comme annoncé).",
+        "Décembre couvert partout ailleurs : Adalla + Slimane les mercredis ; ven 25/12 FERIE = fermé.",
+        "RH décembre : Maissa en congés maternité à partir du 10/12 ; Sarah Sahin en CP semaines du 07 et du 14/12 ; renfort Salima.",
         "Mer 11/11 : FERIE = centre fermé.",
-        "Plannings DECEMBRE 2026 et JANVIER 2027 pas encore déposés."
+        "Planning JANVIER 2027 pas encore déposé."
       ]
     },
     "sartrouville": {
       "label": "SARTROUVILLE",
       "days": [],
       "notes": [
-        "⚠️ NOUVEAU DOUBLON Flavie (scan 01/10) : sam 05/12 positionnée 9h-19h ici ET à Argenteuil (« ECH S ») — à vérifier : même personne ou homonymes ? Probable échange pas encore reporté côté Sartrouville.",
-        "✅ Doublons Flavie réglés (fichiers du 28-30/09) : ABS A ici les sam 17/10, 24/10, mer 28/10, sam 31/10, sam 07/11, 14/11, 21/11, mer 25/11 et sam 28/11 — elle assure ces jours à Argenteuil.",
-        "Octobre, novembre et début décembre (jusqu'au 05/12) entièrement couverts : rotation Papapostolou/Saade/Addala/Chahine/Slimane + Sebakhi ven 02/10 (Papapostolou ABS).",
-        "Mer 11/11 : FERME FERIE = centre fermé.",
-        "Planning DECEMBRE 2026 pas encore déposé (la semaine du 30/11 au 05/12 figure dans le fichier novembre) ; JANVIER 2027 pas déposé."
+        "⚠️ DOUBLON Flavie (scan 02/10) : sam 14/11 repassée 9h-19h ici (fichier re-modifié le 02/10 — elle était ABS A hier) alors qu'elle est aussi positionnée à Argenteuil « ECH S » — à vérifier : même personne ou homonymes ?",
+        "✅ Doublon du sam 05/12 réglé : ABS A dans le fichier DECEMBRE (déposé le 02/10). Nota : la semaine du 30/11 du fichier NOVEMBRE la fait encore travailler le 05/12 — j'ai retenu le fichier décembre, plus récent.",
+        "Décembre entièrement couvert (rotation Papapostolou/Saade/Addala/Chahine/Slimane), y compris la semaine du 28/12 jusqu'au sam 02/01.",
+        "Octobre/novembre couverts ; autres ABS A Flavie cohérents (17, 24, 28, 31/10 ; 07, 21, 25, 28/11 ; 09, 19, 23, 26/12).",
+        "Planning JANVIER 2027 pas encore déposé."
       ]
     },
     "antony": {
@@ -259,12 +229,42 @@
           "status": "none",
           "hours": null,
           "note": "Seul samedi de novembre encore sans ophta (07, 14 et 21/11 couverts par Di Clemente/Kepisis)"
+        },
+        {
+          "date": "2026-12-05",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — Meskini et Alessandro OFF, aucun remplaçant positionné"
+        },
+        {
+          "date": "2026-12-12",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — Meskini et Alessandro OFF, aucun remplaçant positionné"
+        },
+        {
+          "date": "2026-12-19",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — Meskini et Alessandro OFF, aucun remplaçant positionné"
+        },
+        {
+          "date": "2026-12-26",
+          "weekday": "samedi",
+          "status": "none",
+          "hours": null,
+          "note": "Samedi sans ophta — Meskini et Alessandro OFF, aucun remplaçant positionné"
         }
       ],
       "notes": [
-        "Samedis de novembre : 07 + 21/11 Di Clemente, 14/11 Kepisis — reste sam 28/11 sans ophta.",
-        "Octobre entièrement couvert : Di Clemente sam 03 + 17/10, Rosati sam 10/10, Segkos sam 24/10, Karkamani sam 31/10 ; Alessandro assure jeu 01 + ven 02/10 (Meskini ABS).",
-        "Plannings DECEMBRE 2026 et JANVIER 2027 pas encore déposés."
+        "⚠️ NOUVEAU (planning décembre déposé le 01/10) : les 4 samedis de décembre sans ophta — 05, 12, 19 et 26/12. Aucun remplaçant positionné (en nov : Di Clemente 07 + 21/11, Kepisis 14/11 ; candidats habituels : Rosati, Segkos, Karkamani, Ghorayeb, Hager).",
+        "Semaine : décembre couvert (Meskini lun/mar/ven, Alessandro mer/jeu). Ven 25/12 FERIE = fermé.",
+        "Novembre : reste sam 28/11 sans ophta.",
+        "Octobre couvert : Di Clemente sam 03 + 17/10, Rosati sam 10/10, Segkos sam 24/10, Karkamani sam 31/10.",
+        "Planning JANVIER 2027 pas encore déposé."
       ]
     }
   }
