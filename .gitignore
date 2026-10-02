@@ -1,1 +1,4 @@
 node_modules/
+
+# Sortie du build Netlify (jamais versionnée)
+.netlify/
