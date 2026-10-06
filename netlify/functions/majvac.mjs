@@ -266,6 +266,16 @@ function parseGrille(lignes, moisFichier, anneeFichier) {
     // Ligne d'en-tête : ≥2 dates, ou 1 date accompagnée de la cellule "NOMS"
     // (semaines à un seul jour, ex. "SAMEDI 01/08" ou "LUNDI 31/08").
     const estEnTete = headerCols.length >= 2 || (headerCols.length === 1 && aNoms);
+    // Une ligne "NOMS" SANS date ouvre une section hors planning (ex. le tableau
+    // « INFOS SALARIES » ajouté en pied de fichier à Tremblay en oct. 2026 :
+    // "NOMS | PLANNINGS | VARIABLES"). Sans ce garde-fou, ses lignes étaient
+    // rattachées aux colonnes de la dernière semaine et écrasaient les vraies
+    // cases (ex. ADALLA Yakine "09H 19H" du lun 26/10 remplacé par son gabarit
+    // "lundi+mardi+…" → faux jour sans ophta).
+    if (aNoms && !estEnTete) {
+      colonnes = null;
+      continue;
+    }
     if (estEnTete) {
       colonnes = new Map();
       for (const [i, m] of headerCols) {
@@ -307,7 +317,9 @@ function parseGrille(lignes, moisFichier, anneeFichier) {
     p.blocs[blocCourant] = (p.blocs[blocCourant] || 0) + 1;
     for (const [i, iso] of colonnes) {
       const v = cells[i];
-      if (v) p.cellules.set(iso, v);
+      // Première valeur gagnante : une date n'appartient qu'à une semaine, donc
+      // toute "réécriture" vient d'une ligne parasite (section annexe, doublon).
+      if (v && !p.cellules.has(iso)) p.cellules.set(iso, v);
     }
   }
 
