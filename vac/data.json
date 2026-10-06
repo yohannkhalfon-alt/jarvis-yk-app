@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-05T05:40:25Z",
+  "generated_at": "2026-10-06T05:41:22Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -28,13 +28,6 @@
       "label": "ARGENTEUIL",
       "days": [
         {
-          "date": "2026-12-05",
-          "weekday": "samedi",
-          "status": "none",
-          "hours": null,
-          "note": "Samedi sans ophta — Slimane, Papapostolou, Hajar, Charakidas OFF ; Doc Lou seulement le ven 04/12"
-        },
-        {
           "date": "2026-12-26",
           "weekday": "samedi",
           "status": "none",
@@ -43,10 +36,10 @@
         }
       ],
       "notes": [
-        "✅ Sam 31/10 et sam 28/11 couverts par le Dr KOKKINOS (ajout du 03/10 — mention « attente documents » : à confirmer dès que son dossier est complet).",
+        "✅ Dr KOKKINOS confirmé (mention « attente documents » retirée le 05/10) : il couvre les sam 31/10, 28/11 et désormais aussi le sam 05/12.",
         "⚠️ DOUBLON Flavie (persiste depuis le 02/10) : sam 14/11 positionnée 09h-19h ici (« ECH S ») ET 9h-19h à Sartrouville — à vérifier : même personne ou homonymes ?",
+        "Dernier jour sans ophta : sam 26/12 (Charakidas termine le 19/12). Charakidas : ven 11 + sam 12, ven 18 + sam 19/12 ; Ouamri ven 04/12.",
         "Lun 02/11 : Slimane ABS (échange 93 → Tremblay), remplacé par Papapostolou — couvert.",
-        "Restent sans ophta : sam 05/12 et sam 26/12. Charakidas : ven 11 + sam 12, ven 18 + sam 19/12 ; Ouamri ven 04/12.",
         "Mer 11/11 et ven 25/12 : FERIE = centre fermé. Planning JANVIER 2027 pas encore déposé."
       ]
     },
@@ -198,6 +191,7 @@
       ],
       "notes": [
         "⚠️ Décembre : 8 jours sans ophta — les 4 samedis (05, 12, 19, 26/12, aucun remplaçant positionné) + NOUVEAU (02/10) : mer 23, jeu 24, mer 30 et jeu 31/12 (Alessandro passé ABS, Meskini OFF ces jours-là).",
+        "Renforts secrétaires Safiya et Océane (oct-déc).",
         "Meskini assure les lun/mar/ven de décembre ; Alessandro les mer/jeu jusqu'au 17/12 inclus. Ven 25/12 FERIE = fermé.",
         "Novembre : reste sam 28/11 sans ophta (Di Clemente 07 + 21/11, Kepisis 14/11).",
         "Octobre couvert : Di Clemente sam 03 + 17/10, Rosati sam 10/10, Segkos sam 24/10, Karkamani sam 31/10.",
