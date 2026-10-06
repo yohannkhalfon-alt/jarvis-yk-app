@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-06T05:41:22Z",
+  "generated_at": "2026-10-06T18:55:15Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -37,10 +37,11 @@
       ],
       "notes": [
         "✅ Dr KOKKINOS confirmé (mention « attente documents » retirée le 05/10) : il couvre les sam 31/10, 28/11 et désormais aussi le sam 05/12.",
-        "⚠️ DOUBLON Flavie (persiste depuis le 02/10) : sam 14/11 positionnée 09h-19h ici (« ECH S ») ET 9h-19h à Sartrouville — à vérifier : même personne ou homonymes ?",
+        "✅ Doublon Flavie du sam 14/11 réglé (06/10) : passée « ABS 9H » à Argenteuil ce jour-là (avenant 36h) — elle assure Sartrouville. Tous ses échanges sont désormais cohérents sur les 3 centres.",
         "Dernier jour sans ophta : sam 26/12 (Charakidas termine le 19/12). Charakidas : ven 11 + sam 12, ven 18 + sam 19/12 ; Ouamri ven 04/12.",
         "Lun 02/11 : Slimane ABS (échange 93 → Tremblay), remplacé par Papapostolou — couvert.",
-        "Mer 11/11 et ven 25/12 : FERIE = centre fermé. Planning JANVIER 2027 pas encore déposé."
+        "Mer 11/11 et ven 25/12 : FERIE = centre fermé. Planning JANVIER 2027 pas encore déposé.",
+        "ℹ️ Plannings réécrits le 06/10 avec noms complets + section « INFOS SALARIES » en pied de fichier — le parseur de l'app a été corrigé en conséquence (PR #128/#129)."
       ]
     },
     "annecy": {
@@ -79,8 +80,8 @@
         "✅ Semaine du 02/11 couverte par le Dr VOLAKOU et semaine du 14/12 par le Dr POUSOUSLIDI (ajouts du 03/10 — mention « attente documents » : à confirmer dès que leurs dossiers sont complets).",
         "✅ Semaine du 07/12 couverte par le Dr Karkamani (lun 07 → sam 12/12).",
         "⚠️ Reste la semaine du 09/11 sans ophta : lun 09, mar 10, jeu 12 et sam 14/11 (mer 11/11 férié). Personne positionné.",
+        "Raphaël (Poullot, orthoptiste) : congé paternité du 18/11 au 18/12, puis congé de naissance (minimum 1 mois, dates à définir).",
         "Sam 05/12 : centre fermé. Zabadani couvre les semaines des 12 et 19/10.",
-        "Raphaël (orthoptiste) : congé paternité jusqu'au 18/12, puis congé supplémentaire de naissance jusqu'au 17/02/27. Amandine B : arrêt « en attente ».",
         "Planning JANVIER 2027 pas encore déposé (le fichier décembre couvre jusqu'au sam 02/01 : Adina présente, ven 01/01 férié)."
       ]
     },
@@ -104,7 +105,7 @@
       ],
       "notes": [
         "✅ Lun 02/11 réglé : Slimane couvre (échange du 02/10 — il quitte Argenteuil ce jour-là, repris par Papapostolou).",
-        "⚠️ Trous décembre : ven 04/12 + sam 05/12 (Adalla ABS).",
+        "⚠️ Trous décembre : ven 04/12 + sam 05/12 (Adalla « ABS AR »). Le fichier note « attente conf Slimane » pour le ven 04/12 — Slimane pourrait le couvrir, à confirmer.",
         "Décembre couvert partout ailleurs : Adalla + Slimane les mercredis ; ven 25/12 FERIE = fermé. Mer 11/11 : FERIE = fermé.",
         "RH décembre : Maissa en congés maternité à partir du 10/12 ; Sarah Sahin en CP semaines du 07 et du 14/12 ; renfort Salima.",
         "Planning JANVIER 2027 pas encore déposé."
@@ -114,7 +115,7 @@
       "label": "SARTROUVILLE",
       "days": [],
       "notes": [
-        "⚠️ DOUBLON Flavie (persiste depuis le 02/10) : sam 14/11 9h-19h ici ET à Argenteuil (« ECH S ») — à vérifier : même personne ou homonymes ?",
+        "✅ Doublon Flavie du sam 14/11 réglé (06/10) : elle est ABS à Argenteuil ce jour-là et travaille bien ici. Plus aucun doublon en cours.",
         "Lun 02/11 : Papapostolou ABS (échange 95 → il couvre Argenteuil), remplacé ici par Chahine — jour couvert.",
         "✅ Doublon du sam 05/12 réglé : ABS A dans le fichier DECEMBRE (déposé le 02/10). Nota : la semaine du 30/11 du fichier NOVEMBRE la fait encore travailler le 05/12 — j'ai retenu le fichier décembre, plus récent.",
         "Décembre entièrement couvert (rotation Papapostolou/Saade/Addala/Chahine/Slimane), y compris la semaine du 28/12 jusqu'au sam 02/01.",
