@@ -272,7 +272,10 @@ function parseGrille(lignes, moisFichier, anneeFichier) {
     // rattachées aux colonnes de la dernière semaine et écrasaient les vraies
     // cases (ex. ADALLA Yakine "09H 19H" du lun 26/10 remplacé par son gabarit
     // "lundi+mardi+…" → faux jour sans ophta).
-    if (aNoms && !estEnTete) {
+    // Variante Antony (06/10) : en-tête "SALARIES | PLANNINGS | VARIABLES" et
+    // titre "INFOS SALARIES" — mêmes sections annexes, autres libellés.
+    const aSection = cells.some((c) => /^(INFOS(\s+SALARIES)?|SALARIES|PLANNINGS)$/.test(norm(c)));
+    if ((aNoms && !estEnTete) || aSection) {
       colonnes = null;
       continue;
     }
