@@ -84,6 +84,9 @@
   .msg { font-size:14px; margin-top:10px; }
   .msg.err { color:#ff6b6b; } .msg.ok { color:var(--ok); }
   .hint { font-size:12px; color:var(--dim); margin-top:6px; line-height:1.5; }
+  #infoDoc:not(:empty) { border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-top:8px; font-size:13px; }
+  #infoDoc.conv { border-color:rgba(79,216,235,.45); }
+  #infoDoc.err { border-color:#ff6b6b; color:#ff6b6b; }
   .vide { color:var(--dim); text-align:center; padding:20px; font-size:14px; }
   a { color:var(--cyan); }
 </style>
@@ -106,16 +109,36 @@
     <input type="email" id="fromEmail" placeholder="Ex : direction.argenteuil@toncentre.fr" maxlength="120" list="boites" />
     <datalist id="boites"></datalist>
     <div class="hint">Le PDF signé sera automatiquement renvoyé sur cette boîte quand tous les signataires auront signé.</div>
-    <label>Fichier PDF (max 10 Mo)</label>
-    <input type="file" id="pdf" accept="application/pdf" />
+    <label>Document — PDF ou Word (max 10 Mo)</label>
+    <input type="file" id="pdf" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+    <div class="hint">Un fichier Word (.docx) est converti automatiquement en PDF sur votre appareil : il ne part nulle part ailleurs.</div>
+    <div id="infoDoc"></div>
     <label>Options pour les signataires</label>
     <label class="opt"><input type="checkbox" id="optLu" checked /> Mention « Lu et approuvé » à cocher</label>
     <label class="opt"><input type="checkbox" id="optAccord" /> Mention « Bon pour accord » à cocher</label>
+    <label class="opt"><input type="checkbox" id="optTexte" /> « Je choisis mon texte » — mention libre à cocher :</label>
+    <input type="text" id="texteLibre" placeholder="Ex : Reçu un exemplaire du règlement intérieur" maxlength="60" disabled />
+    <div class="hint">Cette phrase apparaîtra près de la signature, exactement comme « Lu et approuvé ». 60 caractères maximum.</div>
     <label class="opt"><input type="checkbox" id="optParaphe" /> Paraphe (initiales) en bas de chaque page</label>
     <label class="opt"><input type="checkbox" id="optDate" /> « Je choisis ma date » — date inscrite sur le document :
       <input type="date" id="dateImposee" style="width:auto; padding:6px 10px; font-size:14px;" disabled />
     </label>
     <div class="hint">Si coché, c'est cette date qui apparaîtra près des signatures (« Fait le … ») — le signataire ne pourra pas la changer. Sinon, le signataire choisit sa date.</div>
+    <label class="opt" style="margin-top:14px;"><input type="checkbox" id="optPreuve" /> <b>Mode RH — dossier de preuve légal</b> (contrats, avenants, ruptures)</label>
+    <div id="blocPreuve" style="display:none; border:1px solid var(--line); border-radius:12px; padding:14px; margin-top:8px;">
+      <div class="hint">Vérification d'identité par code email, horodatage RFC 3161, clause d'acceptation expresse et dossier de preuve exportable. Une adresse email est requise pour chaque signataire : elle reçoit le code de vérification.</div>
+      <label>Type de document</label>
+      <select id="preuveType" style="width:100%; background:rgba(4,6,12,.6); border:1px solid var(--line); border-radius:10px; color:var(--txt); font-family:inherit; font-size:15px; padding:10px 12px; outline:none;">
+        <option value="contrat_travail">Contrat de travail</option>
+        <option value="avenant">Avenant au contrat de travail</option>
+        <option value="renouvellement_essai">Renouvellement de période d'essai</option>
+        <option value="rupture_conventionnelle">Rupture conventionnelle</option>
+        <option value="note_service">Note de service / document informatif</option>
+      </select>
+      <label>Entité juridique émettrice</label>
+      <input type="text" id="preuveEmetteur" placeholder="Ex : SAS COKEYA" maxlength="120" />
+      <div id="preuveVars"></div>
+    </div>
     <label>Signataires</label>
     <div id="signataires"></div>
     <button class="small" id="addSigner">+ Ajouter un signataire</button>
@@ -154,6 +177,7 @@
   <div class="hint" style="text-align:center;">Touche un repère déjà posé pour le retirer. Chaque signataire peut signer à plusieurs endroits.</div>
 </div>
 
+<script src="docx2pdf.js"></script>
 <script>
 const $ = (s) => document.querySelector(s);
 let adminCode = localStorage.getItem('signCode') || '';
@@ -183,10 +207,34 @@ function ligneSigner(nom = '', email = '') {
   div.querySelector('.s-del').onclick = () => { if ($('#signataires').children.length > 1) div.remove(); };
   $('#signataires').appendChild(div);
 }
+
+// ---- mode RH : champs mobile + variables de clause ----
+const VARS_CLAUSE = {
+  renouvellement_essai: [['DURÉE', 'Ex : 3 mois'], ['DATE FIN', 'Ex : 30 novembre 2026']],
+  avenant: [['DATE EFFET', 'Ex : 1er septembre 2026']],
+  contrat_travail: [], rupture_conventionnelle: [], note_service: [],
+};
+function majVarsClause() {
+  const champs = VARS_CLAUSE[$('#preuveType').value] || [];
+  $('#preuveVars').innerHTML = champs.map(([cle, ph]) =>
+    '<label>' + echap(cle) + '</label><input type="text" class="p-var" data-cle="' + echap(cle) + '" placeholder="' + echap(ph) + '" maxlength="80" />').join('');
+}
+function majModePreuve() {
+  const actif = $('#optPreuve').checked;
+  $('#blocPreuve').style.display = actif ? '' : 'none';
+  if (actif) majVarsClause();
+}
+$('#optPreuve').onchange = majModePreuve;
+$('#preuveType').onchange = majVarsClause;
 ligneSigner();
 $('#addSigner').onclick = () => { if ($('#signataires').children.length < 8) ligneSigner(); };
 
 // « Je choisis ma date » : champ actif seulement quand l'option est cochée
+$('#optTexte').onchange = () => {
+  $('#texteLibre').disabled = !$('#optTexte').checked;
+  if ($('#optTexte').checked) $('#texteLibre').focus();
+};
+
 $('#optDate').onchange = () => {
   $('#dateImposee').disabled = !$('#optDate').checked;
   if ($('#optDate').checked && !$('#dateImposee').value)
@@ -198,7 +246,39 @@ let positions = [];   // {s: index signataire, page: 0-based, x: 0-1, y: 0-1}
 let plDoc = null, plPage = 1, plActif = 0;
 const COULEURS = ['#4FD8EB', '#f5c542', '#33d17a', '#ff8ba0', '#b18cff', '#ffa94d', '#63e6be', '#e599f7'];
 
-$('#pdf').addEventListener('change', () => { positions = []; plDoc = null; majResumePos(); });
+// Document effectivement envoyé : le PDF choisi, ou le PDF issu de la
+// conversion d'un fichier Word. Toujours un PDF à ce stade.
+let docPdf = null;
+let docConverti = false;   // vrai si le PDF provient d'un fichier Word
+
+const poids = (o) => (o / 1024 / 1024).toFixed(1).replace('.', ',') + ' Mo';
+
+$('#pdf').addEventListener('change', async () => {
+  positions = []; plDoc = null; docPdf = null; docConverti = false; majResumePos();
+  const info = $('#infoDoc'); info.className = ''; info.innerHTML = '';
+  const msg = $('#msgCreate'); msg.className = 'msg'; msg.textContent = '';
+  const f = $('#pdf').files[0];
+  if (!f) return;
+
+  if (!window.JarvisDocx || !(JarvisDocx.estWord(f) || JarvisDocx.estVieuxWord(f))) { docPdf = f; return; }
+
+  $('#creer').disabled = true;
+  try {
+    const { fichier, pages } = await JarvisDocx.convertir(f, (etape) => { msg.textContent = etape; });
+    docPdf = fichier; docConverti = true;
+    msg.textContent = '';
+    info.className = 'conv';
+    info.innerHTML = '<b>Word converti en PDF</b> — ' + pages + ' page(s), ' + poids(fichier.size) + '. ' +
+      '<button type="button" class="small" id="voirConv">Vérifier l’aperçu</button>' +
+      '<div class="hint">Vérifiez la mise en page avant d’envoyer : c’est ce PDF qui sera signé. ' +
+      'Si le rendu ne convient pas, exportez le PDF depuis Word (Fichier → Enregistrer sous → PDF) et choisissez-le ici.</div>';
+    $('#voirConv').onclick = () => window.open(URL.createObjectURL(docPdf), '_blank');
+  } catch (e) {
+    docPdf = null;
+    info.className = 'err'; info.textContent = e.message;
+  }
+  $('#creer').disabled = false;
+});
 
 function majResumePos() {
   $('#resumePos').textContent = positions.length ? '✓ ' + positions.length + ' emplacement(s) placé(s)' : '';
@@ -223,8 +303,8 @@ function nomsSigners() {
 $('#placer').onclick = async () => {
   const msg = $('#msgCreate');
   msg.className = 'msg'; msg.textContent = '';
-  const fichier = $('#pdf').files[0];
-  if (!fichier) { msg.className = 'msg err'; msg.textContent = 'Choisis d’abord le fichier PDF.'; return; }
+  const fichier = docPdf;
+  if (!fichier) { msg.className = 'msg err'; msg.textContent = 'Choisis d’abord le document (PDF ou Word).'; return; }
   if (!nomsSigners().length) { msg.className = 'msg err'; msg.textContent = 'Renseigne d’abord le nom des signataires.'; return; }
   msg.textContent = 'Chargement de l’aperçu…';
   try {
@@ -289,13 +369,21 @@ $('#creer').onclick = async () => {
   msg.className = 'msg'; msg.textContent = '';
   const titre = $('#titre').value.trim();
   const fromEmail = $('#fromEmail').value.trim();
-  const fichier = $('#pdf').files[0];
+  const fichier = docPdf;
   const signers = [...document.querySelectorAll('#signataires .row')].map((r) => ({
     name: r.querySelector('.s-nom').value.trim(),
     email: r.querySelector('.s-email').value.trim(),
   })).filter((s) => s.name);
-  if (!titre || !fichier || !signers.length) { msg.className = 'msg err'; msg.textContent = 'Titre, PDF et au moins un signataire (avec nom) requis.'; return; }
-  if (fichier.size > 10 * 1024 * 1024) { msg.className = 'msg err'; msg.textContent = 'PDF trop lourd (max 10 Mo). Compresse-le d’abord (ex : ilovepdf.com).'; return; }
+  const texteLibre = $('#optTexte').checked ? $('#texteLibre').value.trim() : '';
+  if (!titre || !fichier || !signers.length) { msg.className = 'msg err'; msg.textContent = 'Titre, document et au moins un signataire (avec nom) requis.'; return; }
+  if ($('#optTexte').checked && !texteLibre) { msg.className = 'msg err'; msg.textContent = 'Écris ta mention libre, ou décoche « Je choisis mon texte ».'; $('#texteLibre').focus(); return; }
+  if (fichier.size > 10 * 1024 * 1024) {
+    msg.className = 'msg err';
+    msg.textContent = docConverti
+      ? 'Document Word converti trop lourd (max 10 Mo). Exportez plutôt le PDF depuis Word (Fichier → Enregistrer sous → PDF).'
+      : 'PDF trop lourd (max 10 Mo). Compresse-le d’abord (ex : ilovepdf.com).';
+    return;
+  }
 
   $('#creer').disabled = true; msg.textContent = 'Création en cours…';
   try {
@@ -307,10 +395,23 @@ $('#creer').onclick = async () => {
     });
     const corps = {
       action: 'create', title: titre, signers, fromEmail,
-      mentions: [$('#optLu').checked && 'Lu et approuvé', $('#optAccord').checked && 'Bon pour accord'].filter(Boolean),
+      mentions: [$('#optLu').checked && 'Lu et approuvé', $('#optAccord').checked && 'Bon pour accord', texteLibre].filter(Boolean),
       paraphe: $('#optParaphe').checked,
     };
     if ($('#optDate').checked && $('#dateImposee').value) corps.dateImposee = $('#dateImposee').value;
+    if ($('#optPreuve').checked) {
+      const vars = {};
+      document.querySelectorAll('.p-var').forEach((i) => { vars[i.dataset.cle] = i.value.trim(); });
+      const manquante = [...document.querySelectorAll('.p-var')].find((i) => !i.value.trim());
+      if (manquante) { msg.className = 'msg err'; msg.textContent = 'Renseignez « ' + manquante.dataset.cle +' » (utilisé dans la clause d’acceptation).'; $('#creer').disabled = false; return; }
+      if (signers.some((s) => !s.email)) { msg.className = 'msg err'; msg.textContent = 'Mode RH : une adresse email est requise pour chaque signataire (elle reçoit le code de vérification).'; $('#creer').disabled = false; return; }
+      corps.preuve = {
+        type: $('#preuveType').value,
+        emetteur: $('#preuveEmetteur').value.trim(),
+        gestionnaire: fromEmail,
+        vars,
+      };
+    }
     if (positions.length) corps.positions = positions;
     const poster = (b) => api('/api/sign', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(b) });
     const MORCEAU = 2 * 1024 * 1024;
@@ -331,7 +432,7 @@ $('#creer').onclick = async () => {
     if (fromEmail) localStorage.setItem('signFrom', fromEmail);
     msg.className = 'msg ok'; msg.textContent = 'Demande créée ! Envoie chaque lien au bon signataire :';
     $('#resultat').innerHTML = envelope.signers.map((s) => blocLien(envelope, s)).join('');
-    $('#titre').value = ''; $('#pdf').value = ''; $('#signataires').innerHTML = ''; ligneSigner();
+    $('#titre').value = ''; $('#pdf').value = ''; $('#optTexte').checked = false; $('#texteLibre').value = ''; $('#texteLibre').disabled = true; docPdf = null; docConverti = false; $('#infoDoc').className = ''; $('#infoDoc').innerHTML = ''; $('#signataires').innerHTML = ''; ligneSigner();
     positions = []; plDoc = null; majResumePos();
     chargerListe();
   } catch (e) {
@@ -378,6 +479,9 @@ async function chargerListe() {
       '<span class="date">' + new Date(e.createdAt).toLocaleDateString('fr-FR') + '</span>' +
       '</div>' +
       (e.fromEmail ? '<div class="hint">📤 Boîte d’envoi : ' + echap(e.fromEmail) + notifTxt(e) + '</div>' : '') +
+      (e.preuve ? '<div class="hint">⚖ Dossier de preuve — ' + echap(e.preuve.type.replace(/_/g, ' ')) +
+        (e.preuve.finaliseLe ? ' · horodaté RFC 3161 · UUID ' + echap((e.preuve.uuid || '').slice(0, 8)) : '') +
+        (e.status === 'attente_horodatage' ? ' · <span style="color:#f5c542;">horodatage en attente (reprise automatique)</span>' : '') + '</div>' : '') +
       (((e.mentions || []).length || e.paraphe || e.dateImposee) ? '<div class="hint">📋 ' + [...(e.mentions || []), e.paraphe ? 'Paraphe chaque page' : null, e.dateImposee ? 'Fait le ' + e.dateImposee.split('-').reverse().join('/') : null].filter(Boolean).join(' · ') + '</div>' : '') +
       e.signers.map((s) => '<div class="sgn"><span class="nm">' + echap(s.name) + '</span>' +
         '<span class="st ' + s.status + '">' + (s.status === 'signe' ? '✓ Signé' : '⏳ En attente') + '</span>' +
@@ -385,7 +489,8 @@ async function chargerListe() {
         '</div>').join('') +
       '<div style="margin-top:10px; display:flex; gap:6px; flex-wrap:wrap;"><button class="small" onclick="telecharger(\'' + e.id + '\', \'' + e.signers[0].token + '\')">' +
       (e.status === 'complet' ? '⬇ Télécharger le PDF signé' : '⬇ Voir le PDF (état actuel)') + '</button>' +
-      '<button class="small danger" onclick="supprimer(\'' + e.id + '\', \'' + echap(e.title).replace(/'/g, "\\'") + '\')">🗑 Supprimer</button></div>' +
+      (e.preuve && e.preuve.finaliseLe ? '<button class="small" onclick="dossierPreuve(\'' + e.id + '\')">⚖ Dossier de preuve</button>' : '') +
+      '<button class="small danger" onclick="supprimer(\'' + e.id + '\', \'' + echap(e.title).replace(/'/g, "\\'") + '\')">🗑 ' + (e.preuve && e.preuve.finaliseLe ? 'Annuler' : 'Supprimer') + '</button></div>' +
       '</div>'
     ).join('');
   } catch (e) {
@@ -418,6 +523,15 @@ async function supprimer(id, titre) {
     });
     chargerListe();
   } catch (e) { alert(e.message); }
+}
+
+async function dossierPreuve(id) {
+  const res = await fetch('/api/sign?id=' + id + '&preuve=1', { headers: adminCode ? { 'x-sign-code': adminCode } : {} });
+  if (!res.ok) { alert('Dossier indisponible : ' + ((await res.json().catch(() => ({}))).error || res.status)); return; }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(await res.blob());
+  a.download = 'DossierPreuve-' + id + '.pdf';
+  a.click();
 }
 
 async function telecharger(id, token) {
