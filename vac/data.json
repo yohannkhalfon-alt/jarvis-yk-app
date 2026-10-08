@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-07T06:05:17Z",
+  "generated_at": "2026-10-08T05:42:22Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -77,7 +77,7 @@
         }
       ],
       "notes": [
-        "✅ Semaine du 02/11 couverte par le Dr VOLAKOU et semaine du 14/12 par le Dr POUSOUSLIDI (ajouts du 03/10 — mention « attente documents » : à confirmer dès que leurs dossiers sont complets).",
+        "✅ Semaine du 02/11 couverte par le Dr VOLAKOU — confirmé au scan du 08/10 : elle est désormais positionnée sur le planning NOVEMBRE (lun 02 → jeu 05 + sam 07/11, 9h-19h ; ven 06/11 fermé). Semaine du 14/12 couverte par le Dr POUSOUSLIDI (contrats/documents toujours à récupérer).",
         "✅ Semaine du 07/12 couverte par le Dr Karkamani (lun 07 → sam 12/12).",
         "⚠️ Reste la semaine du 09/11 sans ophta : lun 09, mar 10, jeu 12 et sam 14/11 (mer 11/11 férié). Personne positionné.",
         "Raphaël (Poullot, orthoptiste) : congé paternité du 18/11 au 18/12, puis congé de naissance (minimum 1 mois, dates à définir).",
@@ -106,6 +106,7 @@
       "notes": [
         "✅ Lun 02/11 réglé : Slimane couvre (échange du 02/10 — il quitte Argenteuil ce jour-là, repris par Papapostolou).",
         "⚠️ Trous décembre : ven 04/12 + sam 05/12 (Adalla « ABS AR »). Le fichier note « attente conf Slimane » pour le ven 04/12 — Slimane pourrait le couvrir, à confirmer.",
+        "Mar 13/10 : Adalla ABS, couvert par Slimane 9h-19h (il fait mar 13 + mer 14/10).",
         "Décembre couvert partout ailleurs : Adalla + Slimane les mercredis ; ven 25/12 FERIE = fermé. Mer 11/11 : FERIE = fermé.",
         "RH décembre : Maissa en congés maternité à partir du 10/12 ; Sarah Sahin en CP semaines du 07 et du 14/12 ; renfort Salima.",
         "Planning JANVIER 2027 pas encore déposé."
