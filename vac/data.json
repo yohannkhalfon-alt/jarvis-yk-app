@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-08T05:42:22Z",
+  "generated_at": "2026-10-09T05:42:04Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -129,13 +129,6 @@
       "label": "ANTONY",
       "days": [
         {
-          "date": "2026-11-28",
-          "weekday": "samedi",
-          "status": "none",
-          "hours": null,
-          "note": "Seul samedi de novembre encore sans ophta (07, 14 et 21/11 couverts par Di Clemente/Kepisis)"
-        },
-        {
           "date": "2026-12-05",
           "weekday": "samedi",
           "status": "none",
@@ -171,20 +164,6 @@
           "note": "Sans ophta — Alessandro ABS, Meskini OFF"
         },
         {
-          "date": "2026-12-26",
-          "weekday": "samedi",
-          "status": "none",
-          "hours": null,
-          "note": "Samedi sans ophta — Meskini et Alessandro OFF, aucun remplaçant positionné"
-        },
-        {
-          "date": "2026-12-30",
-          "weekday": "mercredi",
-          "status": "none",
-          "hours": null,
-          "note": "Sans ophta — Alessandro ABS, Meskini OFF"
-        },
-        {
           "date": "2026-12-31",
           "weekday": "jeudi",
           "status": "none",
@@ -193,10 +172,11 @@
         }
       ],
       "notes": [
-        "⚠️ Décembre : 8 jours sans ophta — les 4 samedis (05, 12, 19, 26/12, aucun remplaçant positionné) + NOUVEAU (02/10) : mer 23, jeu 24, mer 30 et jeu 31/12 (Alessandro passé ABS, Meskini OFF ces jours-là).",
+        "⚠️ Décembre : 6 jours sans ophta restants — sam 05, 12, 19/12 (aucun remplaçant positionné) + mer 23, jeu 24 et jeu 31/12 (Alessandro ABS, Ntovas ABS AR). Ven 25/12 FERIE = fermé.",
+        "✅ NOUVEAU (09/10) : le Dr NTOVAS PETROV (attente papiers) couvre les sam 28/11, sam 26/12 et mer 30/12 — 3 jours sans ophta en moins.",
         "Renforts secrétaires Safiya et Océane (oct-déc).",
         "Meskini assure les lun/mar/ven de décembre ; Alessandro les mer/jeu jusqu'au 17/12 inclus. Ven 25/12 FERIE = fermé.",
-        "Novembre : reste sam 28/11 sans ophta (Di Clemente 07 + 21/11, Kepisis 14/11).",
+        "✅ Novembre entièrement couvert (09/10) : Di Clemente sam 07 + 21/11, Kepisis sam 14/11, et NOUVEAU — Dr NTOVAS PETROV prend le sam 28/11 (mention « attente papiers », à confirmer).",
         "Octobre couvert : Di Clemente sam 03 + 17/10, Rosati sam 10/10, Segkos sam 24/10, Karkamani sam 31/10.",
         "Planning JANVIER 2027 pas encore déposé."
       ]
