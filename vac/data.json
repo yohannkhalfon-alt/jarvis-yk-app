@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-09T05:42:04Z",
+  "generated_at": "2026-10-10T05:40:47Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -46,40 +46,11 @@
     },
     "annecy": {
       "label": "ANNECY",
-      "days": [
-        {
-          "date": "2026-11-09",
-          "weekday": "lundi",
-          "status": "none",
-          "hours": null,
-          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
-        },
-        {
-          "date": "2026-11-10",
-          "weekday": "mardi",
-          "status": "none",
-          "hours": null,
-          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
-        },
-        {
-          "date": "2026-11-12",
-          "weekday": "jeudi",
-          "status": "none",
-          "hours": null,
-          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
-        },
-        {
-          "date": "2026-11-14",
-          "weekday": "samedi",
-          "status": "none",
-          "hours": null,
-          "note": "Ligne « Dr » retirée du planning (modif du 14/09) — Adina OFF, personnel présent, aucun ophtalmologue"
-        }
-      ],
+      "days": [],
       "notes": [
         "✅ Semaine du 02/11 couverte par le Dr VOLAKOU — confirmé au scan du 08/10 : elle est désormais positionnée sur le planning NOVEMBRE (lun 02 → jeu 05 + sam 07/11, 9h-19h ; ven 06/11 fermé). Semaine du 14/12 couverte par le Dr POUSOUSLIDI (contrats/documents toujours à récupérer).",
         "✅ Semaine du 07/12 couverte par le Dr Karkamani (lun 07 → sam 12/12).",
-        "⚠️ Reste la semaine du 09/11 sans ophta : lun 09, mar 10, jeu 12 et sam 14/11 (mer 11/11 férié). Personne positionné.",
+        "✅ Semaine du 09/11 RÉGLÉE (10/10) : le Dr ZABADANI Kassem couvre lun 09, mar 10, jeu 12, ven 13 et sam 14/11 (9h-19h ; mer 11/11 férié fermé). Plus aucun jour sans ophta à Annecy.",
         "Raphaël (Poullot, orthoptiste) : congé paternité du 18/11 au 18/12, puis congé de naissance (minimum 1 mois, dates à définir).",
         "Sam 05/12 : centre fermé. Zabadani couvre les semaines des 12 et 19/10.",
         "Planning JANVIER 2027 pas encore déposé (le fichier décembre couvre jusqu'au sam 02/01 : Adina présente, ven 01/01 férié)."
@@ -173,7 +144,7 @@
       ],
       "notes": [
         "⚠️ Décembre : 6 jours sans ophta restants — sam 05, 12, 19/12 (aucun remplaçant positionné) + mer 23, jeu 24 et jeu 31/12 (Alessandro ABS, Ntovas ABS AR). Ven 25/12 FERIE = fermé.",
-        "✅ NOUVEAU (09/10) : le Dr NTOVAS PETROV (attente papiers) couvre les sam 28/11, sam 26/12 et mer 30/12 — 3 jours sans ophta en moins.",
+        "✅ Le Dr NTOVAS PETROV couvre les sam 28/11, sam 26/12 et mer 30/12 — la mention « attente papiers » a été retirée du planning le 09/10 (papiers reçus). Contrat/RPPS à récupérer pour Galaxy/Opus.",
         "Renforts secrétaires Safiya et Océane (oct-déc).",
         "Meskini assure les lun/mar/ven de décembre ; Alessandro les mer/jeu jusqu'au 17/12 inclus. Ven 25/12 FERIE = fermé.",
         "✅ Novembre entièrement couvert (09/10) : Di Clemente sam 07 + 21/11, Kepisis sam 14/11, et NOUVEAU — Dr NTOVAS PETROV prend le sam 28/11 (mention « attente papiers », à confirmer).",
