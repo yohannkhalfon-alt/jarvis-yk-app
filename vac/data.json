@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-12T05:39:52Z",
+  "generated_at": "2026-10-13T05:41:24Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -58,25 +58,10 @@
     },
     "tremblay": {
       "label": "TREMBLAY",
-      "days": [
-        {
-          "date": "2026-12-04",
-          "weekday": "vendredi",
-          "status": "none",
-          "hours": null,
-          "note": "Sans ophta — Adalla ABS (annoncé sur le planning novembre), Sebe OFF, Slimane OFF"
-        },
-        {
-          "date": "2026-12-05",
-          "weekday": "samedi",
-          "status": "none",
-          "hours": null,
-          "note": "Sans ophta — Adalla ABS, aucun autre ophtalmo positionné"
-        }
-      ],
+      "days": [],
       "notes": [
         "✅ Lun 02/11 réglé : Slimane couvre (échange du 02/10 — il quitte Argenteuil ce jour-là, repris par Papapostolou).",
-        "⚠️ Trous décembre : ven 04/12 + sam 05/12 (Adalla « ABS AR »). Le fichier note « attente conf Slimane » pour le ven 04/12 — Slimane pourrait le couvrir, à confirmer.",
+        "✅ Décembre RÉGLÉ (13/10) : Slimane a confirmé le ven 04/12 (9h-19h, en plus de ses mercredis) et le Dr CHARAKIDAS Antonios prend le sam 05/12 (9h-19h). Plus aucun jour sans ophta à Tremblay.",
         "Mar 13/10 : Adalla ABS, couvert par Slimane 9h-19h (il fait mar 13 + mer 14/10).",
         "Décembre couvert partout ailleurs : Adalla + Slimane les mercredis ; ven 25/12 FERIE = fermé. Mer 11/11 : FERIE = fermé.",
         "RH décembre : Maissa en congés maternité à partir du 10/12 ; Sarah Sahin en CP semaines du 07 et du 14/12 ; renfort Salima.",
