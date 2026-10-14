@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-13T05:41:24Z",
+  "generated_at": "2026-10-14T05:41:09Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -48,7 +48,7 @@
       "label": "ANNECY",
       "days": [],
       "notes": [
-        "✅ Semaine du 02/11 couverte par le Dr VOLAKOU — confirmé au scan du 08/10 : elle est désormais positionnée sur le planning NOVEMBRE (lun 02 → jeu 05 + sam 07/11, 9h-19h ; ven 06/11 fermé). Semaine du 14/12 couverte par le Dr POUSOUSLIDI (contrats/documents toujours à récupérer).",
+        "✅ Semaine du 02/11 couverte par le Dr VOLAKOU (lun 02 → jeu 05 + sam 07/11). Semaine du 14/12 couverte par le Dr POUSOUSLIDI — la mention « attente documents » a été retirée du planning le 13/10 (documents reçus ?). Contrats/RPPS Volakou-Pousouslidi-Ntovas toujours à récupérer pour Galaxy/Opus.",
         "✅ Semaine du 07/12 couverte par le Dr Karkamani (lun 07 → sam 12/12).",
         "✅ Semaine du 09/11 RÉGLÉE (10/10) : le Dr ZABADANI Kassem couvre lun 09, mar 10, jeu 12, ven 13 et sam 14/11 (9h-19h ; mer 11/11 férié fermé). Plus aucun jour sans ophta à Annecy.",
         "Raphaël (Poullot, orthoptiste) : congé paternité du 18/11 au 18/12, puis congé de naissance (minimum 1 mois, dates à définir).",
@@ -92,20 +92,6 @@
           "note": "Samedi sans ophta — Meskini et Alessandro OFF, aucun remplaçant positionné"
         },
         {
-          "date": "2026-12-12",
-          "weekday": "samedi",
-          "status": "none",
-          "hours": null,
-          "note": "Samedi sans ophta — Meskini et Alessandro OFF, aucun remplaçant positionné"
-        },
-        {
-          "date": "2026-12-19",
-          "weekday": "samedi",
-          "status": "none",
-          "hours": null,
-          "note": "Samedi sans ophta — Meskini et Alessandro OFF, aucun remplaçant positionné"
-        },
-        {
           "date": "2026-12-23",
           "weekday": "mercredi",
           "status": "none",
@@ -128,7 +114,8 @@
         }
       ],
       "notes": [
-        "⚠️ Décembre : 6 jours sans ophta restants — sam 05, 12, 19/12 (aucun remplaçant positionné) + mer 23, jeu 24 et jeu 31/12 (Alessandro ABS, Ntovas ABS AR). Ven 25/12 FERIE = fermé.",
+        "⚠️ Décembre : 4 jours sans ophta restants — sam 05/12 (aucun remplaçant) + mer 23, jeu 24 et jeu 31/12 (Alessandro ABS, Ntovas ABS AR). Ven 25/12 FERIE = fermé.",
+        "✅ NOUVEAU (14/10) : le Dr KOKKINOS Zafeiris couvre les sam 12/12 et sam 19/12 (9h-19h) — pas de doublon, à Argenteuil il ne fait que le sam 05/12 (Charakidas y prend les 12 et 19/12).",
         "✅ Le Dr NTOVAS PETROV couvre les sam 28/11, sam 26/12 et mer 30/12 — la mention « attente papiers » a été retirée du planning le 09/10 (papiers reçus). Contrat/RPPS à récupérer pour Galaxy/Opus.",
         "Renforts secrétaires Safiya et Océane (oct-déc).",
         "Meskini assure les lun/mar/ven de décembre ; Alessandro les mer/jeu jusqu'au 17/12 inclus. Ven 25/12 FERIE = fermé.",
