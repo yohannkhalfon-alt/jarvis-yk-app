@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-15T05:40:17Z",
+  "generated_at": "2026-10-16T05:44:08Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -41,7 +41,8 @@
         "Dernier jour sans ophta : sam 26/12 (Charakidas termine le 19/12). Charakidas : ven 11 + sam 12, ven 18 + sam 19/12 ; Ouamri ven 04/12.",
         "Lun 02/11 : Slimane ABS (échange 93 → Tremblay), remplacé par Papapostolou — couvert.",
         "Mer 11/11 et ven 25/12 : FERIE = centre fermé. Planning JANVIER 2027 pas encore déposé.",
-        "ℹ️ Plannings réécrits le 06/10 avec noms complets + section « INFOS SALARIES » en pied de fichier — le parseur de l'app a été corrigé en conséquence (PR #128/#129)."
+        "ℹ️ Plannings réécrits le 06/10 avec noms complets + section « INFOS SALARIES » en pied de fichier — le parseur de l'app a été corrigé en conséquence (PR #128/#129).",
+        "⚠️ DOUBLON (16/10) : Afir Amele positionnée 9h-19h le ven 16/10 à Argenteuil (renfort arrêt Beddar) ET à Sartrouville — à vérifier — même personne ou homonymes ? Nota : son « ABS 9H A » côté Sartrouville est posé au ven 23/10 alors qu'Argenteuil ne la planifie pas ce jour-là — décalage probable d'une semaine dans un des deux plannings."
       ]
     },
     "annecy": {
@@ -65,7 +66,7 @@
         "Mar 13/10 : Adalla ABS, couvert par Slimane 9h-19h (il fait mar 13 + mer 14/10).",
         "Décembre couvert partout ailleurs : Adalla + Slimane les mercredis ; ven 25/12 FERIE = fermé. Mer 11/11 : FERIE = fermé.",
         "RH décembre : Maissa en congés maternité à partir du 10/12 ; Sarah Sahin en CP semaines du 07 et du 14/12 ; renfort Salima.",
-        "Planning JANVIER 2027 pas encore déposé."
+        "Planning JANVIER 2027 déposé le 15/10 : couverture ophta complète (Adalla lun/mar/jeu/ven/sam + Slimane les mercredis), ven 01/01 férié fermé, sam 02/01 Adalla. Attention : ven 29 et sam 30/01 non renseignés (colonnes vides) — à vérifier au prochain dépôt."
       ]
     },
     "sartrouville": {
@@ -78,7 +79,8 @@
         "Décembre entièrement couvert (rotation Papapostolou/Saade/Addala/Chahine/Slimane), y compris la semaine du 28/12 jusqu'au sam 02/01. Nota 07/10 : la nouvelle version du fichier affiche le centre OUVERT le ven 01/01 avec Papapostolou 9h-19h (c'était férié/fermé avant) — jour couvert, à confirmer si volontaire.",
         "Octobre/novembre couverts ; autres ABS A Flavie cohérents (17, 24, 28, 31/10 ; 07, 21, 25, 28/11 ; 09, 19, 23, 26/12).",
         "Planning JANVIER 2027 pas encore déposé.",
-        "07/10 : les 3 fichiers Sartrouville réécrits le 06/10 (nouveau format noms complets + INFOS SALARIES) relus intégralement — couverture ophta complète oct/nov/déc confirmée, aucun doublon."
+        "07/10 : les 3 fichiers Sartrouville réécrits le 06/10 (nouveau format noms complets + INFOS SALARIES) relus intégralement — couverture ophta complète oct/nov/déc confirmée, aucun doublon.",
+        "⚠️ DOUBLON (16/10) : Afir Amele positionnée 9h-19h le ven 16/10 à Argenteuil (renfort arrêt Beddar) ET à Sartrouville — à vérifier — même personne ou homonymes ? Nota : son « ABS 9H A » côté Sartrouville est posé au ven 23/10 alors qu'Argenteuil ne la planifie pas ce jour-là — décalage probable d'une semaine dans un des deux plannings."
       ]
     },
     "antony": {
