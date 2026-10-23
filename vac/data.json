@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-22T05:39:46Z",
+  "generated_at": "2026-10-23T05:37:07Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -61,21 +61,24 @@
       "label": "TREMBLAY",
       "days": [
         {
-          "date": "2026-11-28",
-          "weekday": "samedi",
+          "date": "2026-12-31",
+          "weekday": "jeudi",
           "status": "none",
           "hours": null,
-          "note": "Samedi sans ophtalmologue (modif du 17/10) : Adalla passé « ABS AR » (arrêt), Slimane OFF, aucun remplaçant. Le centre fonctionne (Kamboua, Echi, Le Bras, Salima, Sahin, Maheswaran…)."
+          "note": "Jeudi sans ophtalmologue (modif du 23/10) : Adalla passé « ABS AR », Slimane OFF, aucun remplaçant. Le centre fonctionne (Decoste, Salima, Brahmi, Maheswaran, Oubalkas…)."
         }
       ],
       "notes": [
-        "⚠️ NOUVEAU (17/10) : sam 28/11 sans ophta — Adalla en arrêt (ABS AR) ce jour-là, aucun remplaçant positionné. Remplaçant à trouver.",
+        "✅ Sam 28/11 RÉGLÉ (22/10) : Dr ROSATI Alessandra le couvre 9h-18h30 (Adalla ABS).",
+        "⚠️ NOUVEAU (23/10) : jeu 31/12 sans ophta — Adalla passé « ABS AR », aucun remplaçant positionné.",
+        "⚠️ À ANTICIPER (note du fichier décembre) : « janvier Yakine abs le 02/01 » — le sam 02/01/27, actuellement couvert par Adalla sur le planning janvier, va se découvrir. Remplaçant à prévoir.",
         "✅ Lun 02/11 réglé : Slimane couvre (échange du 02/10 — il quitte Argenteuil ce jour-là, repris par Papapostolou).",
         "Mar 13/10 : Adalla ABS, couvert par Slimane 9h-19h (il fait mar 13 + mer 14/10).",
         "Décembre couvert partout ailleurs : Adalla + Slimane les mercredis ; ven 25/12 FERIE = fermé. Mer 11/11 : FERIE = fermé.",
         "RH décembre : Maissa en congés maternité à partir du 10/12 ; Sarah Sahin en CP semaines du 07 et du 14/12 ; renfort Salima.",
         "Planning JANVIER 2027 déposé le 15/10 : couverture ophta complète (Adalla lun/mar/jeu/ven/sam + Slimane les mercredis), ven 01/01 férié fermé, sam 02/01 Adalla. Attention : ven 29 et sam 30/01 non renseignés (colonnes vides) — à vérifier au prochain dépôt.",
-        "RH : Echi Maissa en arrêt le mer 21/10 ; Oubalkas Basma reprend vers le 24/11 (fin congé naissance 21/11)."
+        "RH : Echi Maissa en arrêt le mer 21/10 ; Oubalkas Basma reprend vers le 24/11 (fin congé naissance 21/11).",
+        "RH (23/10) : Echi Maissa en congé maternité du 10/12 au 31/03 ; Sahin Sarah en CP du 07 au 31/12."
       ]
     },
     "sartrouville": {
