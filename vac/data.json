@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-23T05:37:07Z",
+  "generated_at": "2026-10-24T05:36:29Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -42,7 +42,7 @@
         "Lun 02/11 : Slimane ABS (échange 93 → Tremblay), remplacé par Papapostolou — couvert.",
         "Mer 11/11 et ven 25/12 : FERIE = centre fermé. Planning JANVIER 2027 pas encore déposé.",
         "ℹ️ Plannings réécrits le 06/10 avec noms complets + section « INFOS SALARIES » en pied de fichier — le parseur de l'app a été corrigé en conséquence (PR #128/#129).",
-        "⚠️ DOUBLON (16/10) : Afir Amele positionnée 9h-19h le ven 16/10 à Argenteuil (renfort arrêt Beddar) ET à Sartrouville — à vérifier — même personne ou homonymes ? Nota : son « ABS 9H A » côté Sartrouville est posé au ven 23/10 alors qu'Argenteuil ne la planifie pas ce jour-là — décalage probable d'une semaine dans un des deux plannings."
+        "RH (23/10) : ⚠️ démission de Beddar Assia au 31/10 (secrétaire 4 j/sem — lun/mar/ven/sam à re-staffer dès novembre). Nouvelle secrétaire : Boudjemaa Manel, début de contrat le 27/10 (36h lun/mer/jeu/sam), en formation à Sartrouville du 26 au 30/10 ; elle reprend la ligne « secrétaire à trouver » sur nov-déc."
       ]
     },
     "annecy": {
