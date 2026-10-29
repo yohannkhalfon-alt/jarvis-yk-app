@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-28T05:37:29Z",
+  "generated_at": "2026-10-29T05:38:33Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -28,15 +28,58 @@
       "label": "ARGENTEUIL",
       "days": [
         {
+          "date": "2026-12-22",
+          "weekday": "mardi",
+          "status": "none",
+          "hours": null,
+          "note": "Papapostolou ABS AR — aucun autre ophta positionné, le personnel travaille"
+        },
+        {
+          "date": "2026-12-23",
+          "weekday": "mercredi",
+          "status": "none",
+          "hours": null,
+          "note": "Papapostolou ABS AR — aucun autre ophta positionné, le personnel travaille"
+        },
+        {
+          "date": "2026-12-24",
+          "weekday": "jeudi",
+          "status": "none",
+          "hours": null,
+          "note": "Papapostolou ABS AR — aucun autre ophta positionné, le personnel travaille"
+        },
+        {
           "date": "2026-12-26",
           "weekday": "samedi",
           "status": "none",
           "hours": null,
-          "note": "Samedi sans ophta — tous les ophtalmos OFF (Charakidas termine le 19/12)"
+          "note": "Samedi sans ophta — tous les ophtalmos OFF (Charakidas termine le 19/12, Papapostolou ABS AR)"
+        },
+        {
+          "date": "2026-12-29",
+          "weekday": "mardi",
+          "status": "none",
+          "hours": null,
+          "note": "Papapostolou ABS AR — aucun autre ophta positionné, le personnel travaille"
+        },
+        {
+          "date": "2026-12-30",
+          "weekday": "mercredi",
+          "status": "none",
+          "hours": null,
+          "note": "Papapostolou ABS AR — aucun autre ophta positionné, le personnel travaille"
+        },
+        {
+          "date": "2026-12-31",
+          "weekday": "jeudi",
+          "status": "none",
+          "hours": null,
+          "note": "Papapostolou ABS AR — aucun autre ophta positionné, le personnel travaille"
         }
       ],
       "notes": [
-        "Dernier jour sans ophta : sam 26/12 (Papapostolou ABS AR, aucun remplaçant). Décembre sinon complet : Ouamri ven 04, Kokkinos sam 05, Charakidas ven 11 + sam 12 + ven 18 + sam 19/12.",
+        "🚨 NOUVEAU (29/10) : Papapostolou en ABS AR du 22/12 au 31/12 — 6 nouveaux jours sans ophta à Argenteuil : mar 22, mer 23, jeu 24, mar 29, mer 30 et jeu 31/12 (en plus du sam 26/12 déjà connu). Seuls restent couverts : lun 21/12 (Hajar), lun 28/12 (Hadj Slimane). 7 jours à staffer sur la quinzaine de fin d'année.",
+        "Décembre couvert jusqu'au 21/12 inclus : Ouamri ven 04, Kokkinos sam 05, Charakidas ven 11 + sam 12 + ven 18 + sam 19/12, Hajar lun 07 + 21/12, Slimane ven 11 + lun 14 + 28/12.",
         "Novembre complet : Charakidas ven 06 + sam 07 + sam 14 + ven 20 + sam 21, Kokkinos sam 28/11. Octobre : Bulgaru sam 24, Kokkinos sam 31.",
         "✅ Doublon Afir Amele du ven 16/10 résolu (28/10) : Sartrouville corrigé en « ABS -9H A » — elle était bien à Argenteuil ce jour-là. Octobre relu le 28/10 : couverture complète jusqu'au sam 31/10 (Kokkinos).",
         "✅ Doublon Flavie du sam 14/11 réglé (06/10) : passée « ABS 9H » à Argenteuil ce jour-là (avenant 36h) — elle assure Sartrouville. Tous ses échanges sont désormais cohérents sur les 3 centres.",
@@ -50,12 +93,14 @@
       "label": "ANNECY",
       "days": [],
       "notes": [
+        "✅ Décembre couvert avec remplaçants (29/10) : Dr KARKAMANI sem du 07 au 12/12 et Dr POUSOUSLIDI sem du 14 au 19/12 (Spinean les autres semaines, vendredis fermés). Novembre : Volakou sem 02-07/11, Zabadani sem 09-14/11. Contrats/RPPS Karkamani et Pousouslidi à surveiller pour Galaxy/Opus.",
         "✅ Semaine du 02/11 couverte par le Dr VOLAKOU (lun 02 → jeu 05 + sam 07/11). Semaine du 14/12 couverte par le Dr POUSOUSLIDI — la mention « attente documents » a été retirée du planning le 13/10 (documents reçus ?). Contrats/RPPS Volakou-Pousouslidi-Ntovas toujours à récupérer pour Galaxy/Opus.",
         "✅ Semaine du 07/12 couverte par le Dr Karkamani (lun 07 → sam 12/12).",
         "✅ Semaine du 09/11 RÉGLÉE (10/10) : le Dr ZABADANI Kassem couvre lun 09, mar 10, jeu 12, ven 13 et sam 14/11 (9h-19h ; mer 11/11 férié fermé). Plus aucun jour sans ophta à Annecy.",
         "Sam 05/12 : centre fermé. Zabadani couvre les semaines des 12 et 19/10.",
         "Planning JANVIER 2027 pas encore déposé (le fichier décembre couvre jusqu'au sam 02/01 : Adina présente, ven 01/01 férié).",
-        "RH (21/10) : Poullot en congé paternité du 18/11 au 18/12 ; Cazeaud fin de contrat 31/10 ; Bouvier arrêt prolongé jusqu'au 15/11 ; arrivées Barbotin, Peyravernay Wendy, Marx Hélène."
+        "RH (21/10) : Poullot en congé paternité du 18/11 au 18/12 ; Cazeaud fin de contrat 31/10 ; Bouvier arrêt prolongé jusqu'au 15/11 ; arrivées Barbotin, Peyravernay Wendy, Marx Hélène.",
+        "RH (29/10) : Poullot enchaîne congé paternité (18/11-18/12) puis congé de naissance (min 1 mois, date à définir). Bouvier Amandine : arrêt prolongé au 15/11 puis en attente de prolongation (Dupont Ambre CDD en remplacement). Ruptures PE à l'initiative des salariées : Ouhida Myriam et Ledru Marina (13/10). Fin de contrat Cazeaud 31/10."
       ]
     },
     "tremblay": {
@@ -79,17 +124,27 @@
         "RH décembre : Maissa en congés maternité à partir du 10/12 ; Sarah Sahin en CP semaines du 07 et du 14/12 ; renfort Salima.",
         "Planning JANVIER 2027 déposé le 15/10 : couverture ophta complète (Adalla lun/mar/jeu/ven/sam + Slimane les mercredis), ven 01/01 férié fermé, sam 02/01 Adalla. Attention : ven 29 et sam 30/01 non renseignés (colonnes vides) — à vérifier au prochain dépôt.",
         "RH : Echi Maissa en arrêt le mer 21/10 ; Oubalkas Basma reprend vers le 24/11 (fin congé naissance 21/11).",
-        "RH (23/10) : Echi Maissa en congé maternité du 10/12 au 31/03 ; Sahin Sarah en CP du 07 au 31/12."
+        "RH (23/10) : Echi Maissa en congé maternité du 10/12 au 31/03 ; Sahin Sarah en CP du 07 au 31/12.",
+        "RH (29/10) : démission Flavie Aeschliman de Tremblay au 01/11 (fichier nov : « attente démission pour la sortir »). Oubalkas en congés de naissance jusqu'au 21/11, reprend le 24/11. Novembre relu : couverture complète (Rosati sam 28/11, Adalla ABS ce jour-là)."
       ]
     },
     "sartrouville": {
       "label": "SARTROUVILLE",
-      "days": [],
+      "days": [
+        {
+          "date": "2026-12-28",
+          "weekday": "lundi",
+          "status": "none",
+          "hours": null,
+          "note": "Papapostolou ABS AR — aucun autre ophta, le personnel travaille"
+        }
+      ],
       "notes": [
+        "🚨 NOUVEAU (29/10) : lun 28/12 sans ophta — Papapostolou passé en ABS AR (même absence 22-31/12 qu'à Argenteuil). Le reste de décembre reste couvert, y compris ven 01/01 (Papapostolou 9h-19h) et sam 02/01 (Slimane).",
         "✅ Doublon Flavie du sam 14/11 réglé (06/10) : elle est ABS à Argenteuil ce jour-là et travaille bien ici. Plus aucun doublon en cours.",
         "Lun 02/11 : Papapostolou ABS (échange 95 → il couvre Argenteuil), remplacé ici par Chahine — jour couvert.",
         "✅ Doublon du sam 05/12 réglé : ABS A dans le fichier DECEMBRE (déposé le 02/10). Nota : la semaine du 30/11 du fichier NOVEMBRE la fait encore travailler le 05/12 — j'ai retenu le fichier décembre, plus récent.",
-        "Décembre entièrement couvert (rotation Papapostolou/Saade/Addala/Chahine/Slimane), y compris la semaine du 28/12 jusqu'au sam 02/01. Nota 07/10 : la nouvelle version du fichier affiche le centre OUVERT le ven 01/01 avec Papapostolou 9h-19h (c'était férié/fermé avant) — jour couvert, à confirmer si volontaire.",
+        "Décembre couvert SAUF lun 28/12 (rotation Papapostolou/Saade/Addala/Chahine/Slimane). Nota : le centre est affiché OUVERT le ven 01/01 avec Papapostolou 9h-19h — à confirmer si volontaire.",
         "Octobre/novembre couverts ; autres ABS A Flavie cohérents (17, 24, 28, 31/10 ; 07, 21, 25, 28/11 ; 09, 19, 23, 26/12).",
         "Planning JANVIER 2027 pas encore déposé.",
         "07/10 : les 3 fichiers Sartrouville réécrits le 06/10 (nouveau format noms complets + INFOS SALARIES) relus intégralement — couverture ophta complète oct/nov/déc confirmée, aucun doublon.",
@@ -126,7 +181,8 @@
         "Octobre couvert : Di Clemente sam 03 + 17/10, Rosati sam 10/10, Segkos sam 24/10, Karkamani sam 31/10.",
         "Planning JANVIER 2027 pas encore déposé.",
         "RH (21/10) : fin de contrat Dieye Bintou avancée au 26/11 (RC 01/12). Contrats/RPPS à récupérer pour Galaxy/Opus : Fdili Alaoui, Kepisis, Segkos, Karkamani (+ Ntovas déjà en cours).",
-        "RH (28/10) : arrêt Abdelatif Anissa 26-28/10 inclus. Nouvelles arrivées : Dianaba Ly (début 15/10), Hemat Magdeleine Stephanie (sem du 26/10). Départs : Balin Noria (RC 14/10), Zola Serena (fin contrat 14/10), Fenelon Shouselie (RC 17/10). Octobre relu le 28/10 : couverture ophta complète jusqu'au sam 31/10 (Karkamani)."
+        "RH (28/10) : arrêt Abdelatif Anissa 26-28/10 inclus. Nouvelles arrivées : Dianaba Ly (début 15/10), Hemat Magdeleine Stephanie (sem du 26/10). Départs : Balin Noria (RC 14/10), Zola Serena (fin contrat 14/10), Fenelon Shouselie (RC 17/10). Octobre relu le 28/10 : couverture ophta complète jusqu'au sam 31/10 (Karkamani).",
+        "RH (29/10) : novembre relu — couverture complète inchangée (Kepisis 14/11, Di Clemente 07+21/11, Ntovas 28/11). Nouvelle secrétaire « Clara » sem du 09/11. Arrêt Fey Delphine prolongé au 03/11 puis en attente. Arrêt Agouni : attente prolongation après le 12/11."
       ]
     }
   }
