@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-29T05:38:33Z",
+  "generated_at": "2026-10-30T05:36:59Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -125,7 +125,8 @@
         "Planning JANVIER 2027 déposé le 15/10 : couverture ophta complète (Adalla lun/mar/jeu/ven/sam + Slimane les mercredis), ven 01/01 férié fermé, sam 02/01 Adalla. Attention : ven 29 et sam 30/01 non renseignés (colonnes vides) — à vérifier au prochain dépôt.",
         "RH : Echi Maissa en arrêt le mer 21/10 ; Oubalkas Basma reprend vers le 24/11 (fin congé naissance 21/11).",
         "RH (23/10) : Echi Maissa en congé maternité du 10/12 au 31/03 ; Sahin Sarah en CP du 07 au 31/12.",
-        "RH (29/10) : démission Flavie Aeschliman de Tremblay au 01/11 (fichier nov : « attente démission pour la sortir »). Oubalkas en congés de naissance jusqu'au 21/11, reprend le 24/11. Novembre relu : couverture complète (Rosati sam 28/11, Adalla ABS ce jour-là)."
+        "RH (29/10) : démission Flavie Aeschliman de Tremblay au 01/11 (fichier nov : « attente démission pour la sortir »). Oubalkas en congés de naissance jusqu'au 21/11, reprend le 24/11. Novembre relu : couverture complète (Rosati sam 28/11, Adalla ABS ce jour-là).",
+        "RH (30/10) : Maheswaran Priya ABS 9h le 30/10 (décès du père de son mari — vérifier droit à congé convention collective, posé sur nov)."
       ]
     },
     "sartrouville": {
@@ -155,13 +156,6 @@
       "label": "ANTONY",
       "days": [
         {
-          "date": "2026-12-05",
-          "weekday": "samedi",
-          "status": "none",
-          "hours": null,
-          "note": "Samedi sans ophtalmologue : Meskini et Sconamiglio OFF, ligne remplaçant « ABS AR » — aucun remplaçant trouvé à ce jour. Le centre fonctionne (Breton, Duflo, Mamache, Bedez…)."
-        },
-        {
           "date": "2026-12-31",
           "weekday": "jeudi",
           "status": "none",
@@ -170,9 +164,10 @@
         }
       ],
       "notes": [
+        "✅ Sam 05/12 RÉGLÉ (30/10) : Dr ROSATI Alessandra 9h-19h (planning déposé le 29/10). Dernier jour sans ophta à Antony : jeu 31/12 (Sconamiglio ABS, Ntovas OFF, remplaçant ABS AR). Décembre sinon complet : Rosati 05/12, Kokkinos 12+19/12, Fdili Alaoui 23-24/12, Ntovas 26+30/12.",
         "✅ Mer 23 et jeu 24/12 RÉGLÉS (21/10) : nouveau remplaçant Dr FDILI ALAOUI 9h-19h les deux jours (Sconamiglio ABS). Restent 2 jours : sam 05/12 et jeu 31/12.",
         "Kokkinos couvre les sam 12 et 19/12 (9h-19h). Nouveaux remplaçants samedis : Segkos (24/10), Karkamani (31/10), Kepisis Dimitrios (14/11), Di Clemente (07 et 21/11), Ntovas (28/11, 26 et 30/12).",
-        "⚠️ Décembre : 2 jours sans ophta restants — sam 05/12 (aucun remplaçant) et jeu 31/12 (Alessandro ABS, Ntovas ABS AR). Mer 23 + jeu 24/12 réglés par Fdili Alaoui. Ven 25/12 FERIE = fermé.",
+        "⚠️ Décembre : 1 jour sans ophta restant — jeu 31/12. Ven 25/12 FERIE = fermé.",
         "✅ NOUVEAU (14/10) : le Dr KOKKINOS Zafeiris couvre les sam 12/12 et sam 19/12 (9h-19h) — pas de doublon, à Argenteuil il ne fait que le sam 05/12 (Charakidas y prend les 12 et 19/12).",
         "✅ Le Dr NTOVAS PETROV couvre les sam 28/11, sam 26/12 et mer 30/12 — la mention « attente papiers » a été retirée du planning le 09/10 (papiers reçus). Contrat/RPPS à récupérer pour Galaxy/Opus.",
         "Renforts secrétaires Safiya et Océane (oct-déc).",
