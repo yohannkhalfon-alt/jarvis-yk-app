@@ -1,12 +1,7 @@
 {
-  "generated_at": "2026-10-31T05:36:09Z",
+  "generated_at": "2026-11-01T05:36:33Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
-    {
-      "mois": 10,
-      "annee": 2026,
-      "nom": "OCTOBRE"
-    },
     {
       "mois": 11,
       "annee": 2026,
@@ -21,6 +16,11 @@
       "mois": 1,
       "annee": 2027,
       "nom": "JANVIER"
+    },
+    {
+      "mois": 2,
+      "annee": 2027,
+      "nom": "FEVRIER"
     }
   ],
   "centres": {
@@ -84,7 +84,7 @@
         "✅ Doublon Afir Amele du ven 16/10 résolu (28/10) : Sartrouville corrigé en « ABS -9H A » — elle était bien à Argenteuil ce jour-là. Octobre relu le 28/10 : couverture complète jusqu'au sam 31/10 (Kokkinos).",
         "✅ Doublon Flavie du sam 14/11 réglé (06/10) : passée « ABS 9H » à Argenteuil ce jour-là (avenant 36h) — elle assure Sartrouville. Tous ses échanges sont désormais cohérents sur les 3 centres.",
         "Lun 02/11 : Slimane ABS (échange 93 → Tremblay), remplacé par Papapostolou — couvert.",
-        "Mer 11/11 et ven 25/12 : FERIE = centre fermé. Planning JANVIER 2027 pas encore déposé.",
+        "Plannings JANVIER et FEVRIER 2027 pas encore déposés.",
         "ℹ️ Plannings réécrits le 06/10 avec noms complets + section « INFOS SALARIES » en pied de fichier — le parseur de l'app a été corrigé en conséquence (PR #128/#129).",
         "RH (23/10) : ⚠️ démission de Beddar Assia au 31/10 (secrétaire 4 j/sem — lun/mar/ven/sam à re-staffer dès novembre). Nouvelle secrétaire : Boudjemaa Manel, début de contrat le 27/10 (36h lun/mer/jeu/sam), en formation à Sartrouville du 26 au 30/10 ; elle reprend la ligne « secrétaire à trouver » sur nov-déc."
       ]
@@ -98,7 +98,7 @@
         "✅ Semaine du 07/12 couverte par le Dr Karkamani (lun 07 → sam 12/12).",
         "✅ Semaine du 09/11 RÉGLÉE (10/10) : le Dr ZABADANI Kassem couvre lun 09, mar 10, jeu 12, ven 13 et sam 14/11 (9h-19h ; mer 11/11 férié fermé). Plus aucun jour sans ophta à Annecy.",
         "Sam 05/12 : centre fermé. Zabadani couvre les semaines des 12 et 19/10.",
-        "Planning JANVIER 2027 pas encore déposé (le fichier décembre couvre jusqu'au sam 02/01 : Adina présente, ven 01/01 férié).",
+        "Plannings JANVIER et FEVRIER 2027 pas encore déposés.",
         "RH (21/10) : Poullot en congé paternité du 18/11 au 18/12 ; Cazeaud fin de contrat 31/10 ; Bouvier arrêt prolongé jusqu'au 15/11 ; arrivées Barbotin, Peyravernay Wendy, Marx Hélène.",
         "RH (29/10) : Poullot enchaîne congé paternité (18/11-18/12) puis congé de naissance (min 1 mois, date à définir). Bouvier Amandine : arrêt prolongé au 15/11 puis en attente de prolongation (Dupont Ambre CDD en remplacement). Ruptures PE à l'initiative des salariées : Ouhida Myriam et Ledru Marina (13/10). Fin de contrat Cazeaud 31/10."
       ]
@@ -126,7 +126,8 @@
         "RH : Echi Maissa en arrêt le mer 21/10 ; Oubalkas Basma reprend vers le 24/11 (fin congé naissance 21/11).",
         "RH (23/10) : Echi Maissa en congé maternité du 10/12 au 31/03 ; Sahin Sarah en CP du 07 au 31/12.",
         "RH (29/10) : démission Flavie Aeschliman de Tremblay au 01/11 (fichier nov : « attente démission pour la sortir »). Oubalkas en congés de naissance jusqu'au 21/11, reprend le 24/11. Novembre relu : couverture complète (Rosati sam 28/11, Adalla ABS ce jour-là).",
-        "RH (31/10) : Maheswaran Priya ABS 9h le 30/10 + 7h le 31/10 (décès du père de son mari — congé convention collective à vérifier, posé sur nov). Arrêt Brahmi Asma 30/10 après-midi + 31/10."
+        "RH (31/10) : Maheswaran Priya ABS 9h le 30/10 + 7h le 31/10 (décès du père de son mari — congé convention collective à vérifier, posé sur nov). Arrêt Brahmi Asma 30/10 après-midi + 31/10.",
+        "Planning FEVRIER 2027 pas encore déposé (janvier déposé le 15/10 : ven 29 + sam 30/01 non renseignés ; sam 02/01 affiché couvert par Adalla mais annoncé absent — à surveiller)."
       ]
     },
     "sartrouville": {
@@ -147,7 +148,7 @@
         "✅ Doublon du sam 05/12 réglé : ABS A dans le fichier DECEMBRE (déposé le 02/10). Nota : la semaine du 30/11 du fichier NOVEMBRE la fait encore travailler le 05/12 — j'ai retenu le fichier décembre, plus récent.",
         "Décembre couvert SAUF lun 28/12 (rotation Papapostolou/Saade/Addala/Chahine/Slimane). Nota : le centre est affiché OUVERT le ven 01/01 avec Papapostolou 9h-19h — à confirmer si volontaire.",
         "Octobre/novembre couverts ; autres ABS A Flavie cohérents (17, 24, 28, 31/10 ; 07, 21, 25, 28/11 ; 09, 19, 23, 26/12).",
-        "Planning JANVIER 2027 pas encore déposé.",
+        "Plannings JANVIER et FEVRIER 2027 pas encore déposés.",
         "07/10 : les 3 fichiers Sartrouville réécrits le 06/10 (nouveau format noms complets + INFOS SALARIES) relus intégralement — couverture ophta complète oct/nov/déc confirmée, aucun doublon.",
         "✅ Doublon Afir Amele du ven 16/10 RÉSOLU (28/10) : le planning Sartrouville a été corrigé le 27/10 — elle y est désormais « ABS -9H A » (absente, à Argenteuil) ce jour-là. Plus aucun doublon en cours entre les 4 centres franciliens."
       ]
@@ -174,7 +175,7 @@
         "Meskini assure les lun/mar/ven de décembre ; Alessandro les mer/jeu jusqu'au 17/12 inclus. Ven 25/12 FERIE = fermé.",
         "✅ Novembre entièrement couvert (09/10) : Di Clemente sam 07 + 21/11, Kepisis sam 14/11, et NOUVEAU — Dr NTOVAS PETROV prend le sam 28/11 (mention « attente papiers », à confirmer).",
         "Octobre couvert : Di Clemente sam 03 + 17/10, Rosati sam 10/10, Segkos sam 24/10, Karkamani sam 31/10.",
-        "Planning JANVIER 2027 pas encore déposé.",
+        "Plannings JANVIER et FEVRIER 2027 pas encore déposés.",
         "RH (21/10) : fin de contrat Dieye Bintou avancée au 26/11 (RC 01/12). Contrats/RPPS à récupérer pour Galaxy/Opus : Fdili Alaoui, Kepisis, Segkos, Karkamani (+ Ntovas déjà en cours).",
         "RH (28/10) : arrêt Abdelatif Anissa 26-28/10 inclus. Nouvelles arrivées : Dianaba Ly (début 15/10), Hemat Magdeleine Stephanie (sem du 26/10). Départs : Balin Noria (RC 14/10), Zola Serena (fin contrat 14/10), Fenelon Shouselie (RC 17/10). Octobre relu le 28/10 : couverture ophta complète jusqu'au sam 31/10 (Karkamani).",
         "RH (29/10) : novembre relu — couverture complète inchangée (Kepisis 14/11, Di Clemente 07+21/11, Ntovas 28/11). Nouvelle secrétaire « Clara » sem du 09/11. Arrêt Fey Delphine prolongé au 03/11 puis en attente. Arrêt Agouni : attente prolongation après le 12/11."
