@@ -10,11 +10,20 @@ import * as XLSX from "xlsx";
 import { getStore } from "@netlify/blobs";
 
 const CENTRES = {
-  argenteuil:   { label: "ARGENTEUIL",   match: ["argenteuil", "cdsoa"] },
-  annecy:       { label: "ANNECY",       match: ["annecy", "alery"] },
-  tremblay:     { label: "TREMBLAY",     match: ["tremblay", "gilbert berger"] },
-  sartrouville: { label: "SARTROUVILLE", match: ["sartrouville", "general de gaulle", "cgg"] },
-  antony:       { label: "ANTONY",       match: ["antony", "haut de seine", "hauts de seine"] },
+  // "folders" : dossiers planning du centre, pour une recherche Dropbox scopée.
+  // La recherche globale "MOIS ANNEE" plafonne à 100 résultats sur toute la
+  // Dropbox : les fichiers Antony/Sartrouville n'y remontaient pas toujours et
+  // l'app affichait à tort "planning pas encore déposé" + "aucun jour sans ophta".
+  argenteuil:   { label: "ARGENTEUIL",   match: ["argenteuil", "cdsoa"],
+                  folders: ["/CDS Argenteuil/ASSOCIATION CDSOA/PLANNING ARGENTEUIL"] },
+  annecy:       { label: "ANNECY",       match: ["annecy", "alery"],
+                  folders: ["/Centre ophta Annecy/ASSO CDS ALERY/PLANNING ANNECY"] },
+  tremblay:     { label: "TREMBLAY",     match: ["tremblay", "gilbert berger"],
+                  folders: ["/Tremblay ophta/ASSO CDS GILBERT BERGER/PLANNING TREMBLAY"] },
+  sartrouville: { label: "SARTROUVILLE", match: ["sartrouville", "general de gaulle", "cgg"],
+                  folders: ["/Centre ophta Sartrouville/ASSOCIATION CGG./ASSOCIATION CGG/PLANNING SARTROUVILLE"] },
+  antony:       { label: "ANTONY",       match: ["antony", "haut de seine", "hauts de seine"],
+                  folders: ["/PLANNING ANTONY"] },
 };
 
 const MOIS = ["JANVIER", "FEVRIER", "MARS", "AVRIL", "MAI", "JUIN", "JUILLET", "AOUT", "SEPTEMBRE", "OCTOBRE", "NOVEMBRE", "DECEMBRE"];
@@ -83,14 +92,13 @@ async function dropboxToken(creds) {
   return data.access_token;
 }
 
-async function dropboxSearch(token, query) {
+async function dropboxSearch(token, query, path) {
+  const options = { filename_only: true, file_extensions: ["xlsx"], file_status: "active", max_results: 100 };
+  if (path) options.path = path;
   const res = await fetch("https://api.dropboxapi.com/2/files/search_v2", {
     method: "POST",
     headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
-    body: JSON.stringify({
-      query,
-      options: { filename_only: true, file_extensions: ["xlsx"], file_status: "active", max_results: 100 },
-    }),
+    body: JSON.stringify({ query, options }),
   });
   const data = await lireJson(res, "Recherche Dropbox");
   return (data.matches || [])
@@ -113,7 +121,15 @@ async function dropboxDownload(token, fileId) {
 // Trouve le fichier planning d'un centre pour un mois donné
 async function trouverPlanning(token, centre, { nom, annee }) {
   const candidats = new Map();
-  for (const f of await dropboxSearch(token, `${nom} ${annee}`)) candidats.set(f.id, f);
+  // 1) Recherche scopée aux dossiers planning du centre (précise, peu de résultats).
+  for (const dossier of centre.folders || []) {
+    try {
+      for (const f of await dropboxSearch(token, `${nom} ${annee}`, dossier)) candidats.set(f.id, f);
+    } catch (e) {} // chemin déplacé/renommé → on retombe sur la recherche globale
+  }
+  // 2) Recherche globale en complément (fichiers rangés hors des dossiers connus).
+  if (!candidats.size)
+    for (const f of await dropboxSearch(token, `${nom} ${annee}`)) candidats.set(f.id, f);
 
   const bons = [...candidats.values()].filter((f) => {
     const nomF = norm(f.name);
