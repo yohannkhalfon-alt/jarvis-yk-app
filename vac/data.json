@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-03T05:36:42Z",
+  "generated_at": "2026-11-04T05:36:25Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -85,17 +85,11 @@
           "status": "none",
           "hours": null,
           "note": "Jeudi sans ophtalmologue (modif du 23/10) : Adalla passé « ABS AR », Slimane OFF, aucun remplaçant. Le centre fonctionne (Decoste, Salima, Brahmi, Maheswaran, Oubalkas…)."
-        },
-        {
-          "date": "2027-01-02",
-          "weekday": "samedi",
-          "status": "none",
-          "hours": null,
-          "note": "Adalla ABS AR — aucun autre ophta, le personnel travaille (Kamboua, Le Bras, Chemerzelin, Brahmi, Maheswaran, Bencharfeddine, Oubalkas)"
         }
       ],
       "notes": [
-        "🚨 NOUVEAU (03/11) : sam 02/01/2027 sans ophta — le planning janvier mis à jour le 02/11 confirme Adalla ABS AR (absence annoncée de longue date). Ven 01/01 férié fermé. À staffer avec le jeu 31/12 (même remplaçant possible sur les deux jours).",
+        "⚠️ DOUBLON (04/11) : Hadj Slimane positionné 9h-19h le sam 02/01/27 à Tremblay (planning janvier, maj 03/11) ET à Sartrouville (planning décembre, semaine du 28/12) — à vérifier : lequel des deux centres couvre-t-il réellement ?",
+        "✅ Sam 02/01/2027 RÉGLÉ (04/11) : Hadj Slimane 9h-19h (Adalla reste absent). ⚠️ MAIS doublon détecté : Slimane est AUSSI positionné 9h-19h le même jour à Sartrouville — à vérifier/arbitrer (même personne, titulaire des deux centres ; si Tremblay est retenu, le sam 02/01 à Sartrouville se découvre).",
         "✅ Sam 28/11 RÉGLÉ (22/10) : Dr ROSATI Alessandra le couvre 9h-18h30 (Adalla ABS).",
         "⚠️ NOUVEAU (23/10) : jeu 31/12 sans ophta — Adalla passé « ABS AR », aucun remplaçant positionné.",
         "⚠️ À ANTICIPER (note du fichier décembre) : « janvier Yakine abs le 02/01 » — le sam 02/01/27, actuellement couvert par Adalla sur le planning janvier, va se découvrir. Remplaçant à prévoir.",
@@ -124,6 +118,7 @@
         }
       ],
       "notes": [
+        "⚠️ DOUBLON (04/11) : Hadj Slimane positionné 9h-19h le sam 02/01/27 ici (planning décembre) ET à Tremblay (planning janvier maj le 03/11) — à vérifier/arbitrer ; si c'est Tremblay, le sam 02/01 de Sartrouville devient sans ophta.",
         "🚨 NOUVEAU (29/10) : lun 28/12 sans ophta — Papapostolou passé en ABS AR (même absence 22-31/12 qu'à Argenteuil). Le reste de décembre reste couvert, y compris ven 01/01 (Papapostolou 9h-19h) et sam 02/01 (Slimane).",
         "✅ Doublon Flavie du sam 14/11 réglé (06/10) : elle est ABS à Argenteuil ce jour-là et travaille bien ici. Plus aucun doublon en cours.",
         "Lun 02/11 : Papapostolou ABS (échange 95 → il couvre Argenteuil), remplacé ici par Chahine — jour couvert.",
