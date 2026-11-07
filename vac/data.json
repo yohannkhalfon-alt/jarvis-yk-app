@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-06T05:37:17Z",
+  "generated_at": "2026-11-07T05:36:15Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -88,6 +88,7 @@
         }
       ],
       "notes": [
+        "ℹ️ (07/11) Planning décembre maj le 06/11 : Dr Charakidas prend le sam 05/12 (9h-19h, pas de doublon — il est OFF à Argenteuil ce jour-là). Jeu 31/12 toujours sans ophta (Adalla ABS AR). RH : congé maternité Echi Maissa avancé au 10/12 (jusqu'au 31/03) ; note « janvier : Yakine abs le 02/01 » (cohérent avec la venue de Slimane le 02/01).",
         "⚠️ DOUBLON (04/11) : Hadj Slimane positionné 9h-19h le sam 02/01/27 à Tremblay (planning janvier, maj 03/11) ET à Sartrouville (planning décembre, semaine du 28/12) — à vérifier : lequel des deux centres couvre-t-il réellement ?",
         "✅ Sam 02/01/2027 RÉGLÉ (04/11) : Hadj Slimane 9h-19h (Adalla reste absent). ⚠️ MAIS doublon détecté : Slimane est AUSSI positionné 9h-19h le même jour à Sartrouville — à vérifier/arbitrer (même personne, titulaire des deux centres ; si Tremblay est retenu, le sam 02/01 à Sartrouville se découvre).",
         "✅ Sam 28/11 RÉGLÉ (22/10) : Dr ROSATI Alessandra le couvre 9h-18h30 (Adalla ABS).",
