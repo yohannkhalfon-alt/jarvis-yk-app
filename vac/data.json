@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-07T05:36:15Z",
+  "generated_at": "2026-11-08T05:36:15Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -111,6 +111,7 @@
       "label": "SARTROUVILLE",
       "days": [],
       "notes": [
+        "ℹ️ (08/11) Scan : Argenteuil nov et Sartrouville déc modifiés — uniquement du staffing secrétaires (Kirra ajoutée sam 26/12). Couverture ophta inchangée partout. La grille du sam 02/01 affiche toujours Slimane 9h-19h : la correction arbitrée (ABS Slimane + Dr Ionita) n'est pas encore saisie dans le fichier.",
         "✅ DOUBLON Slimane sam 02/01/27 ARBITRÉ (06/11) : note dans le fichier décembre « Mettre abs Slimane le 02/01, rempla par Diana Ionita et lui va 93 » → Slimane ira à Tremblay, la Dr IONITA DIANA le remplace à Sartrouville. ⚠️ La grille affiche encore Slimane 9h-19h le 02/01 — correction à saisir dans le planning.",
         "✅ Mer 25/11 RÉGLÉ (06/11) : Dr Rosati Alessandra ajoutée 9h-19h (Addala reste ABS) — version du planning du 05/11.",
         "✅ Lun 28/12 RÉGLÉ (06/11) : Chahine ajouté 9h-19h (Papapostolou reste ABS). Sartrouville n'a plus aucun jour sans ophta.",
