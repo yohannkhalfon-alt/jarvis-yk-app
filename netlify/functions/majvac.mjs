@@ -23,7 +23,7 @@ const CENTRES = {
   sartrouville: { label: "SARTROUVILLE", match: ["sartrouville", "general de gaulle", "cgg"],
                   folders: ["/Centre ophta Sartrouville/ASSOCIATION CGG./ASSOCIATION CGG/PLANNING SARTROUVILLE"] },
   antony:       { label: "ANTONY",       match: ["antony", "haut de seine", "hauts de seine"],
-                  folders: ["/PLANNING ANTONY"] },
+                  folders: ["/yk-brain et CDS 92/CDS des Hauts De Seine/ASSOCIATION/PLANNING ANTONY", "/PLANNING ANTONY"] },
 };
 
 const MOIS = ["JANVIER", "FEVRIER", "MARS", "AVRIL", "MAI", "JUIN", "JUILLET", "AOUT", "SEPTEMBRE", "OCTOBRE", "NOVEMBRE", "DECEMBRE"];
