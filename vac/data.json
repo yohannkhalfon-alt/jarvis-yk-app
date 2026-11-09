@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-08T05:36:15Z",
+  "generated_at": "2026-11-09T05:36:13Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -137,6 +137,7 @@
         }
       ],
       "notes": [
+        "ℹ️ (09/11) Le dossier PLANNING ANTONY a été déplacé dans Dropbox (désormais sous /yk-brain et CDS 92/CDS des Hauts De Seine/ASSOCIATION/) — scan de l'app mis à jour en conséquence. Planning décembre (maj 08/11) : mention « CDD 23/01 Di Clemente à noter » → Di Clemente prévu le sam 23/01/27. Jeu 31/12 toujours sans ophta.",
         "ℹ️ (06/11) Planning décembre : 2e mention CDD janvier — « CDD 02/01 à reporter sur janvier Dr AMADE RAYAN » (sam 02/01/27), en plus de Dr Ionita Diana le 09/01. Contrats/RPPS à prévoir pour les deux.",
         "ℹ️ (05/11) Planning décembre : mention « CDD 09/01 à reporter sur janvier pour Dr IONITA DIANA » — nouveau médecin attendu à Antony le sam 09/01/27 (contrat/RPPS à prévoir). Mer 30/12 confirmé couvert par Ntovas.",
         "✅ Sam 05/12 RÉGLÉ (30/10) : Dr ROSATI Alessandra 9h-19h (planning déposé le 29/10). Dernier jour sans ophta à Antony : jeu 31/12 (Sconamiglio ABS, Ntovas OFF, remplaçant ABS AR). Décembre sinon complet : Rosati 05/12, Kokkinos 12+19/12, Fdili Alaoui 23-24/12, Ntovas 26+30/12.",
