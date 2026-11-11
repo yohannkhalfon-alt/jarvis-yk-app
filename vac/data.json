@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-10T05:39:41Z",
+  "generated_at": "2026-11-11T05:36:41Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -147,13 +147,6 @@
           "note": "Départ retraite Papapostolou — jour non couvert (restent Slimane, Hajar, Charakidas en partiel)"
         },
         {
-          "date": "2027-01-30",
-          "weekday": "samedi",
-          "status": "none",
-          "hours": null,
-          "note": "Départ retraite Papapostolou — jour non couvert (restent Slimane, Hajar, Charakidas en partiel)"
-        },
-        {
           "date": "2027-02-02",
           "weekday": "mardi",
           "status": "none",
@@ -260,6 +253,7 @@
         }
       ],
       "notes": [
+        "✅ Sam 30/01 RÉGLÉ (11/11) : Dr KOKKINOS ajouté 9h-19h. Restent 32 jours sans ophta (30-31/12 + 15 en janvier + 15 en février) — succession Papapostolou toujours à staffer sur les mar/mer/jeu.",
         "🚨 MAJEUR (10/11) : PAPAPOSTOLOU — FIN DE CONTRAT LE 31/12/2026, RETRAITE (note du planning décembre). Il n'apparaît plus dans les fichiers janvier/février 2027 → 16 jours sans ophta en JANVIER et 15 en FEVRIER (tous les mar/mer/jeu + plusieurs ven/sam). Restent : Slimane (~2 lun + 2 ven/mois), Hajar (2 lun/mois), Charakidas (2 ven + 2 sam/mois). Recrutement urgent d'un ophta pour les mar-mer-jeu.",
         "✅ Mar 29/12 RÉGLÉ (10/11) : Slimane ajouté 9h-19h. Restent mer 30 et jeu 31/12 sans ophta en décembre.",
         "✅ Lahmar Rahma couvre 22/23/24/26-12 (contrat/RPPS à récupérer). À partir de janvier elle est titularisée à ANNECY (alternance avec Spinean).",
@@ -447,13 +441,6 @@
           "note": "Samedi sans remplaçant positionné (Meskini/Sconamiglio OFF)"
         },
         {
-          "date": "2027-02-06",
-          "weekday": "samedi",
-          "status": "none",
-          "hours": null,
-          "note": "Samedi sans remplaçant positionné (Meskini/Sconamiglio OFF)"
-        },
-        {
           "date": "2027-02-13",
           "weekday": "samedi",
           "status": "none",
@@ -469,6 +456,7 @@
         }
       ],
       "notes": [
+        "✅ Sam 06/02 RÉGLÉ (11/11) : Dr CHARAKIDAS ajouté 9h-19h (il est OFF à Argenteuil ce jour-là, pas de doublon). Restent : jeu 31/12, sam 16/01, 30/01, 13/02, 20/02.",
         "⚠️ (10/11) JANVIER/FEVRIER 2027 déposés : 5 samedis sans ophta à staffer — 16/01, 30/01, 06/02, 13/02, 20/02. Samedis couverts : 02/01 Dr AMADE RAYAN, 09/01 Dr IONITA DIANA, 23/01 et 27/02 Dr DI CLEMENTE. Semaine : Meskini lun/mar/ven + Sconamiglio mer/jeu, complets.",
         "🔎 RH (10/11) : ligne « DIRECTRICE A TROUVER » dans les grilles janvier/février — poste de direction à pourvoir à Antony.",
         "Jeu 31/12 toujours sans ophta (Sconamiglio ABS). Contrats/RPPS à prévoir : Amade Rayan, Ionita Diana (+ liste existante).",
