@@ -176,6 +176,7 @@ const JOURS_ABR = ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"];
 const AUJOURDHUI = new Date().toLocaleDateString('fr-CA'); // YYYY-MM-DD local
 
 let centres = [];
+let alertesAuto = {}; // alertes sureffectif du dernier scan auto (data.json), conservées en scan direct
 let resultats = {};   // id -> réponse API ou données du scan auto
 let dernierMsg = "";
 let mode = "live";    // "live" = scan Dropbox à la demande · "auto" = données publiées par JARVIS
@@ -372,7 +373,9 @@ async function chargerAuto(bust) {
   try {
     const res = await fetch('data.json' + (bust ? '?t=' + Date.now() : ''));
     if (!res.ok) return null;
-    return await res.json();
+    const data = await res.json();
+    if (data && data.centres) for (const id in data.centres) alertesAuto[id] = data.centres[id].alertes || [];
+    return data;
   } catch (e) { return null; }
 }
 
@@ -406,6 +409,7 @@ async function lancerScan() {
   // Scan direct : 1 requête par centre ET par mois (chacune reste sous la limite de temps Netlify)
   const moisList = periodeInfo && periodeInfo.length ? periodeInfo : [null];
   let periode = periodeInfo && periodeInfo.length ? periodeInfo : null;
+  if (!Object.keys(alertesAuto).length) await chargerAuto(true); // récupérer les alertes sureffectif si pas encore chargées
   await Promise.all(centres.map(async (c) => {
     const parts = await Promise.all(moisList.map(m =>
       fetchJsonSafe('../api/majvac?centre=' + c.id + (m ? '&mois=' + m.mois + '&annee=' + m.annee : ''))
@@ -419,7 +423,7 @@ async function lancerScan() {
         if (p.presences) for (const nom in p.presences) presences[nom] = (presences[nom] || []).concat(p.presences[nom]);
       }
     }
-    resultats[c.id] = okCount === 0 ? { error: erreurs[0] || 'échec du scan' } : { days, erreurs: [...new Set(erreurs)], presences };
+    resultats[c.id] = okCount === 0 ? { error: erreurs[0] || 'échec du scan' } : { days, erreurs: [...new Set(erreurs)], presences, alertes: alertesAuto[c.id] || [] };
     majChipDepuisResultat(c.id);
   }));
 
@@ -488,6 +492,7 @@ async function init() {
         appliquerAuto(auto);
       } else if (saved && saved.resultats) {
         resultats = saved.resultats;
+        for (const c of centres) if (resultats[c.id] && !resultats[c.id].error) resultats[c.id].alertes = alertesAuto[c.id] || [];
         centres.forEach(c => majChipDepuisResultat(c.id));
         afficherResultat(saved.periode, saved.ts);
       }
