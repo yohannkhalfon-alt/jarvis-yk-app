@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-12T05:36:34Z",
+  "generated_at": "2026-11-12T08:41:37Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -267,7 +267,8 @@
         "Lun 02/11 : Slimane ABS (échange 93 → Tremblay), remplacé par Papapostolou — couvert.",
         "ℹ️ Plannings réécrits le 06/10 avec noms complets + section « INFOS SALARIES » en pied de fichier — le parseur de l'app a été corrigé en conséquence (PR #128/#129).",
         "RH (23/10) : ⚠️ démission de Beddar Assia au 31/10 (secrétaire 4 j/sem — lun/mar/ven/sam à re-staffer dès novembre). Nouvelle secrétaire : Boudjemaa Manel, début de contrat le 27/10 (36h lun/mer/jeu/sam), en formation à Sartrouville du 26 au 30/10 ; elle reprend la ligne « secrétaire à trouver » sur nov-déc."
-      ]
+      ],
+      "alertes": []
     },
     "annecy": {
       "label": "ANNECY",
@@ -280,12 +281,14 @@
         "✅ Semaine du 02/11 couverte par le Dr VOLAKOU (lun 02 → jeu 05 + sam 07/11). Semaine du 14/12 couverte par le Dr POUSOUSLIDI — la mention « attente documents » a été retirée du planning le 13/10 (documents reçus ?). Contrats/RPPS Volakou-Pousouslidi-Ntovas toujours à récupérer pour Galaxy/Opus.",
         "✅ Semaine du 07/12 couverte par le Dr Karkamani (lun 07 → sam 12/12).",
         "✅ Semaine du 09/11 RÉGLÉE (10/10) : le Dr ZABADANI Kassem couvre lun 09, mar 10, jeu 12, ven 13 et sam 14/11 (9h-19h ; mer 11/11 férié fermé). Plus aucun jour sans ophta à Annecy."
-      ]
+      ],
+      "alertes": []
     },
     "tremblay": {
       "label": "TREMBLAY",
       "days": [],
       "notes": [
+        "🔴 SUREFFECTIF ORTHOS (12/11) : jeu 12/11 et jeu 19/11 = 4 orthoptistes (seuil Tremblay : 3). Nouvelle règle de surveillance active : Argenteuil > 2 orthos, Tremblay > 3 → alerte rouge dans l'app + notification push. Argenteuil : jeu 05/11 était à 3 (passé), rien d'autre sur les 4 mois.",
         "✅ Jeu 31/12 RÉGLÉ (10/11) : Slimane ajouté 9h-19h (Adalla ABS). Tremblay n'a plus AUCUN jour sans ophta sur les 4 mois.",
         "✅ JANVIER et FEVRIER 2027 déposés et 100% couverts : Adalla (lun/mar/jeu/ven/sam) + Slimane (mercredis). Sam 02/01 couvert par Slimane (Adalla abs) comme arbitré.",
         "RH : congés patho Echi dès le 25/11 puis congé maternité 10/12 → 31/03. Sahin CP 07/12-06/01. Démission Flavie actée au 31/10 (STC fait).",
@@ -295,6 +298,10 @@
         "✅ Sam 28/11 RÉGLÉ (22/10) : Dr ROSATI Alessandra le couvre 9h-18h30 (Adalla ABS).",
         "⚠️ NOUVEAU (23/10) : jeu 31/12 sans ophta — Adalla passé « ABS AR », aucun remplaçant positionné.",
         "⚠️ À ANTICIPER (note du fichier décembre) : « janvier Yakine abs le 02/01 » — le sam 02/01/27, actuellement couvert par Adalla sur le planning janvier, va se découvrir. Remplaçant à prévoir."
+      ],
+      "alertes": [
+        "Jeu 12/11 : 4 orthoptistes au planning (Decoste, Samak, Echi, Chemerzelin) — seuil 3. CDD Salima en surplus (commandé pour couvrir les congés de naissance d'Oubalkas).",
+        "Jeu 19/11 : 4 orthoptistes au planning (Decoste, Samak, Echi, Chemerzelin) — seuil 3. Même config que le 12/11 : CDD Salima déjà contractualisé, à repositionner si possible."
       ]
     },
     "sartrouville": {
@@ -414,7 +421,8 @@
         "Octobre/novembre couverts ; autres ABS A Flavie cohérents (17, 24, 28, 31/10 ; 07, 21, 25, 28/11 ; 09, 19, 23, 26/12).",
         "07/10 : les 3 fichiers Sartrouville réécrits le 06/10 (nouveau format noms complets + INFOS SALARIES) relus intégralement — couverture ophta complète oct/nov/déc confirmée, aucun doublon.",
         "✅ Doublon Afir Amele du ven 16/10 RÉSOLU (28/10) : le planning Sartrouville a été corrigé le 27/10 — elle y est désormais « ABS -9H A » (absente, à Argenteuil) ce jour-là. Plus aucun doublon en cours entre les 4 centres franciliens."
-      ]
+      ],
+      "alertes": []
     },
     "antony": {
       "label": "ANTONY",
@@ -468,7 +476,8 @@
         "Kokkinos couvre les sam 12 et 19/12 (9h-19h). Nouveaux remplaçants samedis : Segkos (24/10), Karkamani (31/10), Kepisis Dimitrios (14/11), Di Clemente (07 et 21/11), Ntovas (28/11, 26 et 30/12).",
         "⚠️ Décembre : 1 jour sans ophta restant — jeu 31/12. Ven 25/12 FERIE = fermé.",
         "✅ NOUVEAU (14/10) : le Dr KOKKINOS Zafeiris couvre les sam 12/12 et sam 19/12 (9h-19h) — pas de doublon, à Argenteuil il ne fait que le sam 05/12 (Charakidas y prend les 12 et 19/12)."
-      ]
+      ],
+      "alertes": []
     }
   }
 }
