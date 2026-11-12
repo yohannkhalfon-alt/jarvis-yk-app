@@ -103,6 +103,10 @@
     padding:14px; font-size:14.5px; line-height:1.6; white-space:pre-wrap; color:#DDE7F4;
     font-family:'Rajdhani',sans-serif; font-weight:500;
   }
+  #alerteBox {
+    background:rgba(70,6,6,.92); border:2px solid #FF4D4D; border-radius:12px;
+    padding:14px; font-size:15px; line-height:1.65; white-space:pre-wrap; color:#FF6B6B; font-weight:700;
+  }
   #doublonBox {
     background:rgba(40,14,10,.85); border:1px solid rgba(255,120,90,.45); border-radius:12px;
     padding:14px; font-size:14.5px; line-height:1.6; white-space:pre-wrap; color:#FFC9B8;
@@ -151,6 +155,7 @@
   <div class="chips" id="chips"></div>
 
   <div id="resultZone">
+    <div id="alerteBox" style="display:none;"></div>
     <div id="doublonBox" style="display:none;"></div>
     <div class="rt">Message prêt à envoyer</div>
     <div id="msgBox"></div>
@@ -293,6 +298,16 @@ function construireMessage(periode) {
 function afficherDoublons() {
   // Encart séparé (doublons + notes/plannings manquants), volontairement
   // HORS du message copié/envoyé sur WhatsApp.
+  // Alertes rouges (sureffectif orthoptistes : Argenteuil > 2, Tremblay > 3)
+  const abox = document.getElementById('alerteBox');
+  const alertes = [];
+  for (const c of centres) {
+    const r = resultats[c.id];
+    if (r && r.alertes && r.alertes.length) for (const a of r.alertes) alertes.push("🔴 " + c.label + " — " + a);
+  }
+  if (alertes.length) { abox.textContent = "⚠️ ATTENTION SUREFFECTIF\n" + alertes.join("\n"); abox.style.display = 'block'; }
+  else { abox.style.display = 'none'; abox.textContent = ''; }
+
   const box = document.getElementById('doublonBox');
   const lignes = [];
   const doublons = calculerDoublons();
@@ -365,7 +380,7 @@ function appliquerAuto(data) {
   resultats = {};
   for (const c of centres) {
     const d = data.centres && data.centres[c.id];
-    resultats[c.id] = d ? { days: d.days || [], erreurs: d.notes || [] } : { error: 'absent du dernier scan' };
+    resultats[c.id] = d ? { days: d.days || [], erreurs: d.notes || [], alertes: d.alertes || [] } : { error: 'absent du dernier scan' };
     majChipDepuisResultat(c.id);
   }
   afficherResultat(data.periode, data.generated_at ? new Date(data.generated_at).getTime() : Date.now());
