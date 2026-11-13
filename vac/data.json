@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-12T08:53:54Z",
+  "generated_at": "2026-11-13T05:38:49Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -274,6 +274,7 @@
       "label": "ANNECY",
       "days": [],
       "notes": [
+        "🆕 Dr ZABADANI KASSEM couvre la semaine du 09 au 14/11 (lun-sam, mercredi férié) — nouveau nom, contrat/RPPS à vérifier pour Galaxy/Opus. Poullot en congé paternité du 18/11 au 18/12 puis congé de naissance jusqu'à fin décembre.",
         "✅ JANVIER et FEVRIER 2027 déposés et 100% couverts : alternance Spinean / Dr LAHMAR RAHMA (semaines du 11 et 18/01, du 08 et 15/02) — Lahmar titularisée à Annecy. Vendredis fermés.",
         "✅ Décembre couvert : Karkamani sem 07-12/12, Pousouslidi sem 14-19/12, Spinean le reste. Sam 05/12 : centre fermé.",
         "RH : Poullot en congé de naissance (dates à confirmer, mini 1 mois, sûrement suivi de CP) — absent tout janvier/février. Orgebin congé maternité 02/01→24/04. Bouvier arrêt en attente de prolongation.",
@@ -288,10 +289,10 @@
       "label": "TREMBLAY",
       "days": [],
       "notes": [
-        "🔴 SUREFFECTIF ORTHOS (12/11, explication confirmée par Yohann) : jeu 12/11 et 19/11 = 4 orthos (seuil 3). Le CDD Salima des 12 et 19/11 avait été posé quand on pensait manquer d'ortho au 95 (avant de trouver Shirel et de lui donner ses jours fixes) → resté au planning, d'où le doublon. Son vrai rôle démarre le 26/11 : remplacement d'Echi Maissa (congé dès le 25/11), mer-sam. Règle de surveillance active : Argenteuil > 2 orthos, Tremblay > 3.",
+        "✅ SUREFFECTIF ORTHOS RÉSOLU (13/11) : le jeu 19/11 est repassé à 3 orthos — Echi Maissa posée en CP ce jour-là, le CDD Salima couvre donc un vrai besoin et ne fait plus doublon. Le jeu 12/11 (4 orthos, reliquat du CDD posé avant l'arrivée de Shirel au 95) est passé. Plus aucun sureffectif sur les 4 mois. Règle de surveillance active : Argenteuil > 2 orthos, Tremblay > 3.",
         "✅ Jeu 31/12 RÉGLÉ (10/11) : Slimane ajouté 9h-19h (Adalla ABS). Tremblay n'a plus AUCUN jour sans ophta sur les 4 mois.",
         "✅ JANVIER et FEVRIER 2027 déposés et 100% couverts : Adalla (lun/mar/jeu/ven/sam) + Slimane (mercredis). Sam 02/01 couvert par Slimane (Adalla abs) comme arbitré.",
-        "RH : congés patho Echi dès le 25/11 puis congé maternité 10/12 → 31/03. Sahin CP 07/12-06/01. Démission Flavie actée au 31/10 (STC fait).",
+        "RH : Echi Maissa — congés patho posés au planning du 25/11 au 09/12, puis congé maternité du 10/12 au 31/03 (Salima la remplace mer-sam dès le 25/11). Sahin CP 07/12-31/12. Démission Flavie actée au 31/10 (STC fait). Oubalkas de retour le 24/11 (fin congés naissance 21/11).",
         "ℹ️ (07/11) Planning décembre maj le 06/11 : Dr Charakidas prend le sam 05/12 (9h-19h, pas de doublon — il est OFF à Argenteuil ce jour-là). Jeu 31/12 toujours sans ophta (Adalla ABS AR). RH : congé maternité Echi Maissa avancé au 10/12 (jusqu'au 31/03) ; note « janvier : Yakine abs le 02/01 » (cohérent avec la venue de Slimane le 02/01).",
         "⚠️ DOUBLON (04/11) : Hadj Slimane positionné 9h-19h le sam 02/01/27 à Tremblay (planning janvier, maj 03/11) ET à Sartrouville (planning décembre, semaine du 28/12) — à vérifier : lequel des deux centres couvre-t-il réellement ?",
         "✅ Sam 02/01/2027 RÉGLÉ (04/11) : Hadj Slimane 9h-19h (Adalla reste absent). ⚠️ MAIS doublon détecté : Slimane est AUSSI positionné 9h-19h le même jour à Sartrouville — à vérifier/arbitrer (même personne, titulaire des deux centres ; si Tremblay est retenu, le sam 02/01 à Sartrouville se découvre).",
@@ -299,10 +300,7 @@
         "⚠️ NOUVEAU (23/10) : jeu 31/12 sans ophta — Adalla passé « ABS AR », aucun remplaçant positionné.",
         "⚠️ À ANTICIPER (note du fichier décembre) : « janvier Yakine abs le 02/01 » — le sam 02/01/27, actuellement couvert par Adalla sur le planning janvier, va se découvrir. Remplaçant à prévoir."
       ],
-      "alertes": [
-        "Jeu 12/11 : 4 orthoptistes (Decoste, Samak, Echi, Chemerzelin) — seuil 3. CDD Salima = reliquat d'un besoin annulé (posé avant l'arrivée de Shirel au 95), en doublon.",
-        "Jeu 19/11 : 4 orthoptistes (Decoste, Samak, Echi, Chemerzelin) — seuil 3. Même reliquat : contrat déjà signé, à repositionner si possible."
-      ]
+      "alertes": []
     },
     "sartrouville": {
       "label": "SARTROUVILLE",
