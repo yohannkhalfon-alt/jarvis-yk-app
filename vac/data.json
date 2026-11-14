@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-13T05:38:49Z",
+  "generated_at": "2026-11-14T05:36:41Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -290,6 +290,7 @@
       "days": [],
       "notes": [
         "✅ SUREFFECTIF ORTHOS RÉSOLU (13/11) : le jeu 19/11 est repassé à 3 orthos — Echi Maissa posée en CP ce jour-là, le CDD Salima couvre donc un vrai besoin et ne fait plus doublon. Le jeu 12/11 (4 orthos, reliquat du CDD posé avant l'arrivée de Shirel au 95) est passé. Plus aucun sureffectif sur les 4 mois. Règle de surveillance active : Argenteuil > 2 orthos, Tremblay > 3.",
+        "Sam 14/11 : Samak en ABS (détachée à Sartrouville), Chemerzelin la remplace au planning — 3 orthos ce jour-là (Echi, Le Bras, Chemerzelin), pas de sureffectif.",
         "✅ Jeu 31/12 RÉGLÉ (10/11) : Slimane ajouté 9h-19h (Adalla ABS). Tremblay n'a plus AUCUN jour sans ophta sur les 4 mois.",
         "✅ JANVIER et FEVRIER 2027 déposés et 100% couverts : Adalla (lun/mar/jeu/ven/sam) + Slimane (mercredis). Sam 02/01 couvert par Slimane (Adalla abs) comme arbitré.",
         "RH : Echi Maissa — congés patho posés au planning du 25/11 au 09/12, puis congé maternité du 10/12 au 31/03 (Salima la remplace mer-sam dès le 25/11). Sahin CP 07/12-31/12. Démission Flavie actée au 31/10 (STC fait). Oubalkas de retour le 24/11 (fin congés naissance 21/11).",
@@ -405,6 +406,7 @@
         }
       ],
       "notes": [
+        "Sam 14/11 : Samak Hannah (ortho Tremblay) vient en renfort à Sartrouville 9h-19h (mise en ABS à Tremblay le même jour, remplacée là-bas par Chemerzelin — pas de doublon). Arrêt Naji Leila prolongé jusqu'au 30/11.",
         "🚨 MAJEUR (10/11) : Papapostolou (fin de contrat 31/12, retraite) est remplacé dans les plannings JANVIER/FEVRIER 2027 par une ligne « A REMPLACER » sur ses lundis et vendredis → 7 jours sans ophta en janvier + 7 en février. Le reste tient : Saade mar, Addala mer, Chahine jeu, Slimane ven/sam en alternance.",
         "✅ DOUBLON Slimane 02/01 SOLDÉ dans les grilles (10/11) : Slimane ABS à Sartrouville (il va à Tremblay), remplacé par la Dr DIANA IONITA 9h-19h le sam 02/01.",
         "✅ Décembre 100% couvert (10/11) : Slimane reprend le ven 11/12 (Papa ABS — il est ABS S à Argenteuil, cohérent) et le jeu 24/12 (Chahine ABS). 28/12 et 31/12 Chahine, 29/12 Saade, 30/12 Addala.",
@@ -462,6 +464,7 @@
         }
       ],
       "notes": [
+        "RH : arrêt Agouni Kenza prolongé jusqu'au 10/12 (Bedez Margaux continue en rempla).",
         "✅ Sam 06/02 RÉGLÉ (11/11) : Dr CHARAKIDAS ajouté 9h-19h (il est OFF à Argenteuil ce jour-là, pas de doublon). Restent : jeu 31/12, sam 16/01, 30/01, 13/02, 20/02.",
         "⚠️ (10/11) JANVIER/FEVRIER 2027 déposés : 5 samedis sans ophta à staffer — 16/01, 30/01, 06/02, 13/02, 20/02. Samedis couverts : 02/01 Dr AMADE RAYAN, 09/01 Dr IONITA DIANA, 23/01 et 27/02 Dr DI CLEMENTE. Semaine : Meskini lun/mar/ven + Sconamiglio mer/jeu, complets.",
         "🔎 RH (10/11) : ligne « DIRECTRICE A TROUVER » dans les grilles janvier/février — poste de direction à pourvoir à Antony.",
