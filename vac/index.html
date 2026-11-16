@@ -518,5 +518,79 @@ async function init() {
 document.querySelectorAll('#seg button').forEach(b => b.classList.toggle('on', parseInt(b.dataset.r, 10) === rangeJours));
 init();
 </script>
+
+<!-- ===== Pastille CDD (bas droite) : état des vacations + envoi WhatsApp ===== -->
+<style>
+  #cddFab{position:fixed;right:18px;bottom:18px;z-index:60;width:54px;height:54px;border-radius:50%;
+    background:rgba(10,16,28,.9);border:1px solid #4FD8EB;color:#4FD8EB;font-size:22px;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    box-shadow:0 0 18px rgba(79,216,235,.25);backdrop-filter:blur(6px);}
+  #cddBadge{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;border-radius:10px;
+    font-size:12px;font-weight:700;display:none;align-items:center;justify-content:center;
+    padding:0 5px;background:#4FD8EB;color:#04121A;}
+  #cddBadge.rouge{background:#FF5D6C;color:#fff;}
+  #cddPanel{position:fixed;right:18px;bottom:82px;z-index:60;width:min(320px,calc(100vw - 36px));
+    background:rgba(10,16,28,.96);border:1px solid rgba(79,216,235,.25);border-radius:14px;padding:16px;
+    display:none;box-shadow:0 8px 30px rgba(0,0,0,.5);}
+  #cddPanel h3{font-size:13px;letter-spacing:2px;color:#EAF4FF;margin-bottom:12px;}
+  #cddPanel .ligne{display:flex;justify-content:space-between;gap:8px;font-size:15px;margin-bottom:8px;}
+  #cddPanel .ligne b{color:#EAF4FF;}
+  #cddPanel .ligne .n{color:#4FD8EB;font-weight:700;}
+  #cddPanel .ligne .n.rouge{color:#FF5D6C;}
+  #cddPanel a.btn,#cddPanel button.btn{display:block;width:100%;text-align:center;text-decoration:none;
+    margin-top:9px;padding:11px 0;border-radius:9px;font-size:15px;font-weight:700;
+    letter-spacing:.5px;cursor:pointer;border:1px solid rgba(79,216,235,.25);background:rgba(79,216,235,.1);color:#4FD8EB;}
+  #cddPanel button.btn.wa{background:#1EBE5D;border-color:#1EBE5D;color:#fff;}
+  #cddPanel button.btn:disabled{opacity:.45;cursor:default;}
+  #cddPanel .note{color:#6B7C93;font-size:12px;margin-top:10px;line-height:1.4;}
+</style>
+<button id="cddFab" title="Vacations CDD" onclick="cddToggle()">🩺<span id="cddBadge"></span></button>
+<div id="cddPanel">
+  <h3>💼 VACATIONS · CDD</h3>
+  <div class="ligne"><span>Réservations à valider</span><span class="n rouge" id="cddNAttente">…</span></div>
+  <div class="ligne"><span>Dates libres à pourvoir</span><span class="n" id="cddNLibres">…</span></div>
+  <button class="btn wa" id="cddWa" onclick="cddWhatsApp()" disabled>📤 Envoyer les dates par WhatsApp</button>
+  <a class="btn" href="/cdd/admin.html">⚙️ Gérer / valider</a>
+  <a class="btn" href="/cdd/" target="_blank">👀 Voir la page médecins</a>
+  <div class="note">WhatsApp s'ouvre avec le message tout prêt : choisis ta liste de diffusion médecins et envoie.</div>
+</div>
+<script>
+let CDD = null;
+const cddDateFr = (iso) => {
+  const [a,m,j] = iso.split("-").map(Number);
+  const t = new Date(Date.UTC(a,m-1,j)).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long",timeZone:"UTC"});
+  return t.charAt(0).toUpperCase()+t.slice(1);
+};
+async function cddMaj(){
+  try{
+    CDD = await (await fetch("/api/cdd")).json();
+    const libres = (CDD.slots||[]).filter(s=>s.libre);
+    const attente = CDD.enAttente||0;
+    document.getElementById("cddNLibres").textContent = libres.length;
+    document.getElementById("cddNAttente").textContent = attente;
+    document.getElementById("cddWa").disabled = !libres.length;
+    const b = document.getElementById("cddBadge");
+    if(attente){ b.textContent = attente; b.className = "rouge"; b.style.display = "flex"; }
+    else if(libres.length){ b.textContent = libres.length; b.className = ""; b.style.display = "flex"; }
+    else b.style.display = "none";
+  }catch(e){}
+}
+function cddToggle(){
+  const p = document.getElementById("cddPanel");
+  p.style.display = p.style.display === "block" ? "none" : "block";
+  if(p.style.display === "block") cddMaj();
+}
+function cddWhatsApp(){
+  const libres = (CDD?.slots||[]).filter(s=>s.libre);
+  if(!libres.length) return;
+  let msg = "👨‍⚕️ Vacations ophtalmologie disponibles :\n\n";
+  for(const s of libres) msg += "🗓️ " + cddDateFr(s.date) + " · " + (CDD.centres[s.centre]||s.centre) + "\n";
+  msg += "\n💶 " + CDD.conditions.remuneration + "\n🕘 " + CDD.conditions.horaires +
+    "\n\nRéservation en 2 minutes 👉 " + location.origin + "/cdd/";
+  window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank");
+}
+cddMaj();
+setInterval(cddMaj, 120000);
+</script>
 </body>
 </html>
