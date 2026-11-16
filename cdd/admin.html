@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>JARVIS CDD — Direction</title>
+<title>JARVIS CDD : Direction</title>
 <style>
 :root{
   --fond:#04060C; --carte:rgba(10,16,28,.88); --bord:rgba(79,216,235,.25);
@@ -44,7 +44,7 @@ button.vert{background:var(--ok);color:#04140A}
 </head>
 <body>
 <div class="wrap">
-  <h1>🗓️ JARVIS CDD — Direction</h1>
+  <h1>🗓️ JARVIS CDD · Direction</h1>
 
   <div id="ecran-code" class="carte">
     <h2>Accès direction</h2>
@@ -68,12 +68,12 @@ button.vert{background:var(--ok);color:#04140A}
 
     <div class="carte">
       <h2>Réservations à valider</h2>
-      <div id="attente" class="vide">—</div>
+      <div id="attente" class="vide">…</div>
     </div>
 
     <div class="carte">
       <h2>Toutes les dates</h2>
-      <div id="slots" class="vide">—</div>
+      <div id="slots" class="vide">…</div>
     </div>
 
     <div class="carte">
@@ -136,10 +136,10 @@ function afficher(){
       return `<div class="item">
         <div class="tete"><b>Dr ${echap(r.prenom)} ${echap(r.nom)}</b><span class="badge attente">En attente</span></div>
         <div class="detail">
-          <span class="cle">Date :</span> ${dateFr(r.date)} — <span class="centre-tag">${echap(DATA.centres[r.centre]||r.centre)}</span><br>
-          <span class="cle">RPPS :</span> ${echap(r.rpps)} · <span class="cle">Sécu :</span> ${echap(r.secu || "—")}<br>
+          <span class="cle">Date :</span> ${dateFr(r.date)} · <span class="centre-tag">${echap(DATA.centres[r.centre]||r.centre)}</span><br>
+          <span class="cle">RPPS :</span> ${echap(r.rpps)} · <span class="cle">Sécu :</span> ${echap(r.secu || "non renseigné")}<br>
           <span class="cle">Adresse :</span> ${echap(r.adresse)}<br>
-          <span class="cle">Contact :</span> ${echap(r.tel || "—")} · ${echap(r.email || "—")}
+          <span class="cle">Contact :</span> ${echap(r.tel || "non renseigné")} · ${echap(r.email || "non renseigné")}
         </div>
         <div class="docs" style="margin-top:8px">${docs || '<span class="cle" style="font-size:12px">Aucun document importé</span>'}</div>
         <div class="actions">
@@ -161,7 +161,7 @@ function afficher(){
       const badge = s.status === "libre" ? '<span class="badge libre">Libre</span>'
         : s.status === "confirme" ? '<span class="badge confirme">Confirmée</span>'
         : '<span class="badge attente">En attente</span>';
-      const qui = resa ? ` — Dr ${echap(resa.prenom)} ${echap(resa.nom)}` : "";
+      const qui = resa ? ` · Dr ${echap(resa.prenom)} ${echap(resa.nom)}` : "";
       const suppr = s.status === "libre" ? `<button class="ghost" style="padding:6px 10px;font-size:12px" onclick="retirer('${s.id}')">Retirer</button>` : "";
       const notif = resa?.notif?.sent ? ' <span style="color:var(--ok);font-size:12px">✉️ mail envoyé</span>'
         : resa?.notif?.error ? ` <span style="color:var(--err);font-size:12px">✉️ échec : ${echap(resa.notif.error)}</span>`

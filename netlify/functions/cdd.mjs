@@ -40,8 +40,8 @@ const CENTRES = {
 
 // Conditions affichées telles quelles au praticien.
 const CONDITIONS = {
-  remuneration: "1 300 € la journée",
-  horaires: "9h00 – 19h00 (centre fermé de 13h à 14h)",
+  remuneration: "1 300 € net la journée",
+  horaires: "9h00 à 19h00 (centre fermé de 13h à 14h)",
 };
 
 // Documents demandés au praticien (cle, libellé, obligatoire).
@@ -114,8 +114,8 @@ async function envoyerDemandeCdd(store, resa, slot, origin) {
     ["RPPS", resa.rpps],
     ["N° de sécurité sociale", resa.secu || "non communiqué"],
     ["Adresse postale", resa.adresse],
-    ["Téléphone", resa.tel || "—"],
-    ["Email", resa.email || "—"],
+    ["Téléphone", resa.tel || "non renseigné"],
+    ["Email", resa.email || "non renseigné"],
     ["Centre", centreLabel],
     ["Date de la vacation", dateFr(slot.date)],
     ["Type de contrat", slot.type || "CDD"],
@@ -126,8 +126,8 @@ async function envoyerDemandeCdd(store, resa, slot, origin) {
     .map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#667;white-space:nowrap;">${echapHtml(k)}</td><td style="padding:4px 0;"><b>${echapHtml(v)}</b></td></tr>`)
     .join("");
   const listeDocs = (resa.docs || []).length
-    ? `<p>Documents du praticien ${attachment.length ? "en pièces jointes" : `(volumineux — à télécharger depuis le tableau de bord JARVIS CDD : ${origin}/cdd/admin.html)`} : ${resa.docs.map((d) => echapHtml(DOCS.find((x) => x.cle === d.cle)?.label || d.cle)).join(", ")}.</p>`
-    : `<p style="color:#a60;">Aucun document importé par le praticien — à réclamer.</p>`;
+    ? `<p>Documents du praticien ${attachment.length ? "en pièces jointes" : `(volumineux, à télécharger depuis le tableau de bord JARVIS CDD : ${origin}/cdd/admin.html)`} : ${resa.docs.map((d) => echapHtml(DOCS.find((x) => x.cle === d.cle)?.label || d.cle)).join(", ")}.</p>`
+    : `<p style="color:#a60;">Aucun document importé par le praticien, à réclamer.</p>`;
 
   const envoyer = (expediteur) => fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
@@ -136,13 +136,13 @@ async function envoyerDemandeCdd(store, resa, slot, origin) {
       sender: { name: `Direction ${centreLabel}`, email: expediteur },
       to: [{ email: cfg.to }],
       replyTo: boiteCentre ? { email: boiteCentre } : undefined,
-      subject: `Merci de créer le CDD pour ${docte} — ${dateFr(slot.date)} — ${centreLabel}`,
+      subject: `Merci de créer le CDD pour ${docte} : ${dateFr(slot.date)} (${centreLabel})`,
       htmlContent:
         `<p>Bonjour Laura,</p>` +
         `<p>Merci de créer le <b>${echapHtml(slot.type || "CDD")}</b> pour <b>${echapHtml(docte)}</b> :</p>` +
         `<table style="border-collapse:collapse;font-size:14px;">${tableau}</table>` +
         listeDocs +
-        `<p style="color:#888;font-size:12px;">JARVIS CDD — réservation confirmée par la direction le ${new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris" })}.</p>`,
+        `<p style="color:#888;font-size:12px;">JARVIS CDD : réservation confirmée par la direction le ${new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris" })}.</p>`,
       attachment: attachment.length ? attachment : undefined,
     }),
   });

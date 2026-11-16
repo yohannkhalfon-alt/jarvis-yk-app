@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Vacations Ophtalmologie — Réservation</title>
+<title>Vacations Ophtalmologie : Réservation</title>
 <style>
 :root{
   --fond:#04060C; --carte:rgba(10,16,28,.88); --bord:rgba(79,216,235,.25);
@@ -51,12 +51,12 @@ button.principal:disabled{opacity:.5;cursor:default}
 <body>
 <div class="wrap">
   <h1>Vacations Ophtalmologie</h1>
-  <p class="sous">Groupe de centres — Argenteuil · Sartrouville · Tremblay · Antony · Annecy</p>
+  <p class="sous">Argenteuil · Sartrouville · Tremblay · Antony · Annecy</p>
 
   <div class="carte cond">
     <span class="fixe">Conditions de la vacation</span>
-    <span>💶 <b id="c-remu">1 300 € la journée</b></span>
-    <span>🕘 <b id="c-horaires">9h00 – 19h00 (centre fermé de 13h à 14h)</b></span>
+    <span>💶 <b id="c-remu">1 300 € net la journée</b></span>
+    <span>🕘 <b id="c-horaires">9h00 à 19h00 (centre fermé de 13h à 14h)</b></span>
   </div>
 
   <div id="ecran-liste" class="carte">
@@ -76,7 +76,7 @@ button.principal:disabled{opacity:.5;cursor:default}
     <label>Téléphone</label><input id="f-tel" type="tel" autocomplete="tel">
     <label>Email</label><input id="f-email" type="email" autocomplete="email">
 
-    <label style="margin-top:20px">Tes documents — photographie-les ou importe-les</label>
+    <label style="margin-top:20px">Tes documents : photographie-les ou importe-les</label>
     <div id="zone-docs" class="docs"></div>
 
     <button id="btn-envoyer" class="principal" onclick="envoyer()">Réserver cette date</button>
@@ -120,7 +120,7 @@ async function charger(){
     document.getElementById("c-horaires").textContent = DATA.conditions.horaires;
     const el = document.getElementById("liste");
     const libres = DATA.slots || [];
-    if(!libres.length){ el.textContent = "Aucune date proposée pour le moment — reviens bientôt."; return; }
+    if(!libres.length){ el.textContent = "Aucune date proposée pour le moment, reviens bientôt."; return; }
     el.classList.remove("vide");
     let html = "", moisCourant = "";
     for(const s of libres){
@@ -141,7 +141,7 @@ function choisir(id){
   SLOT = DATA.slots.find(s => s.id === id);
   if(!SLOT) return;
   document.getElementById("form-titre").textContent =
-    `${dateFr(SLOT.date)} — ${DATA.centres[SLOT.centre] || SLOT.centre}`;
+    `${dateFr(SLOT.date)} · ${DATA.centres[SLOT.centre] || SLOT.centre}`;
   construireDocs();
   document.getElementById("ecran-liste").style.display = "none";
   document.getElementById("ecran-form").style.display = "block";
@@ -210,7 +210,7 @@ async function fichierChoisi(cle, input){
     etat.textContent = "✓ Prêt (" + Math.round(blob.size/1024) + " Ko)";
     etat.classList.add("ok");
   }catch(e){
-    etat.textContent = "Échec de lecture — réessaie";
+    etat.textContent = "Échec de lecture, réessaie";
   }
 }
 
@@ -256,7 +256,7 @@ async function envoyer(){
     }
 
     document.getElementById("ok-texte").textContent =
-      `${dateFr(SLOT.date)} — ${DATA.centres[SLOT.centre] || SLOT.centre} est réservée pour toi, Dr ${corps.prenom} ${corps.nom}.`;
+      `${dateFr(SLOT.date)} (${DATA.centres[SLOT.centre] || SLOT.centre}) est réservée pour toi, Dr ${corps.prenom} ${corps.nom}.`;
     document.getElementById("ecran-form").style.display = "none";
     document.getElementById("ecran-ok").style.display = "block";
     window.scrollTo({top:0});
