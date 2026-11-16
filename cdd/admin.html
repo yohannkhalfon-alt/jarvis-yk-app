@@ -94,6 +94,7 @@ button.vert{background:var(--ok);color:#04140A}
       ou refusée par Brevo, l'envoi repart depuis l'adresse de secours BREVO_FROM.</p>
       <label>Destinataire (gestionnaire de paie)</label><input id="cfg-to" placeholder="gestionpro.lk@gmail.com">
       <label>Emails d'alerte, séparés par des virgules (la boîte direction du centre concerné est ajoutée automatiquement)</label><input id="cfg-notif" placeholder="Vide = pas d'alerte">
+      <label>Clé API Brevo (envoi des mails) · <span id="brevo-etat">état inconnu</span></label><input id="cfg-brevo" type="password" placeholder="Colle la clé ici une seule fois" autocomplete="off">
       <div id="cfg-centres"></div>
       <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button onclick="sauverConfig()">Enregistrer</button><button class="ghost" onclick="activerPasskey()">📱 Activer Face ID / empreinte sur cet appareil</button></div>
       <div id="cfg-msg" class="msg"></div>
@@ -206,6 +207,7 @@ function afficher(){
   // Config
   document.getElementById("cfg-to").value = DATA.config.to || "";
   document.getElementById("cfg-notif").value = DATA.config.notif || "";
+  document.getElementById("brevo-etat").textContent = DATA.brevoPret ? "✅ enregistrée" : "❌ absente, les mails ne partent pas";
   document.getElementById("cfg-centres").innerHTML = Object.entries(DATA.centres).map(([k,v]) =>
     `<label>Boîte direction ${v}</label><input id="cfg-from-${k}" value="${echap(DATA.config.fromByCentre[k]||"")}" placeholder="direction.${k}@…">
      <label>Praticien remplacé à ${v} (motif du CDD)</label><input id="cfg-rempl-${k}" value="${echap((DATA.config.remplaceByCentre||{})[k]||"")}" placeholder="M PAPAPOSTOLOU Dimitri">
@@ -296,7 +298,8 @@ async function sauverConfig(){
     }
   }
   const r = await fetch(API, { method:"POST", headers: entetes(),
-    body: JSON.stringify({ action:"config", to: document.getElementById("cfg-to").value.trim(), notif: document.getElementById("cfg-notif").value.trim(), fromByCentre, remplaceByCentre }) });
+    body: JSON.stringify({ action:"config", to: document.getElementById("cfg-to").value.trim(), notif: document.getElementById("cfg-notif").value.trim(), brevoApiKey: document.getElementById("cfg-brevo").value.trim() || undefined, fromByCentre, remplaceByCentre }) });
+  document.getElementById("cfg-brevo").value = "";
   const msg = document.getElementById("cfg-msg");
   msg.className = r.ok ? "msg ok" : "msg err";
   msg.textContent = r.ok ? "Configuration enregistrée." : "Erreur d'enregistrement.";
