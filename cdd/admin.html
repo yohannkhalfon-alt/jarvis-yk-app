@@ -49,7 +49,7 @@ button.vert{background:var(--ok);color:#04140A}
   <div id="ecran-code" class="carte">
     <h2>Accès direction</h2>
     <label>Code</label><input id="code" type="password">
-    <div style="margin-top:12px"><button onclick="entrer()">Entrer</button></div>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button onclick="entrer()">Entrer</button><button class="ghost" onclick="entrerParPasskey()">🔓 Face ID / Empreinte</button></div>
     <div id="code-msg" class="msg"></div>
   </div>
 
@@ -95,7 +95,7 @@ button.vert{background:var(--ok);color:#04140A}
       <label>Destinataire (gestionnaire de paie)</label><input id="cfg-to" placeholder="gestionpro.lk@gmail.com">
       <label>Ton email d'alerte (nouvelle réservation à valider)</label><input id="cfg-notif" placeholder="Vide = pas d'alerte">
       <div id="cfg-centres"></div>
-      <div style="margin-top:12px"><button onclick="sauverConfig()">Enregistrer</button></div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button onclick="sauverConfig()">Enregistrer</button><button class="ghost" onclick="activerPasskey()">📱 Activer Face ID / empreinte sur cet appareil</button></div>
       <div id="cfg-msg" class="msg"></div>
     </div>
 
@@ -314,6 +314,69 @@ document.addEventListener("click", async (e) => {
   window.open(url, "_blank");
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 });
+
+
+const b64uVersOctets = (s) => Uint8Array.from(atob(String(s).replace(/-/g,"+").replace(/_/g,"/")), c => c.charCodeAt(0));
+const octetsVersB64u = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const octetsVersB64 = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf)));
+
+async function passkeyLogin(){
+  try{
+    const r = await fetch(API, { method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify({ action:"passkey-challenge" }) });
+    const { challenge, credIds } = await r.json();
+    if(!credIds || !credIds.length){ alert("Aucun appareil enregistré : entre d'abord le code, puis active Face ID dans la configuration."); return null; }
+    const assertion = await navigator.credentials.get({ publicKey: {
+      challenge: b64uVersOctets(challenge),
+      allowCredentials: credIds.map(id => ({ type:"public-key", id: b64uVersOctets(id) })),
+      userVerification: "required", timeout: 60000,
+    }});
+    const rep = await (await fetch(API, { method:"POST", headers:{"content-type":"application/json"},
+      body: JSON.stringify({ action:"passkey-login", challenge,
+        credId: octetsVersB64u(assertion.rawId),
+        authenticatorData: octetsVersB64u(assertion.response.authenticatorData),
+        clientDataJSON: octetsVersB64u(assertion.response.clientDataJSON),
+        signature: octetsVersB64u(assertion.response.signature) }) })).json();
+    if(!rep.ok){ alert(rep.error || "Vérification refusée"); return null; }
+    try{ localStorage.setItem("cdd_code", rep.code); }catch(e){}
+    return rep.code;
+  }catch(e){
+    if(e.name !== "NotAllowedError") alert("Face ID indisponible : " + e.message);
+    return null;
+  }
+}
+
+async function entrerParPasskey(){
+  const code = await passkeyLogin();
+  if(code === null) return;
+  document.getElementById("code").value = code;
+  entrer();
+}
+
+async function activerPasskey(){
+  const msg = document.getElementById("cfg-msg");
+  try{
+    const { challenge } = await (await fetch(API, { method:"POST", headers: entetes(), body: JSON.stringify({ action:"passkey-challenge" }) })).json();
+    const cred = await navigator.credentials.create({ publicKey: {
+      challenge: b64uVersOctets(challenge),
+      rp: { name: "JARVIS CDD", id: location.hostname },
+      user: { id: crypto.getRandomValues(new Uint8Array(16)), name: "direction", displayName: "Direction" },
+      pubKeyCredParams: [{ type:"public-key", alg:-7 }, { type:"public-key", alg:-257 }],
+      authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required", residentKey: "preferred" },
+      timeout: 60000,
+    }});
+    if(!cred.response.getPublicKey){ msg.className="msg err"; msg.textContent="Navigateur trop ancien pour Face ID."; return; }
+    const rep = await (await fetch(API, { method:"POST", headers: entetes(),
+      body: JSON.stringify({ action:"passkey-register", challenge,
+        credId: octetsVersB64u(cred.rawId),
+        publicKey: octetsVersB64(cred.response.getPublicKey()),
+        alg: cred.response.getPublicKeyAlgorithm(),
+        label: (navigator.userAgentData?.platform || navigator.platform || "appareil") }) })).json();
+    msg.className = rep.ok ? "msg ok" : "msg err";
+    msg.textContent = rep.ok ? "✅ Face ID / empreinte activé sur cet appareil (" + rep.total + " appareil(s) enregistré(s))." : (rep.error || "Échec");
+  }catch(e){
+    if(e.name !== "NotAllowedError"){ msg.className="msg err"; msg.textContent = "Échec : " + e.message; }
+  }
+}
 
 // Code mémorisé
 try{

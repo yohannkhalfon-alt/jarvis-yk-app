@@ -31,7 +31,7 @@
 // Variables Netlify : CDD_ADMIN_CODE (code du tableau de bord, comme SIGN),
 // BREVO_API_KEY + BREVO_FROM (déjà en place pour JARVIS SIGN).
 import { getStore } from "@netlify/blobs";
-import { randomBytes } from "node:crypto";
+import { randomBytes, createHash, webcrypto } from "node:crypto";
 import { SEED_SLOTS, SEED_CDI } from "./cdd-seed.mjs";
 import { genererContratPdf } from "./cdd-contrat.mjs";
 
@@ -211,6 +211,51 @@ async function envoyerDemandeContrat(store, resa, objet, origin) {
   }
 }
 
+// ---------- Passkeys (Face ID / empreinte) ----------
+// Enregistrement protégé par le code admin ; ensuite le navigateur prouve
+// l'identité par signature (ECDSA P-256 ou RSA) et reçoit le code en retour.
+const PASSKEYS_CLE = "passkeys.json";
+
+// Signature ECDSA : WebAuthn livre du DER, WebCrypto attend r||s brut (64 octets).
+function derVersRaw(der) {
+  let o = 2;
+  if (der[1] & 0x80) o = 2 + (der[1] & 0x7f);
+  const lireInt = () => {
+    if (der[o++] !== 2) throw new Error("signature invalide");
+    let l = der[o++];
+    let v = der.slice(o, o + l);
+    o += l;
+    while (v.length > 32) v = v.slice(1);
+    const sortie = Buffer.alloc(32);
+    v.copy(sortie, 32 - v.length);
+    return sortie;
+  };
+  return Buffer.concat([lireInt(), lireInt()]);
+}
+
+async function verifierAssertion(cle, body, origineAttendue) {
+  const authData = Buffer.from(String(body.authenticatorData || ""), "base64url");
+  const cdj = Buffer.from(String(body.clientDataJSON || ""), "base64url");
+  const sig = Buffer.from(String(body.signature || ""), "base64url");
+  let cd;
+  try { cd = JSON.parse(cdj.toString()); } catch { return false; }
+  if (cd.type !== "webauthn.get" || cd.challenge !== body.challenge) return false;
+  if (cd.origin !== origineAttendue) return false;
+  const donnees = Buffer.concat([authData, createHash("sha256").update(cdj).digest()]);
+  const spki = Buffer.from(String(cle.publicKey), "base64");
+  try {
+    if (cle.alg === -7) {
+      const k = await webcrypto.subtle.importKey("spki", spki, { name: "ECDSA", namedCurve: "P-256" }, false, ["verify"]);
+      return await webcrypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, k, derVersRaw(sig), donnees);
+    }
+    if (cle.alg === -257) {
+      const k = await webcrypto.subtle.importKey("spki", spki, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
+      return await webcrypto.subtle.verify("RSASSA-PKCS1-v1_5", k, sig, donnees);
+    }
+  } catch { return false; }
+  return false;
+}
+
 export default async (req) => {
   const url = new URL(req.url);
   const store = getStore("cdd");
@@ -346,8 +391,42 @@ export default async (req) => {
     return json({ ok: true, docs: resa.docs.map((d) => d.cle) });
   }
 
+  // ---------- Passkeys : défi commun (public pour le login) ----------
+  if (action === "passkey-challenge") {
+    const challenge = randomBytes(32).toString("base64url");
+    await store.setJSON(`challenge/${challenge}`, { at: Date.now() });
+    const cles = (await store.get(PASSKEYS_CLE, { type: "json" })) || [];
+    return json({ challenge, credIds: cles.map((c) => c.credId) });
+  }
+
+  // ---------- Passkeys : connexion par Face ID / empreinte (public) ----------
+  if (action === "passkey-login") {
+    const defi = await store.get(`challenge/${champ(body.challenge, 64)}`, { type: "json" });
+    if (!defi || Date.now() - defi.at > 10 * 60 * 1000) return json({ error: "défi expiré, réessaie" }, 403);
+    await store.delete(`challenge/${body.challenge}`);
+    const cles = (await store.get(PASSKEYS_CLE, { type: "json" })) || [];
+    const cle = cles.find((c) => c.credId === body.credId);
+    if (!cle) return json({ error: "appareil inconnu" }, 403);
+    if (!(await verifierAssertion(cle, body, url.origin))) return json({ error: "vérification refusée" }, 403);
+    return json({ ok: true, code: process.env.CDD_ADMIN_CODE || "" });
+  }
+
   // ---------- Admin ----------
   if (!adminOk(req)) return json({ error: "code admin invalide" }, 401);
+
+  // ---------- Passkeys : enregistrement d'un appareil (code admin requis) ----------
+  if (action === "passkey-register") {
+    const defi = await store.get(`challenge/${champ(body.challenge, 64)}`, { type: "json" });
+    if (!defi || Date.now() - defi.at > 10 * 60 * 1000) return json({ error: "défi expiré, réessaie" }, 403);
+    await store.delete(`challenge/${body.challenge}`);
+    const credId = champ(body.credId, 400), publicKey = champ(body.publicKey, 2000);
+    const alg = Number(body.alg);
+    if (!credId || !publicKey || ![-7, -257].includes(alg)) return json({ error: "données d'enregistrement invalides" }, 400);
+    const cles = ((await store.get(PASSKEYS_CLE, { type: "json" })) || []).filter((c) => c.credId !== credId);
+    cles.push({ credId, publicKey, alg, label: champ(body.label, 80) || "appareil", at: new Date().toISOString() });
+    await store.setJSON(PASSKEYS_CLE, cles);
+    return json({ ok: true, total: cles.length });
+  }
 
   if (action === "add-slots") {
     const slots = await lireSlots(store);

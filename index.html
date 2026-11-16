@@ -368,10 +368,48 @@ setInterval(cddMaj, 120000);
     <div style="font-family:'Orbitron';letter-spacing:2px;color:#EAF4FF;margin:12px 0 16px;font-size:13px;">JARVIS·YK · ACCÈS DIRECTION</div>
     <input id="verrouCode" type="password" placeholder="Code" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.07);border:1px solid rgba(79,216,235,.3);border-radius:9px;padding:12px;color:#EAF4FF;font-size:16px;text-align:center;">
     <button onclick="verrouEntrer()" style="margin-top:12px;width:100%;background:#4FD8EB;color:#04121A;border:none;border-radius:9px;padding:12px;font-weight:800;font-size:15px;letter-spacing:1px;cursor:pointer;">ENTRER</button>
+    <button onclick="verrouParPasskey()" style="margin-top:8px;width:100%;background:rgba(79,216,235,.12);color:#4FD8EB;border:1px solid rgba(79,216,235,.3);border-radius:9px;padding:11px;font-weight:700;font-size:14px;cursor:pointer;">🔓 Face ID / Empreinte</button>
     <div id="verrouMsg" style="color:#FF5D6C;font-size:13px;margin-top:8px;"></div>
   </div>
 </div>
 <script>
+const API = "/api/cdd";
+
+const b64uVersOctets = (s) => Uint8Array.from(atob(String(s).replace(/-/g,"+").replace(/_/g,"/")), c => c.charCodeAt(0));
+const octetsVersB64u = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const octetsVersB64 = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf)));
+
+async function passkeyLogin(){
+  try{
+    const r = await fetch(API, { method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify({ action:"passkey-challenge" }) });
+    const { challenge, credIds } = await r.json();
+    if(!credIds || !credIds.length){ alert("Aucun appareil enregistré : entre d'abord le code, puis active Face ID dans la configuration."); return null; }
+    const assertion = await navigator.credentials.get({ publicKey: {
+      challenge: b64uVersOctets(challenge),
+      allowCredentials: credIds.map(id => ({ type:"public-key", id: b64uVersOctets(id) })),
+      userVerification: "required", timeout: 60000,
+    }});
+    const rep = await (await fetch(API, { method:"POST", headers:{"content-type":"application/json"},
+      body: JSON.stringify({ action:"passkey-login", challenge,
+        credId: octetsVersB64u(assertion.rawId),
+        authenticatorData: octetsVersB64u(assertion.response.authenticatorData),
+        clientDataJSON: octetsVersB64u(assertion.response.clientDataJSON),
+        signature: octetsVersB64u(assertion.response.signature) }) })).json();
+    if(!rep.ok){ alert(rep.error || "Vérification refusée"); return null; }
+    try{ localStorage.setItem("cdd_code", rep.code); }catch(e){}
+    return rep.code;
+  }catch(e){
+    if(e.name !== "NotAllowedError") alert("Face ID indisponible : " + e.message);
+    return null;
+  }
+}
+
+async function verrouParPasskey(){
+  const code = await passkeyLogin();
+  if(code === null) return;
+  document.getElementById("verrou").style.display = "none";
+}
+
 async function verrouVerifier(code){
   try{ return (await fetch("/api/cdd?list=1", { headers: { "x-cdd-code": code } })).ok; }
   catch(e){ return false; }
