@@ -38,11 +38,10 @@ const CENTRES = {
   annecy:       "ANNECY",
 };
 
-// Conditions fixes, non négociables — affichées telles quelles au praticien.
+// Conditions affichées telles quelles au praticien.
 const CONDITIONS = {
   remuneration: "1 300 € la journée",
   horaires: "9h00 – 19h00 (centre fermé de 13h à 14h)",
-  note: "Rémunération et horaires non négociables.",
 };
 
 // Documents demandés au praticien (cle, libellé, obligatoire).

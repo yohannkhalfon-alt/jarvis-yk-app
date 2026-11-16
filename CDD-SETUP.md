@@ -10,7 +10,7 @@ avec validation par la direction et demande de contrat automatique au gestionnai
 | `/cdd/` | Le praticien (lien à envoyer par WhatsApp/mail) | Choisit une date, saisit nom / prénom / RPPS / n° sécu / adresse / contact, photographie ou importe ses documents (pièce d'identité, diplôme, Ordre, RPPS, RIB, attestation sécu) |
 | `/cdd/admin.html` | La direction | Ajoute les dates par centre, voit les réservations et les documents, **valide** (→ mail au gestionnaire) ou refuse (la date redevient libre), configure les boîtes d'envoi |
 
-Conditions affichées au praticien, **fixes et non négociables** : 1 300 € la journée,
+Conditions affichées au praticien : 1 300 € la journée,
 9h00–19h00 avec fermeture 13h–14h.
 
 ## Circuit
