@@ -93,7 +93,7 @@ button.vert{background:var(--ok);color:#04140A}
       (adresse à saisir ci-dessous, validée comme expéditeur dans Brevo), vers le destinataire. Si la boîte du centre est vide
       ou refusée par Brevo, l'envoi repart depuis l'adresse de secours BREVO_FROM.</p>
       <label>Destinataire (gestionnaire de paie)</label><input id="cfg-to" placeholder="gestionpro.lk@gmail.com">
-      <label>Ton email d'alerte (nouvelle réservation à valider)</label><input id="cfg-notif" placeholder="Vide = pas d'alerte">
+      <label>Emails d'alerte, séparés par des virgules (la boîte direction du centre concerné est ajoutée automatiquement)</label><input id="cfg-notif" placeholder="Vide = pas d'alerte">
       <div id="cfg-centres"></div>
       <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button onclick="sauverConfig()">Enregistrer</button><button class="ghost" onclick="activerPasskey()">📱 Activer Face ID / empreinte sur cet appareil</button></div>
       <div id="cfg-msg" class="msg"></div>

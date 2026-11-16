@@ -107,7 +107,11 @@ async function alerterDirection(store, resa, origin) {
   try {
     const key = process.env.BREVO_API_KEY;
     const cfg = await lireConfig(store);
-    if (!key || !cfg.notif) return;
+    // Destinataires : les adresses d'alerte configurées + la boîte direction
+    // du centre concerné, sans doublon.
+    const dests = new Set(String(cfg.notif || "").split(/[,;\s]+/).filter((x) => x.includes("@")));
+    if (cfg.fromByCentre[resa.centre]) dests.add(cfg.fromByCentre[resa.centre]);
+    if (!key || !dests.size) return;
     const centreLabel = CENTRES[resa.centre] || resa.centre;
     const quand = resa.type === "CDI" ? resa.jours : dateFr(resa.date);
     const expediteur = cfg.fromByCentre[resa.centre] || process.env.BREVO_FROM;
@@ -117,7 +121,7 @@ async function alerterDirection(store, resa, origin) {
       headers: { "api-key": key, "content-type": "application/json" },
       body: JSON.stringify({
         sender: { name: "JARVIS CDD", email: expediteur },
-        to: [{ email: cfg.notif }],
+        to: [...dests].map((email) => ({ email })),
         subject: `🩺 À valider : Dr ${resa.prenom} ${resa.nom}, ${quand} (${centreLabel})`,
         htmlContent:
           `<p><b>Dr ${echapHtml(resa.prenom)} ${echapHtml(resa.nom)}</b> vient de réserver : ` +
