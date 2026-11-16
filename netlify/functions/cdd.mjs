@@ -556,6 +556,36 @@ export default async (req) => {
     return json({ ok: true });
   }
 
+  // Teste chaque boîte expéditrice : un petit mail Brevo part de chaque centre
+  // vers l'adresse donnée ; le résultat par centre est renvoyé (jamais destructif).
+  if (action === "test-expediteurs") {
+    const key = process.env.BREVO_API_KEY;
+    if (!key) return json({ error: "BREVO_API_KEY non configurée" }, 500);
+    const vers = champ(body.vers, 120);
+    if (!vers.includes("@")) return json({ error: "destinataire invalide" }, 400);
+    const cfg = await lireConfig(store);
+    const resultats = {};
+    for (const [centre, expediteur] of Object.entries(cfg.fromByCentre)) {
+      if (!expediteur) { resultats[centre] = "aucune adresse configurée"; continue; }
+      try {
+        const r = await fetch("https://api.brevo.com/v3/smtp/email", {
+          method: "POST",
+          headers: { "api-key": key, "content-type": "application/json" },
+          body: JSON.stringify({
+            sender: { name: `Direction ${CENTRES[centre] || centre}`, email: expediteur },
+            to: [{ email: vers }],
+            subject: `✅ Test expéditeur JARVIS CDD : ${CENTRES[centre] || centre}`,
+            htmlContent: `<p>Mail de test envoyé depuis <b>${echapHtml(expediteur)}</b> (centre ${echapHtml(CENTRES[centre] || centre)}) par JARVIS CDD. Si tu le lis dans ta boîte de réception (pas en spam), tout est bon.</p>`,
+          }),
+        });
+        resultats[centre] = r.ok ? `OK (${expediteur})` : `ÉCHEC ${r.status} : ${(await r.text()).slice(0, 120)}`;
+      } catch (e) {
+        resultats[centre] = "ÉCHEC : " + String(e.message || e).slice(0, 120);
+      }
+    }
+    return json({ ok: true, resultats });
+  }
+
   if (action === "config") {
     const cfg = await lireConfig(store);
     if (body.to !== undefined) cfg.to = champ(body.to, 120) || DEST_DEFAUT;
