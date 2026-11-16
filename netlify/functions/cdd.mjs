@@ -33,6 +33,7 @@
 import { getStore } from "@netlify/blobs";
 import { randomBytes } from "node:crypto";
 import { SEED_SLOTS, SEED_CDI } from "./cdd-seed.mjs";
+import { genererContratPdf } from "./cdd-contrat.mjs";
 
 const CENTRES = {
   argenteuil:   "ARGENTEUIL",
@@ -97,7 +98,7 @@ async function lireCdi(store) {
 }
 async function lireConfig(store) {
   const c = (await store.get("config.json", { type: "json" })) || {};
-  return { to: c.to || DEST_DEFAUT, fromByCentre: c.fromByCentre || {}, notif: c.notif || "" };
+  return { to: c.to || DEST_DEFAUT, fromByCentre: c.fromByCentre || {}, notif: c.notif || "", remplaceByCentre: c.remplaceByCentre || {} };
 }
 
 // Alerte direction : email immédiat quand une réservation attend validation
@@ -228,6 +229,21 @@ export default async (req) => {
       return new Response(buf, { headers: { "content-type": meta.mime || "application/octet-stream", "content-disposition": `inline; filename="${meta.filename.replace(/[^\w. -]/g, "_")}"` } });
     }
 
+    // Contrat pré-rempli (brouillon) — modèle CDSOA « CDD rempla ophta 1 jour »
+    const contrat = url.searchParams.get("contrat");
+    if (contrat) {
+      if (!adminOk(req)) return json({ error: "code admin invalide" }, 401);
+      const resa = await store.get(`resa/${champ(contrat, 40)}.json`, { type: "json" });
+      if (!resa) return json({ error: "réservation introuvable" }, 404);
+      if (resa.type === "CDI" || !resa.date) return json({ error: "Le modèle CDI n'est pas encore configuré — contrat CDD à la date uniquement pour l'instant." }, 400);
+      if (resa.centre !== "argenteuil") return json({ error: "Seul le modèle d'Argenteuil (CDSOA) est configuré pour l'instant. Les autres centres arrivent après validation du rendu." }, 400);
+      const cfg = await lireConfig(store);
+      const tampon = await store.get(`asset/tampon-${resa.centre}`, { type: "json" });
+      const pdf = await genererContratPdf(resa, { date: resa.date, centre: resa.centre }, cfg,
+        tampon?.b64 ? Buffer.from(tampon.b64, "base64") : null, tampon?.mime);
+      return new Response(pdf, { headers: { "content-type": "application/pdf", "content-disposition": `inline; filename="CDD ${resa.nom.toUpperCase()} ${resa.prenom} ${resa.date}.pdf"` } });
+    }
+
     const slots = await lireSlots(store);
     const cdis = await lireCdi(store);
 
@@ -240,7 +256,9 @@ export default async (req) => {
         const r = await store.get(`resa/${porteur.resaId}.json`, { type: "json" });
         if (r) { delete r.upToken; resas.push(r); }
       }
-      return json({ slots, cdis, resas, config: await lireConfig(store), centres: CENTRES, docs: DOCS, conditions: CONDITIONS, adminProtege: Boolean(process.env.CDD_ADMIN_CODE) });
+      const tampons = {};
+      for (const c of Object.keys(CENTRES)) tampons[c] = Boolean(await store.get(`asset/tampon-${c}`));
+      return json({ slots, cdis, resas, tampons, config: await lireConfig(store), centres: CENTRES, docs: DOCS, conditions: CONDITIONS, adminProtege: Boolean(process.env.CDD_ADMIN_CODE) });
     }
 
     // Vue publique : jamais de données personnelles, uniquement dates et offres
@@ -268,6 +286,10 @@ export default async (req) => {
     const secu = champ(body.secu, 30).replace(/[^\d AB]/gi, "");
     const adresse = champ(body.adresse, 300);
     const tel = champ(body.tel, 30), email = champ(body.email, 120);
+    const civilite = body.civilite === "Mme" ? "Mme" : "M";
+    const dateNaissance = /^\d{4}-\d{2}-\d{2}$/.test(body.dateNaissance || "") ? body.dateNaissance : "";
+    const lieuNaissance = champ(body.lieuNaissance, 80);
+    const nationalite = champ(body.nationalite, 60);
     if (!nom || !prenom || !adresse) return json({ error: "Nom, prénom et adresse postale sont obligatoires." }, 400);
     if (!/^\d{11}$/.test(rpps)) return json({ error: "Le numéro RPPS doit comporter 11 chiffres." }, 400);
     if (!tel && !email) return json({ error: "Indique au moins un téléphone ou un email." }, 400);
@@ -275,6 +297,7 @@ export default async (req) => {
     const id = randomBytes(8).toString("hex");
     const base = {
       id, nom, prenom, rpps, secu, adresse, tel, email,
+      civilite, dateNaissance, lieuNaissance, nationalite,
       status: "en_attente", createdAt: new Date().toISOString(),
       upToken: randomBytes(12).toString("hex"), docs: [],
     };
@@ -408,12 +431,24 @@ export default async (req) => {
     return json({ ok: true, notif: resa.notif || null });
   }
 
+  if (action === "config-tampon") {
+    const centre = champ(body.centre, 20).toLowerCase();
+    if (!CENTRES[centre]) return json({ error: "centre inconnu" }, 400);
+    const b64 = String(body.dataBase64 || "");
+    if (!b64) return json({ error: "image vide" }, 400);
+    if (b64.length > 2_000_000) return json({ error: "image trop lourde (1,5 Mo max)" }, 413);
+    await store.setJSON(`asset/tampon-${centre}`, { b64, mime: champ(body.mime, 60) || "image/jpeg" });
+    return json({ ok: true });
+  }
+
   if (action === "config") {
     const cfg = await lireConfig(store);
     if (body.to !== undefined) cfg.to = champ(body.to, 120) || DEST_DEFAUT;
     if (body.notif !== undefined) cfg.notif = champ(body.notif, 120);
     for (const [c, mail] of Object.entries(body.fromByCentre || {}))
       if (CENTRES[c]) cfg.fromByCentre[c] = champ(mail, 120);
+    for (const [c, nom] of Object.entries(body.remplaceByCentre || {}))
+      if (CENTRES[c]) cfg.remplaceByCentre[c] = champ(nom, 120);
     await store.setJSON("config.json", cfg);
     return json({ ok: true, config: cfg });
   }
