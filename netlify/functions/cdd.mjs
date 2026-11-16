@@ -431,6 +431,19 @@ export default async (req) => {
     return json({ ok: true, notif: resa.notif || null });
   }
 
+  // Relais de lecture (admin) : rapatrie un fichier Dropbox (lien temporaire)
+  // et le renvoie tel quel. Restreint aux hôtes de téléchargement Dropbox.
+  if (action === "fetch-doc") {
+    let u;
+    try { u = new URL(String(body.url || "")); } catch { return json({ error: "URL invalide" }, 400); }
+    if (!u.hostname.endsWith(".dropboxusercontent.com")) return json({ error: "hôte non autorisé" }, 400);
+    const r = await fetch(u, { redirect: "follow" });
+    if (!r.ok) return json({ error: `téléchargement refusé (${r.status})` }, 502);
+    const buf = Buffer.from(await r.arrayBuffer());
+    if (buf.length > 10_000_000) return json({ error: "fichier trop lourd" }, 413);
+    return new Response(buf, { headers: { "content-type": r.headers.get("content-type") || "application/octet-stream" } });
+  }
+
   // Installe un tampon depuis une URL de téléchargement (lien Dropbox temporaire) :
   // c'est le serveur qui télécharge, l'image ne transite ni par le navigateur ni par le code.
   if (action === "config-tampon-url") {
