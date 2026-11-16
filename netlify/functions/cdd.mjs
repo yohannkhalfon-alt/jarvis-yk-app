@@ -96,6 +96,12 @@ async function lireSlots(store) {
 async function lireCdi(store) {
   return (await store.get("cdi.json", { type: "json" })) || [];
 }
+// Clé Brevo : variable Netlify en priorité, sinon la clé collée dans l'admin
+// (stockée dans un blob privé séparé, jamais renvoyée au navigateur).
+async function cleBrevo(store) {
+  return process.env.BREVO_API_KEY || (await store.get("secret/brevo")) || "";
+}
+
 async function lireConfig(store) {
   const c = (await store.get("config.json", { type: "json" })) || {};
   return { to: c.to || DEST_DEFAUT, fromByCentre: c.fromByCentre || {}, notif: c.notif || "", remplaceByCentre: c.remplaceByCentre || {} };
@@ -105,7 +111,7 @@ async function lireConfig(store) {
 // (adresse saisie dans l'admin, champ « email d'alerte »). Jamais bloquant.
 async function alerterDirection(store, resa, origin) {
   try {
-    const key = process.env.BREVO_API_KEY;
+    const key = await cleBrevo(store);
     const cfg = await lireConfig(store);
     // Destinataires : les adresses d'alerte configurées + la boîte direction
     // du centre concerné, sans doublon.
@@ -140,8 +146,8 @@ async function alerterDirection(store, resa, origin) {
 // validée chez eux), repli sur BREVO_FROM. N'échoue jamais la confirmation :
 // le résultat est consigné dans resa.notif.
 async function envoyerDemandeContrat(store, resa, objet, origin) {
-  const key = process.env.BREVO_API_KEY;
-  if (!key) { resa.notif = { skipped: "BREVO_API_KEY non configurée sur Netlify" }; return; }
+  const key = await cleBrevo(store);
+  if (!key) { resa.notif = { skipped: "clé Brevo absente : colle-la dans l'admin (ou variable BREVO_API_KEY)" }; return; }
   const cfg = await lireConfig(store);
   const centreLabel = CENTRES[objet.centre] || objet.centre.toUpperCase();
   const boiteCentre = cfg.fromByCentre[objet.centre];
@@ -307,7 +313,8 @@ export default async (req) => {
       }
       const tampons = {};
       for (const c of Object.keys(CENTRES)) tampons[c] = Boolean(await store.get(`asset/tampon-${c}`));
-      return json({ slots, cdis, resas, tampons, config: await lireConfig(store), centres: CENTRES, docs: DOCS, conditions: CONDITIONS, adminProtege: Boolean(process.env.CDD_ADMIN_CODE) });
+      const brevoPret = Boolean(await cleBrevo(store));
+      return json({ slots, cdis, resas, tampons, brevoPret, config: await lireConfig(store), centres: CENTRES, docs: DOCS, conditions: CONDITIONS, adminProtege: Boolean(process.env.CDD_ADMIN_CODE) });
     }
 
     // Vue publique : jamais de données personnelles, uniquement dates et offres
@@ -559,8 +566,8 @@ export default async (req) => {
   // Teste chaque boîte expéditrice : un petit mail Brevo part de chaque centre
   // vers l'adresse donnée ; le résultat par centre est renvoyé (jamais destructif).
   if (action === "test-expediteurs") {
-    const key = process.env.BREVO_API_KEY;
-    if (!key) return json({ error: "BREVO_API_KEY non configurée" }, 500);
+    const key = await cleBrevo(store);
+    if (!key) return json({ error: "Clé Brevo absente : colle-la dans l'admin (champ « Clé API Brevo »)." }, 500);
     const vers = champ(body.vers, 120);
     if (!vers.includes("@")) return json({ error: "destinataire invalide" }, 400);
     const cfg = await lireConfig(store);
@@ -589,7 +596,8 @@ export default async (req) => {
   if (action === "config") {
     const cfg = await lireConfig(store);
     if (body.to !== undefined) cfg.to = champ(body.to, 120) || DEST_DEFAUT;
-    if (body.notif !== undefined) cfg.notif = champ(body.notif, 120);
+    if (body.notif !== undefined) cfg.notif = champ(body.notif, 300);
+    if (body.brevoApiKey) await store.set("secret/brevo", champ(body.brevoApiKey, 200));
     for (const [c, mail] of Object.entries(body.fromByCentre || {}))
       if (CENTRES[c]) cfg.fromByCentre[c] = champ(mail, 120);
     for (const [c, nom] of Object.entries(body.remplaceByCentre || {}))
