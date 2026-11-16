@@ -329,6 +329,11 @@ function parseGrille(lignes, moisFichier, anneeFichier) {
     const idxNom = cells.findIndex((c) => c);
     const nomBrut = cells[idxNom];
     if (!nomBrut || lireEnTete(nomBrut) || norm(nomBrut) === "NOMS") continue;
+    // Lignes « fantômes » : un créneau à pourvoir n'est pas une personne.
+    // À Sartrouville (janv. 2027), la ligne « A REMPLACER 09H 19H » du bloc
+    // ophtas (succession Papapostolou) était comptée comme un ophta en travail
+    // → l'app affichait « 0 tout couvert » au lieu des 14 jours sans ophta.
+    if (/^(A REMPLACER|A POURVOIR|REMPLACANT( A TROUVER)?)$/.test(norm(nomBrut))) continue;
 
     const cle = norm(nomBrut);
     if (!personnes.has(cle)) personnes.set(cle, { nom: nomBrut.trim(), blocs: {}, cellules: new Map() });
