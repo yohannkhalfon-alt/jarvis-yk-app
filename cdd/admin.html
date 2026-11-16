@@ -96,7 +96,7 @@ button.vert{background:var(--ok);color:#04140A}
       <label>Emails d'alerte, séparés par des virgules (la boîte direction du centre concerné est ajoutée automatiquement)</label><input id="cfg-notif" placeholder="Vide = pas d'alerte">
       <label>Clé API Brevo (envoi des mails) · <span id="brevo-etat">état inconnu</span></label><input id="cfg-brevo" type="password" placeholder="Colle la clé ici une seule fois" autocomplete="off">
       <div id="cfg-centres"></div>
-      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button onclick="sauverConfig()">Enregistrer</button><button class="ghost" onclick="activerPasskey()">📱 Activer Face ID / empreinte sur cet appareil</button></div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button onclick="sauverConfig()">Enregistrer</button><button class="ghost" onclick="testerExpediteurs()">✉️ Tester les expéditeurs</button><button class="ghost" onclick="activerPasskey()">📱 Activer Face ID / empreinte sur cet appareil</button></div>
       <div id="cfg-msg" class="msg"></div>
     </div>
 
@@ -281,6 +281,23 @@ const base64Fichier = (file) => new Promise((res, rej) => {
   fr.onerror = rej;
   fr.readAsDataURL(file);
 });
+
+async function testerExpediteurs(){
+  const msg = document.getElementById("cfg-msg");
+  const notif = document.getElementById("cfg-notif").value.split(/[\s,;]+/).find((x) => x.includes("@"));
+  const vers = prompt("Envoyer les mails de test vers quelle adresse ?", notif || "");
+  if (!vers || !vers.includes("@")) return;
+  msg.className = "msg"; msg.textContent = "Test en cours… un mail part de chaque boîte direction.";
+  try {
+    const r = await fetch(API, { method:"POST", headers: entetes(), body: JSON.stringify({ action:"test-expediteurs", vers }) });
+    const d = await r.json();
+    if (!r.ok || d.error) { msg.className = "msg err"; msg.textContent = d.error || ("Erreur " + r.status); return; }
+    const lignes = Object.entries(d.resultats || {}).map(([c, v]) => `${c.toUpperCase()} : ${v}`);
+    const toutOk = lignes.length && lignes.every((l) => l.includes("OK"));
+    msg.className = toutOk ? "msg ok" : "msg err";
+    msg.textContent = lignes.join(" · ") || "Aucun centre configuré.";
+  } catch (e) { msg.className = "msg err"; msg.textContent = "Erreur réseau : " + e.message; }
+}
 
 async function sauverConfig(){
   const fromByCentre = {}, remplaceByCentre = {};
