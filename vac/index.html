@@ -133,6 +133,7 @@
   <a class="back" href="/">◂</a>
   <div class="core"></div>
   <h1>MAJ<span>·VAC</span></h1>
+  <button id="cddHead" onclick="cddToggle()" title="Vacations CDD" style="width:34px;height:34px;border-radius:50%;background:rgba(79,216,235,.12);border:1px solid #4FD8EB;color:#4FD8EB;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;flex:none;padding:0;">🩺<span id="cddBadgeH" style="position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;border-radius:9px;font-size:10px;font-weight:700;display:none;align-items:center;justify-content:center;padding:0 4px;background:#4FD8EB;color:#04121A;"></span></button>
   <div class="status"><span class="dot" id="statusDot"></span><span id="statusTxt">PRÊT</span></div>
 </header>
 
@@ -529,7 +530,7 @@ init();
     font-size:12px;font-weight:700;display:none;align-items:center;justify-content:center;
     padding:0 5px;background:#4FD8EB;color:#04121A;}
   #cddBadge.rouge{background:#FF5D6C;color:#fff;}
-  #cddPanel{position:fixed;right:18px;bottom:82px;z-index:60;width:min(320px,calc(100vw - 36px));
+  #cddPanel{position:fixed;right:12px;top:calc(64px + env(safe-area-inset-top));z-index:60;width:min(320px,calc(100vw - 36px));
     background:rgba(10,16,28,.96);border:1px solid rgba(79,216,235,.25);border-radius:14px;padding:16px;
     display:none;box-shadow:0 8px 30px rgba(0,0,0,.5);}
   #cddPanel h3{font-size:13px;letter-spacing:2px;color:#EAF4FF;margin-bottom:12px;}
@@ -544,7 +545,6 @@ init();
   #cddPanel button.btn:disabled{opacity:.45;cursor:default;}
   #cddPanel .note{color:#6B7C93;font-size:12px;margin-top:10px;line-height:1.4;}
 </style>
-<button id="cddFab" title="Vacations CDD" onclick="cddToggle()">🩺<span id="cddBadge"></span></button>
 <div id="cddPanel">
   <h3>💼 VACATIONS · CDD</h3>
   <div class="ligne"><span>Réservations à valider</span><span class="n rouge" id="cddNAttente">…</span></div>
@@ -569,10 +569,11 @@ async function cddMaj(){
     document.getElementById("cddNLibres").textContent = libres.length;
     document.getElementById("cddNAttente").textContent = attente;
     document.getElementById("cddWa").disabled = !libres.length && !(CDD.cdi||[]).some(o=>o.libre);
-    const b = document.getElementById("cddBadge");
-    if(attente){ b.textContent = attente; b.className = "rouge"; b.style.display = "flex"; }
-    else if(libres.length){ b.textContent = libres.length; b.className = ""; b.style.display = "flex"; }
-    else b.style.display = "none";
+    for(const b of [document.getElementById("cddBadge"), document.getElementById("cddBadgeH")].filter(Boolean)){
+      if(attente){ b.textContent = attente; b.style.background = "#FF5D6C"; b.style.color = "#fff"; b.style.display = "flex"; }
+      else if(libres.length){ b.textContent = libres.length; b.style.background = "#4FD8EB"; b.style.color = "#04121A"; b.style.display = "flex"; }
+      else b.style.display = "none";
+    }
   }catch(e){}
 }
 function cddToggle(){

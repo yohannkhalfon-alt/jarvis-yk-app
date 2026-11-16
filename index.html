@@ -381,6 +381,38 @@ function cddWhatsApp(){
 cddMaj();
 setInterval(cddMaj, 120000);
 </script>
+
+<!-- ===== Verrou direction : le hub n'est pas public. Le code est vérifié
+     côté serveur contre CDD_ADMIN_CODE (via /api/cdd) ; tant que la variable
+     n'est pas définie sur Netlify, l'accès reste ouvert. ===== -->
+<div id="verrou" style="position:fixed;inset:0;z-index:999;background:#04060C;display:flex;align-items:center;justify-content:center;padding:20px;">
+  <div style="max-width:320px;width:100%;background:rgba(10,16,28,.92);border:1px solid rgba(79,216,235,.3);border-radius:14px;padding:26px;text-align:center;">
+    <div style="font-size:30px;">🔒</div>
+    <div style="font-family:'Orbitron';letter-spacing:2px;color:#EAF4FF;margin:12px 0 16px;font-size:13px;">JARVIS·YK · ACCÈS DIRECTION</div>
+    <input id="verrouCode" type="password" placeholder="Code" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.07);border:1px solid rgba(79,216,235,.3);border-radius:9px;padding:12px;color:#EAF4FF;font-size:16px;text-align:center;">
+    <button onclick="verrouEntrer()" style="margin-top:12px;width:100%;background:#4FD8EB;color:#04121A;border:none;border-radius:9px;padding:12px;font-weight:800;font-size:15px;letter-spacing:1px;cursor:pointer;">ENTRER</button>
+    <div id="verrouMsg" style="color:#FF5D6C;font-size:13px;margin-top:8px;"></div>
+  </div>
+</div>
+<script>
+async function verrouVerifier(code){
+  try{ return (await fetch("/api/cdd?list=1", { headers: { "x-cdd-code": code } })).ok; }
+  catch(e){ return false; }
+}
+async function verrouEntrer(){
+  const code = document.getElementById("verrouCode").value.trim();
+  if(await verrouVerifier(code)){
+    try{ localStorage.setItem("cdd_code", code); }catch(e){}
+    document.getElementById("verrou").style.display = "none";
+  } else document.getElementById("verrouMsg").textContent = "Code invalide.";
+}
+document.getElementById("verrouCode").addEventListener("keydown", e => { if(e.key === "Enter") verrouEntrer(); });
+(async () => {
+  let memo = "";
+  try{ memo = localStorage.getItem("cdd_code") || ""; }catch(e){}
+  if(await verrouVerifier(memo)) document.getElementById("verrou").style.display = "none";
+})();
+</script>
 </body>
 </html>
 <script src="memory.js"></script>
