@@ -587,8 +587,17 @@ function cddWhatsApp(){
   let msg = "👨‍⚕️ Choisissez vos vacations en direct !\n\n";
   if(libres.length){
     msg += "🗓️ Dates disponibles (CDD) :\n";
-    for(const s of libres) msg += "• " + cddDateFr(s.date) + " · " + (CDD.centres[s.centre]||s.centre) + "\n";
-    msg += "\n";
+    const parCentre = {};
+    for(const s of libres) (parCentre[s.centre] = parCentre[s.centre]||[]).push(s);
+    for(const [c, arr] of Object.entries(parCentre)){
+      const nomC = CDD.centres[c]||c;
+      if(arr.length <= 4){ for(const s of arr) msg += "• " + cddDateFr(s.date) + " · " + nomC + "\n"; }
+      else {
+        const jours = [...new Set(arr.map(s => new Date(s.date+"T00:00:00Z").toLocaleDateString("fr-FR",{weekday:"long",timeZone:"UTC"})+"s"))];
+        msg += "• " + nomC + " : " + arr.length + " dates (" + jours.join(", ") + ")\n";
+      }
+    }
+    msg += "👉 Toutes les dates sur la page de réservation\n\n";
   }
   if(offres.length){
     msg += "📋 Postes en CDI (jours fixes) :\n";

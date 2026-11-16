@@ -32,6 +32,7 @@
 // BREVO_API_KEY + BREVO_FROM (déjà en place pour JARVIS SIGN).
 import { getStore } from "@netlify/blobs";
 import { randomBytes } from "node:crypto";
+import { SEED_SLOTS, SEED_CDI } from "./cdd-seed.mjs";
 
 const CENTRES = {
   argenteuil:   "ARGENTEUIL",
@@ -77,6 +78,16 @@ const dateFr = (iso) => {
   const s = d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
   return s.charAt(0).toUpperCase() + s.slice(1);
 };
+
+// Premier démarrage : charge les dates et offres issues des trous de
+// couverture MAJ VAC, puis pose un marqueur pour ne plus jamais le refaire
+// (l'admin reste seule maîtresse des données ensuite).
+async function amorcer(store) {
+  if (await store.get("seed.done")) return;
+  if (!(await store.get("slots.json"))) await store.setJSON("slots.json", SEED_SLOTS);
+  if (!(await store.get("cdi.json"))) await store.setJSON("cdi.json", SEED_CDI);
+  await store.set("seed.done", "1");
+}
 
 async function lireSlots(store) {
   return (await store.get("slots.json", { type: "json" })) || [];
@@ -172,6 +183,7 @@ async function envoyerDemandeContrat(store, resa, objet, origin) {
 export default async (req) => {
   const url = new URL(req.url);
   const store = getStore("cdd");
+  await amorcer(store);
 
   if (req.method === "GET") {
     // Téléchargement d'un document (admin)
