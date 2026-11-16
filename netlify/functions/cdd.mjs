@@ -195,6 +195,7 @@ export default async (req) => {
       conditions: CONDITIONS,
       centres: CENTRES,
       docs: DOCS,
+      enAttente: slots.filter((s) => s.status === "en_attente").length,
       slots: slots
         .filter((s) => s.date >= new Date().toISOString().slice(0, 10))
         .map((s) => ({ id: s.id, date: s.date, centre: s.centre, type: s.type, libre: s.status === "libre" })),
