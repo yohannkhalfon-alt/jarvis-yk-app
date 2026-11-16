@@ -97,7 +97,36 @@ async function lireCdi(store) {
 }
 async function lireConfig(store) {
   const c = (await store.get("config.json", { type: "json" })) || {};
-  return { to: c.to || DEST_DEFAUT, fromByCentre: c.fromByCentre || {} };
+  return { to: c.to || DEST_DEFAUT, fromByCentre: c.fromByCentre || {}, notif: c.notif || "" };
+}
+
+// Alerte direction : email immédiat quand une réservation attend validation
+// (adresse saisie dans l'admin, champ « email d'alerte »). Jamais bloquant.
+async function alerterDirection(store, resa, origin) {
+  try {
+    const key = process.env.BREVO_API_KEY;
+    const cfg = await lireConfig(store);
+    if (!key || !cfg.notif) return;
+    const centreLabel = CENTRES[resa.centre] || resa.centre;
+    const quand = resa.type === "CDI" ? resa.jours : dateFr(resa.date);
+    const expediteur = cfg.fromByCentre[resa.centre] || process.env.BREVO_FROM;
+    if (!expediteur) return;
+    await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: { "api-key": key, "content-type": "application/json" },
+      body: JSON.stringify({
+        sender: { name: "JARVIS CDD", email: expediteur },
+        to: [{ email: cfg.notif }],
+        subject: `🩺 À valider : Dr ${resa.prenom} ${resa.nom}, ${quand} (${centreLabel})`,
+        htmlContent:
+          `<p><b>Dr ${echapHtml(resa.prenom)} ${echapHtml(resa.nom)}</b> vient de réserver : ` +
+          `<b>${echapHtml(quand)}</b> au centre de <b>${echapHtml(centreLabel)}</b> (${echapHtml(resa.type || "CDD")}).</p>` +
+          `<p>Documents importés : ${(resa.docs || []).length}.</p>` +
+          `<p><a href="${origin}/cdd/admin.html" style="background:#1B6FD8;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:700;">Valider ou refuser →</a></p>` +
+          `<p style="color:#888;font-size:12px;">Rien ne part chez la gestionnaire tant que tu n'as pas validé.</p>`,
+      }),
+    });
+  } catch {}
 }
 
 // Email à LK Gestion, expédié depuis la boîte de la direction du centre.
@@ -260,6 +289,7 @@ export default async (req) => {
       offre.resaId = id;
       await store.setJSON(`resa/${id}.json`, resa);
       await store.setJSON("cdi.json", cdis);
+      await alerterDirection(store, resa, url.origin);
       return json({ ok: true, resaId: id, upToken: resa.upToken });
     }
 
@@ -272,6 +302,7 @@ export default async (req) => {
     slot.resaId = id;
     await store.setJSON(`resa/${id}.json`, resa);
     await store.setJSON("slots.json", slots);
+    await alerterDirection(store, resa, url.origin);
     return json({ ok: true, resaId: id, upToken: resa.upToken });
   }
 
@@ -380,6 +411,7 @@ export default async (req) => {
   if (action === "config") {
     const cfg = await lireConfig(store);
     if (body.to !== undefined) cfg.to = champ(body.to, 120) || DEST_DEFAUT;
+    if (body.notif !== undefined) cfg.notif = champ(body.notif, 120);
     for (const [c, mail] of Object.entries(body.fromByCentre || {}))
       if (CENTRES[c]) cfg.fromByCentre[c] = champ(mail, 120);
     await store.setJSON("config.json", cfg);
