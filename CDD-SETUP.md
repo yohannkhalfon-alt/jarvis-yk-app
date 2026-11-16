@@ -56,3 +56,5 @@ Le formulaire médecin demande désormais civilité, date et lieu de naissance e
 nationalité (nécessaires au contrat). Phases suivantes : autres centres, CDI,
 envoi en signature via JARVIS SIGN après validation du rendu par la direction
 et la gestionnaire.
+
+> Code admin : variable `CDD_ADMIN_CODE` définie sur Netlify le 16/11/2026.
