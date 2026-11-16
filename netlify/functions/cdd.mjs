@@ -431,6 +431,25 @@ export default async (req) => {
     return json({ ok: true, notif: resa.notif || null });
   }
 
+  // Installe un tampon depuis une URL de téléchargement (lien Dropbox temporaire) :
+  // c'est le serveur qui télécharge, l'image ne transite ni par le navigateur ni par le code.
+  if (action === "config-tampon-url") {
+    const centre = champ(body.centre, 20).toLowerCase();
+    if (!CENTRES[centre]) return json({ error: "centre inconnu" }, 400);
+    try {
+      const r = await fetch(String(body.url || ""), { redirect: "follow" });
+      if (!r.ok) return json({ error: `téléchargement refusé (${r.status})` }, 502);
+      const buf = Buffer.from(await r.arrayBuffer());
+      if (!buf.length || buf.length > 1_500_000) return json({ error: "image vide ou trop lourde" }, 400);
+      const mime = r.headers.get("content-type") || (buf[0] === 0x89 ? "image/png" : "image/jpeg");
+      if (!mime.startsWith("image/")) return json({ error: `type inattendu : ${mime}` }, 400);
+      await store.setJSON(`asset/tampon-${centre}`, { b64: buf.toString("base64"), mime });
+      return json({ ok: true, centre, octets: buf.length, mime });
+    } catch (e) {
+      return json({ error: String(e.message || e).slice(0, 150) }, 502);
+    }
+  }
+
   if (action === "config-tampon") {
     const centre = champ(body.centre, 20).toLowerCase();
     if (!CENTRES[centre]) return json({ error: "centre inconnu" }, 400);
