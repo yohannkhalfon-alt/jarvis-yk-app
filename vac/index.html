@@ -569,7 +569,7 @@ async function cddMaj(){
     const attente = CDD.enAttente||0;
     document.getElementById("cddNLibres").textContent = libres.length;
     document.getElementById("cddNAttente").textContent = attente;
-    document.getElementById("cddWa").disabled = !libres.length && !(CDD.cdi||[]).some(o=>o.libre);
+    document.getElementById("cddWa").disabled = false;
     for(const b of [document.getElementById("cddBadge"), document.getElementById("cddBadgeH")].filter(Boolean)){
       if(attente){ b.textContent = attente; b.style.background = "#FF5D6C"; b.style.color = "#fff"; b.style.display = "flex"; }
       else if(libres.length){ b.textContent = libres.length; b.style.background = "#4FD8EB"; b.style.color = "#04121A"; b.style.display = "flex"; }
@@ -583,33 +583,10 @@ function cddToggle(){
   if(p.style.display === "block") cddMaj();
 }
 function cddWhatsApp(){
-  const libres = (CDD?.slots||[]).filter(s=>s.libre);
-  const offres = (CDD?.cdi||[]).filter(o=>o.libre);
-  if(!libres.length && !offres.length) return;
-  let msg = "👨‍⚕️ Choisissez vos vacations en direct !\n\n";
-  if(libres.length){
-    msg += "🗓️ Dates disponibles (CDD) :\n";
-    const parCentre = {};
-    for(const s of libres) (parCentre[s.centre] = parCentre[s.centre]||[]).push(s);
-    for(const [c, arr] of Object.entries(parCentre)){
-      const nomC = CDD.centres[c]||c;
-      if(arr.length <= 4){ for(const s of arr) msg += "• " + cddDateFr(s.date) + " · " + nomC + "\n"; }
-      else {
-        const jours = [...new Set(arr.map(s => new Date(s.date+"T00:00:00Z").toLocaleDateString("fr-FR",{weekday:"long",timeZone:"UTC"})+"s"))];
-        msg += "• " + nomC + " : " + arr.length + " dates (" + jours.join(", ") + ")\n";
-      }
-    }
-    msg += "👉 Toutes les dates sur la page de réservation\n\n";
-  }
-  if(offres.length){
-    msg += "📋 Postes en CDI (jours fixes) :\n";
-    for(const o of offres) msg += "• " + o.jours + " · " + (CDD.centres[o.centre]||o.centre) + "\n";
-    msg += "\n";
-  }
-  msg += "💶 " + CDD.conditions.remuneration + "\n🕘 " + CDD.conditions.horaires +
-    "\n\n⚡ Soyez le premier : réservation en 2 minutes 👉 " + location.origin + "/cdd/" +
-    "\n📄 Contrat envoyé sous 48 h" +
-    "\n💬 Pour plus de renseignements, écrivez-moi en privé.";
+  // Message court : c'est l'aperçu du lien (la bannière) qui donne envie de cliquer.
+  const msg = "⚡ CDD / CDI : choisissez vos vacations en direct, soyez le premier 👇
+" +
+    "https://jarvis-yk-app.netlify.app/cdd/";
   window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank");
 }
 cddMaj();
