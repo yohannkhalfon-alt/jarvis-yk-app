@@ -42,3 +42,17 @@ clic sur le lien de confirmation reçu dans la boîte du centre). Sinon le repli
 Netlify Blobs, store `cdd` : `slots.json` (dates), `config.json` (boîtes d'envoi,
 destinataire), `resa/{id}.json` (réservations), `doc/{id}/{clé}` (documents, JPEG
 compressé côté client à ≤ 4 Mo ou PDF).
+
+## Génération du contrat (phase 1 — brouillon)
+
+Dans l'admin, chaque réservation CDD à Argenteuil a un bouton « 📄 Contrat
+(brouillon) » : PDF généré à partir du modèle de l'avocate « CDD REMPLA OPHTA
+1 JOUR CDSOA » (texte repris mot pour mot, accords selon la civilité),
+pré-rempli avec l'état civil du praticien, la date, 1 300 € net et la prime de
+précarité. À configurer dans l'admin : le « praticien remplacé » par centre
+(motif légal du CDD) et le tampon+signature du centre (image importée, stockée
+en privé dans Netlify Blobs — jamais dans le code ni sur une URL publique).
+Le formulaire médecin demande désormais civilité, date et lieu de naissance et
+nationalité (nécessaires au contrat). Phases suivantes : autres centres, CDI,
+envoi en signature via JARVIS SIGN après validation du rendu par la direction
+et la gestionnaire.

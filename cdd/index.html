@@ -35,7 +35,7 @@ h2{color:var(--titre);font-size:15px;letter-spacing:1px;text-transform:uppercase
 .slot.pris{opacity:.45;cursor:default}
 .slot .etat{font-size:12px;color:var(--gris)}
 label{display:block;font-size:12px;letter-spacing:1px;color:var(--gris);text-transform:uppercase;margin:14px 0 6px}
-input,textarea{width:100%;background:rgba(255,255,255,.06);border:1px solid var(--bord);border-radius:9px;padding:12px;color:var(--titre);font-size:16px;font-family:inherit}
+input,select,textarea{width:100%;background:rgba(255,255,255,.06);border:1px solid var(--bord);border-radius:9px;padding:12px;color:var(--titre);font-size:16px;font-family:inherit}
 textarea{min-height:64px;resize:vertical}
 .docs .doc{display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(255,255,255,.04);border:1px dashed var(--bord);border-radius:10px;padding:11px 12px;margin-bottom:8px}
 .docs .nom{font-size:14px}
@@ -85,6 +85,10 @@ button.principal:disabled{opacity:.5;cursor:default}
 
     <label>Nom *</label><input id="f-nom" autocomplete="family-name">
     <label>Prénom *</label><input id="f-prenom" autocomplete="given-name">
+    <label>Civilité *</label><select id="f-civ"><option value="M">Monsieur</option><option value="Mme">Madame</option></select>
+    <label>Date de naissance *</label><input id="f-naissance" type="date">
+    <label>Lieu de naissance *</label><input id="f-lieun" placeholder="Ville, pays">
+    <label>Nationalité *</label><input id="f-natio">
     <label>N° RPPS (11 chiffres) *</label><input id="f-rpps" inputmode="numeric" maxlength="11">
     <label>N° de sécurité sociale</label><input id="f-secu" inputmode="numeric" placeholder="Si disponible">
     <label>Adresse postale *</label><textarea id="f-adresse" autocomplete="street-address"></textarea>
@@ -277,9 +281,12 @@ async function envoyer(){
     action: "book", ...(OFFRE ? { cdiId: OFFRE.id } : { slotId: SLOT.id }),
     nom: v("f-nom"), prenom: v("f-prenom"), rpps: v("f-rpps").replace(/\D/g,""),
     secu: v("f-secu"), adresse: v("f-adresse"), tel: v("f-tel"), email: v("f-email"),
+    civilite: document.getElementById("f-civ").value,
+    dateNaissance: v("f-naissance"), lieuNaissance: v("f-lieun"), nationalite: v("f-natio"),
   };
   if(!corps.nom || !corps.prenom){ msg.className="msg err"; msg.textContent="Indique ton nom et ton prénom."; return; }
   if(!/^\d{11}$/.test(corps.rpps)){ msg.className="msg err"; msg.textContent="Le numéro RPPS doit comporter 11 chiffres."; return; }
+  if(!corps.dateNaissance || !corps.lieuNaissance || !corps.nationalite){ msg.className="msg err"; msg.textContent="Date et lieu de naissance et nationalité sont nécessaires pour établir le contrat."; return; }
   if(!corps.adresse){ msg.className="msg err"; msg.textContent="L'adresse postale est obligatoire (elle figure sur le contrat)."; return; }
   if(!corps.tel && !corps.email){ msg.className="msg err"; msg.textContent="Indique au moins un téléphone ou un email pour être recontacté·e."; return; }
   const manquants = DATA.docs.filter(d => d.requis && !FICHIERS[d.cle]).map(d => d.label);

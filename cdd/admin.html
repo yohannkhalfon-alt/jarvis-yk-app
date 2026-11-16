@@ -167,6 +167,7 @@ function afficher(){
         <div class="detail">
           <span class="cle">${r.type === "CDI" ? "CDI, jours fixes :" : "Date :"}</span> ${r.date ? dateFr(r.date) : echap(r.jours||"")} · <span class="centre-tag">${echap(DATA.centres[r.centre]||r.centre)}</span><br>
           <span class="cle">RPPS :</span> ${echap(r.rpps)} · <span class="cle">Sécu :</span> ${echap(r.secu || "non renseigné")}<br>
+          <span class="cle">État civil :</span> ${r.civilite === "Mme" ? "Mme" : "M."} · né${r.civilite === "Mme" ? "e" : ""} le ${echap(r.dateNaissance || "?")} à ${echap(r.lieuNaissance || "?")} · ${echap(r.nationalite || "nationalité ?")}<br>
           <span class="cle">Adresse :</span> ${echap(r.adresse)}<br>
           <span class="cle">Contact :</span> ${echap(r.tel || "non renseigné")} · ${echap(r.email || "non renseigné")}
         </div>
@@ -174,6 +175,7 @@ function afficher(){
         <div class="actions">
           <button class="vert" onclick="decider('${r.id}','confirm')">✅ Valider → mail CDD</button>
           <button class="rouge" onclick="decider('${r.id}','reject')">Refuser (libère la date)</button>
+          ${r.date && r.centre === "argenteuil" ? `<button class="ghost" onclick="voirContrat('${r.id}')">📄 Contrat (brouillon)</button>` : ""}
         </div>
         <div id="dec-${r.id}" class="msg"></div>
       </div>`;
@@ -205,7 +207,9 @@ function afficher(){
   document.getElementById("cfg-to").value = DATA.config.to || "";
   document.getElementById("cfg-notif").value = DATA.config.notif || "";
   document.getElementById("cfg-centres").innerHTML = Object.entries(DATA.centres).map(([k,v]) =>
-    `<label>Boîte direction ${v}</label><input id="cfg-from-${k}" value="${echap(DATA.config.fromByCentre[k]||"")}" placeholder="direction.${k}@…">`).join("");
+    `<label>Boîte direction ${v}</label><input id="cfg-from-${k}" value="${echap(DATA.config.fromByCentre[k]||"")}" placeholder="direction.${k}@…">
+     <label>Praticien remplacé à ${v} (motif du CDD)</label><input id="cfg-rempl-${k}" value="${echap((DATA.config.remplaceByCentre||{})[k]||"")}" placeholder="M PAPAPOSTOLOU Dimitri">
+     <label>Tampon + signature ${v} — ${(DATA.tampons||{})[k] ? "✅ en place" : "aucun (image à importer)"}</label><input type="file" id="cfg-tampon-${k}" accept="image/*">`).join("");
 }
 
 async function ajouter(){
@@ -261,11 +265,38 @@ async function decider(resaId, action){
   setTimeout(recharger, 1200);
 }
 
+async function voirContrat(resaId){
+  const r = await fetch(API + "?contrat=" + resaId, { headers: entetes() });
+  if(!r.ok){ const rep = await r.json().catch(()=>({})); alert(rep.error || "Génération impossible"); return; }
+  const url = URL.createObjectURL(await r.blob());
+  window.open(url, "_blank");
+  setTimeout(() => URL.revokeObjectURL(url), 120_000);
+}
+
+const base64Fichier = (file) => new Promise((res, rej) => {
+  const fr = new FileReader();
+  fr.onload = () => res(String(fr.result).split(",")[1]);
+  fr.onerror = rej;
+  fr.readAsDataURL(file);
+});
+
 async function sauverConfig(){
-  const fromByCentre = {};
-  for(const k of Object.keys(DATA.centres)) fromByCentre[k] = document.getElementById("cfg-from-"+k).value.trim();
+  const fromByCentre = {}, remplaceByCentre = {};
+  for(const k of Object.keys(DATA.centres)){
+    fromByCentre[k] = document.getElementById("cfg-from-"+k).value.trim();
+    remplaceByCentre[k] = document.getElementById("cfg-rempl-"+k).value.trim();
+  }
+  // Tampons : un envoi par centre dont une image a été choisie
+  for(const k of Object.keys(DATA.centres)){
+    const inp = document.getElementById("cfg-tampon-"+k);
+    if(inp && inp.files[0]){
+      const f = inp.files[0];
+      await fetch(API, { method:"POST", headers: entetes(),
+        body: JSON.stringify({ action:"config-tampon", centre:k, mime:f.type||"image/jpeg", dataBase64: await base64Fichier(f) }) });
+    }
+  }
   const r = await fetch(API, { method:"POST", headers: entetes(),
-    body: JSON.stringify({ action:"config", to: document.getElementById("cfg-to").value.trim(), notif: document.getElementById("cfg-notif").value.trim(), fromByCentre }) });
+    body: JSON.stringify({ action:"config", to: document.getElementById("cfg-to").value.trim(), notif: document.getElementById("cfg-notif").value.trim(), fromByCentre, remplaceByCentre }) });
   const msg = document.getElementById("cfg-msg");
   msg.className = r.ok ? "msg ok" : "msg err";
   msg.textContent = r.ok ? "Configuration enregistrée." : "Erreur d'enregistrement.";
