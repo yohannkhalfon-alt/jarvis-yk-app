@@ -67,6 +67,17 @@ button.vert{background:var(--ok);color:#04140A}
     </div>
 
     <div class="carte">
+      <h2>Offres CDI (jours fixes)</h2>
+      <div class="ligne">
+        <div><label>Jours proposés</label><input id="cdi-jours" placeholder="Lundi et jeudi"></div>
+        <div><label>Centre</label><select id="cdi-centre"></select></div>
+        <div style="flex:0"><button onclick="ajouterCdi()">Ajouter</button></div>
+      </div>
+      <div id="cdi-msg" class="msg"></div>
+      <div id="cdi-liste" style="margin-top:12px"></div>
+    </div>
+
+    <div class="carte">
       <h2>Réservations à valider</h2>
       <div id="attente" class="vide">…</div>
     </div>
@@ -122,6 +133,23 @@ function afficher(){
   // Sélecteur de centres
   const sel = document.getElementById("aj-centre");
   sel.innerHTML = Object.entries(DATA.centres).map(([k,v]) => `<option value="${k}">${v}</option>`).join("");
+  document.getElementById("cdi-centre").innerHTML = sel.innerHTML;
+
+  // Offres CDI
+  const zc = document.getElementById("cdi-liste");
+  const cdis = DATA.cdis || [];
+  if(!cdis.length) zc.innerHTML = '<div class="vide">Aucune offre CDI créée.</div>';
+  else zc.innerHTML = cdis.map(o => {
+    const resa = (DATA.resas||[]).find(r => r.id === o.resaId);
+    const badge = o.status === "libre" ? '<span class="badge libre">Ouverte</span>'
+      : o.status === "pourvu" ? '<span class="badge confirme">Pourvue</span>'
+      : '<span class="badge attente">En attente</span>';
+    const qui = resa ? ` · Dr ${echap(resa.prenom)} ${echap(resa.nom)}` : "";
+    const suppr = o.status === "libre" ? `<button class="ghost" style="padding:6px 10px;font-size:12px" onclick="retirerCdi('${o.id}')">Retirer</button>` : "";
+    return `<div class="item"><div class="tete">
+      <span><b>${echap(o.jours)}</b> <span class="centre-tag">${echap(DATA.centres[o.centre]||o.centre)}</span>${qui}</span>
+      <span style="display:flex;gap:8px;align-items:center">${badge}${suppr}</span></div></div>`;
+  }).join("");
 
   // Réservations en attente
   const attente = (DATA.resas || []).filter(r => r.status === "en_attente");
@@ -136,7 +164,7 @@ function afficher(){
       return `<div class="item">
         <div class="tete"><b>Dr ${echap(r.prenom)} ${echap(r.nom)}</b><span class="badge attente">En attente</span></div>
         <div class="detail">
-          <span class="cle">Date :</span> ${dateFr(r.date)} · <span class="centre-tag">${echap(DATA.centres[r.centre]||r.centre)}</span><br>
+          <span class="cle">${r.type === "CDI" ? "CDI, jours fixes :" : "Date :"}</span> ${r.date ? dateFr(r.date) : echap(r.jours||"")} · <span class="centre-tag">${echap(DATA.centres[r.centre]||r.centre)}</span><br>
           <span class="cle">RPPS :</span> ${echap(r.rpps)} · <span class="cle">Sécu :</span> ${echap(r.secu || "non renseigné")}<br>
           <span class="cle">Adresse :</span> ${echap(r.adresse)}<br>
           <span class="cle">Contact :</span> ${echap(r.tel || "non renseigné")} · ${echap(r.email || "non renseigné")}
@@ -187,6 +215,25 @@ async function ajouter(){
   const rep = await r.json();
   msg.className = r.ok ? "msg ok" : "msg err";
   msg.textContent = r.ok ? (rep.ajoutes ? "Date ajoutée." : "Cette date existe déjà pour ce centre.") : (rep.error || "Erreur");
+  recharger();
+}
+
+async function ajouterCdi(){
+  const jours = document.getElementById("cdi-jours").value.trim();
+  const msg = document.getElementById("cdi-msg");
+  if(!jours){ msg.className="msg err"; msg.textContent="Indique les jours (ex. « Lundi et jeudi »)."; return; }
+  const r = await fetch(API, { method:"POST", headers: entetes(),
+    body: JSON.stringify({ action:"add-cdi", jours, centre: document.getElementById("cdi-centre").value }) });
+  const rep = await r.json();
+  msg.className = r.ok ? "msg ok" : "msg err";
+  msg.textContent = r.ok ? "Offre CDI ajoutée." : (rep.error || "Erreur");
+  if(r.ok) document.getElementById("cdi-jours").value = "";
+  recharger();
+}
+
+async function retirerCdi(cdiId){
+  if(!confirm("Retirer cette offre CDI ?")) return;
+  await fetch(API, { method:"POST", headers: entetes(), body: JSON.stringify({ action:"remove-cdi", cdiId }) });
   recharger();
 }
 

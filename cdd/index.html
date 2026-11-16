@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Vacations Ophtalmologie : Réservation</title>
+<meta property="og:title" content="Choisissez vos vacations en direct">
+<meta property="og:description" content="Ophtalmologues : CDD à la date ou CDI jours fixes dans nos centres. Soyez le premier à prendre votre vacation. Contrat envoyé sous 48 h.">
+<meta property="og:image" content="https://jarvis-yk-app.netlify.app/cdd/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://jarvis-yk-app.netlify.app/cdd/">
 <style>
 :root{
   --fond:#04060C; --carte:rgba(10,16,28,.88); --bord:rgba(79,216,235,.25);
@@ -46,6 +53,9 @@ button.principal:disabled{opacity:.5;cursor:default}
 .ok-ecran h2{text-transform:none;letter-spacing:0;font-size:19px;margin:12px 0 8px}
 .rgpd{color:var(--gris);font-size:11px;line-height:1.5;margin-top:20px}
 .vide{color:var(--gris);font-size:14px;text-align:center;padding:14px 0}
+.onglets{display:flex;gap:8px;margin-bottom:14px}
+.ong{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--bord);border-radius:10px;padding:11px 0;color:var(--gris);font-size:14px;font-weight:700;letter-spacing:.5px;cursor:pointer;font-family:inherit}
+.ong.on{background:rgba(79,216,235,.15);color:var(--cyan)}
 </style>
 </head>
 <body>
@@ -60,8 +70,13 @@ button.principal:disabled{opacity:.5;cursor:default}
   </div>
 
   <div id="ecran-liste" class="carte">
-    <h2>Choisis ta date</h2>
+    <div class="onglets">
+      <button class="ong on" id="ong-cdd" onclick="onglet('cdd')">Vacations · CDD</button>
+      <button class="ong" id="ong-cdi" onclick="onglet('cdi')">Jours fixes · CDI</button>
+    </div>
+    <h2 id="liste-titre">Choisis ta date</h2>
     <div id="liste" class="vide">Chargement des dates…</div>
+    <div id="liste-cdi" class="vide" style="display:none">Chargement…</div>
   </div>
 
   <div id="ecran-form" class="carte" style="display:none">
@@ -98,7 +113,7 @@ button.principal:disabled{opacity:.5;cursor:default}
 
 <script>
 const API = "/api/cdd";
-let DATA = null, SLOT = null;
+let DATA = null, SLOT = null, OFFRE = null;
 // Fichiers choisis : { cle: {blob, filename, mime} }
 const FICHIERS = {};
 
@@ -112,6 +127,14 @@ const moisFr = (iso) => {
   const s = new Date(Date.UTC(a,m-1,1)).toLocaleDateString("fr-FR",{month:"long",year:"numeric",timeZone:"UTC"});
   return s.charAt(0).toUpperCase()+s.slice(1);
 };
+
+function onglet(m){
+  document.getElementById("ong-cdd").classList.toggle("on", m === "cdd");
+  document.getElementById("ong-cdi").classList.toggle("on", m === "cdi");
+  document.getElementById("liste").style.display = m === "cdd" ? "" : "none";
+  document.getElementById("liste-cdi").style.display = m === "cdi" ? "" : "none";
+  document.getElementById("liste-titre").textContent = m === "cdd" ? "Choisis ta date" : "Nos postes en CDI";
+}
 
 async function charger(){
   try{
@@ -132,6 +155,18 @@ async function charger(){
         : `<div class="slot pris"><span><span class="date">${dateFr(s.date)}</span><br><span class="centre">${centre}</span></span><span class="etat">Déjà prise</span></div>`;
     }
     el.innerHTML = html;
+    const elc = document.getElementById("liste-cdi");
+    const offres = DATA.cdi || [];
+    if(!offres.length){ elc.className = "vide"; elc.textContent = "Aucun poste en CDI proposé pour le moment."; }
+    else {
+      elc.classList.remove("vide");
+      elc.innerHTML = offres.map(o => {
+        const centre = DATA.centres[o.centre] || o.centre.toUpperCase();
+        return o.libre
+          ? `<button class="slot" onclick="choisirCdi('${o.id}')"><span><span class="date">${o.jours}</span><br><span class="centre">${centre}</span></span><span style="color:var(--cyan)">Postuler →</span></button>`
+          : `<div class="slot pris"><span><span class="date">${o.jours}</span><br><span class="centre">${centre}</span></span><span class="etat">Déjà pourvu</span></div>`;
+      }).join("");
+    }
   }catch(e){
     document.getElementById("liste").textContent = "Impossible de charger les dates. Réessaie dans un instant.";
   }
@@ -139,9 +174,21 @@ async function charger(){
 
 function choisir(id){
   SLOT = DATA.slots.find(s => s.id === id);
+  OFFRE = null;
   if(!SLOT) return;
   document.getElementById("form-titre").textContent =
     `${dateFr(SLOT.date)} · ${DATA.centres[SLOT.centre] || SLOT.centre}`;
+  construireDocs();
+  document.getElementById("ecran-liste").style.display = "none";
+  document.getElementById("ecran-form").style.display = "block";
+  window.scrollTo({top:0});
+}
+function choisirCdi(id){
+  OFFRE = (DATA.cdi||[]).find(o => o.id === id);
+  SLOT = null;
+  if(!OFFRE) return;
+  document.getElementById("form-titre").textContent =
+    `CDI · ${OFFRE.jours} (${DATA.centres[OFFRE.centre] || OFFRE.centre})`;
   construireDocs();
   document.getElementById("ecran-liste").style.display = "none";
   document.getElementById("ecran-form").style.display = "block";
@@ -227,7 +274,7 @@ async function envoyer(){
   msg.className = "msg"; msg.textContent = "";
   const v = (id) => document.getElementById(id).value.trim();
   const corps = {
-    action: "book", slotId: SLOT.id,
+    action: "book", ...(OFFRE ? { cdiId: OFFRE.id } : { slotId: SLOT.id }),
     nom: v("f-nom"), prenom: v("f-prenom"), rpps: v("f-rpps").replace(/\D/g,""),
     secu: v("f-secu"), adresse: v("f-adresse"), tel: v("f-tel"), email: v("f-email"),
   };
@@ -255,8 +302,9 @@ async function envoyer(){
       if(!ru.ok) document.getElementById("etat-"+cles[i]).textContent = "⚠️ Échec d'envoi";
     }
 
-    document.getElementById("ok-texte").textContent =
-      `${dateFr(SLOT.date)} (${DATA.centres[SLOT.centre] || SLOT.centre}) est réservée pour toi, Dr ${corps.prenom} ${corps.nom}.`;
+    document.getElementById("ok-texte").textContent = OFFRE
+      ? `Ta candidature CDI (${OFFRE.jours}, ${DATA.centres[OFFRE.centre] || OFFRE.centre}) est bien enregistrée, Dr ${corps.prenom} ${corps.nom}.`
+      : `${dateFr(SLOT.date)} (${DATA.centres[SLOT.centre] || SLOT.centre}) est réservée pour toi, Dr ${corps.prenom} ${corps.nom}.`;
     document.getElementById("ecran-form").style.display = "none";
     document.getElementById("ecran-ok").style.display = "block";
     window.scrollTo({top:0});

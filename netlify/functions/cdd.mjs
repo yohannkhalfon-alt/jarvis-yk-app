@@ -1,26 +1,29 @@
-// JARVIS CDD — réservation de vacations ophtalmologue + demande de CDD automatique.
+// JARVIS CDD — réservation de vacations ophtalmologue + demande de contrat automatique.
 //
-// Parcours : le praticien ouvre /cdd/, choisit une date libre, remplit ses
-// informations (nom, prénom, RPPS, n° sécu, adresse postale, contact) et
-// photographie / importe ses documents. Le créneau passe "en attente".
-// Yohann confirme depuis /cdd/admin.html → un email part À Laura (LK Gestion)
-// DEPUIS la boîte de la direction du centre concerné (via Brevo, comme SIGN),
-// avec toutes les informations et les documents en pièces jointes :
-// « Merci de créer le CDD pour Docteur X ».
+// Deux volets côté praticien (/cdd/) :
+//  - CDD : des dates de vacation à réserver (premier arrivé, premier servi) ;
+//  - CDI : des offres à jours fixes (ex. « Lundi et jeudi » à Sartrouville).
+// Dans les deux cas : formulaire (nom, prénom, RPPS, n° sécu, adresse, contact),
+// documents photographiés/importés, puis validation par la direction dans
+// /cdd/admin.html → email à LK Gestion DEPUIS la boîte direction du centre
+// (via Brevo, comme SIGN) : « Merci de créer le CDD/CDI pour Docteur X ».
 //
-// GET  /api/cdd                        → vue publique : créneaux ouverts + conditions
-// GET  /api/cdd?list=1                 → (admin) créneaux + réservations complètes + config
+// GET  /api/cdd                        → vue publique : dates + offres CDI + conditions
+// GET  /api/cdd?list=1                 → (admin) tout : créneaux, offres, réservations, config
 // GET  /api/cdd?doc=RESA/CLE           → (admin) télécharger un document importé
-// POST /api/cdd {action:"book"}        → réserver un créneau (public)
+// POST /api/cdd {action:"book"}        → réserver une date (slotId) ou postuler CDI (cdiId)
 // POST /api/cdd {action:"upload-doc"}  → ajouter un document à sa réservation (token)
 // POST /api/cdd {action:"add-slots"}   → (admin) ajouter des dates
 // POST /api/cdd {action:"remove-slot"} → (admin) retirer une date libre
+// POST /api/cdd {action:"add-cdi"}     → (admin) ajouter une offre CDI (centre + jours)
+// POST /api/cdd {action:"remove-cdi"}  → (admin) retirer une offre CDI
 // POST /api/cdd {action:"confirm"}     → (admin) confirmer → email à LK Gestion
-// POST /api/cdd {action:"reject"}      → (admin) refuser → libère le créneau
+// POST /api/cdd {action:"reject"}      → (admin) refuser → libère la date ou l'offre
 // POST /api/cdd {action:"config"}      → (admin) boîtes d'envoi par centre, destinataire
 //
 // Stockage Netlify Blobs (store "cdd") :
-//   slots.json        liste des créneaux [{id,date,centre,type,status,resaId}]
+//   slots.json        dates [{id,date,centre,type,status,resaId}]
+//   cdi.json          offres CDI [{id,centre,jours,status,resaId}]
 //   config.json       { to, fromByCentre: {argenteuil:"direction@...", ...} }
 //   resa/{id}.json    réservation (praticien, statut, docs, audit)
 //   doc/{id}/{cle}    documents importés (JPEG compressé côté client ou PDF)
@@ -54,7 +57,7 @@ const DOCS = [
   { cle: "secu",    label: "Attestation de sécurité sociale",        requis: false },
 ];
 
-const DEST_DEFAUT = "gestionpro.lk@gmail.com"; // Laura — LK Gestion
+const DEST_DEFAUT = "gestionpro.lk@gmail.com"; // Laura, LK Gestion
 const MAX_DOC = 4 * 1024 * 1024;   // par document (base64 ≈ 5,3 Mo, sous la limite Netlify)
 const MAX_PJ_MAIL = 7_000_000;     // au-delà : liens de téléchargement au lieu de pièces jointes
 
@@ -78,22 +81,29 @@ const dateFr = (iso) => {
 async function lireSlots(store) {
   return (await store.get("slots.json", { type: "json" })) || [];
 }
+async function lireCdi(store) {
+  return (await store.get("cdi.json", { type: "json" })) || [];
+}
 async function lireConfig(store) {
   const c = (await store.get("config.json", { type: "json" })) || {};
   return { to: c.to || DEST_DEFAUT, fromByCentre: c.fromByCentre || {} };
 }
 
 // Email à LK Gestion, expédié depuis la boîte de la direction du centre.
+// `objet` décrit ce qui a été réservé : {centre, type:"CDD"|"CDI", date?, jours?}.
 // Même mécanique que JARVIS SIGN : si Brevo refuse l'expéditeur (adresse non
 // validée chez eux), repli sur BREVO_FROM. N'échoue jamais la confirmation :
 // le résultat est consigné dans resa.notif.
-async function envoyerDemandeCdd(store, resa, slot, origin) {
+async function envoyerDemandeContrat(store, resa, objet, origin) {
   const key = process.env.BREVO_API_KEY;
   if (!key) { resa.notif = { skipped: "BREVO_API_KEY non configurée sur Netlify" }; return; }
   const cfg = await lireConfig(store);
-  const centreLabel = CENTRES[slot.centre] || slot.centre.toUpperCase();
-  const boiteCentre = cfg.fromByCentre[slot.centre];
+  const centreLabel = CENTRES[objet.centre] || objet.centre.toUpperCase();
+  const boiteCentre = cfg.fromByCentre[objet.centre];
   const secours = process.env.BREVO_FROM;
+  const estCdi = objet.type === "CDI";
+  const contrat = estCdi ? "CDI" : (objet.type || "CDD");
+  const quand = estCdi ? (objet.jours || "jours à préciser") : dateFr(objet.date);
 
   // Pièces jointes : tous les documents importés, tant que le total tient
   // sous la limite Brevo ; sinon, liens de téléchargement (code admin requis).
@@ -117,8 +127,8 @@ async function envoyerDemandeCdd(store, resa, slot, origin) {
     ["Téléphone", resa.tel || "non renseigné"],
     ["Email", resa.email || "non renseigné"],
     ["Centre", centreLabel],
-    ["Date de la vacation", dateFr(slot.date)],
-    ["Type de contrat", slot.type || "CDD"],
+    estCdi ? ["Jours fixes", quand] : ["Date de la vacation", quand],
+    ["Type de contrat", contrat],
     ["Rémunération", CONDITIONS.remuneration + " (fixe)"],
     ["Horaires", CONDITIONS.horaires],
   ];
@@ -136,10 +146,10 @@ async function envoyerDemandeCdd(store, resa, slot, origin) {
       sender: { name: `Direction ${centreLabel}`, email: expediteur },
       to: [{ email: cfg.to }],
       replyTo: boiteCentre ? { email: boiteCentre } : undefined,
-      subject: `Merci de créer le CDD pour ${docte} : ${dateFr(slot.date)} (${centreLabel})`,
+      subject: `Merci de créer le ${contrat} pour ${docte} : ${quand} (${centreLabel})`,
       htmlContent:
         `<p>Bonjour Laura,</p>` +
-        `<p>Merci de créer le <b>${echapHtml(slot.type || "CDD")}</b> pour <b>${echapHtml(docte)}</b> :</p>` +
+        `<p>Merci de créer le <b>${echapHtml(contrat)}</b> pour <b>${echapHtml(docte)}</b> :</p>` +
         `<table style="border-collapse:collapse;font-size:14px;">${tableau}</table>` +
         listeDocs +
         `<p style="color:#888;font-size:12px;">JARVIS CDD : réservation confirmée par la direction le ${new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris" })}.</p>`,
@@ -177,28 +187,30 @@ export default async (req) => {
     }
 
     const slots = await lireSlots(store);
+    const cdis = await lireCdi(store);
 
     // Vue admin complète
     if (url.searchParams.get("list") === "1") {
       if (!adminOk(req)) return json({ error: "code admin invalide" }, 401);
       const resas = [];
-      for (const s of slots) {
-        if (!s.resaId) continue;
-        const r = await store.get(`resa/${s.resaId}.json`, { type: "json" });
+      for (const porteur of [...slots, ...cdis]) {
+        if (!porteur.resaId) continue;
+        const r = await store.get(`resa/${porteur.resaId}.json`, { type: "json" });
         if (r) { delete r.upToken; resas.push(r); }
       }
-      return json({ slots, resas, config: await lireConfig(store), centres: CENTRES, docs: DOCS, conditions: CONDITIONS, adminProtege: Boolean(process.env.CDD_ADMIN_CODE) });
+      return json({ slots, cdis, resas, config: await lireConfig(store), centres: CENTRES, docs: DOCS, conditions: CONDITIONS, adminProtege: Boolean(process.env.CDD_ADMIN_CODE) });
     }
 
-    // Vue publique : jamais de données personnelles, uniquement les dates
+    // Vue publique : jamais de données personnelles, uniquement dates et offres
     return json({
       conditions: CONDITIONS,
       centres: CENTRES,
       docs: DOCS,
-      enAttente: slots.filter((s) => s.status === "en_attente").length,
+      enAttente: slots.filter((s) => s.status === "en_attente").length + cdis.filter((o) => o.status === "en_attente").length,
       slots: slots
         .filter((s) => s.date >= new Date().toISOString().slice(0, 10))
         .map((s) => ({ id: s.id, date: s.date, centre: s.centre, type: s.type, libre: s.status === "libre" })),
+      cdi: cdis.map((o) => ({ id: o.id, centre: o.centre, jours: o.jours, libre: o.status === "libre" })),
     });
   }
 
@@ -207,7 +219,7 @@ export default async (req) => {
   try { body = await req.json(); } catch { return json({ error: "JSON invalide" }, 400); }
   const action = body.action;
 
-  // ---------- Public : réserver un créneau ----------
+  // ---------- Public : réserver une date (CDD) ou postuler à une offre (CDI) ----------
   if (action === "book") {
     const nom = champ(body.nom, 80), prenom = champ(body.prenom, 80);
     const rpps = champ(body.rpps, 20).replace(/\D/g, "");
@@ -218,18 +230,31 @@ export default async (req) => {
     if (!/^\d{11}$/.test(rpps)) return json({ error: "Le numéro RPPS doit comporter 11 chiffres." }, 400);
     if (!tel && !email) return json({ error: "Indique au moins un téléphone ou un email." }, 400);
 
+    const id = randomBytes(8).toString("hex");
+    const base = {
+      id, nom, prenom, rpps, secu, adresse, tel, email,
+      status: "en_attente", createdAt: new Date().toISOString(),
+      upToken: randomBytes(12).toString("hex"), docs: [],
+    };
+
+    if (body.cdiId) {
+      const cdis = await lireCdi(store);
+      const offre = cdis.find((o) => o.id === body.cdiId);
+      if (!offre) return json({ error: "Offre introuvable." }, 404);
+      if (offre.status !== "libre") return json({ error: "Désolé, cette offre vient d'être prise." }, 409);
+      const resa = { ...base, type: "CDI", cdiId: offre.id, jours: offre.jours, centre: offre.centre };
+      offre.status = "en_attente";
+      offre.resaId = id;
+      await store.setJSON(`resa/${id}.json`, resa);
+      await store.setJSON("cdi.json", cdis);
+      return json({ ok: true, resaId: id, upToken: resa.upToken });
+    }
+
     const slots = await lireSlots(store);
     const slot = slots.find((s) => s.id === body.slotId);
     if (!slot) return json({ error: "Créneau introuvable." }, 404);
     if (slot.status !== "libre") return json({ error: "Désolé, ce créneau vient d'être pris." }, 409);
-
-    const id = randomBytes(8).toString("hex");
-    const resa = {
-      id, slotId: slot.id, date: slot.date, centre: slot.centre,
-      nom, prenom, rpps, secu, adresse, tel, email,
-      status: "en_attente", createdAt: new Date().toISOString(),
-      upToken: randomBytes(12).toString("hex"), docs: [],
-    };
+    const resa = { ...base, type: slot.type || "CDD", slotId: slot.id, date: slot.date, centre: slot.centre };
     slot.status = "en_attente";
     slot.resaId = id;
     await store.setJSON(`resa/${id}.json`, resa);
@@ -285,25 +310,57 @@ export default async (req) => {
     return json({ ok: true, slots });
   }
 
+  if (action === "add-cdi") {
+    const cdis = await lireCdi(store);
+    const centre = champ(body.centre, 20).toLowerCase();
+    const jours = champ(body.jours, 120);
+    if (!CENTRES[centre]) return json({ error: "centre inconnu" }, 400);
+    if (!jours) return json({ error: "Indique les jours fixes (ex. « Lundi et jeudi »)." }, 400);
+    cdis.push({ id: randomBytes(6).toString("hex"), centre, jours, status: "libre", resaId: null });
+    await store.setJSON("cdi.json", cdis);
+    return json({ ok: true, cdis });
+  }
+
+  if (action === "remove-cdi") {
+    let cdis = await lireCdi(store);
+    const offre = cdis.find((o) => o.id === body.cdiId);
+    if (offre?.resaId) {
+      const resa = await store.get(`resa/${offre.resaId}.json`, { type: "json" });
+      if (resa) for (const d of resa.docs || []) await store.delete(`doc/${resa.id}/${d.cle}`);
+      await store.delete(`resa/${offre.resaId}.json`);
+    }
+    cdis = cdis.filter((o) => o.id !== body.cdiId);
+    await store.setJSON("cdi.json", cdis);
+    return json({ ok: true, cdis });
+  }
+
   if (action === "confirm" || action === "reject") {
+    const resaId = champ(body.resaId, 40);
     const slots = await lireSlots(store);
-    const slot = slots.find((s) => s.resaId === body.resaId);
-    const resa = await store.get(`resa/${champ(body.resaId, 40)}.json`, { type: "json" });
-    if (!slot || !resa) return json({ error: "réservation introuvable" }, 404);
+    const cdis = await lireCdi(store);
+    const slot = slots.find((s) => s.resaId === resaId);
+    const offre = cdis.find((o) => o.resaId === resaId);
+    const resa = await store.get(`resa/${resaId}.json`, { type: "json" });
+    if ((!slot && !offre) || !resa) return json({ error: "réservation introuvable" }, 404);
     if (resa.status !== "en_attente") return json({ error: "réservation déjà traitée" }, 409);
 
     if (action === "confirm") {
       resa.status = "confirmee";
       resa.confirmedAt = new Date().toISOString();
-      slot.status = "confirme";
-      await envoyerDemandeCdd(store, resa, slot, url.origin);
+      if (slot) slot.status = "confirme";
+      if (offre) offre.status = "pourvu";
+      const objet = slot
+        ? { centre: slot.centre, type: slot.type || "CDD", date: slot.date }
+        : { centre: offre.centre, type: "CDI", jours: offre.jours };
+      await envoyerDemandeContrat(store, resa, objet, url.origin);
     } else {
       resa.status = "refusee";
-      slot.status = "libre";   // la date redevient réservable
-      slot.resaId = null;
+      if (slot) { slot.status = "libre"; slot.resaId = null; }     // la date redevient réservable
+      if (offre) { offre.status = "libre"; offre.resaId = null; }  // l'offre redevient ouverte
     }
     await store.setJSON(`resa/${resa.id}.json`, resa);
-    await store.setJSON("slots.json", slots);
+    if (slot) await store.setJSON("slots.json", slots);
+    if (offre) await store.setJSON("cdi.json", cdis);
     return json({ ok: true, notif: resa.notif || null });
   }
 

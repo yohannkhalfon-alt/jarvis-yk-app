@@ -336,7 +336,7 @@ async function cddMaj(){
     const attente = CDD.enAttente||0;
     document.getElementById("cddNLibres").textContent = libres.length;
     document.getElementById("cddNAttente").textContent = attente;
-    document.getElementById("cddWa").disabled = !libres.length;
+    document.getElementById("cddWa").disabled = !libres.length && !(CDD.cdi||[]).some(o=>o.libre);
     const b = document.getElementById("cddBadge");
     if(attente){ b.textContent = attente; b.className = "rouge"; b.style.display = "flex"; }
     else if(libres.length){ b.textContent = libres.length; b.className = ""; b.style.display = "flex"; }
@@ -350,11 +350,23 @@ function cddToggle(){
 }
 function cddWhatsApp(){
   const libres = (CDD?.slots||[]).filter(s=>s.libre);
-  if(!libres.length) return;
-  let msg = "👨‍⚕️ Vacations ophtalmologie disponibles :\n\n";
-  for(const s of libres) msg += "🗓️ " + cddDateFr(s.date) + " · " + (CDD.centres[s.centre]||s.centre) + "\n";
-  msg += "\n💶 " + CDD.conditions.remuneration + "\n🕘 " + CDD.conditions.horaires +
-    "\n\nRéservation en 2 minutes 👉 " + location.origin + "/cdd/";
+  const offres = (CDD?.cdi||[]).filter(o=>o.libre);
+  if(!libres.length && !offres.length) return;
+  let msg = "👨‍⚕️ Choisissez vos vacations en direct !\n\n";
+  if(libres.length){
+    msg += "🗓️ Dates disponibles (CDD) :\n";
+    for(const s of libres) msg += "• " + cddDateFr(s.date) + " · " + (CDD.centres[s.centre]||s.centre) + "\n";
+    msg += "\n";
+  }
+  if(offres.length){
+    msg += "📋 Postes en CDI (jours fixes) :\n";
+    for(const o of offres) msg += "• " + o.jours + " · " + (CDD.centres[o.centre]||o.centre) + "\n";
+    msg += "\n";
+  }
+  msg += "💶 " + CDD.conditions.remuneration + "\n🕘 " + CDD.conditions.horaires +
+    "\n\n⚡ Soyez le premier : réservation en 2 minutes 👉 " + location.origin + "/cdd/" +
+    "\n📄 Contrat envoyé sous 48 h" +
+    "\n💬 Pour plus de renseignements, écrivez-moi en privé.";
   window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank");
 }
 cddMaj();
