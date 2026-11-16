@@ -163,6 +163,7 @@ async function envoyerDemandeContrat(store, resa, objet, origin) {
         `<p>Merci de créer le <b>${echapHtml(contrat)}</b> pour <b>${echapHtml(docte)}</b> :</p>` +
         `<table style="border-collapse:collapse;font-size:14px;">${tableau}</table>` +
         listeDocs +
+        `<p style="background:#FFF6E0;border:1px solid #E8C66B;border-radius:8px;padding:10px 12px;">⚠️ <b>Pensez à mettre à jour le planning Excel</b> (Dropbox) : ${estCdi ? `les jours « ${echapHtml(quand)} »` : `la journée du ${echapHtml(quand)}`} au centre de ${echapHtml(centreLabel)} ${estCdi ? "sont désormais couverts" : "est désormais couverte"} par ${echapHtml(docte)}.</p>` +
         `<p style="color:#888;font-size:12px;">JARVIS CDD : réservation confirmée par la direction le ${new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris" })}.</p>`,
       attachment: attachment.length ? attachment : undefined,
     }),
