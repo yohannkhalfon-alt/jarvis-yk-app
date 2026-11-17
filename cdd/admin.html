@@ -167,9 +167,10 @@ function afficher(){
       : '<span class="badge attente">En attente</span>';
     const qui = resa ? ` · Dr ${echap(resa.prenom)} ${echap(resa.nom)}` : "";
     const suppr = o.status === "libre" ? `<button class="ghost" style="padding:6px 10px;font-size:12px" onclick="retirerCdi('${o.id}')">Retirer</button>` : "";
+    const btnMail = resa ? `<button class="ghost" style="padding:6px 10px;font-size:12px" onclick="voirMail('${resa.id}')">✉️ Mail</button>` : "";
     return `<div class="item"><div class="tete">
       <span><b>${echap(o.jours)}</b> <span class="centre-tag">${echap(DATA.centres[o.centre]||o.centre)}</span>${qui}</span>
-      <span style="display:flex;gap:8px;align-items:center">${badge}${suppr}</span></div></div>`;
+      <span style="display:flex;gap:8px;align-items:center">${badge}${btnMail}${suppr}</span></div></div>`;
   }).join("");
 
   // Réservations en attente
@@ -195,6 +196,7 @@ function afficher(){
         <div class="actions">
           <button class="vert" onclick="decider('${r.id}','confirm')">✅ Valider → mail CDD</button>
           <button class="rouge" onclick="decider('${r.id}','reject')">Refuser (libère la date)</button>
+          <button class="ghost" onclick="voirMail('${r.id}')">✉️ Mail (brouillon)</button>
           ${r.date ? `<button class="ghost" onclick="voirContrat('${r.id}')">📄 Contrat (brouillon)</button>` : ""}
         </div>
         <div id="dec-${r.id}" class="msg"></div>
@@ -217,9 +219,14 @@ function afficher(){
       const notif = resa?.notif?.sent ? ' <span style="color:var(--ok);font-size:12px">✉️ mail envoyé</span>'
         : resa?.notif?.error ? ` <span style="color:var(--err);font-size:12px">✉️ échec : ${echap(resa.notif.error)}</span>`
         : resa?.notif?.skipped ? ` <span style="color:var(--or);font-size:12px">✉️ non envoyé : ${echap(resa.notif.skipped)}</span>` : "";
+      const btnStyle = 'style="padding:6px 10px;font-size:12px"';
+      const boutons = resa
+        ? `<button class="ghost" ${btnStyle} onclick="voirMail('${resa.id}')">✉️ Mail</button>` +
+          (resa.date ? `<button class="ghost" ${btnStyle} onclick="voirContrat('${resa.id}')">📄 Contrat</button>` : "")
+        : "";
       return `<div class="item"><div class="tete">
         <span><b>${dateFr(s.date)}</b> <span class="centre-tag">${echap(DATA.centres[s.centre]||s.centre)}</span> · ${echap(s.type||"CDD")}${qui}${notif}</span>
-        <span style="display:flex;gap:8px;align-items:center">${badge}${suppr}</span></div></div>`;
+        <span style="display:flex;gap:8px;align-items:center">${badge}${boutons}${suppr}</span></div></div>`;
     }).join("");
   }
 
@@ -301,6 +308,14 @@ async function decider(resaId, action){
 async function voirContrat(resaId){
   const r = await fetch(API + "?contrat=" + resaId, { headers: entetes() });
   if(!r.ok){ const rep = await r.json().catch(()=>({})); alert(rep.error || "Génération impossible"); return; }
+  const url = URL.createObjectURL(await r.blob());
+  window.open(url, "_blank");
+  setTimeout(() => URL.revokeObjectURL(url), 120_000);
+}
+
+async function voirMail(resaId){
+  const r = await fetch(API + "?mail=" + resaId, { headers: entetes() });
+  if(!r.ok){ const rep = await r.json().catch(()=>({})); alert(rep.error || "Aperçu impossible"); return; }
   const url = URL.createObjectURL(await r.blob());
   window.open(url, "_blank");
   setTimeout(() => URL.revokeObjectURL(url), 120_000);

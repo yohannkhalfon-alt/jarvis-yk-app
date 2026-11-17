@@ -147,34 +147,14 @@ async function alerterDirection(store, resa, origin) {
   } catch {}
 }
 
-// Email à LK Gestion, expédié depuis la boîte de la direction du centre.
-// `objet` décrit ce qui a été réservé : {centre, type:"CDD"|"CDI", date?, jours?}.
-// Même mécanique que JARVIS SIGN : si Brevo refuse l'expéditeur (adresse non
-// validée chez eux), repli sur BREVO_FROM. N'échoue jamais la confirmation :
-// le résultat est consigné dans resa.notif.
-async function envoyerDemandeContrat(store, resa, objet, origin) {
-  const key = await cleBrevo(store);
-  if (!key) { resa.notif = { skipped: "clé Brevo absente : colle-la dans l'admin (ou variable BREVO_API_KEY)" }; return; }
-  const cfg = await lireConfig(store);
+// Construit le sujet et le corps HTML du mail « Merci de créer le CDD… »
+// à LK Gestion. `objet` décrit ce qui a été réservé : {centre, type, date?, jours?}.
+// Partagé entre l'envoi réel (envoyerDemandeContrat) et l'aperçu admin (?mail=).
+function construireMailDemande(resa, objet, cfg, origin, docsEnPJ) {
   const centreLabel = CENTRES[objet.centre] || objet.centre.toUpperCase();
-  const boiteCentre = cfg.fromByCentre[objet.centre];
-  const secours = process.env.BREVO_FROM;
   const estCdi = objet.type === "CDI";
   const contrat = estCdi ? "CDI" : (objet.type || "CDD");
   const quand = estCdi ? (objet.jours || "jours à préciser") : dateFr(objet.date);
-
-  // Pièces jointes : tous les documents importés, tant que le total tient
-  // sous la limite Brevo ; sinon, liens de téléchargement (code admin requis).
-  const attachment = [];
-  let total = 0;
-  for (const d of resa.docs || []) {
-    const buf = await store.get(`doc/${resa.id}/${d.cle}`, { type: "arrayBuffer" });
-    if (!buf) continue;
-    const b64 = Buffer.from(buf).toString("base64");
-    total += b64.length;
-    if (total > MAX_PJ_MAIL) { attachment.length = 0; break; }
-    attachment.push({ name: d.filename, content: b64 });
-  }
 
   const docte = `Docteur ${resa.prenom} ${resa.nom}`;
   const lignes = [
@@ -194,8 +174,46 @@ async function envoyerDemandeContrat(store, resa, objet, origin) {
     .map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#667;white-space:nowrap;">${echapHtml(k)}</td><td style="padding:4px 0;"><b>${echapHtml(v)}</b></td></tr>`)
     .join("");
   const listeDocs = (resa.docs || []).length
-    ? `<p>Documents du praticien ${attachment.length ? "en pièces jointes" : `(volumineux, à télécharger depuis le tableau de bord JARVIS CDD : ${origin}/cdd/admin.html)`} : ${resa.docs.map((d) => echapHtml(DOCS.find((x) => x.cle === d.cle)?.label || d.cle)).join(", ")}.</p>`
+    ? `<p>Documents du praticien ${docsEnPJ ? "en pièces jointes" : `(volumineux, à télécharger depuis le tableau de bord JARVIS CDD : ${origin}/cdd/admin.html)`} : ${resa.docs.map((d) => echapHtml(DOCS.find((x) => x.cle === d.cle)?.label || d.cle)).join(", ")}.</p>`
     : `<p style="color:#a60;">Aucun document importé par le praticien, à réclamer.</p>`;
+
+  const confirmeLe = resa.confirmedAt ? new Date(resa.confirmedAt) : new Date();
+  const sujet = `Merci de créer le ${contrat} pour ${docte} : ${quand} (${centreLabel})`;
+  const html =
+    `<p>Bonjour Laura,</p>` +
+    `<p>Merci de créer le <b>${echapHtml(contrat)}</b> pour <b>${echapHtml(docte)}</b> :</p>` +
+    `<table style="border-collapse:collapse;font-size:14px;">${tableau}</table>` +
+    listeDocs +
+    `<p style="background:#FFF6E0;border:1px solid #E8C66B;border-radius:8px;padding:10px 12px;">⚠️ <b>Pensez à mettre à jour le planning Excel</b> (Dropbox) : ${estCdi ? `les jours « ${echapHtml(quand)} »` : `la journée du ${echapHtml(quand)}`} au centre de ${echapHtml(centreLabel)} ${estCdi ? "sont désormais couverts" : "est désormais couverte"} par ${echapHtml(docte)}.</p>` +
+    `<p style="color:#888;font-size:12px;">JARVIS CDD : réservation confirmée par la direction le ${confirmeLe.toLocaleString("fr-FR", { timeZone: "Europe/Paris" })}.</p>`;
+  return { sujet, html, centreLabel };
+}
+
+// Envoi réel à la validation, depuis la boîte du centre. Même mécanique que
+// JARVIS SIGN : si Brevo refuse l'expéditeur (adresse non validée chez eux),
+// repli sur BREVO_FROM. N'échoue jamais la confirmation : le résultat est
+// consigné dans resa.notif.
+async function envoyerDemandeContrat(store, resa, objet, origin) {
+  const key = await cleBrevo(store);
+  if (!key) { resa.notif = { skipped: "clé Brevo absente : colle-la dans l'admin (ou variable BREVO_API_KEY)" }; return; }
+  const cfg = await lireConfig(store);
+  const boiteCentre = cfg.fromByCentre[objet.centre];
+  const secours = process.env.BREVO_FROM;
+
+  // Pièces jointes : tous les documents importés, tant que le total tient
+  // sous la limite Brevo ; sinon, liens de téléchargement (code admin requis).
+  const attachment = [];
+  let total = 0;
+  for (const d of resa.docs || []) {
+    const buf = await store.get(`doc/${resa.id}/${d.cle}`, { type: "arrayBuffer" });
+    if (!buf) continue;
+    const b64 = Buffer.from(buf).toString("base64");
+    total += b64.length;
+    if (total > MAX_PJ_MAIL) { attachment.length = 0; break; }
+    attachment.push({ name: d.filename, content: b64 });
+  }
+
+  const { sujet, html, centreLabel } = construireMailDemande(resa, objet, cfg, origin, attachment.length > 0);
 
   const envoyer = (expediteur) => fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
@@ -204,14 +222,8 @@ async function envoyerDemandeContrat(store, resa, objet, origin) {
       sender: { name: `Direction ${centreLabel}`, email: expediteur },
       to: [{ email: cfg.to }],
       replyTo: boiteCentre ? { email: boiteCentre } : undefined,
-      subject: `Merci de créer le ${contrat} pour ${docte} : ${quand} (${centreLabel})`,
-      htmlContent:
-        `<p>Bonjour Laura,</p>` +
-        `<p>Merci de créer le <b>${echapHtml(contrat)}</b> pour <b>${echapHtml(docte)}</b> :</p>` +
-        `<table style="border-collapse:collapse;font-size:14px;">${tableau}</table>` +
-        listeDocs +
-        `<p style="background:#FFF6E0;border:1px solid #E8C66B;border-radius:8px;padding:10px 12px;">⚠️ <b>Pensez à mettre à jour le planning Excel</b> (Dropbox) : ${estCdi ? `les jours « ${echapHtml(quand)} »` : `la journée du ${echapHtml(quand)}`} au centre de ${echapHtml(centreLabel)} ${estCdi ? "sont désormais couverts" : "est désormais couverte"} par ${echapHtml(docte)}.</p>` +
-        `<p style="color:#888;font-size:12px;">JARVIS CDD : réservation confirmée par la direction le ${new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris" })}.</p>`,
+      subject: sujet,
+      htmlContent: html,
       attachment: attachment.length ? attachment : undefined,
     }),
   });
@@ -289,6 +301,34 @@ export default async (req) => {
       const buf = meta && (await store.get(`doc/${resaId}/${cle}`, { type: "arrayBuffer" }));
       if (!buf) return json({ error: "document introuvable" }, 404);
       return new Response(buf, { headers: { "content-type": meta.mime || "application/octet-stream", "content-disposition": `inline; filename="${meta.filename.replace(/[^\w. -]/g, "_")}"` } });
+    }
+
+    // Aperçu du mail « Merci de créer le CDD… » d'une réservation (brouillon
+    // ou mail déjà parti — reconstruit à l'identique à la demande).
+    const mailId = url.searchParams.get("mail");
+    if (mailId) {
+      if (!adminOk(req)) return json({ error: "code admin invalide" }, 401);
+      const resa = await store.get(`resa/${champ(mailId, 40)}.json`, { type: "json" });
+      if (!resa) return json({ error: "réservation introuvable" }, 404);
+      const cfg = await lireConfig(store);
+      const objet = resa.type === "CDI"
+        ? { centre: resa.centre, type: "CDI", jours: resa.jours }
+        : { centre: resa.centre, type: resa.type || "CDD", date: resa.date };
+      const { sujet, html } = construireMailDemande(resa, objet, cfg, url.origin, (resa.docs || []).length > 0);
+      const de = cfg.fromByCentre[resa.centre] || process.env.BREVO_FROM || "(boîte du centre non configurée)";
+      const etat = resa.notif?.sent ? `✅ Envoyé le ${new Date(resa.notif.at).toLocaleString("fr-FR", { timeZone: "Europe/Paris" })} depuis ${resa.notif.from}`
+        : resa.notif?.error ? `❌ Échec d'envoi : ${resa.notif.error}`
+        : resa.notif?.skipped ? `⚠️ Non envoyé : ${resa.notif.skipped}`
+        : "📝 Brouillon — partira automatiquement à la validation";
+      const page = `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mail CDD — Dr ${echapHtml(resa.nom)}</title></head>` +
+        `<body style="font-family:system-ui,sans-serif;max-width:720px;margin:24px auto;padding:0 16px;color:#1b2430">` +
+        `<div style="background:#F2F6FB;border:1px solid #D6E2F0;border-radius:10px;padding:12px 16px;font-size:14px;line-height:1.7">` +
+        `<div><b>État :</b> ${echapHtml(etat)}</div>` +
+        `<div><b>De :</b> Direction — ${echapHtml(de)}</div>` +
+        `<div><b>À :</b> ${echapHtml(cfg.to)}</div>` +
+        `<div><b>Objet :</b> ${echapHtml(sujet)}</div></div>` +
+        `<hr style="border:none;border-top:1px solid #e3e8ef;margin:18px 0">` + html + `</body></html>`;
+      return new Response(page, { headers: { "content-type": "text/html; charset=utf-8" } });
     }
 
     // Contrat pré-rempli (brouillon) — modèle avocate « CDD rempla ophta 1 jour »,
