@@ -92,7 +92,22 @@ export function blocsContrat(resa, slot, cfg) {
   const P = formes(resa);
   const A = ASSOS[slot.centre] || ASSOS.argenteuil;
   const dateVac = dateLongue(slot.date);
-  const remplace = (cfg.remplaceByCentre || {})[slot.centre] || "____________________";
+  // Praticien remplacé : le titulaire CDI du jour de la semaine, d'après les
+  // plannings (même logique que les CDD signés : Rosati mercredi Sartrouville
+  // → Dr Addala, Ionita samedi → Dr Slimane, tous les CDD Argenteuil →
+  // Dr Papapostolou). Priorité : config admin par jour > défauts plannings >
+  // config admin par centre. Sans titulaire (ex. samedis Antony), le contrat
+  // bascule sur le motif « dans l'attente de l'entrée en service d'un salarié
+  // recruté par CDI », comme les CDD Antony signés.
+  const CDI_PAR_JOUR = {  // 1 = lundi … 6 = samedi
+    argenteuil: { 1: "Dr PAPAPOSTOLOU Antonios", 2: "Dr PAPAPOSTOLOU Antonios", 3: "Dr PAPAPOSTOLOU Antonios", 4: "Dr PAPAPOSTOLOU Antonios", 5: "Dr PAPAPOSTOLOU Antonios", 6: "Dr PAPAPOSTOLOU Antonios" },
+    sartrouville: { 1: "Dr PAPAPOSTOLOU Antonios", 2: "Dr SAADE", 3: "Dr ADDALA Yakine", 4: "Dr CHAHINE", 5: "Dr PAPAPOSTOLOU Antonios", 6: "Dr SLIMANE BOUASBANA Hadj" },
+  };
+  const jourSemaine = slot.date ? new Date(slot.date + "T12:00:00Z").getUTCDay() : 0;
+  const remplace = ((cfg.remplaceByCentreJour || {})[slot.centre] || {})[jourSemaine]
+    || (CDI_PAR_JOUR[slot.centre] || {})[jourSemaine]
+    || (cfg.remplaceByCentre || {})[slot.centre]
+    || "";
   const neLe = resa.dateNaissance ? dateLongue(resa.dateNaissance, true) : "____________";
   const lieuN = resa.lieuNaissance || "____________";
   const natio = resa.nationalite || "____________";
@@ -131,7 +146,9 @@ export function blocsContrat(resa, slot, cfg) {
     { t: "p", x: "Les Parties reconnaissent que cette référence ne constitue pas un élément essentiel du contrat de travail." },
 
     { t: "h", x: "Article 1. Engagement – Objet et durée du contrat" },
-    { t: "p", x: `Le Centre de santé Ophtalmo Argenteuil engage ${P.mNom} à compter du ${dateVac} en qualité d’Ophtalmologue, pour une durée déterminée pour assurer le remplacement temporaire de ${remplace} habituellement employé dans le centre en qualité d’Ophtalmologue Statut Cadre, Positionnement 15, pendant son absence pour congés.` },
+    { t: "p", x: remplace
+      ? `Le Centre de santé Ophtalmo Argenteuil engage ${P.mNom} à compter du ${dateVac} en qualité d’Ophtalmologue, pour une durée déterminée pour assurer le remplacement temporaire de ${remplace} habituellement employé dans le centre en qualité d’Ophtalmologue Statut Cadre, Positionnement 15, pendant son absence pour congés.`
+      : `Le Centre de santé Ophtalmo Argenteuil engage ${P.mNom} à compter du ${dateVac} en qualité d’Ophtalmologue, pour une durée déterminée, pour assurer le remplacement temporaire dans l’attente de l’entrée en service d’un salarié recruté par CDI.` },
     { t: "p", x: `Le présent contrat à durée déterminée est conclu pour une durée d’une journée. Il prend effet le ${dateVac} à 9 heures et se terminera le ${dateVac} au soir.` },
     { t: "p", x: `${P.mNom}, qui accepte cet engagement, déclare formellement ne faire l'objet d'aucune restriction pouvant affecter la signature du présent contrat et/ou l'accomplissement de ses fonctions au sein du Centre de santé Ophtalmo Argenteuil.` },
     { t: "p", x: `${P.mNom} déclare au jour de la signature des présentes n’être tenu${P.e} à aucune clause de non-concurrence envers son ancien employeur ou ses autres employeurs éventuels.` },
@@ -140,7 +157,7 @@ export function blocsContrat(resa, slot, cfg) {
     { t: "p", x: `${P.mNom} s’engage à informer spontanément et immédiatement le Centre de santé Ophtalmo Argenteuil de toute modification postérieure à son engagement qui pourrait intervenir dans son état civil, sa situation familiale, ou son adresse.` },
 
     { t: "h", x: "Article 2. Fonctions" },
-    { t: "p", x: `${P.mNom} est engagé${P.e} en qualité d’Ophtalmologue Statut Cadre, Positionnement 15 selon la Convention Collective applicable, au poste habituellement occupé par ${remplace}.` },
+    { t: "p", x: `${P.mNom} est engagé${P.e} en qualité d’Ophtalmologue Statut Cadre, Positionnement 15 selon la Convention Collective applicable${remplace ? `, au poste habituellement occupé par ${remplace}` : ""}.` },
     { t: "p", x: `${P.mNom}, en sa qualité d’Ophtalmologue, recevra tous les patients que le Centre de santé Ophtalmo Argenteuil lui confiera et leur donnera ses soins consciencieux et attentifs, conformément aux dispositions de l’article R.4127-7 du Code de la santé publique.` },
     { t: "p", x: `${P.mNom} exercera ses fonctions dans le respect des procédures en place dans le Centre de santé Ophtalmo Argenteuil et rendra compte de ses fonctions à son supérieur hiérarchique et se conformera à ses instructions et directives administratives, ainsi qu’aux règles établies par la Direction du Centre.` },
     { t: "p", x: `En effet, ${P.mNom} n’est soumis${P.e} à un lien de subordination à l’égard de son employeur, que pour la détermination de ses conditions de travail sur le plan administratif, ${P.f ? "elle" : "il"} exerce donc ses fonctions en toute indépendance professionnelle en tant que praticien.` },
