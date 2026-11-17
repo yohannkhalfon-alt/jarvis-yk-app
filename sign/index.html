@@ -120,10 +120,10 @@
     <input type="text" id="texteLibre" placeholder="Ex : Reçu un exemplaire du règlement intérieur" maxlength="60" disabled />
     <div class="hint">Cette phrase apparaîtra près de la signature, exactement comme « Lu et approuvé ». 60 caractères maximum.</div>
     <label class="opt"><input type="checkbox" id="optParaphe" /> Paraphe (initiales) en bas de chaque page</label>
-    <label class="opt"><input type="checkbox" id="optDate" /> « Je choisis ma date » — date inscrite sur le document :
-      <input type="date" id="dateImposee" style="width:auto; padding:6px 10px; font-size:14px;" disabled />
+    <label class="opt" style="margin-top:14px;"><b>Date inscrite sur le document</b> :
+      <input type="date" id="dateImposee" style="width:auto; padding:6px 10px; font-size:14px;" />
     </label>
-    <div class="hint">Si coché, c'est cette date qui apparaîtra près des signatures <b>et sur la page de certificat</b> (« Fait le … ») — le signataire ne pourra pas la changer. Sinon, le signataire choisit sa date. Dans les deux cas, la date choisie est la <b>seule date imprimée sur le PDF</b> ; l'heure réelle d'enregistrement est conservée côté serveur sans figurer sur le document.</div>
+    <div class="hint">Vous seul fixez cette date : elle s'impose à tous les signataires, qui ne peuvent pas la modifier. C'est la <b>seule date imprimée sur le PDF</b> — près de chaque signature (« Fait le … ») et sur la page de certificat. L'heure réelle d'enregistrement est conservée côté serveur, sans figurer sur le document.</div>
     <label class="opt" style="margin-top:14px;"><input type="checkbox" id="optPreuve" /> <b>Mode RH — dossier de preuve légal</b> (contrats, avenants, ruptures)</label>
     <div id="blocPreuve" style="display:none; border:1px solid var(--line); border-radius:12px; padding:14px; margin-top:8px;">
       <div class="hint">Vérification d'identité par code email, horodatage RFC 3161, clause d'acceptation expresse et dossier de preuve exportable. Une adresse email est requise pour chaque signataire : elle reçoit le code de vérification.</div>
@@ -229,17 +229,14 @@ $('#preuveType').onchange = majVarsClause;
 ligneSigner();
 $('#addSigner').onclick = () => { if ($('#signataires').children.length < 8) ligneSigner(); };
 
-// « Je choisis ma date » : champ actif seulement quand l'option est cochée
+// « Je choisis mon texte » : champ actif seulement quand l'option est cochée
 $('#optTexte').onchange = () => {
   $('#texteLibre').disabled = !$('#optTexte').checked;
   if ($('#optTexte').checked) $('#texteLibre').focus();
 };
 
-$('#optDate').onchange = () => {
-  $('#dateImposee').disabled = !$('#optDate').checked;
-  if ($('#optDate').checked && !$('#dateImposee').value)
-    $('#dateImposee').value = new Intl.DateTimeFormat('fr-CA', { timeZone: 'Europe/Paris' }).format(new Date());
-};
+// Date du document : fixée par l'expéditeur seul, pré-remplie au jour même.
+$('#dateImposee').value = new Intl.DateTimeFormat('fr-CA', { timeZone: 'Europe/Paris' }).format(new Date());
 
 // ---- Placement des signatures sur le document ----
 let positions = [];   // {s: index signataire, page: 0-based, x: 0-1, y: 0-1}
@@ -377,6 +374,7 @@ $('#creer').onclick = async () => {
   const texteLibre = $('#optTexte').checked ? $('#texteLibre').value.trim() : '';
   if (!titre || !fichier || !signers.length) { msg.className = 'msg err'; msg.textContent = 'Titre, document et au moins un signataire (avec nom) requis.'; return; }
   if ($('#optTexte').checked && !texteLibre) { msg.className = 'msg err'; msg.textContent = 'Écris ta mention libre, ou décoche « Je choisis mon texte ».'; $('#texteLibre').focus(); return; }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test($('#dateImposee').value)) { msg.className = 'msg err'; msg.textContent = 'Renseigne la date à inscrire sur le document.'; $('#dateImposee').focus(); return; }
   if (fichier.size > 10 * 1024 * 1024) {
     msg.className = 'msg err';
     msg.textContent = docConverti
@@ -398,7 +396,7 @@ $('#creer').onclick = async () => {
       mentions: [$('#optLu').checked && 'Lu et approuvé', $('#optAccord').checked && 'Bon pour accord', texteLibre].filter(Boolean),
       paraphe: $('#optParaphe').checked,
     };
-    if ($('#optDate').checked && $('#dateImposee').value) corps.dateImposee = $('#dateImposee').value;
+    corps.dateImposee = $('#dateImposee').value;
     if ($('#optPreuve').checked) {
       const vars = {};
       document.querySelectorAll('.p-var').forEach((i) => { vars[i.dataset.cle] = i.value.trim(); });
@@ -433,6 +431,7 @@ $('#creer').onclick = async () => {
     msg.className = 'msg ok'; msg.textContent = 'Demande créée ! Envoie chaque lien au bon signataire :';
     $('#resultat').innerHTML = envelope.signers.map((s) => blocLien(envelope, s)).join('');
     $('#titre').value = ''; $('#pdf').value = ''; $('#optTexte').checked = false; $('#texteLibre').value = ''; $('#texteLibre').disabled = true; docPdf = null; docConverti = false; $('#infoDoc').className = ''; $('#infoDoc').innerHTML = ''; $('#signataires').innerHTML = ''; ligneSigner();
+    $('#dateImposee').value = new Intl.DateTimeFormat('fr-CA', { timeZone: 'Europe/Paris' }).format(new Date());
     positions = []; plDoc = null; majResumePos();
     chargerListe();
   } catch (e) {

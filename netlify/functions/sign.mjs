@@ -664,9 +664,11 @@ export default async (req) => {
       await store.set(`sig/${id}/${idx}`, png.buffer.slice(png.byteOffset, png.byteOffset + png.byteLength));
       if (paraphePng) await store.set(`par/${id}/${idx}`, paraphePng.buffer.slice(paraphePng.byteOffset, paraphePng.byteOffset + paraphePng.byteLength));
       env.signers[idx].mentions = env.mentions || [];
-      // la date fixée par l'expéditeur prime sur celle du signataire
+      // Seul l'expéditeur fixe la date inscrite sur le document : une date
+      // envoyée par le signataire est ignorée. Sans date fixée à la création
+      // (demandes antérieures à cette règle), le certificat retombe sur la
+      // date réelle de signature.
       if (env.dateImposee) env.signers[idx].dateAffichee = env.dateImposee;
-      else if (/^\d{4}-\d{2}-\d{2}$/.test(body.dateSignature || "")) env.signers[idx].dateAffichee = body.dateSignature;
       env.signers[idx].status = "signe";
       env.signers[idx].signedAt = new Date().toISOString();
       env.signers[idx].ip = req.headers.get("x-nf-client-connection-ip") || req.headers.get("x-forwarded-for") || "";

@@ -163,6 +163,55 @@ const refus = await page.evaluate(async () => {
 ok("case cochée mais texte vide : rien n'est envoyé", refus.appele === false);
 ok("case cochée mais texte vide : message clair", /mention libre/i.test(refus.msg));
 
+// La date inscrite sur le document est fixée par l'expéditeur seul.
+console.log("\n=== Date du document (expéditeur seul) ===");
+await page.reload();
+
+const champDate = await page.evaluate(() => {
+  const d = document.querySelector("#dateImposee");
+  const attendu = new Intl.DateTimeFormat("fr-CA", { timeZone: "Europe/Paris" }).format(new Date());
+  return { existe: !!d, actif: d ? !d.disabled : false, valeur: d ? d.value : "", attendu, caseOption: !!document.querySelector("#optDate") };
+});
+ok("le champ date est présent et toujours actif", champDate.existe && champDate.actif);
+ok("il n'y a plus de case « Je choisis ma date » à cocher", champDate.caseOption === false);
+ok("le champ est pré-rempli au jour même (heure de Paris)", champDate.valeur === champDate.attendu);
+
+const envoiDate = await page.evaluate(async () => {
+  const remplir = async (date) => {
+    document.querySelector("#dateImposee").value = date;
+    document.querySelector("#titre").value = "PV de nomination";
+    document.querySelector("#signataires .s-nom").value = "Corinne Sarfati";
+    const pdf = new File([new Uint8Array([37, 80, 68, 70])], "n.pdf", { type: "application/pdf" });
+    const dt = new DataTransfer(); dt.items.add(pdf);
+    const champ = document.querySelector("#pdf"); champ.files = dt.files; champ.dispatchEvent(new Event("change"));
+    await new Promise((r) => setTimeout(r, 50));
+  };
+  const envoyerEtLire = async () => {
+    let corps = null;
+    const vrai = window.fetch;
+    window.fetch = async (url, opt) => {
+      if (String(url).includes("/api/sign") && opt && opt.method === "POST") {
+        corps = JSON.parse(opt.body);
+        return new Response(JSON.stringify({ envelope: { id: "x", title: "t", signers: [{ name: "Corinne Sarfati", token: "tk" }] } }), { status: 200, headers: { "content-type": "application/json" } });
+      }
+      return vrai(url, opt);
+    };
+    document.querySelector("#creer").click();
+    await new Promise((r) => setTimeout(r, 400));
+    window.fetch = vrai;
+    return corps;
+  };
+  await remplir("2026-11-05");
+  const choisie = await envoyerEtLire();
+  await remplir("");
+  const vide = await envoyerEtLire();
+  return { choisie, vide, msg: document.querySelector("#msgCreate").textContent };
+});
+ok("la date choisie par l'expéditeur part toujours avec la demande",
+  !!envoiDate.choisie && envoiDate.choisie.dateImposee === "2026-11-05");
+ok("sans date, rien n'est envoyé", envoiDate.vide === null);
+ok("sans date, message clair", /date/i.test(envoiDate.msg));
+
 await nav.close();
 serveur.close();
 console.log(echecs ? `\n${echecs} échec(s).` : "\nTous les tests navigateur passent.");
