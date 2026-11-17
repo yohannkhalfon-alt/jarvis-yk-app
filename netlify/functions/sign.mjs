@@ -55,11 +55,23 @@ const txt = (s) => String(s ?? "").replace(/[^\x20-\x7E -ÿ]/g, "?");
 const dateParis = (iso) =>
   new Date(iso).toLocaleString("fr-FR", { timeZone: "Europe/Paris", dateStyle: "long", timeStyle: "medium" });
 
+// Date choisie (par l'expéditeur ou le signataire) au format JJ/MM/AAAA, ou null.
+const dateChoisie = (s) => (s.dateAffichee ? s.dateAffichee.split("-").reverse().join("/") : null);
+
 // Date affichée près de la signature : celle choisie par le signataire
 // ("Fait le JJ/MM/AAAA"), sinon la date réelle de signature. Le certificat
-// d'audit conserve toujours l'horodatage réel.
-const dateAffichee = (s) =>
-  s.dateAffichee ? "Fait le " + s.dateAffichee.split("-").reverse().join("/") : dateParis(s.signedAt);
+// d'audit conserve toujours l'horodatage réel en plus de la date choisie.
+const dateAffichee = (s) => {
+  const d = dateChoisie(s);
+  return d ? "Fait le " + d : dateParis(s.signedAt);
+};
+
+// Date du document pour la page de certificat : la date choisie, dès lors que
+// tous les signataires portent la même. Sinon null (dates hétérogènes).
+const dateDocument = (env) => {
+  const dates = env.signers.filter((s) => s.status === "signe").map(dateChoisie);
+  return dates.length && dates.every((d) => d && d === dates[0]) ? dates[0] : null;
+};
 
 // Reconstruit le PDF signé à partir de l'original + toutes les signatures déjà
 // recueillies. Idempotent : on repart de l'original à chaque fois.
@@ -156,10 +168,18 @@ async function construirePdfSigne(store, env) {
 
   // Quand tout le monde a signé : page de certificat (piste d'audit).
   if (env.signers.every((s) => s.status === "signe")) {
-    const page = doc.addPage([595, 842]); // A4
+    let page = doc.addPage([595, 842]); // A4
     const bleu = rgb(0.05, 0.32, 0.68);
     let y = 780;
+    // Bascule sur une nouvelle page du certificat s'il ne reste pas la place
+    // d'écrire le bloc qui suit (au-dessus de la zone de pied de page).
+    const place = (hauteur) => {
+      if (y - hauteur >= 100) return;
+      page = doc.addPage([595, 842]);
+      y = 780;
+    };
     const ligne = (label, valeur, gap = 18) => {
+      place(gap);
       page.drawText(txt(label), { x: 60, y, size: 9, font: fontBold, color: rgb(0.3, 0.34, 0.42) });
       page.drawText(txt(valeur), { x: 200, y, size: 9, font, color: rgb(0.1, 0.12, 0.16), maxWidth: 340 });
       y -= gap;
@@ -168,18 +188,29 @@ async function construirePdfSigne(store, env) {
     y -= 14;
     page.drawText("JARVIS SIGN", { x: 60, y, size: 9, font, color: rgb(0.45, 0.5, 0.58) });
     y -= 30;
+    // Date du document : celle choisie dans l'app, pour que la dernière page
+    // porte la même date que celle inscrite près des signatures.
+    const dDoc = dateDocument(env);
+    if (dDoc) {
+      page.drawText(txt("Fait le " + dDoc), { x: 60, y, size: 12, font: fontBold, color: bleu });
+      y -= 24;
+    }
     ligne("Document", env.title);
     ligne("Identifiant", env.id);
     ligne("Empreinte SHA-256", env.hashOriginal.slice(0, 32));
     ligne("(original)", env.hashOriginal.slice(32), env.paraphe ? 18 : 24);
     if (env.paraphe) ligne("Paraphe", "initiales apposées en bas de chaque page", 24);
     for (const s of env.signers) {
+      place(110); // garde le bloc d'un signataire d'un seul tenant
       page.drawText(txt(`Signataire : ${s.name}`), { x: 60, y, size: 11, font: fontBold, color: bleu });
       y -= 18;
       if (s.email) ligne("Email", s.email);
       if ((s.mentions || []).length) ligne("Mentions cochées", s.mentions.join(", "));
-      ligne("Signé le", dateParis(s.signedAt));
-      if (s.dateAffichee) ligne("Date inscrite", "Fait le " + s.dateAffichee.split("-").reverse().join("/"));
+      // La date choisie dans l'app est la date de signature affichée ; l'heure
+      // réelle d'enregistrement reste conservée en dessous (piste d'audit).
+      const dSig = dateChoisie(s);
+      ligne("Date de signature", dSig ? "Fait le " + dSig : dateParis(s.signedAt));
+      if (dSig) ligne("Horodatage serveur", dateParis(s.signedAt));
       ligne("Adresse IP", s.ip || "inconnue");
       ligne("Navigateur", (s.ua || "inconnu").slice(0, 90), 26);
     }
