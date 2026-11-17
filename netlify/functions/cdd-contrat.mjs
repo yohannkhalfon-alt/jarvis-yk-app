@@ -5,7 +5,7 @@
 // avec les accords de genre appliqués selon la civilité du praticien.
 // Rendu PDF via pdf-lib (déjà utilisé par JARVIS SIGN). Le tampon du centre
 // (image uploadée dans l'admin, stockée en Blobs privés) est apposé en
-// signature employeur et en paraphe de chaque page.
+// signature employeur uniquement (les paraphes de page restent manuscrits).
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
 const PAGE_L = 595.28, PAGE_H = 841.89;       // A4 portrait (points)
@@ -300,16 +300,15 @@ export async function genererContratPdf(resa, slot, cfg, tamponBytes, tamponMime
   y = yBloc - 160;
   ecrire("*Les signatures seront précédées de la mention manuscrite \"Lu et approuvé\". Chacune des pages autres que la dernière doit être paraphée par chacune des Parties.", { taille: 8.5, interligne: 10.5, avant: 6 });
 
-  // Paraphe employeur (tampon réduit) + numérotation sur chaque page sauf la dernière
+  // Zone « Paraphes : » + numérotation sur chaque page sauf la dernière.
+  // Demande Yohann (17/11) : le paraphe = initiales manuscrites du président,
+  // déjà apposées — on ne tamponne PAS les pages (le tampon ne figure qu'au
+  // bloc signature de la dernière page).
   const pages = doc.getPages();
   pages.forEach((p, i) => {
     p.drawText(`Page ${i + 1} / ${pages.length}`, { x: PAGE_L - MARGE - 50, y: 30, size: 8, font: police, color: rgb(0.5, 0.5, 0.55) });
     if (i < pages.length - 1) {
       p.drawText("Paraphes :", { x: MARGE, y: 34, size: 8, font: police, color: rgb(0.5, 0.5, 0.55) });
-      if (tampon) {
-        const d = tampon.scale(Math.min(55 / tampon.width, 34 / tampon.height));
-        p.drawImage(tampon, { x: MARGE + 45, y: 24, width: d.width, height: d.height });
-      }
     }
   });
 
