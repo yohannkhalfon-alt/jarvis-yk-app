@@ -99,9 +99,15 @@ export function blocsContrat(resa, slot, cfg) {
   // config admin par centre. Sans titulaire (ex. samedis Antony), le contrat
   // bascule sur le motif « dans l'attente de l'entrée en service d'un salarié
   // recruté par CDI », comme les CDD Antony signés.
-  const CDI_PAR_JOUR = {  // 1 = lundi … 6 = samedi
+  const CDI_PAR_JOUR = {  // 1 = lundi … 6 = samedi (titulaires CDI des plannings, nov. 2026)
     argenteuil: { 1: "Dr PAPAPOSTOLOU Antonios", 2: "Dr PAPAPOSTOLOU Antonios", 3: "Dr PAPAPOSTOLOU Antonios", 4: "Dr PAPAPOSTOLOU Antonios", 5: "Dr PAPAPOSTOLOU Antonios", 6: "Dr PAPAPOSTOLOU Antonios" },
     sartrouville: { 1: "Dr PAPAPOSTOLOU Antonios", 2: "Dr SAADE", 3: "Dr ADDALA Yakine", 4: "Dr CHAHINE", 5: "Dr PAPAPOSTOLOU Antonios", 6: "Dr SLIMANE BOUASBANA Hadj" },
+    // Antony : samedi sans titulaire → motif « attente CDI » (comme les CDD signés).
+    antony: { 1: "Dr MESKINI Rania", 2: "Dr MESKINI Rania", 3: "Dr SCONAMIGLIO Alessandro", 4: "Dr SCONAMIGLIO Alessandro", 5: "Dr MESKINI Rania" },
+    tremblay: { 1: "Dr ADDALA Yakine", 2: "Dr ADDALA Yakine", 3: "Dr SLIMANE Hadj", 4: "Dr ADDALA Yakine", 5: "Dr ADDALA Yakine", 6: "Dr ADDALA Yakine" },
+    // Annecy : alternance hebdomadaire Spinean/Lahmar — défaut Spinean, à
+    // ajuster via remplaceByCentreJour si la semaine concernée est à Lahmar.
+    annecy: { 1: "Dr SPINEAN Adina", 2: "Dr SPINEAN Adina", 3: "Dr SPINEAN Adina", 4: "Dr SPINEAN Adina", 6: "Dr SPINEAN Adina" },
   };
   const jourSemaine = slot.date ? new Date(slot.date + "T12:00:00Z").getUTCDay() : 0;
   const remplace = ((cfg.remplaceByCentreJour || {})[slot.centre] || {})[jourSemaine]
