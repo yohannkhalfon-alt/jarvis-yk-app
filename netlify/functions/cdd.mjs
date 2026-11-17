@@ -104,7 +104,7 @@ async function cleBrevo(store) {
 
 async function lireConfig(store) {
   const c = (await store.get("config.json", { type: "json" })) || {};
-  return { to: c.to || DEST_DEFAUT, fromByCentre: c.fromByCentre || {}, notif: c.notif || "", remplaceByCentre: c.remplaceByCentre || {} };
+  return { to: c.to || DEST_DEFAUT, fromByCentre: c.fromByCentre || {}, notif: c.notif || "", remplaceByCentre: c.remplaceByCentre || {}, remplaceByCentreJour: c.remplaceByCentreJour || {} };
 }
 
 // Centres suspendus (CDI en pourparlers, etc.) : les dates libres de ces
