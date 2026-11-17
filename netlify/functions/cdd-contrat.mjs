@@ -97,8 +97,18 @@ export function blocsContrat(resa, slot, cfg) {
   const lieuN = resa.lieuNaissance || "____________";
   const natio = resa.nationalite || "____________";
   const secu = resa.secu || "____________";
-  const remu = "1.300 euros (mille trois cents euros)";
-  const prime = "130 euros (cent trente euros)";
+  // Convention des CDD du groupe (vérifiée sur les contrats signés nov. 2026,
+  // ex. Kokkinos 30/01, Ionita, Rosati, Amade) : le montant annoncé au médecin
+  // (« X € net la journée ») INCLUT la prime de précarité. Le contrat écrit
+  // base = total/1,10 et précarité = total − base.
+  const PAQUETS = {
+    1300: { base: "1182 (Mille cent quatre-vingt-deux euros)", prime: "118 (Cent dix-huit euros)" },
+    1400: { base: "1273 (Mille deux cent soixante-treize euros)", prime: "127 (Cent vingt-sept euros)" },
+    1500: { base: "1364 (Mille trois cent soixante-quatre euros)", prime: "136 (Cent trente-six euros)" },
+  };
+  const paquet = PAQUETS[Number(resa.tarif || slot.tarif)] || PAQUETS[1300];
+  const remu = paquet.base;
+  const prime = paquet.prime;
 
   const blocs = [
     { t: "titre", x: "CONTRAT DE TRAVAIL A DUREE DETERMINEE\nA TERME PRECIS" },
