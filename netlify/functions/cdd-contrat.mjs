@@ -1,4 +1,5 @@
-// Générateur de contrat CDD « REMPLA OPHTA 1 JOUR » — CDS OPHTALMO ARGENTEUIL.
+// Générateur de contrat CDD « REMPLA OPHTA 1 JOUR » — les 5 associations
+// du groupe (identités juridiques dans ASSOS ci-dessous).
 // Texte repris mot pour mot du modèle validé par l'avocate
 // (Dropbox : CONTRAT TYPE TOUTES SOCIETES/CONTRATS AVOCATE/CDS OPHTALMO
 // ARGENTEUIL/OPHTA/CDD/CDD REMPLA OPHTA 1 JOUR CDSOA, versions homme/femme),
@@ -7,6 +8,58 @@
 // (image uploadée dans l'admin, stockée en Blobs privés) est apposé en
 // signature employeur uniquement (les paraphes de page restent manuscrits).
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+
+// Identité juridique de chaque association employeur (relevée dans les CDD
+// signés / modèles Dropbox de chaque centre, novembre 2026).
+// nomCourt : désignation utilisée dans tout le corps du contrat.
+// paraphes : initiales du représentant légal, pré-remplies sur chaque page.
+export const ASSOS = {
+  argenteuil: {
+    entete: "L’Association CDS OPHTALMO ARGENTEUIL\nSiret : 934 579 913 00013\nAssociation régie par la loi du 1er juillet 1901,\nAyant son siège social au 2, Rue Antonin Georges Belin – 95100 Argenteuil\nAgissant par l’intermédiaire de Monsieur SITRUK Thierry, dont les cotisations de sécurité sociale sont versées à l’URSSAF de Montreuil.",
+    nomCourt: "Centre de santé Ophtalmo Argenteuil",
+    urssafDe: "de Montreuil",
+    lieu: "au 2 Rue Antonin Georges Belin, 95100 Argenteuil",
+    emailRgpd: "ophta95100@gmail.com",
+    ville: "Argenteuil",
+    paraphes: "TS",
+  },
+  sartrouville: {
+    entete: "L’Association Cds Général de Gaulle (CGG)\nSiret : 917 453 532 00017\nAssociation régie par la loi du 1er juillet 1901,\nAyant son siège social au 153, av. du Général de Gaulle – 78500 Sartrouville\nAgissant par l’intermédiaire de Madame Delphine SITRUK, en sa qualité de Présidente, dont les cotisations de sécurité sociale sont versées à l’URSSAF de Montreuil.",
+    nomCourt: "Centre CGG",
+    urssafDe: "de Montreuil",
+    lieu: "au 153, av. du Général de Gaulle – 78500 Sartrouville",
+    emailRgpd: "direction.ophta78@gmail.com",
+    ville: "Sartrouville",
+    paraphes: "DS",
+  },
+  tremblay: {
+    entete: "L’Association Cds Gilbert Berger\nSiret : 901 176 297 00017\nAssociation régie par la loi du 1er juillet 1901,\nAyant son siège social au 149, Avenue Gilbert Berger – 93290 Tremblay-en-France\nAgissant par l’intermédiaire de Madame SARFATI Alexia, dont les cotisations de sécurité sociale sont versées à l’URSSAF de Montreuil.",
+    nomCourt: "Centre Cds Gilbert Berger",
+    urssafDe: "de Montreuil",
+    lieu: "au 149, Avenue Gilbert Berger – 93290 Tremblay-en-France",
+    emailRgpd: "direction.tremblayophta93@gmail.com",
+    ville: "Tremblay-en-France",
+    paraphes: "AS",
+  },
+  antony: {
+    entete: "L’Association Centre de santé des Hauts de Seine\nSiret : 924 426 638 00012\nAssociation régie par la loi du 1er juillet 1901,\nAyant son siège social au 22-24 Rue Maurice Labrousse – 92160 Antony\nAgissant par l’intermédiaire de Monsieur Jean-Philippe REGIN, en sa qualité de Président, dont les cotisations de sécurité sociale sont versées à l’URSSAF de Paris.",
+    nomCourt: "Centre de santé des Hauts de Seine",
+    urssafDe: "de Paris",
+    lieu: "au 22-24 Rue Maurice Labrousse, 92160 Antony",
+    emailRgpd: "direction.antony92@gmail.com",
+    ville: "Antony",
+    paraphes: "JPR",
+  },
+  annecy: {
+    entete: "L’Association CDSA\nSiret : 921 746 368 00015\nAssociation régie par la loi du 1er juillet 1901,\nAyant son siège social au 6, Avenue d’Aléry – 74000 Annecy\nAgissant par l’intermédiaire de Madame SARFATI Alexia, dont les cotisations de sécurité sociale sont versées à l’URSSAF d’Annecy.",
+    nomCourt: "Centre CDSA",
+    urssafDe: "d’Annecy",
+    lieu: "au 6, Avenue d’Aléry – 74000 Annecy",
+    emailRgpd: "direction.annecyophta@gmail.com",
+    ville: "Annecy",
+    paraphes: "AS",
+  },
+};
 
 const PAGE_L = 595.28, PAGE_H = 841.89;       // A4 portrait (points)
 const MARGE = 62, BAS = 70;
@@ -37,6 +90,7 @@ function formes(resa) {
 // Construit les blocs du contrat : {t:"titre"|"h"|"p"|"li"|"note", x:texte}
 export function blocsContrat(resa, slot, cfg) {
   const P = formes(resa);
+  const A = ASSOS[slot.centre] || ASSOS.argenteuil;
   const dateVac = dateLongue(slot.date);
   const remplace = (cfg.remplaceByCentre || {})[slot.centre] || "____________________";
   const neLe = resa.dateNaissance ? dateLongue(resa.dateNaissance, true) : "____________";
@@ -46,11 +100,11 @@ export function blocsContrat(resa, slot, cfg) {
   const remu = "1.300 euros (mille trois cents euros)";
   const prime = "130 euros (cent trente euros)";
 
-  return [
+  const blocs = [
     { t: "titre", x: "CONTRAT DE TRAVAIL A DUREE DETERMINEE\nA TERME PRECIS" },
     { t: "p", x: "Entre les soussignés :" },
-    { t: "p", x: "L’Association CDS OPHTALMO ARGENTEUIL\nSiret : 934 579 913 00013\nAssociation régie par la loi du 1er juillet 1901,\nAyant son siège social au 2, Rue Antonin Georges Belin – 95100 Argenteuil\nAgissant par l’intermédiaire de Monsieur SITRUK Thierry, dont les cotisations de sécurité sociale sont versées à l’URSSAF de Montreuil." },
-    { t: "p", x: "(ci-après désignée « le Centre de santé Ophtalmo Argenteuil » ou « l’employeur » ou « l’Association »)" },
+    { t: "p", x: A.entete },
+    { t: "p", x: `(ci-après désignée « le ${A.nomCourt} » ou « l’employeur » ou « l’Association »)` },
     { t: "p", x: "d'une part," },
     { t: "p", x: "Et :" },
     { t: "p", x: `${P.civLong} ${P.nom}, né${P.e} le ${neLe} à ${lieuN}, de nationalité ${natio}, inscrit${P.e} à la sécurité sociale sous le numéro ${secu}, demeurant ${resa.adresse || "____________"}.` },
@@ -61,7 +115,7 @@ export function blocsContrat(resa, slot, cfg) {
     { t: "p", x: "Il a été convenu et arrêté ce qui suit :" },
 
     { t: "h", x: "Préambule" },
-    { t: "p", x: `La déclaration préalable à l'embauche de ${P.mNom} a été effectuée à l'Urssaf de Montreuil auprès de laquelle le Centre de santé Ophtalmo Argenteuil est immatriculé. ${P.ilElle} pourra exercer auprès de cet organisme son droit d'accès et de rectification conformément à la loi n° 78-17 du 6 janvier 1978.` },
+    { t: "p", x: `La déclaration préalable à l'embauche de ${P.mNom} a été effectuée à l'Urssaf ${A.urssafDe} auprès de laquelle le Centre de santé Ophtalmo Argenteuil est immatriculé. ${P.ilElle} pourra exercer auprès de cet organisme son droit d'accès et de rectification conformément à la loi n° 78-17 du 6 janvier 1978.` },
     { t: "p", x: "Le présent contrat est conclu en conformité avec les dispositions législatives et réglementaires en vigueur, notamment celles contenues dans le Code du travail, le Code de la Santé publique et le Code de déontologie médicale (figurant aux articles R4127-1 à R 4127-112 du Code de la Santé Publique portant Code de Déontologie Médicale), dont le Praticien reconnait avoir pris connaissance." },
     { t: "p", x: `A titre d'information, la convention collective nationale actuellement applicable au Centre de santé Ophtalmo Argenteuil est la Convention Collective des Cabinets Médicaux (IDCC 1147). La Convention Collective est tenue à la disposition de ${P.mNom} qui peut la consulter dans le bureau de la Direction et en demander la communication.` },
     { t: "p", x: "Les Parties reconnaissent que cette référence ne constitue pas un élément essentiel du contrat de travail." },
@@ -85,7 +139,7 @@ export function blocsContrat(resa, slot, cfg) {
     { t: "p", x: "Le présent contrat n’est pas soumis à une période d’essai." },
 
     { t: "h", x: "Article 4. Lieu de travail" },
-    { t: "p", x: `A titre d’information et sans que cette précision n’ait valeur contractuelle, il est précisé que ${P.mNom} exercera ses fonctions dans le Centre de santé Ophtalmo Argenteuil au 2 Rue Antonin Georges Belin, 95100 Argenteuil.` },
+    { t: "p", x: `A titre d’information et sans que cette précision n’ait valeur contractuelle, il est précisé que ${P.mNom} exercera ses fonctions dans le ${A.nomCourt} ${A.lieu}.` },
 
     { t: "h", x: "Article 5. Durée de travail" },
     { t: "p", x: `${P.mNom} exerce ses fonctions selon une durée journalière de travail de 9 heures, selon les horaires suivants : de 9 heures à 19 heures, avec 1 heure de pause.` },
@@ -212,7 +266,7 @@ export function blocsContrat(resa, slot, cfg) {
     { t: "h2", x: "18.4 Droits Informatiques et Libertés" },
     { t: "li", x: `Droit d’accès : ${P.mNom} peut accéder aux données le concernant ou demander leur effacement.` },
     { t: "li", x: `Droit d’opposition et limitation du traitement des données : ${P.mNom} dispose également d'un droit d’opposition et d’un droit à la limitation du traitement de ses données (cf. cnil.fr pour plus d’informations sur vos droits).` },
-    { t: "p", x: `Pour exercer ces droits Informatiques et Libertés ou pour toute question sur le traitement de ses données dans ce dispositif, ${P.mNom} peut contacter la Direction du Centre à l’adresse e-mail suivante : ophta95100@gmail.com` },
+    { t: "p", x: `Pour exercer ces droits Informatiques et Libertés ou pour toute question sur le traitement de ses données dans ce dispositif, ${P.mNom} peut contacter la Direction du Centre à l’adresse e-mail suivante : ${A.emailRgpd}` },
     { t: "p", x: `Si ${P.mNom} estime, après avoir contacté la Direction du Centre, que ses droits Informatique et Libertés ne sont pas respectés ou que le dispositif vidéo n’est pas conforme aux règles de protection des données, ${P.f ? "elle" : "il"} peut adresser une réclamation en ligne à la CNIL (Commission nationale de l’informatique et des libertés) sur cnil.fr/plaintes.` },
 
     { t: "h", x: "Article 19. Dispositions finales" },
@@ -221,6 +275,7 @@ export function blocsContrat(resa, slot, cfg) {
     { t: "p", x: "Ceux-ci s’efforceront de trouver une solution amiable, dans un délai maximum de trois mois à compter de la désignation du premier des conciliateurs." },
     { t: "p", x: "***" },
   ];
+  return blocs.map((b) => ({ ...b, x: b.x.replaceAll("Centre de santé Ophtalmo Argenteuil", A.nomCourt) }));
 }
 
 // Coupe une ligne en morceaux tenant dans `largeur` points.
@@ -284,10 +339,11 @@ export async function genererContratPdf(resa, slot, cfg, tamponBytes, tamponMime
   // Bloc signatures (dernière page ; saute une page si trop bas)
   assurer(230);
   const dateJour = new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Paris" });
-  ecrire(`Fait à Argenteuil en trois exemplaires originaux, le ${dateJour}.`, { avant: 8 });
+  const A = ASSOS[slot.centre] || ASSOS.argenteuil;
+  ecrire(`Fait à ${A.ville} en trois exemplaires originaux, le ${dateJour}.`, { avant: 8 });
   const yBloc = y;
   const col2 = PAGE_L / 2 + 10;
-  page.drawText("Pour le Centre de santé Ophtalmo Argenteuil*", { x: MARGE, y: yBloc - 12, size: 10.5, font: gras });
+  page.drawText(`Pour le ${A.nomCourt}*`, { x: MARGE, y: yBloc - 12, size: 10.5, font: gras });
   page.drawText("Pour le Praticien*", { x: col2, y: yBloc - 12, size: 10.5, font: gras });
   if (tampon) {
     const dims = tampon.scale(Math.min(170 / tampon.width, 110 / tampon.height));
@@ -301,9 +357,9 @@ export async function genererContratPdf(resa, slot, cfg, tamponBytes, tamponMime
   ecrire("*Les signatures seront précédées de la mention manuscrite \"Lu et approuvé\". Chacune des pages autres que la dernière doit être paraphée par chacune des Parties.", { taille: 8.5, interligne: 10.5, avant: 6 });
 
   // Zone « Paraphes : » + numérotation sur chaque page sauf la dernière.
-  // Demande Yohann (17/11) : le paraphe du président est pré-rempli sur chaque
-  // page (initiales de M. SITRUK Thierry, le représentant nommé dans le
-  // contrat) ; le praticien paraphe à la main à côté.
+  // Demande Yohann (17/11) : le paraphe du représentant légal de l'association
+  // (ASSOS[centre].paraphes) est pré-rempli sur chaque page ; le praticien
+  // paraphe à la main à côté.
   // Pas de tampon sur les pages (il ne figure qu'au bloc signature final).
   const italique = await doc.embedFont(StandardFonts.TimesRomanBoldItalic);
   const pages = doc.getPages();
@@ -311,7 +367,7 @@ export async function genererContratPdf(resa, slot, cfg, tamponBytes, tamponMime
     p.drawText(`Page ${i + 1} / ${pages.length}`, { x: PAGE_L - MARGE - 50, y: 30, size: 8, font: police, color: rgb(0.5, 0.5, 0.55) });
     if (i < pages.length - 1) {
       p.drawText("Paraphes :", { x: MARGE, y: 34, size: 8, font: police, color: rgb(0.5, 0.5, 0.55) });
-      p.drawText("TS", { x: MARGE + 46, y: 30, size: 15, font: italique, color: rgb(0.12, 0.18, 0.45) });
+      p.drawText(A.paraphes, { x: MARGE + 46, y: 30, size: 15, font: italique, color: rgb(0.12, 0.18, 0.45) });
     }
   });
 

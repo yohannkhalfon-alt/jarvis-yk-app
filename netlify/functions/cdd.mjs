@@ -284,14 +284,14 @@ export default async (req) => {
       return new Response(buf, { headers: { "content-type": meta.mime || "application/octet-stream", "content-disposition": `inline; filename="${meta.filename.replace(/[^\w. -]/g, "_")}"` } });
     }
 
-    // Contrat pré-rempli (brouillon) — modèle CDSOA « CDD rempla ophta 1 jour »
+    // Contrat pré-rempli (brouillon) — modèle avocate « CDD rempla ophta 1 jour »,
+    // décliné pour les 5 associations (cdd-contrat.mjs → ASSOS)
     const contrat = url.searchParams.get("contrat");
     if (contrat) {
       if (!adminOk(req)) return json({ error: "code admin invalide" }, 401);
       const resa = await store.get(`resa/${champ(contrat, 40)}.json`, { type: "json" });
       if (!resa) return json({ error: "réservation introuvable" }, 404);
       if (resa.type === "CDI" || !resa.date) return json({ error: "Le modèle CDI n'est pas encore configuré — contrat CDD à la date uniquement pour l'instant." }, 400);
-      if (resa.centre !== "argenteuil") return json({ error: "Seul le modèle d'Argenteuil (CDSOA) est configuré pour l'instant. Les autres centres arrivent après validation du rendu." }, 400);
       const cfg = await lireConfig(store);
       const tampon = await store.get(`asset/tampon-${resa.centre}`, { type: "json" });
       const pdf = await genererContratPdf(resa, { date: resa.date, centre: resa.centre }, cfg,

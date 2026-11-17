@@ -176,7 +176,7 @@ function afficher(){
         <div class="actions">
           <button class="vert" onclick="decider('${r.id}','confirm')">✅ Valider → mail CDD</button>
           <button class="rouge" onclick="decider('${r.id}','reject')">Refuser (libère la date)</button>
-          ${r.date && r.centre === "argenteuil" ? `<button class="ghost" onclick="voirContrat('${r.id}')">📄 Contrat (brouillon)</button>` : ""}
+          ${r.date ? `<button class="ghost" onclick="voirContrat('${r.id}')">📄 Contrat (brouillon)</button>` : ""}
         </div>
         <div id="dec-${r.id}" class="msg"></div>
       </div>`;
