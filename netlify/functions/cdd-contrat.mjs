@@ -301,14 +301,17 @@ export async function genererContratPdf(resa, slot, cfg, tamponBytes, tamponMime
   ecrire("*Les signatures seront précédées de la mention manuscrite \"Lu et approuvé\". Chacune des pages autres que la dernière doit être paraphée par chacune des Parties.", { taille: 8.5, interligne: 10.5, avant: 6 });
 
   // Zone « Paraphes : » + numérotation sur chaque page sauf la dernière.
-  // Demande Yohann (17/11) : le paraphe = initiales manuscrites du président,
-  // déjà apposées — on ne tamponne PAS les pages (le tampon ne figure qu'au
-  // bloc signature de la dernière page).
+  // Demande Yohann (17/11) : le paraphe du président est pré-rempli sur chaque
+  // page (initiales de M. SITRUK Thierry, le représentant nommé dans le
+  // contrat) ; le praticien paraphe à la main à côté.
+  // Pas de tampon sur les pages (il ne figure qu'au bloc signature final).
+  const italique = await doc.embedFont(StandardFonts.TimesRomanBoldItalic);
   const pages = doc.getPages();
   pages.forEach((p, i) => {
     p.drawText(`Page ${i + 1} / ${pages.length}`, { x: PAGE_L - MARGE - 50, y: 30, size: 8, font: police, color: rgb(0.5, 0.5, 0.55) });
     if (i < pages.length - 1) {
       p.drawText("Paraphes :", { x: MARGE, y: 34, size: 8, font: police, color: rgb(0.5, 0.5, 0.55) });
+      p.drawText("TS", { x: MARGE + 46, y: 30, size: 15, font: italique, color: rgb(0.12, 0.18, 0.45) });
     }
   });
 
