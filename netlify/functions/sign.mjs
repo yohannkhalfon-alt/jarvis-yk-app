@@ -66,11 +66,26 @@ const dateAffichee = (s) => {
   return d ? "Fait le " + d : dateParis(s.signedAt);
 };
 
-// Date du document pour la page de certificat : la date choisie, dès lors que
-// tous les signataires portent la même. Sinon null (dates hétérogènes).
-const dateDocument = (env) => {
-  const dates = env.signers.filter((s) => s.status === "signe").map(dateChoisie);
+// Date du document (AAAA-MM-JJ) : la date choisie, dès lors que tous les
+// signataires portent la même. Sinon null (dates hétérogènes ou aucune).
+const dateDocumentIso = (env) => {
+  const dates = env.signers.filter((s) => s.status === "signe").map((s) => s.dateAffichee || null);
   return dates.length && dates.every((d) => d && d === dates[0]) ? dates[0] : null;
+};
+
+// Même date au format JJ/MM/AAAA, pour la page de certificat.
+const dateDocument = (env) => {
+  const iso = dateDocumentIso(env);
+  return iso ? iso.split("-").reverse().join("/") : null;
+};
+
+// Date à inscrire dans les propriétés du PDF : dès que chaque signataire a une
+// date choisie, on retient la plus tardive — ainsi aucune date réelle ne
+// transparaît dans les propriétés, même si les signataires ont daté
+// différemment. Null si au moins un signataire n'a pas choisi de date.
+const dateMetaIso = (env) => {
+  const dates = env.signers.filter((s) => s.status === "signe").map((s) => s.dateAffichee || null);
+  return dates.length && dates.every(Boolean) ? dates.slice().sort().pop() : null;
 };
 
 // Reconstruit le PDF signé à partir de l'original + toutes les signatures déjà
@@ -206,11 +221,11 @@ async function construirePdfSigne(store, env) {
       y -= 18;
       if (s.email) ligne("Email", s.email);
       if ((s.mentions || []).length) ligne("Mentions cochées", s.mentions.join(", "));
-      // La date choisie dans l'app est la date de signature affichée ; l'heure
-      // réelle d'enregistrement reste conservée en dessous (piste d'audit).
+      // Quand une date est choisie dans l'app, c'est la seule date imprimée :
+      // l'horodatage réel n'apparaît nulle part dans le PDF (il reste
+      // enregistré côté serveur et, en mode RH, dans le dossier de preuve).
       const dSig = dateChoisie(s);
       ligne("Date de signature", dSig ? "Fait le " + dSig : dateParis(s.signedAt));
-      if (dSig) ligne("Horodatage serveur", dateParis(s.signedAt));
       ligne("Adresse IP", s.ip || "inconnue");
       ligne("Navigateur", (s.ua || "inconnu").slice(0, 90), 26);
     }
@@ -220,6 +235,16 @@ async function construirePdfSigne(store, env) {
     env.status = "complet";
   } else {
     env.status = env.signers.some((s) => s.status === "signe") ? "partiel" : "attente";
+  }
+
+  // Propriétés du fichier : quand une date est choisie, elle remplace la date
+  // de création réelle du PDF, pour qu'aucune autre date n'apparaisse — y
+  // compris dans les propriétés du document affichées par les lecteurs PDF.
+  const isoDoc = dateMetaIso(env);
+  if (isoDoc) {
+    const d = new Date(isoDoc + "T12:00:00Z");
+    doc.setCreationDate(d);
+    doc.setModificationDate(d);
   }
 
   const octets = await doc.save();
