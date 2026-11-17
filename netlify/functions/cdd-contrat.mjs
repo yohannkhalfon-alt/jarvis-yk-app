@@ -21,6 +21,7 @@ export const ASSOS = {
     lieu: "au 2 Rue Antonin Georges Belin, 95100 Argenteuil",
     emailRgpd: "ophta95100@gmail.com",
     ville: "Argenteuil",
+    prevoyance: "Swiss life prévoyance",
     paraphes: "TS",
   },
   sartrouville: {
@@ -30,6 +31,7 @@ export const ASSOS = {
     lieu: "au 153, av. du Général de Gaulle – 78500 Sartrouville",
     emailRgpd: "direction.ophta78@gmail.com",
     ville: "Sartrouville",
+    prevoyance: "Humanis prévoyance",
     paraphes: "DS",
   },
   tremblay: {
@@ -39,15 +41,17 @@ export const ASSOS = {
     lieu: "au 149, Avenue Gilbert Berger – 93290 Tremblay-en-France",
     emailRgpd: "direction.tremblayophta93@gmail.com",
     ville: "Tremblay-en-France",
+    prevoyance: "Humanis prévoyance",
     paraphes: "AS",
   },
   antony: {
-    entete: "L’Association Centre de santé des Hauts de Seine\nSiret : 924 426 638 00012\nAssociation régie par la loi du 1er juillet 1901,\nAyant son siège social au 22-24 Rue Maurice Labrousse – 92160 Antony\nAgissant par l’intermédiaire de Monsieur Jean-Philippe REGIN, en sa qualité de Président, dont les cotisations de sécurité sociale sont versées à l’URSSAF de Paris.",
+    entete: "L’Association Centre de santé des Hauts de Seine\nSiret : 924 426 638 00012\nAssociation régie par la loi du 1er juillet 1901,\nAyant son siège social au 22-24 Rue Maurice Labrousse – 92160 Antony\nAgissant par l’intermédiaire de Monsieur Jean-Philippe REGIN, en sa qualité de Président, dont les cotisations de sécurité sociale sont versées à l’URSSAF de Montreuil.",
     nomCourt: "Centre de santé des Hauts de Seine",
-    urssafDe: "de Paris",
+    urssafDe: "de Montreuil",
     lieu: "au 22-24 Rue Maurice Labrousse, 92160 Antony",
     emailRgpd: "direction.antony92@gmail.com",
     ville: "Antony",
+    prevoyance: "AG2R",
     paraphes: "JPR",
   },
   annecy: {
@@ -57,6 +61,7 @@ export const ASSOS = {
     lieu: "au 6, Avenue d’Aléry – 74000 Annecy",
     emailRgpd: "direction.annecyophta@gmail.com",
     ville: "Annecy",
+    prevoyance: "Humanis prévoyance",
     paraphes: "AS",
   },
 };
@@ -191,7 +196,7 @@ export function blocsContrat(resa, slot, cfg) {
     { t: "h", x: "Article 8. Retraite et prévoyance" },
     { t: "p", x: `${P.mNom} bénéficiera des avantages sociaux, consentis au personnel de sa catégorie, notamment en ce qui concerne le régime de retraite complémentaire et de prévoyance.` },
     { t: "li", x: "L’organisme de retraite complémentaire est le suivant : Malakoff AGIRC - ARCCO : 21, Rue Laffitte – 75317 Paris cedex 09" },
-    { t: "li", x: "Le régime de prévoyance est le suivant : Swiss life prévoyance" },
+    { t: "li", x: `Le régime de prévoyance est le suivant : ${A.prevoyance}` },
 
     { t: "h", x: "Article 9. Exécution du contrat" },
     { t: "p", x: `${P.mNom} s’engage pendant toute la durée du présent contrat, à observer les prescriptions du Code de la santé publique qu’${P.f ? "elle" : "il"} déclare bien connaître et les règles et usages de la profession médicale, ainsi que le règlement intérieur du Centre de santé Ophtalmo Argenteuil.` },
