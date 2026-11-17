@@ -107,6 +107,13 @@ async function lireConfig(store) {
   return { to: c.to || DEST_DEFAUT, fromByCentre: c.fromByCentre || {}, notif: c.notif || "", remplaceByCentre: c.remplaceByCentre || {} };
 }
 
+// Centres suspendus (CDI en pourparlers, etc.) : les dates libres de ces
+// centres sont masquées de la page publique et non réservables, sans rien
+// supprimer. Blob suspendus.json : { "argenteuil": true, ... }
+async function lireSuspendus(store) {
+  return (await store.get("suspendus.json", { type: "json" })) || {};
+}
+
 // Alerte direction : email immédiat quand une réservation attend validation
 // (adresse saisie dans l'admin, champ « email d'alerte »). Jamais bloquant.
 async function alerterDirection(store, resa, origin) {
@@ -314,19 +321,21 @@ export default async (req) => {
       const tampons = {};
       for (const c of Object.keys(CENTRES)) tampons[c] = Boolean(await store.get(`asset/tampon-${c}`));
       const brevoPret = Boolean(await cleBrevo(store));
-      return json({ slots, cdis, resas, tampons, brevoPret, config: await lireConfig(store), centres: CENTRES, docs: DOCS, conditions: CONDITIONS, adminProtege: Boolean(process.env.CDD_ADMIN_CODE) });
+      return json({ slots, cdis, resas, tampons, brevoPret, suspendus: await lireSuspendus(store), config: await lireConfig(store), centres: CENTRES, docs: DOCS, conditions: CONDITIONS, adminProtege: Boolean(process.env.CDD_ADMIN_CODE) });
     }
 
-    // Vue publique : jamais de données personnelles, uniquement dates et offres
+    // Vue publique : jamais de données personnelles, uniquement dates et offres.
+    // Les centres suspendus n'exposent aucune date ni offre.
+    const suspendus = await lireSuspendus(store);
     return json({
       conditions: CONDITIONS,
       centres: CENTRES,
       docs: DOCS,
       enAttente: slots.filter((s) => s.status === "en_attente").length + cdis.filter((o) => o.status === "en_attente").length,
       slots: slots
-        .filter((s) => s.date >= new Date().toISOString().slice(0, 10))
+        .filter((s) => !suspendus[s.centre] && s.date >= new Date().toISOString().slice(0, 10))
         .map((s) => ({ id: s.id, date: s.date, centre: s.centre, type: s.type, libre: s.status === "libre" })),
-      cdi: cdis.map((o) => ({ id: o.id, centre: o.centre, jours: o.jours, libre: o.status === "libre" })),
+      cdi: cdis.filter((o) => !suspendus[o.centre]).map((o) => ({ id: o.id, centre: o.centre, jours: o.jours, libre: o.status === "libre" })),
     });
   }
 
@@ -358,10 +367,13 @@ export default async (req) => {
       upToken: randomBytes(12).toString("hex"), docs: [],
     };
 
+    const suspendus = await lireSuspendus(store);
+
     if (body.cdiId) {
       const cdis = await lireCdi(store);
       const offre = cdis.find((o) => o.id === body.cdiId);
       if (!offre) return json({ error: "Offre introuvable." }, 404);
+      if (suspendus[offre.centre]) return json({ error: "Les réservations pour ce centre sont momentanément suspendues." }, 409);
       if (offre.status !== "libre") return json({ error: "Désolé, cette offre vient d'être prise." }, 409);
       const resa = { ...base, type: "CDI", cdiId: offre.id, jours: offre.jours, centre: offre.centre };
       offre.status = "en_attente";
@@ -375,6 +387,7 @@ export default async (req) => {
     const slots = await lireSlots(store);
     const slot = slots.find((s) => s.id === body.slotId);
     if (!slot) return json({ error: "Créneau introuvable." }, 404);
+    if (suspendus[slot.centre]) return json({ error: "Les réservations pour ce centre sont momentanément suspendues." }, 409);
     if (slot.status !== "libre") return json({ error: "Désolé, ce créneau vient d'être pris." }, 409);
     const resa = { ...base, type: slot.type || "CDD", slotId: slot.id, date: slot.date, centre: slot.centre };
     slot.status = "en_attente";
@@ -465,6 +478,17 @@ export default async (req) => {
     slots = slots.filter((s) => s.id !== body.slotId);
     await store.setJSON("slots.json", slots);
     return json({ ok: true, slots });
+  }
+
+  // ---------- Admin : suspendre / réactiver d'un coup toutes les dates d'un centre ----------
+  if (action === "suspendre-centre" || action === "reactiver-centre") {
+    const centre = champ(body.centre, 20).toLowerCase();
+    if (!CENTRES[centre]) return json({ error: "centre inconnu" }, 400);
+    const suspendus = await lireSuspendus(store);
+    if (action === "suspendre-centre") suspendus[centre] = true;
+    else delete suspendus[centre];
+    await store.setJSON("suspendus.json", suspendus);
+    return json({ ok: true, suspendus });
   }
 
   if (action === "add-cdi") {
