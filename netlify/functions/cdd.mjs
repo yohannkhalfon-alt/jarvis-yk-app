@@ -104,7 +104,7 @@ async function cleBrevo(store) {
 
 async function lireConfig(store) {
   const c = (await store.get("config.json", { type: "json" })) || {};
-  return { to: c.to || DEST_DEFAUT, fromByCentre: c.fromByCentre || {}, notif: c.notif || "", remplaceByCentre: c.remplaceByCentre || {}, remplaceByCentreJour: c.remplaceByCentreJour || {} };
+  return { to: c.to || DEST_DEFAUT, fromByCentre: c.fromByCentre || {}, notif: c.notif || "", remplaceByCentre: c.remplaceByCentre || {}, remplaceByCentreJour: c.remplaceByCentreJour || {}, medecinsCdi: c.medecinsCdi || {} };
 }
 
 // Centres suspendus (CDI en pourparlers, etc.) : les dates libres de ces
@@ -178,6 +178,19 @@ function construireMailDemande(resa, objet, cfg, origin, docsEnPJ) {
     : `<p style="color:#a60;">Aucun document importé par le praticien, à réclamer.</p>`;
 
   const confirmeLe = resa.confirmedAt ? new Date(resa.confirmedAt) : new Date();
+  // Règle Yohann (19/11) : un médecin déjà en CDI dans la structure ne signe
+  // PAS de CDD pour une vacation — le mail à LK Gestion le dit clairement.
+  const dejaCdi = Boolean((cfg.medecinsCdi || {})[resa.rpps]);
+  if (dejaCdi) {
+    const sujetCdi = `${docte} prend ${quand} (${centreLabel}) — déjà en CDI, PAS de CDD`;
+    const htmlCdi =
+      `<p>Bonjour Laura,</p>` +
+      `<p><b>${echapHtml(docte)}</b> a pris ${estCdi ? `les jours « ${echapHtml(quand)} »` : `la journée du ${echapHtml(quand)}`} au centre de ${echapHtml(centreLabel)}.</p>` +
+      `<p style="background:#E8F6EC;border:1px solid #7CC48F;border-radius:8px;padding:10px 12px;">✅ <b>Il est déjà en CDI dans la structure : aucun CDD à établir</b>, aucune démarche contrat. Simple note pour information.</p>` +
+      `<p style="background:#FFF6E0;border:1px solid #E8C66B;border-radius:8px;padding:10px 12px;">⚠️ <b>Pensez à mettre à jour le planning Excel</b> (Dropbox) si ce n'est pas déjà fait.</p>` +
+      `<p style="color:#888;font-size:12px;">JARVIS CDD : réservation confirmée par la direction le ${confirmeLe.toLocaleString("fr-FR", { timeZone: "Europe/Paris" })}.</p>`;
+    return { sujet: sujetCdi, html: htmlCdi, centreLabel, dejaCdi: true };
+  }
   const sujet = `Merci de créer le ${contrat} pour ${docte} : ${quand} (${centreLabel})`;
   const html =
     `<p>Bonjour Laura,</p>` +
@@ -339,6 +352,8 @@ export default async (req) => {
       const resa = await store.get(`resa/${champ(contrat, 40)}.json`, { type: "json" });
       if (!resa) return json({ error: "réservation introuvable" }, 404);
       if (resa.type === "CDI" || !resa.date) return json({ error: "Le modèle CDI n'est pas encore configuré — contrat CDD à la date uniquement pour l'instant." }, 400);
+      const cfgCdi = await lireConfig(store);
+      if ((cfgCdi.medecinsCdi || {})[resa.rpps]) return json({ error: `Dr ${resa.prenom} ${resa.nom} est déjà en CDI dans la structure : pas de CDD à établir pour une vacation.` }, 400);
       const cfg = await lireConfig(store);
       const tampon = await store.get(`asset/tampon-${resa.centre}`, { type: "json" });
       const pdf = await genererContratPdf(resa, { date: resa.date, centre: resa.centre }, cfg,
