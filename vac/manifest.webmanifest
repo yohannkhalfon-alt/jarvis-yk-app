@@ -1,9 +1,9 @@
 {
-  "name": "MAJ VAC — Jours sans ophta",
+  "name": "MAJ VAC — plannings, signature et CDD",
   "short_name": "MAJ VAC",
-  "description": "Un appui : scan des plannings Dropbox et jours sans ophtalmologue par centre, prêts à envoyer sur WhatsApp.",
+  "description": "Plannings et jours sans ophtalmologue, signature électronique, photo vers PDF et vacations CDD — réunis dans une seule application.",
   "start_url": "/vac/",
-  "scope": "/vac/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#04060C",
   "theme_color": "#04060C",
