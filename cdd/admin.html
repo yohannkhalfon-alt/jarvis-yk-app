@@ -213,9 +213,12 @@ function afficher(){
       const resa = (DATA.resas||[]).find(r => r.id === s.resaId);
       const badge = s.status === "libre" ? '<span class="badge libre">Libre</span>'
         : s.status === "confirme" ? '<span class="badge confirme">Confirmée</span>'
+        : s.status === "cdi" ? `<span class="badge confirme">Déjà en CDI · ${echap(s.medecin||"")}</span>`
         : '<span class="badge attente">En attente</span>';
       const qui = resa ? ` · Dr ${echap(resa.prenom)} ${echap(resa.nom)}` : "";
-      const suppr = s.status === "libre" ? `<button class="ghost" style="padding:6px 10px;font-size:12px" onclick="retirer('${s.id}')">Retirer</button>` : "";
+      const suppr = s.status === "libre" ? `<button class="ghost" style="padding:6px 10px;font-size:12px" onclick="retirer('${s.id}')">Retirer</button>`
+        : s.status === "cdi" ? `<button class="ghost" style="padding:6px 10px;font-size:12px" onclick="libererCdi('${s.id}')">Libérer</button>` : "";
+      const btnCdi = s.status === "libre" ? `<button class="ghost" style="padding:6px 10px;font-size:12px" onclick="marquerCdi('${s.id}')">Déjà en CDI</button>` : "";
       const notif = resa?.notif?.sent ? ' <span style="color:var(--ok);font-size:12px">✉️ mail envoyé</span>'
         : resa?.notif?.error ? ` <span style="color:var(--err);font-size:12px">✉️ échec : ${echap(resa.notif.error)}</span>`
         : resa?.notif?.skipped ? ` <span style="color:var(--or);font-size:12px">✉️ non envoyé : ${echap(resa.notif.skipped)}</span>` : "";
@@ -226,7 +229,7 @@ function afficher(){
         : "";
       return `<div class="item"><div class="tete">
         <span><b>${dateFr(s.date)}</b> <span class="centre-tag">${echap(DATA.centres[s.centre]||s.centre)}</span> · ${echap(s.type||"CDD")}${qui}${notif}</span>
-        <span style="display:flex;gap:8px;align-items:center">${badge}${boutons}${suppr}</span></div></div>`;
+        <span style="display:flex;gap:8px;align-items:center">${badge}${boutons}${btnCdi}${suppr}</span></div></div>`;
     }).join("");
   }
 
@@ -311,6 +314,21 @@ async function voirContrat(resaId){
   const url = URL.createObjectURL(await r.blob());
   window.open(url, "_blank");
   setTimeout(() => URL.revokeObjectURL(url), 120_000);
+}
+
+async function marquerCdi(slotId){
+  const medecin = prompt("Nom du médecin déjà en CDI qui prend cette date ?", "Dr ");
+  if(!medecin) return;
+  const r = await fetch(API, { method:"POST", headers: entetes(), body: JSON.stringify({ action:"marquer-cdi", slotId, medecin }) });
+  const d = await r.json();
+  if(!r.ok) alert(d.error || "Erreur");
+  recharger();
+}
+
+async function libererCdi(slotId){
+  if(!confirm("Libérer cette date ? Elle redevient réservable.")) return;
+  await fetch(API, { method:"POST", headers: entetes(), body: JSON.stringify({ action:"liberer-cdi", slotId }) });
+  recharger();
 }
 
 async function voirMail(resaId){
