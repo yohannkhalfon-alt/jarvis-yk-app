@@ -12,7 +12,8 @@
 //   env/{id}.json   métadonnées de la demande (signataires, statuts, audit)
 //   pdf/{id}        PDF original
 //   sig/{id}/{i}    PNG de la signature du signataire i
-//   signed/{id}     PDF reconstruit après chaque signature (+ certificat quand complet)
+//   signed/{id}     PDF reconstruit après chaque signature (+ certificat quand complet) — expéditeur
+//   signed-nc/{id}  même PDF sans la page de certificat — exemplaire du signataire
 //
 // Retour automatique au centre : chaque demande porte une "boîte d'envoi"
 // (fromEmail — la boîte de la direction du centre qui envoie le contrat).
@@ -105,6 +106,15 @@ async function lireSigne(store, env) {
   return b ? Buffer.from(b) : null;
 }
 
+// Exemplaire destiné au signataire : le document signé SANS la page de
+// certificat. Le certificat (horodatages, IP, navigateurs, empreintes) ne
+// revient qu'à l'expéditeur, qui pilote la demande.
+async function lireSigneSansCertificat(store, env) {
+  if (env.preuve?.chiffre) return preuve.lireBlobChiffre(store, `signed-nc/${env.id}`);
+  const b = await store.get(`signed-nc/${env.id}`, { type: "arrayBuffer" });
+  return b ? Buffer.from(b) : null;
+}
+
 async function construirePdfSigne(store, env) {
   // Immuabilité : un dossier probatoire finalisé n'est JAMAIS reconstruit
   if (env.preuve?.finaliseLe) {
@@ -181,6 +191,26 @@ async function construirePdfSigne(store, env) {
     }
   }
 
+  // Propriétés du fichier : quand une date est choisie, elle remplace la date
+  // de création réelle du PDF, pour qu'aucune autre date n'apparaisse — y
+  // compris dans les propriétés du document affichées par les lecteurs PDF.
+  const horodaterProprietes = () => {
+    const iso = dateMetaIso(env);
+    if (!iso) return;
+    const d = new Date(iso + "T12:00:00Z");
+    doc.setCreationDate(d);
+    doc.setModificationDate(d);
+  };
+  const ecrire = async (cle, octets) => {
+    if (env.preuve?.chiffre) await preuve.ecrireBlobChiffre(store, cle, Buffer.from(octets));
+    else await store.set(cle, octets.buffer.slice(octets.byteOffset, octets.byteOffset + octets.byteLength));
+  };
+
+  // Exemplaire du signataire : enregistré AVANT l'ajout du certificat, pour
+  // que la page d'audit ne lui soit jamais servie ni envoyée.
+  horodaterProprietes();
+  await ecrire(`signed-nc/${env.id}`, await doc.save());
+
   // Quand tout le monde a signé : page de certificat (piste d'audit).
   if (env.signers.every((s) => s.status === "signe")) {
     let page = doc.addPage([595, 842]); // A4
@@ -237,19 +267,10 @@ async function construirePdfSigne(store, env) {
     env.status = env.signers.some((s) => s.status === "signe") ? "partiel" : "attente";
   }
 
-  // Propriétés du fichier : quand une date est choisie, elle remplace la date
-  // de création réelle du PDF, pour qu'aucune autre date n'apparaisse — y
-  // compris dans les propriétés du document affichées par les lecteurs PDF.
-  const isoDoc = dateMetaIso(env);
-  if (isoDoc) {
-    const d = new Date(isoDoc + "T12:00:00Z");
-    doc.setCreationDate(d);
-    doc.setModificationDate(d);
-  }
-
+  // Exemplaire complet (document + certificat) : réservé à l'expéditeur.
+  horodaterProprietes();
   const octets = await doc.save();
-  if (env.preuve?.chiffre) await preuve.ecrireBlobChiffre(store, `signed/${env.id}`, Buffer.from(octets));
-  else await store.set(`signed/${env.id}`, octets.buffer.slice(octets.byteOffset, octets.byteOffset + octets.byteLength));
+  await ecrire(`signed/${env.id}`, octets);
   return Buffer.from(octets);
 }
 
@@ -299,7 +320,8 @@ async function tenterFinalisation(store, env, origin) {
 // Module 5 : envoi de la copie signée à chaque signataire, avec traçabilité.
 async function envoyerCopies(store, env, origin) {
   const cle = process.env.BREVO_API_KEY;
-  const pdfFinal = await lireSigne(store, env);
+  // Exemplaire du signataire : sans la page de certificat.
+  const pdfFinal = (await lireSigneSansCertificat(store, env)) || (await lireSigne(store, env));
   const nature = preuve.TYPES_DOCUMENT[env.preuve?.type] || "document";
   env.preuve.copies = env.preuve.copies || {};
   for (const s of env.signers) {
@@ -432,13 +454,24 @@ export default async (req) => {
         return new Response(dossier, { headers: { "content-type": "application/pdf", "content-disposition": `inline; filename="${preuve.nomDossierPreuve(env)}"` } });
       }
 
+      // Le signataire reçoit le document signé sans la page de certificat ;
+      // l'expéditeur (dlToken) et le gestionnaire (admin) reçoivent tout.
+      const estSignataire = idx >= 0 && !dlOk && !adminOk(req);
+
       if (url.searchParams.get("pdf")) {
         if (env.preuve) {
           // Mode probatoire : lecture bufferisée (déchiffrement + contrôle d'empreinte)
           if (env.preuve.finaliseLe && idx >= 0 && !dlOk && !adminOk(req))
             return json({ error: "Document finalisé : utilisez le lien reçu par email ou demandez une copie au gestionnaire" }, 403);
           const estSigne = Boolean(await store.get(`signed/${id}`, { type: "arrayBuffer" })) || env.preuve.finaliseLe;
-          const octets = estSigne ? await lireSigne(store, env) : await lireOriginal(store, env);
+          const octets = !estSigne
+            ? await lireOriginal(store, env)
+            : estSignataire
+              // pas de repli sur la version complète : le certificat ne doit
+              // jamais partir au signataire, même pour une demande antérieure
+              // à cette règle (il reçoit alors le document d'origine).
+              ? (await lireSigneSansCertificat(store, env)) || (await lireOriginal(store, env))
+              : await lireSigne(store, env);
           if (!octets) return json({ error: "PDF introuvable" }, 404);
           // Module 3 : l'empreinte du document réellement transmis au signataire
           if (idx >= 0 && !estSigne) {
@@ -460,7 +493,8 @@ export default async (req) => {
           });
         }
         // stream : évite la limite de 6 Mo des réponses bufferisées
-        const pdf = (await store.get(`signed/${id}`, { type: "stream" })) ||
+        const cleSigne = estSignataire ? `signed-nc/${id}` : `signed/${id}`;
+        const pdf = (await store.get(cleSigne, { type: "stream" })) ||
                     (await store.get(`pdf/${id}`, { type: "stream" }));
         if (!pdf) return json({ error: "PDF introuvable" }, 404);
         return new Response(pdf, {
@@ -771,6 +805,7 @@ export default async (req) => {
       for (let i = 0; i < env.signers.length; i++) { await store.delete(`sig/${id}/${i}`); await store.delete(`par/${id}/${i}`); }
       for (const c of [`evt/${id}`, `tsa/${id}`, `tsa-dossier/${id}`, `preuve/${id}`, `final/${id}`]) await store.delete(c);
       await store.delete(`signed/${id}`);
+      await store.delete(`signed-nc/${id}`);
       await store.delete(`pdf/${id}`);
       await store.delete(`env/${id}.json`);
       return json({ deleted: id });

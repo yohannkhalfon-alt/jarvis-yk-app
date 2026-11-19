@@ -60,7 +60,7 @@ export default async () => {
     const echeance = new Date(debut).getTime() + (env.preuve.retentionJours || 1825) * 86400000;
     if (Date.now() > echeance) {
       for (let i = 0; i < env.signers.length; i++) { await store.delete(`sig/${env.id}/${i}`); await store.delete(`par/${env.id}/${i}`); }
-      for (const c of [`pdf/${env.id}`, `signed/${env.id}`, `final/${env.id}`, `preuve/${env.id}`, `tsa/${env.id}`, `tsa-dossier/${env.id}`, `evt/${env.id}`, b.key])
+      for (const c of [`pdf/${env.id}`, `signed/${env.id}`, `signed-nc/${env.id}`, `final/${env.id}`, `preuve/${env.id}`, `tsa/${env.id}`, `tsa-dossier/${env.id}`, `evt/${env.id}`, b.key])
         await store.delete(c);
       bilan.purges++;
       continue;

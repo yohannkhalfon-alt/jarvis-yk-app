@@ -282,7 +282,7 @@ function ecranFini(deja) {
       '<div class="check">✓</div>' +
       '<h3>' + (deja ? 'Document déjà signé' : 'Merci, ' + echap(infos.moi.name) + ' !') + '</h3>' +
       '<p>' + (complet
-        ? 'Tous les signataires ont signé. Le document final inclut le certificat de signature.'
+        ? 'Tous les signataires ont signé. Vous pouvez télécharger votre exemplaire du document signé ; le certificat de signature est transmis à l’expéditeur.'
         : 'Votre signature a bien été enregistrée. Le document sera finalisé quand tous les signataires auront signé.') + '</p>' +
       '<p style="margin-top:16px;"><a href="' + urlPdf + '" target="_blank"><button>⬇ Télécharger le document' + (complet ? ' signé' : ' (état actuel)') + '</button></a></p>' +
     '</div>';
