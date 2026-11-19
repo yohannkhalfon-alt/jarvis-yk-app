@@ -1,8 +1,8 @@
 // Service worker JARVIS SIGN — cache le "shell" statique pour un lancement
 // instantané en mode appli. Les appels /api/ restent toujours en réseau
 // (jamais de cache : statuts et documents doivent être frais).
-const CACHE = "jarvis-sign-v8";
-const SHELL = ["/sign/", "/sign/index.html", "/sign/signer.html", "/sign/icon-192.png", "/sign/icon-512.png", "/sign/manifest.webmanifest", "/sign/docx2pdf.js"];
+const CACHE = "jarvis-sign-v9";
+const SHELL = ["/sign/", "/sign/index.html", "/sign/signer.html", "/sign/scan.html", "/sign/icon-192.png", "/sign/icon-512.png", "/sign/manifest.webmanifest", "/sign/docx2pdf.js", "/sign/scanner.js", "/sign/vendor/jspdf.umd.min.js"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));

@@ -88,6 +88,14 @@
   #infoDoc.conv { border-color:rgba(79,216,235,.45); }
   #infoDoc.err { border-color:#ff6b6b; color:#ff6b6b; }
   .vide { color:var(--dim); text-align:center; padding:20px; font-size:14px; }
+  nav { display:flex; gap:8px; padding:14px 18px 0; max-width:860px; margin:0 auto; flex-wrap:wrap; }
+  nav a {
+    display:flex; align-items:center; gap:7px; padding:9px 16px; border-radius:11px;
+    border:1px solid var(--line); font-size:14px; font-weight:600;
+    color:var(--dim); text-decoration:none; background:rgba(4,6,12,.45);
+  }
+  nav a.actif { color:var(--cyan); background:rgba(79,216,235,.1); border-color:rgba(79,216,235,.45); }
+  nav a svg { width:17px; height:17px; flex:none; }
   a { color:var(--cyan); }
 </style>
 </head>
@@ -99,6 +107,18 @@
     <div class="sub">Signature électronique — zéro abonnement</div>
   </div>
 </header>
+
+<nav>
+  <a href="index.html" class="actif">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+    Signature
+  </a>
+  <a href="scan.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    Photo → PDF
+  </a>
+</nav>
+
 <main>
 
   <div class="card">
@@ -276,6 +296,34 @@ $('#pdf').addEventListener('change', async () => {
   }
   $('#creer').disabled = false;
 });
+
+// Document arrivant de l'onglet Photo → PDF : repris tel quel, comme un
+// fichier choisi à la main.
+(function reprendreScan() {
+  if (new URLSearchParams(location.search).get('depuis') !== 'scan') return;
+  let b64, nom;
+  try {
+    b64 = sessionStorage.getItem('jarvis-scan-pdf');
+    nom = sessionStorage.getItem('jarvis-scan-nom') || 'Document scanné.pdf';
+    sessionStorage.removeItem('jarvis-scan-pdf');
+    sessionStorage.removeItem('jarvis-scan-nom');
+  } catch { return; }
+  if (!b64) return;
+  history.replaceState(null, '', location.pathname);
+  const brut = atob(b64);
+  const octets = new Uint8Array(brut.length);
+  for (let i = 0; i < brut.length; i++) octets[i] = brut.charCodeAt(i);
+  docPdf = new File([octets], nom, { type: 'application/pdf' });
+  docConverti = false;
+  if (!$('#titre').value) $('#titre').value = nom.replace(/\.pdf$/i, '');
+  const info = $('#infoDoc');
+  info.className = 'conv';
+  info.innerHTML = '<b>Document scanné repris</b> — ' + nom + ', ' + poids(docPdf.size) + '. ' +
+    '<button type="button" class="small" id="voirScan">Vérifier l’aperçu</button>' +
+    '<div class="hint">Il n’apparaît pas dans le champ « Document » ci-dessus, mais c’est bien lui qui sera envoyé. ' +
+    'Choisir un fichier à la main le remplacerait.</div>';
+  $('#voirScan').onclick = () => window.open(URL.createObjectURL(docPdf), '_blank');
+})();
 
 function majResumePos() {
   $('#resumePos').textContent = positions.length ? '✓ ' + positions.length + ' emplacement(s) placé(s)' : '';
