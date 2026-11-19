@@ -12,7 +12,8 @@ const JarvisScan = (() => {
   const MARGE = 0.006;              // rognage vers l'interieur, en fraction de page :
                                     // ecarte le lisere sombre du bord de feuille,
                                     // bien avant les marges de texte (~2 cm)
-  const SEUIL = 0.78;               // au-dessus : blanc pur (ombres, verso par transparence)
+  const BAS = 0.62;                 // en dessous : encre, noir franc
+  const HAUT = 0.90;                // au-dessus : papier, blanc pur (grain, ombres, verso)
 
   const toile = (w, h) => {
     const c = document.createElement('canvas');
@@ -179,21 +180,29 @@ const JarvisScan = (() => {
     const ech = [];
     for (let i = 0; i < n; i += 37) ech.push(norm[i]);
     ech.sort((a, b) => a - b);
-    const blanc = Math.max(1e-3, ech[Math.floor(ech.length * 0.70)]);
+    const blanc = Math.max(1e-3, ech[Math.floor(ech.length * 0.80)]);
 
+    // Courbe en deux seuils plutot qu'un seul : au-dessus de HAUT c'est du
+    // papier, et il part a 255 — le grain, la trame du papier et la
+    // transparence du verso s'effacent au lieu de ressortir en gris. En
+    // dessous de BAS c'est de l'encre, qui part a 0. Entre les deux, une
+    // rampe douce conserve les deliés d'une signature et l'antialiasing des
+    // caracteres, sans quoi le texte deviendrait crenele.
     const gris = new Uint8ClampedArray(n);
+    const ETENDUE = HAUT - BAS;
     for (let i = 0; i < n; i++) {
-      const v = Math.min(1, norm[i] / blanc);
-      gris[i] = Math.pow(Math.max(0, (v - SEUIL) / (1 - SEUIL)), 0.75) * 255;
+      const v = norm[i] / blanc;
+      gris[i] = v >= HAUT ? 255 : v <= BAS ? 0 : ((v - BAS) / ETENDUE) * 255;
     }
-    // Renforcement mesure des traits (noyau 3x3).
+    // Renforcement des traits, applique seulement la ou il y a de l'encre :
+    // sur le papier il ne ferait que ressortir le bruit du capteur.
     for (let y = 0; y < h; y++) {
       for (let x = 0; x < l; x++) {
         const i = y * l + x;
         let v = gris[i];
-        if (x > 0 && x < l - 1 && y > 0 && y < h - 1) {
+        if (v < 250 && x > 0 && x < l - 1 && y > 0 && y < h - 1) {
           const moy = (gris[i - 1] + gris[i + 1] + gris[i - l] + gris[i + l]) / 4;
-          v = Math.max(0, Math.min(255, gris[i] + 0.45 * (gris[i] - moy)));
+          v = Math.max(0, Math.min(255, gris[i] + 0.35 * (gris[i] - moy)));
         }
         const j = i * 4;
         px[j] = px[j + 1] = px[j + 2] = v; px[j + 3] = 255;

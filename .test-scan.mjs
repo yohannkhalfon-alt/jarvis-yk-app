@@ -113,7 +113,7 @@ stats.forEach((s, i) => {
   ok(`page ${i + 1} : la page est au format A4`, Math.abs(s.haut / s.larg - 2339 / 1654) < 0.02);
   ok(`page ${i + 1} : le fond (bois, bord de table) est écarté`, s.bord < 0.02);
   ok(`page ${i + 1} : le texte est conservé`, s.encre > 0.002);
-  ok(`page ${i + 1} : l'éclairage inégal est ramené au blanc`, s.blanc > 0.8);
+  ok(`page ${i + 1} : le fond est un blanc franc, pas un gris`, s.blanc > 0.95);
 });
 
 // Le nom du fichier est libre et sert au téléchargement.
