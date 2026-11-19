@@ -160,10 +160,55 @@ function xlsxVersTexte(buffer) {
 // ---------- Analyse déterministe de la grille ----------
 // Structure attendue : lignes d'en-têtes "LUNDI 06/07  MARDI 07/07 …" (JJ/MM),
 // puis des blocs de lignes-personnes séparés par des lignes vides.
-const RE_ENTETE = /^(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\.?\s+(\d{1,2})[\/.](\d{1,2})(?!\d)/i;
+// Jours en français OU en anglais : certains fichiers (Annecy sept/oct 2026)
+// mélangent "lundi 31/08" et "Monday 07/09" — sans l'anglais, les semaines
+// suivantes s'écrasaient sur les colonnes de la 1ère semaine (faux jours sans ophta).
+const RE_ENTETE = /^(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\.?\s+(\d{1,2})[\/.](\d{1,2})(?!\d)/i;
+// Formats longs avec nom de mois et année (Annecy nov 2026) : « Monday, November 02, 2026 »
+// et « samedi 14 Novembre 2026 » — sans eux, aucune colonne du mois n'est reconnue.
+const MOIS_NOMS = {
+  janvier: 1, january: 1, fevrier: 2, february: 2, mars: 3, march: 3, avril: 4, april: 4,
+  mai: 5, may: 5, juin: 6, june: 6, juillet: 7, july: 7, aout: 8, august: 8,
+  septembre: 9, september: 9, octobre: 10, october: 10, novembre: 11, november: 11,
+  decembre: 12, december: 12,
+};
+const JOURS_RE = "lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche|monday|tuesday|wednesday|thursday|friday|saturday|sunday";
+const RE_ENTETE_LONG_EN = new RegExp(`^(${JOURS_RE}),?\\s+([a-z]+)\\s+(\\d{1,2}),?\\s+(\\d{4})`, "i");
+const RE_ENTETE_LONG_FR = new RegExp(`^(${JOURS_RE}),?\\s+(\\d{1,2})\\s+([a-z]+)\\s+(\\d{4})`, "i");
+const JOUR_EN_FR = { monday: "lundi", tuesday: "mardi", wednesday: "mercredi", thursday: "jeudi", friday: "vendredi", saturday: "samedi", sunday: "dimanche" };
+
+// Une cellule d'en-tête → { jour, jj, mm, an } (an null pour le format court JJ/MM).
+function lireEnTete(texte) {
+  const brut = String(texte || "");
+  let m = brut.match(RE_ENTETE);
+  if (m) return { jour: m[1].toLowerCase(), jj: parseInt(m[2], 10), mm: parseInt(m[3], 10), an: null };
+  const t = stripAccents(brut).trim();
+  m = t.match(RE_ENTETE_LONG_EN);
+  if (m && MOIS_NOMS[m[2].toLowerCase()])
+    return { jour: m[1].toLowerCase(), jj: parseInt(m[3], 10), mm: MOIS_NOMS[m[2].toLowerCase()], an: parseInt(m[4], 10) };
+  m = t.match(RE_ENTETE_LONG_FR);
+  if (m && MOIS_NOMS[m[3].toLowerCase()])
+    return { jour: m[1].toLowerCase(), jj: parseInt(m[2], 10), mm: MOIS_NOMS[m[3].toLowerCase()], an: parseInt(m[4], 10) };
+  return null;
+}
+
+// Cellule numérique = date Excel brute (numéro de série, ex. « 46328 ») : arrive
+// quand la lib xlsx ne sait pas rendre le format de date du fichier. Acceptée
+// uniquement dans une ligne « NOMS » pour ne pas confondre avec un nombre quelconque.
+const RE_SERIE_EXCEL = /^4[4-8]\d{3}(\.0+)?$/; // ≈ années 2020-2033
+
+function serieVersEnTete(texte) {
+  const t = String(texte || "").trim();
+  if (!RE_SERIE_EXCEL.test(t)) return null;
+  const dt = new Date(Date.UTC(1899, 11, 30) + Math.round(parseFloat(t)) * 86400000);
+  return { jour: JOURS_FR[dt.getUTCDay()], jj: dt.getUTCDate(), mm: dt.getUTCMonth() + 1, an: dt.getUTCFullYear() };
+}
 // Mots (sans accents) qui signifient "absent / ne travaille pas", même si la cellule contient des heures.
 const RE_ABSENT = /(^|[^a-z])(off|abs|absente?|cp|rtt|ssolde|sans\s+solde|arret|conge|formation|ferme|feries?|ferie|preavis|malade|maladie)($|[^a-z])/;
 const RE_FERME = /(^|[^a-z])(ferme|feries?|ferie)($|[^a-z])/;
+// « FERIE » est une propriété du JOUR (jour férié → centre fermé), contrairement à
+// « Fermé » qui peut viser une seule personne (vendredis/samedis individuels d'Annecy).
+const RE_FERIE = /(^|[^a-z])feries?($|[^a-z])/;
 const JOURS_FR = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
 
 function anneePourMois(mm, moisFichier, anneeFichier) {
@@ -211,27 +256,38 @@ function parseGrille(lignes, moisFichier, anneeFichier) {
 
   for (const cells of lignes) {
     const vide = cells.every((c) => !c);
+    const aNoms = cells.some((c) => norm(c) === "NOMS");
     const headerCols = [];
     cells.forEach((c, i) => {
-      const m = String(c).match(RE_ENTETE);
+      const m = lireEnTete(c) || (aNoms ? serieVersEnTete(c) : null);
       if (m) headerCols.push([i, m]);
     });
 
     // Ligne d'en-tête : ≥2 dates, ou 1 date accompagnée de la cellule "NOMS"
     // (semaines à un seul jour, ex. "SAMEDI 01/08" ou "LUNDI 31/08").
-    const estEnTete =
-      headerCols.length >= 2 ||
-      (headerCols.length === 1 && cells.some((c) => norm(c) === "NOMS"));
+    const estEnTete = headerCols.length >= 2 || (headerCols.length === 1 && aNoms);
+    // Une ligne "NOMS" SANS date ouvre une section hors planning (ex. le tableau
+    // « INFOS SALARIES » ajouté en pied de fichier à Tremblay en oct. 2026 :
+    // "NOMS | PLANNINGS | VARIABLES"). Sans ce garde-fou, ses lignes étaient
+    // rattachées aux colonnes de la dernière semaine et écrasaient les vraies
+    // cases (ex. ADALLA Yakine "09H 19H" du lun 26/10 remplacé par son gabarit
+    // "lundi+mardi+…" → faux jour sans ophta).
+    // Variante Antony (06/10) : en-tête "SALARIES | PLANNINGS | VARIABLES" et
+    // titre "INFOS SALARIES" — mêmes sections annexes, autres libellés.
+    const aSection = cells.some((c) => /^(INFOS(\s+SALARIES)?|SALARIES|PLANNINGS)$/.test(norm(c)));
+    if ((aNoms && !estEnTete) || aSection) {
+      colonnes = null;
+      continue;
+    }
     if (estEnTete) {
       colonnes = new Map();
       for (const [i, m] of headerCols) {
-        const jj = parseInt(m[2], 10);
-        const mm = parseInt(m[3], 10);
+        const { jj, mm } = m;
         if (jj < 1 || jj > 31 || mm < 1 || mm > 12) continue;
-        const an = anneePourMois(mm, moisFichier, anneeFichier);
+        const an = m.an || anneePourMois(mm, moisFichier, anneeFichier);
         const iso = `${an}-${String(mm).padStart(2, "0")}-${String(jj).padStart(2, "0")}`;
         colonnes.set(i, iso);
-        if (!dates.has(iso)) dates.set(iso, { enTete: m[1].toLowerCase() });
+        if (!dates.has(iso)) dates.set(iso, { enTete: JOUR_EN_FR[m.jour] || m.jour });
       }
       blocCourant = 1; // premier bloc sous chaque en-tête = ophtalmologues (convention)
       enBlanc = false;
@@ -239,7 +295,13 @@ function parseGrille(lignes, moisFichier, anneeFichier) {
     }
 
     if (!colonnes) continue;
-    if (vide) {
+    // Une ligne sans AUCUNE cellule dans les colonnes de dates est un séparateur :
+    // commentaire en marge (« Amandine B : 1er et 2ème samedi mois » chez Annecy)
+    // ou semaine non renseignée. La compter comme personne créait des fantômes et,
+    // pire, masquait la ligne vide entre deux blocs — les secrétaires remontaient
+    // alors d'un bloc et étaient affichées comme orthoptistes dans la vue Équipe.
+    const aDesDates = [...colonnes.keys()].some((i) => cells[i]);
+    if (vide || !aDesDates) {
       enBlanc = true;
       continue;
     }
@@ -250,7 +312,7 @@ function parseGrille(lignes, moisFichier, anneeFichier) {
 
     const idxNom = cells.findIndex((c) => c);
     const nomBrut = cells[idxNom];
-    if (!nomBrut || RE_ENTETE.test(nomBrut) || norm(nomBrut) === "NOMS") continue;
+    if (!nomBrut || lireEnTete(nomBrut) || norm(nomBrut) === "NOMS") continue;
 
     const cle = norm(nomBrut);
     if (!personnes.has(cle)) personnes.set(cle, { nom: nomBrut.trim(), blocs: {}, cellules: new Map() });
@@ -258,7 +320,9 @@ function parseGrille(lignes, moisFichier, anneeFichier) {
     p.blocs[blocCourant] = (p.blocs[blocCourant] || 0) + 1;
     for (const [i, iso] of colonnes) {
       const v = cells[i];
-      if (v) p.cellules.set(iso, v);
+      // Première valeur gagnante : une date n'appartient qu'à une semaine, donc
+      // toute "réécriture" vient d'une ligne parasite (section annexe, doublon).
+      if (v && !p.cellules.has(iso)) p.cellules.set(iso, v);
     }
   }
 
@@ -293,12 +357,15 @@ function calculerJours(grille, ophtasSet) {
     let autresTravaillent = false;
     let cellules = 0;
     let fermees = 0;
+    let feriees = 0;
 
     for (const p of grille.personnes.values()) {
       const cell = p.cellules.get(iso);
       if (!cell) continue;
       cellules += 1;
-      if (RE_FERME.test(stripAccents(cell).toLowerCase())) fermees += 1;
+      const cellNorm = stripAccents(cell).toLowerCase();
+      if (RE_FERME.test(cellNorm)) fermees += 1;
+      if (RE_FERIE.test(cellNorm)) feriees += 1;
       const c = lireCellule(cell);
       if (!c.travail) continue;
       if (ophtasSet.has(norm(p.nom))) {
@@ -310,7 +377,8 @@ function calculerJours(grille, ophtasSet) {
     }
 
     if (cellules === 0) continue; // colonne vide (semaine non renseignée)
-    if (fermees >= cellules) continue; // tout le monde "Fermé"/"Férié" → centre fermé
+    if (feriees > 0) continue; // « FERIE » dans la colonne → jour férié, centre fermé (règle YK 14/09)
+    if (fermees >= cellules) continue; // tout le monde "Fermé" → centre fermé
     if (!autresTravaillent && intervalles.length === 0) continue; // personne ne travaille
 
     const weekday = JOURS_FR[wd];
@@ -499,7 +567,7 @@ export default async (req) => {
     const centreId = url.searchParams.get("centre");
     const vue = url.searchParams.get("vue"); // "equipe" → roster par rôle ; sinon jours sans ophta
     const semaineParam = url.searchParams.get("semaine"); // YYYY-MM-DD (jour dans la semaine voulue)
-    const nbMois = Math.min(Math.max(parseInt(url.searchParams.get("months") || "3", 10) || 3, 1), 3);
+    const nbMois = Math.min(Math.max(parseInt(url.searchParams.get("months") || "4", 10) || 4, 1), 6);
     // Un mois précis peut être demandé (scan découpé pour rester sous la limite de temps Netlify)
     const moisParam = parseInt(url.searchParams.get("mois") || "0", 10);
     const anneeParam = parseInt(url.searchParams.get("annee") || "0", 10);
@@ -616,7 +684,7 @@ export default async (req) => {
       for (const m of periode) {
         const f = await trouverPlanning(token, centre, m);
         if (!f) {
-          erreurs.push(`Planning ${m.nom} ${m.annee} introuvable`);
+          erreurs.push(`Planning ${m.nom} ${m.annee} pas encore déposé dans Dropbox`);
           continue;
         }
         const buffer = await dropboxDownload(token, f.id);
@@ -640,6 +708,21 @@ export default async (req) => {
       }
       const days = [...parDate.values()].sort((a, b) => a.date.localeCompare(b.date));
 
+      // Présences par personne (jours travaillés) : sert au contrôle des doublons
+      // inter-centres côté client (même nom en travail le même jour sur 2 centres).
+      const presences = {};
+      for (const grille of grilles) {
+        for (const pers of grille.personnes.values()) {
+          for (const [iso, cell] of pers.cellules) {
+            if (!moisDemandes.has(iso.slice(0, 7))) continue;
+            if (!lireCellule(cell).travail) continue;
+            const nom = norm(pers.nom);
+            if (!presences[nom]) presences[nom] = [];
+            if (!presences[nom].includes(iso)) presences[nom].push(iso);
+          }
+        }
+      }
+
       return reponse({
         centre: centreId,
         label: centre.label,
@@ -647,6 +730,7 @@ export default async (req) => {
         fichiers,
         ophtalmologues: [...ophtasSet],
         days,
+        presences,
         erreurs,
       });
     } catch (e) {
