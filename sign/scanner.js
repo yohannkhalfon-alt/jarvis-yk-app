@@ -155,8 +155,51 @@ const JarvisScan = (() => {
     return { x0: x0 / l, x1: (x1 + 1) / l, y0: y0 / h, y1: (y1 + 1) / h };
   }
 
-  /** Fond blanc franc, texte et signatures nets, en niveaux de gris. */
-  function nettoyer(page) {
+  /** Efface les petites taches isolees : poussiere, grain, points de bruit.
+
+      Une tache est une zone sombre trop petite pour etre un caractere. Le
+      point d'un « i » ou un accent font plusieurs dizaines de pixels a cette
+      resolution ; on reste nettement en dessous pour ne rien effacer du
+      texte. */
+  function gommerTaches(gris, l, h, tailleMax, cote) {
+    const vu = new Uint8Array(l * h);
+    const pile = new Int32Array(tailleMax * 4 + 16);
+    const zone = new Int32Array(tailleMax + 2);
+    for (let d = 0; d < gris.length; d++) {
+      if (vu[d] || gris[d] >= 200) continue;
+      let sp = 0, nz = 0, trop = false;
+      let xMin = l, xMax = -1, yMin = h, yMax = -1;
+      pile[sp++] = d; vu[d] = 1;
+      while (sp > 0) {
+        const p = pile[--sp];
+        if (nz >= tailleMax) { trop = true; break; }
+        zone[nz++] = p;
+        const x = p % l, y = (p / l) | 0;
+        if (x < xMin) xMin = x; if (x > xMax) xMax = x;
+        if (y < yMin) yMin = y; if (y > yMax) yMax = y;
+        const voisins = [x > 0 ? p - 1 : -1, x < l - 1 ? p + 1 : -1, y > 0 ? p - l : -1, y < h - 1 ? p + l : -1];
+        for (const v of voisins) {
+          if (v < 0 || vu[v] || gris[v] >= 200) continue;
+          if (sp >= pile.length) { trop = true; break; }
+          vu[v] = 1; pile[sp++] = v;
+        }
+        if (trop) break;
+      }
+      // Compacte ET minuscule dans les deux sens : un fragment de trait fin
+      // ou un bout de soulignement est long dans un sens, et doit rester.
+      if (!trop && xMax - xMin < cote && yMax - yMin < cote) {
+        for (let k = 0; k < nz; k++) gris[zone[k]] = 255;
+      }
+    }
+  }
+
+  /** Fond blanc franc et traits nets.
+
+      mode « nb » : document noir et blanc, le rendu le plus propre et le
+      plus leger. mode « couleur » : garde les couleurs (tampon, surligneur,
+      signature a l'encre bleue) en ramenant quand meme le papier au blanc.
+      mode « gris » : nuances de gris, sans seuillage. */
+  function nettoyer(page, mode = 'nb') {
     const l = page.width, h = page.height;
     const ctx = page.getContext('2d', { willReadFrequently: true });
     const img = ctx.getImageData(0, 0, l, h), px = img.data;
@@ -182,6 +225,24 @@ const JarvisScan = (() => {
     ech.sort((a, b) => a - b);
     const blanc = Math.max(1e-3, ech[Math.floor(ech.length * 0.80)]);
 
+    if (mode === 'couleur') {
+      // Chaque canal est divise par le fond local : la feuille devient
+      // blanche sous un eclairage inegal, et les couleurs du document
+      // (tampon, encre bleue, surligneur) sont conservees.
+      for (let i = 0, j = 0; i < n; i++, j += 4) {
+        const clair = norm[i] / blanc >= HAUT;
+        for (let c = 0; c < 3; c++) {
+          if (clair) { px[j + c] = 255; continue; }
+          const f = Math.max(1, fond[j + c]);
+          const v = (px[j + c] / f) / blanc;
+          px[j + c] = Math.max(0, Math.min(1, (v - BAS * 0.55) / (1 - BAS * 0.55))) * 255;
+        }
+        px[j + 3] = 255;
+      }
+      ctx.putImageData(img, 0, 0);
+      return page;
+    }
+
     // Courbe en deux seuils plutot qu'un seul : au-dessus de HAUT c'est du
     // papier, et il part a 255 — le grain, la trame du papier et la
     // transparence du verso s'effacent au lieu de ressortir en gris. En
@@ -189,11 +250,14 @@ const JarvisScan = (() => {
     // rampe douce conserve les deliés d'une signature et l'antialiasing des
     // caracteres, sans quoi le texte deviendrait crenele.
     const gris = new Uint8ClampedArray(n);
-    const ETENDUE = HAUT - BAS;
+    const bas = mode === 'gris' ? BAS * 0.8 : BAS;
+    const haut = mode === 'gris' ? 1.0 : HAUT;
+    const etendue = haut - bas;
     for (let i = 0; i < n; i++) {
       const v = norm[i] / blanc;
-      gris[i] = v >= HAUT ? 255 : v <= BAS ? 0 : ((v - BAS) / ETENDUE) * 255;
+      gris[i] = v >= haut ? 255 : v <= bas ? 0 : ((v - bas) / etendue) * 255;
     }
+    if (mode === 'nb') gommerTaches(gris, l, h, 9, 4);
     // Renforcement des traits, applique seulement la ou il y a de l'encre :
     // sur le papier il ne ferait que ressortir le bruit du capteur.
     for (let y = 0; y < h; y++) {
@@ -213,7 +277,7 @@ const JarvisScan = (() => {
   }
 
   /** Photo -> page A4 recadree et nettoyee. */
-  async function traiter(source, { rotation = 0, auto = true } = {}) {
+  async function traiter(source, { rotation = 0, auto = true, mode = 'nb' } = {}) {
     const photo = photoDeTravail(source, rotation);
     let z = { x0: 0, x1: 1, y0: 0, y1: 1 };
     if (auto) {
@@ -236,7 +300,7 @@ const JarvisScan = (() => {
     const k = Math.min(A4_L / sw, A4_H / sh);
     const dw = sw * k, dh = sh * k;
     ctx.drawImage(photo, sx, sy, sw, sh, (A4_L - dw) / 2, (A4_H - dh) / 2, dw, dh);
-    return nettoyer(page);
+    return nettoyer(page, mode);
   }
 
   // --- Lecture du titre (OCR charge a la demande) ---
