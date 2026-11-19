@@ -702,6 +702,13 @@ export default async (req) => {
       if (CENTRES[c]) cfg.fromByCentre[c] = champ(mail, 120);
     for (const [c, nom] of Object.entries(body.remplaceByCentre || {}))
       if (CENTRES[c]) cfg.remplaceByCentre[c] = champ(nom, 120);
+    // Annuaire des médecins en CDI : { "<rpps>": "Dr Nom" } ; nom vide = retrait.
+    for (const [rpps, nom] of Object.entries(body.medecinsCdi || {})) {
+      const cle = champ(rpps, 20).replace(/\D/g, "");
+      if (!cle) continue;
+      if (champ(nom, 120)) cfg.medecinsCdi[cle] = champ(nom, 120);
+      else delete cfg.medecinsCdi[cle];
+    }
     await store.setJSON("config.json", cfg);
     return json({ ok: true, config: cfg });
   }
