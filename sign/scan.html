@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#04060C" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" type="image/png" href="icon-192.png" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<title>JARVIS·SCAN — Photo vers PDF</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg:#04060C; --panel:rgba(10,16,28,0.72); --line:rgba(79,216,235,0.18);
+    --blue:#1B6FD8; --cyan:#4FD8EB; --txt:#C8D6E5; --dim:#6B7C93;
+    --ok:#33d17a; --warn:#f5c542;
+  }
+  body {
+    background:var(--bg); color:var(--txt); font-family:'Rajdhani',sans-serif; min-height:100vh;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(27,111,216,0.13), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 110%, rgba(79,216,235,0.06), transparent);
+  }
+  @keyframes spin { from{transform:rotate(0);} to{transform:rotate(360deg);} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
+  header { display:flex; align-items:center; gap:14px; padding:14px 20px; border-bottom:1px solid var(--line); background:rgba(4,6,12,.6); backdrop-filter:blur(8px); }
+  .core { width:34px; height:34px; position:relative; flex:none; }
+  .core::before,.core::after { content:''; position:absolute; inset:0; border-radius:50%; border:2px solid transparent; border-top-color:var(--cyan); border-right-color:var(--blue); animation:spin 3s linear infinite; }
+  .core::after { inset:6px; animation-direction:reverse; animation-duration:2s; }
+  h1 { font-family:'Orbitron'; font-size:18px; letter-spacing:3px; color:#EAF4FF; font-weight:700; }
+  h1 span { color:var(--cyan); }
+  .sub { font-size:11px; color:var(--dim); letter-spacing:2px; text-transform:uppercase; }
+  nav { display:flex; gap:8px; padding:12px 18px 0; max-width:860px; margin:0 auto; }
+  nav a {
+    display:flex; align-items:center; gap:7px; padding:9px 16px; border-radius:11px 11px 0 0;
+    border:1px solid var(--line); border-bottom:none; font-size:14px; font-weight:600;
+    color:var(--dim); text-decoration:none; background:rgba(4,6,12,.45);
+  }
+  nav a.actif { color:var(--cyan); background:var(--panel); border-color:var(--line); }
+  nav a svg { width:17px; height:17px; flex:none; }
+  main { max-width:860px; margin:0 auto; padding:0 18px 60px; display:flex; flex-direction:column; gap:22px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:0 16px 16px 16px; padding:20px; animation:fadeUp .25s ease; }
+  .card + .card { border-radius:16px; }
+  .card h2 { font-family:'Orbitron'; font-size:13px; letter-spacing:2px; color:var(--cyan); text-transform:uppercase; margin-bottom:16px; }
+  label { display:block; font-size:12px; color:var(--dim); letter-spacing:1px; text-transform:uppercase; margin:12px 0 5px; }
+  input[type=text] {
+    width:100%; background:rgba(4,6,12,.6); border:1px solid var(--line); border-radius:10px;
+    color:var(--txt); font-family:inherit; font-size:15px; padding:10px 12px; outline:none;
+  }
+  input:focus { border-color:var(--cyan); }
+  button {
+    font-family:'Rajdhani'; font-weight:700; font-size:14px; letter-spacing:1px; cursor:pointer;
+    border-radius:10px; border:1px solid var(--line); padding:10px 18px; transition:.15s;
+    background:rgba(79,216,235,.08); color:var(--cyan);
+  }
+  button:hover { background:rgba(79,216,235,.16); }
+  button:disabled { opacity:.45; cursor:default; }
+  button.primary { background:linear-gradient(135deg,var(--blue),#0d4ea0); color:#fff; border:none; padding:13px 24px; font-size:15px; }
+  button.primary:hover { filter:brightness(1.15); }
+  button.small { padding:6px 11px; font-size:12px; }
+  button.danger { border-color:rgba(255,107,107,.3); color:#ff6b6b; background:rgba(255,107,107,.06); }
+  .prise { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .prise label.bouton {
+    display:inline-flex; align-items:center; gap:8px; margin:0; padding:13px 24px; cursor:pointer;
+    background:linear-gradient(135deg,var(--blue),#0d4ea0); color:#fff; border-radius:10px;
+    font-size:15px; font-weight:700; letter-spacing:1px; text-transform:none;
+  }
+  .prise label.bouton:hover { filter:brightness(1.15); }
+  .prise input[type=file] { display:none; }
+  .pages { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px; margin-top:4px; }
+  .pg { border:1px solid var(--line); border-radius:12px; overflow:hidden; background:rgba(4,6,12,.5); }
+  .pg img { display:block; width:100%; background:#fff; }
+  .pg .barre { display:flex; gap:5px; align-items:center; padding:7px; flex-wrap:wrap; }
+  .pg .num { font-size:12px; font-weight:700; color:var(--cyan); margin-right:auto; }
+  .pg button { padding:4px 8px; font-size:11px; border-radius:7px; }
+  .vide { color:var(--dim); text-align:center; padding:26px 10px; font-size:14px; line-height:1.6; }
+  .msg { font-size:14px; margin-top:12px; line-height:1.5; }
+  .msg.err { color:#ff6b6b; } .msg.ok { color:var(--ok); }
+  .hint { font-size:12px; color:var(--dim); margin-top:6px; line-height:1.5; }
+  .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:18px; align-items:center; }
+  a { color:var(--cyan); }
+</style>
+</head>
+<body>
+<header>
+  <div class="core"></div>
+  <div>
+    <h1>JARVIS·<span>SCAN</span></h1>
+    <div class="sub">Photo vers PDF — recadrage automatique</div>
+  </div>
+</header>
+
+<nav>
+  <a href="index.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+    Signature
+  </a>
+  <a href="scan.html" class="actif">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    Photo → PDF
+  </a>
+</nav>
+
+<main>
+  <div class="card">
+    <h2>Photographier le document</h2>
+    <div class="prise">
+      <label class="bouton" for="appareil">
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        Prendre une photo
+      </label>
+      <input type="file" id="appareil" accept="image/*" capture="environment" multiple />
+      <label class="bouton" for="galerie" style="background:rgba(79,216,235,.08); color:var(--cyan); border:1px solid var(--line);">
+        Choisir des images
+      </label>
+      <input type="file" id="galerie" accept="image/*" multiple />
+    </div>
+    <div class="hint">Une photo par page, à plat et bien éclairée. Le cadrage, le redressement et le fond blanc sont faits automatiquement sur votre appareil : aucune image n'est envoyée ailleurs.</div>
+    <div class="msg" id="msgPrise"></div>
+  </div>
+
+  <div class="card">
+    <h2>Pages — <span id="compte">0</span></h2>
+    <div id="pages" class="pages"></div>
+    <div class="vide" id="vide">Aucune page pour l'instant.<br />Prenez une photo pour commencer.</div>
+
+    <label for="nom">Nom du fichier</label>
+    <input type="text" id="nom" maxlength="120" placeholder="Document" />
+    <div class="hint" id="hintNom">Le titre est lu automatiquement sur la première page ; vous pouvez le corriger ici.</div>
+
+    <div class="actions">
+      <button class="primary" id="telecharger" disabled>⬇ Télécharger le PDF</button>
+      <button id="versSign" disabled>Envoyer vers JARVIS SIGN</button>
+      <button class="danger small" id="vider" disabled>Tout effacer</button>
+    </div>
+    <div class="msg" id="msg"></div>
+  </div>
+</main>
+
+<script src="vendor/jspdf.umd.min.js"></script>
+<script src="scanner.js"></script>
+<script>
+const $ = (s) => document.querySelector(s);
+const pages = [];          // { toile, apercu, rotation, auto, source }
+let titrePropose = '';
+
+const fmtDate = () => new Date().toLocaleDateString('fr-CA');  // AAAA-MM-JJ
+
+function rafraichir() {
+  $('#compte').textContent = pages.length;
+  $('#vide').style.display = pages.length ? 'none' : 'block';
+  for (const b of ['#telecharger', '#versSign', '#vider']) $(b).disabled = !pages.length;
+  $('#pages').innerHTML = pages.map((p, i) =>
+    '<div class="pg"><img src="' + p.apercu + '" alt="Page ' + (i + 1) + '" />' +
+    '<div class="barre"><span class="num">Page ' + (i + 1) + '</span>' +
+    '<button data-a="haut" data-i="' + i + '" title="Monter"' + (i ? '' : ' disabled') + '>↑</button>' +
+    '<button data-a="bas" data-i="' + i + '" title="Descendre"' + (i < pages.length - 1 ? '' : ' disabled') + '>↓</button>' +
+    '<button data-a="pivot" data-i="' + i + '" title="Pivoter">⟳</button>' +
+    '<button data-a="cadre" data-i="' + i + '" title="Recadrage">' + (p.auto ? '⛶ auto' : '⛶ brut') + '</button>' +
+    '<button class="danger" data-a="suppr" data-i="' + i + '" title="Supprimer">✕</button>' +
+    '</div></div>').join('');
+}
+
+$('#pages').onclick = async (e) => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  const i = +b.dataset.i;
+  if (b.dataset.a === 'suppr') pages.splice(i, 1);
+  else if (b.dataset.a === 'haut') pages.splice(i - 1, 0, pages.splice(i, 1)[0]);
+  else if (b.dataset.a === 'bas') pages.splice(i + 1, 0, pages.splice(i, 1)[0]);
+  else if (b.dataset.a === 'pivot') { pages[i].rotation = (pages[i].rotation + 90) % 360; await refaire(i); }
+  else if (b.dataset.a === 'cadre') { pages[i].auto = !pages[i].auto; await refaire(i); }
+  rafraichir();
+};
+
+async function refaire(i) {
+  const p = pages[i];
+  p.toile = await JarvisScan.traiter(p.source, { rotation: p.rotation, auto: p.auto });
+  p.apercu = p.toile.toDataURL('image/jpeg', 0.6);
+}
+
+async function ajouter(fichiers) {
+  const msg = $('#msgPrise');
+  msg.className = 'msg';
+  let n = 0;
+  for (const f of fichiers) {
+    if (!f.type.startsWith('image/')) continue;
+    msg.textContent = 'Traitement de la page ' + (pages.length + 1) + '…';
+    try {
+      const source = await JarvisScan.chargerFichier(f);
+      const toile = await JarvisScan.traiter(source, { rotation: 0, auto: true });
+      pages.push({ source, toile, apercu: toile.toDataURL('image/jpeg', 0.6), rotation: 0, auto: true });
+      n++;
+      rafraichir();
+    } catch (err) {
+      msg.className = 'msg err';
+      msg.textContent = 'Image illisible : ' + (err.message || err);
+    }
+  }
+  if (n) {
+    msg.className = 'msg ok';
+    msg.textContent = n + (n > 1 ? ' pages ajoutées.' : ' page ajoutée.');
+    if (!titrePropose && pages.length) lireTitre();
+  }
+}
+
+// La liste est recopiee AVANT de vider le champ : le vider pendant que la
+// boucle asynchrone la parcourt ferait perdre toutes les photos sauf la premiere.
+const prise = (e) => { const fs = [...e.target.files]; e.target.value = ''; ajouter(fs); };
+$('#appareil').onchange = prise;
+$('#galerie').onchange = prise;
+
+// --- Lecture du titre sur la première page (OCR, chargé à la demande) ---
+async function lireTitre() {
+  const hint = $('#hintNom');
+  if ($('#nom').dataset.modifie) return;
+  hint.textContent = 'Lecture du titre sur la première page…';
+  try {
+    const t = await JarvisScan.titre(pages[0].toile);
+    if (t) {
+      titrePropose = t;
+      if (!$('#nom').dataset.modifie) $('#nom').value = t;
+      hint.textContent = 'Titre lu sur la première page. Corrigez-le si besoin.';
+      return;
+    }
+    hint.textContent = 'Titre illisible sur la photo — nommez le fichier vous-même.';
+  } catch {
+    hint.textContent = 'Lecture du titre indisponible hors connexion — nommez le fichier vous-même.';
+  }
+  if (!$('#nom').value) $('#nom').value = 'Document ' + fmtDate();
+}
+
+$('#nom').oninput = () => { $('#nom').dataset.modifie = '1'; };
+
+const nomFichier = () => {
+  const brut = ($('#nom').value || titrePropose || 'Document ' + fmtDate()).trim();
+  return (brut.replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim() || 'Document') + '.pdf';
+};
+
+async function construirePdf() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'pt', format: 'a4', compress: true });
+  for (let i = 0; i < pages.length; i++) {
+    if (i) doc.addPage();
+    doc.addImage(pages[i].toile.toDataURL('image/jpeg', 0.88), 'JPEG', 0, 0, 595.28, 841.89, undefined, 'FAST');
+  }
+  return doc;
+}
+
+$('#telecharger').onclick = async () => {
+  const msg = $('#msg');
+  msg.className = 'msg'; msg.textContent = 'Création du PDF…';
+  try {
+    (await construirePdf()).save(nomFichier());
+    msg.className = 'msg ok'; msg.textContent = 'PDF téléchargé : ' + nomFichier();
+  } catch (e) {
+    msg.className = 'msg err'; msg.textContent = 'Échec : ' + (e.message || e);
+  }
+};
+
+$('#versSign').onclick = async () => {
+  const msg = $('#msg');
+  msg.className = 'msg'; msg.textContent = 'Préparation…';
+  try {
+    const b64 = (await construirePdf()).output('datauristring').split(',')[1];
+    sessionStorage.setItem('jarvis-scan-pdf', b64);
+    sessionStorage.setItem('jarvis-scan-nom', nomFichier());
+    location.href = 'index.html?depuis=scan';
+  } catch (e) {
+    msg.className = 'msg err'; msg.textContent = 'Échec : ' + (e.message || e);
+  }
+};
+
+$('#vider').onclick = () => {
+  pages.length = 0; titrePropose = '';
+  $('#nom').value = ''; delete $('#nom').dataset.modifie;
+  $('#msg').textContent = ''; $('#msgPrise').textContent = '';
+  rafraichir();
+};
+
+rafraichir();
+</script>
+</body>
+</html>

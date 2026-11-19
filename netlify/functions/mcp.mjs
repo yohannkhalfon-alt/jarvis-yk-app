@@ -65,7 +65,7 @@ const TOOLS = [
         mentions: { type: "array", items: { type: "string" }, description: "Mentions à faire cocher, ex [\"Lu et approuvé\"]" },
         paraphe: { type: "boolean", description: "Initiales apposées en bas de chaque page" },
         from_email: { type: "string", description: "Boîte email du centre qui recevra automatiquement le PDF signé" },
-        date_imposee: { type: "string", description: "Date (AAAA-MM-JJ) inscrite sur le document (« Fait le … ») — fixée par l'expéditeur, le signataire ne peut pas la changer" },
+        date_imposee: { type: "string", description: "Date (AAAA-MM-JJ) inscrite sur le document (« Fait le … ») — fixée par l'expéditeur seul, le signataire ne peut pas la changer ; par défaut, le jour même. C'est la seule date imprimée sur le PDF." },
       },
       required: ["title", "pdf_base64", "signers"],
     },
@@ -128,7 +128,9 @@ async function outilCreate(origin, args) {
       mentions: mentions || [],
       paraphe: Boolean(paraphe),
       fromEmail: from_email || "",
-      dateImposee: date_imposee || null,
+      // La date inscrite sur le document est fixée par l'émetteur de la
+      // demande ; à défaut, le jour même (heure de Paris).
+      dateImposee: date_imposee || new Intl.DateTimeFormat("fr-CA", { timeZone: "Europe/Paris" }).format(new Date()),
     },
   });
   const data = await res.json();
