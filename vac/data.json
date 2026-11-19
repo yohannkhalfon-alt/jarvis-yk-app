@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-18T05:40:46Z",
+ "generated_at": "2026-11-19T05:37:43Z",
  "source": "Scan JARVIS via connecteur Dropbox",
  "periode": [
   {
@@ -239,6 +239,7 @@
     }
    ],
    "notes": [
+    "Scan 19/11 : sureffectif orthos le jeu 05/11 (3 orthos). Novembre entièrement couvert côté ophtas (Kokkinos prend le sam 28/11).",
     "MAJ 18/11 : le samedi 09/01 est désormais couvert par Charakidas et le samedi 27/02 par Kokkinos Zafeiris (réservation JARVIS CDD du 17/11 reportée au planning). Reste 30 jours sans ophta.",
     "✅ Sam 30/01 RÉGLÉ (11/11) : Dr KOKKINOS ajouté 9h-19h. Restent 32 jours sans ophta (30-31/12 + 15 en janvier + 15 en février) — succession Papapostolou toujours à staffer sur les mar/mer/jeu.",
     "🚨 MAJEUR (10/11) : PAPAPOSTOLOU — FIN DE CONTRAT LE 31/12/2026, RETRAITE (note du planning décembre). Il n'apparaît plus dans les fichiers janvier/février 2027 → 16 jours sans ophta en JANVIER et 15 en FEVRIER (tous les mar/mer/jeu + plusieurs ven/sam). Restent : Slimane (~2 lun + 2 ven/mois), Hajar (2 lun/mois), Charakidas (2 ven + 2 sam/mois). Recrutement urgent d'un ophta pour les mar-mer-jeu.",
@@ -255,12 +256,15 @@
     "ℹ️ Plannings réécrits le 06/10 avec noms complets + section « INFOS SALARIES » en pied de fichier — le parseur de l'app a été corrigé en conséquence (PR #128/#129).",
     "RH (23/10) : ⚠️ démission de Beddar Assia au 31/10 (secrétaire 4 j/sem — lun/mar/ven/sam à re-staffer dès novembre). Nouvelle secrétaire : Boudjemaa Manel, début de contrat le 27/10 (36h lun/mer/jeu/sam), en formation à Sartrouville du 26 au 30/10 ; elle reprend la ligne « secrétaire à trouver » sur nov-déc."
    ],
-   "alertes": []
+   "alertes": [
+    "⚠️ Sureffectif orthoptistes : jeudi 05/11, 3 orthos en travail (Yalingui, Vignand, Benyoucef) — seuil Argenteuil : 2. Détecté au scan du 19/11 (planning novembre modifié le 18/11)."
+   ]
   },
   "annecy": {
    "label": "ANNECY",
    "days": [],
    "notes": [
+    "Scan 19/11 : vigilance — du 16 au 30/11, Spinean Adina est l'UNIQUE ophta d'Annecy (Poullot en congé paternité 18/11→18/12) : aucune marge en cas d'absence. Bouvier prolongée au 12/12.",
     "À noter (17/11) : un dossier « PLANNINGS SIMUL SANS MAEVA » est apparu dans la Dropbox Annecy (simulations déc/jan/fév sans Bonnard Maeva) — fichiers de travail, non comptés dans l'analyse ; les plannings réels sont inchangés.",
     "🆕 Dr ZABADANI KASSEM couvre la semaine du 09 au 14/11 (lun-sam, mercredi férié) — nouveau nom, contrat/RPPS à vérifier pour Galaxy/Opus. RH Poullot : ABS dès le sam 14/11 (naissance), ABS congés lun 16-mar 17 (à confirmer avec Audrey), puis congé paternité du 18/11 au 18/12 et congé de naissance jusqu'à fin décembre.",
     "✅ JANVIER et FEVRIER 2027 déposés et 100% couverts : alternance Spinean / Dr LAHMAR RAHMA (semaines du 11 et 18/01, du 08 et 15/02) — Lahmar titularisée à Annecy. Vendredis fermés.",
@@ -277,6 +281,7 @@
    "label": "TREMBLAY",
    "days": [],
    "notes": [
+    "Scan 19/11 : sureffectif orthos le jeu 12/11 (4 orthos). Echi Maissa en congés patho dès le 25/11 (en attente) ; retour Oubalkas Basma le 24/11 ; Aeshliman Flavie a démissionné de Tremblay au 31/10 (reste Argenteuil uniquement).",
     "✅ SUREFFECTIF ORTHOS RÉSOLU (13/11) : le jeu 19/11 est repassé à 3 orthos — Echi Maissa posée en CP ce jour-là, le CDD Salima couvre donc un vrai besoin et ne fait plus doublon. Le jeu 12/11 (4 orthos, reliquat du CDD posé avant l'arrivée de Shirel au 95) est passé. Plus aucun sureffectif sur les 4 mois. Règle de surveillance active : Argenteuil > 2 orthos, Tremblay > 3.",
     "Sam 14/11 : Samak en ABS (détachée à Sartrouville), Chemerzelin la remplace au planning — 3 orthos ce jour-là (Echi, Le Bras, Chemerzelin), pas de sureffectif.",
     "✅ Jeu 31/12 RÉGLÉ (10/11) : Slimane ajouté 9h-19h (Adalla ABS). Tremblay n'a plus AUCUN jour sans ophta sur les 4 mois.",
@@ -289,7 +294,9 @@
     "⚠️ NOUVEAU (23/10) : jeu 31/12 sans ophta — Adalla passé « ABS AR », aucun remplaçant positionné.",
     "⚠️ À ANTICIPER (note du fichier décembre) : « janvier Yakine abs le 02/01 » — le sam 02/01/27, actuellement couvert par Adalla sur le planning janvier, va se découvrir. Remplaçant à prévoir."
    ],
-   "alertes": []
+   "alertes": [
+    "⚠️ Sureffectif orthoptistes : jeudi 12/11, 4 orthos en travail (Decoste, Samak, Echi 9h-16h, Chemerzelin) — seuil Tremblay : 3. Détecté au scan du 19/11 (planning novembre modifié le 18/11)."
+   ]
   },
   "sartrouville": {
    "label": "SARTROUVILLE",
@@ -439,6 +446,7 @@
     }
    ],
    "notes": [
+    "Scan 19/11 : anomalie planning novembre — la ligne « DIEYE BINTOU » apparaît en DOUBLE sem. 16-21/11 avec deux horaires différents (l'une des deux est probablement « Clara » ?) — à corriger. Fins de contrat : Dieye Bintou 26/11, Fenelon Shouselie 27/11. Arrêts : Agouni prolongé au 10/12, Fey Delphine → 22/11 puis en attente.",
     "MAJ 18/11 : les samedis 16/01, 13/02 et 20/02 sont désormais couverts par Kokkinos Zafeiris (réservations JARVIS CDD du 17/11 reportées au planning). Restent le jeu 31/12 (Sconamiglio ABS) et le sam 30/01.",
     "RH : arrêt Agouni Kenza prolongé jusqu'au 10/12 (Bedez Margaux continue en rempla).",
     "✅ Sam 06/02 RÉGLÉ (11/11) : Dr CHARAKIDAS ajouté 9h-19h (il est OFF à Argenteuil ce jour-là, pas de doublon). Restent : jeu 31/12, sam 16/01, 30/01, 13/02, 20/02.",
