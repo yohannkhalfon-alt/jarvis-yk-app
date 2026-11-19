@@ -5,6 +5,17 @@
 // les octets ; l'upload écrase le fichier en conservant son chemin).
 // Protégé par le code admin CDD (header x-cdd-code). Identifiants Dropbox :
 // les mêmes que MAJ VAC (variables d'environnement ou blobs "majvac").
+//
+// RÈGLES D'ÉCRITURE (Yohann, 19/11) — à respecter par tout agent qui écrit :
+// 1. Respecter TOUS les codes couleurs du planning. Ne jamais inventer un
+//    style : copier l'attribut de style (s=) d'une cellule existante du MÊME
+//    type (ex. un ajout de vacataire déjà fait par Laura — observé : les
+//    ajouts portent un style distinct des cellules travaillées natives).
+// 2. Modifier UNIQUEMENT la/les cellule(s) visée(s), au niveau XML du xlsx,
+//    pour que tout le reste du fichier reste intact à l'octet près.
+// 3. AU MOINDRE DOUTE (ligne absente, style ambigu, structure inattendue,
+//    cellule déjà remplie) : NE RIEN ÉCRIRE et prévenir Yohann à la place.
+// 4. Dropbox versionne chaque écriture : toujours réversible.
 import { getStore } from "@netlify/blobs";
 
 const json = (data, status = 200) =>
