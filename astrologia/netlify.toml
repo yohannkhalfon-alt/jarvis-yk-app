@@ -2,3 +2,8 @@
 # Isole ce site de la config racine du dépôt (fonctions JARVIS, etc.).
 [build]
   publish = "."
+
+[[headers]]
+  for = "/_priv/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
