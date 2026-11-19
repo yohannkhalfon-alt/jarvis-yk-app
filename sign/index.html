@@ -95,6 +95,14 @@
     color:var(--dim); text-decoration:none; background:rgba(4,6,12,.45);
   }
   nav a.actif { color:var(--cyan); background:rgba(79,216,235,.1); border-color:rgba(79,216,235,.45); }
+  .espace { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .espace > div:first-child { flex:1; min-width:170px; }
+  .espace-nom { font-size:17px; font-weight:700; color:#EAF4FF; letter-spacing:.5px; }
+  /* Espace personnel ouvert : un liseré ambré rappelle en permanence que
+     ce qui est créé ici n'est pas partagé avec le groupe. */
+  body.perso #carteEspace { border-color:rgba(245,197,66,.5); }
+  body.perso .espace-nom { color:var(--warn); }
+  body.perso .espace-nom::before { content:'🔒 '; }
   nav a svg { width:17px; height:17px; flex:none; }
   a { color:var(--cyan); }
 </style>
@@ -110,6 +118,20 @@
 
 
 <main>
+
+  <div class="card" id="carteEspace">
+    <h2>Espace</h2>
+    <div class="espace">
+      <div>
+        <div class="espace-nom" id="espaceNom">Groupe Ophta</div>
+        <div class="hint" id="espaceEtat">Documents partagés : tout le monde les voit.</div>
+      </div>
+      <button class="small" id="ouvrirEspace">Ouvrir un espace personnel</button>
+      <button class="small" id="fermerEspace" style="display:none">Revenir au groupe</button>
+    </div>
+    <div class="hint">Une demande créée dans un espace personnel n'est visible que de vous : ni le groupe, ni le code d'accès ne l'ouvrent. Les liens envoyés aux signataires, eux, fonctionnent dans tous les cas.</div>
+    <div class="msg" id="msgEspace"></div>
+  </div>
 
   <div class="card">
     <h2>Nouvelle demande de signature</h2>
@@ -192,8 +214,16 @@
 const $ = (s) => document.querySelector(s);
 let adminCode = localStorage.getItem('signCode') || '';
 
+// Espace courant. « groupe » : tout le monde lit. Sinon un espace personnel,
+// ouvert par mot de passe, dont le jeton ne vit que le temps de la session —
+// fermer l'onglet referme l'espace.
+let espaceJeton = sessionStorage.getItem('signEspaceJeton') || '';
+let espaceNom = sessionStorage.getItem('signEspaceNom') || '';
+
 async function api(path, opts = {}) {
-  opts.headers = Object.assign({}, opts.headers, adminCode ? { 'x-sign-code': adminCode } : {});
+  opts.headers = Object.assign({}, opts.headers,
+    adminCode ? { 'x-sign-code': adminCode } : {},
+    espaceJeton ? { 'x-sign-espace': espaceJeton } : {});
   const res = await fetch(path, opts);
   const data = await res.json().catch(() => ({}));
   if (res.status === 403 && (data.error || '').includes('admin')) {
@@ -201,8 +231,58 @@ async function api(path, opts = {}) {
     localStorage.setItem('signCode', adminCode);
     if (adminCode) return api(path, opts);
   }
+  if (res.status === 401 && (data.error || '').includes('expirée')) {
+    fermerEspace();
+    throw new Error('Votre espace personnel s’est refermé. Rouvrez-le pour continuer.');
+  }
   if (!res.ok) throw new Error(data.error || ('Erreur ' + res.status));
   return data;
+}
+
+// ---- Espaces ----
+function majEspace() {
+  const perso = Boolean(espaceJeton);
+  $('#espaceNom').textContent = perso ? espaceNom : 'Groupe Ophta';
+  $('#espaceEtat').textContent = perso
+    ? 'Vos documents, visibles de vous seul.'
+    : 'Documents partagés : tout le monde les voit.';
+  $('#fermerEspace').style.display = perso ? '' : 'none';
+  $('#ouvrirEspace').textContent = perso ? 'Changer d’espace' : 'Ouvrir un espace personnel';
+  document.body.classList.toggle('perso', perso);
+}
+
+function fermerEspace() {
+  espaceJeton = ''; espaceNom = '';
+  sessionStorage.removeItem('signEspaceJeton');
+  sessionStorage.removeItem('signEspaceNom');
+  majEspace();
+}
+
+async function ouvrirEspace() {
+  const nom = prompt('Nom de votre espace personnel (ex : Elie) :', espaceNom || '');
+  if (!nom || !nom.trim()) return;
+  const motDePasse = prompt('Mot de passe de l’espace « ' + nom.trim() + ' »\n\n' +
+    'S’il n’existe pas encore, celui que vous tapez maintenant le crée.\n' +
+    'Personne ne peut le retrouver : notez-le.');
+  if (!motDePasse) return;
+  const msg = $('#msgEspace'); msg.className = 'msg'; msg.textContent = 'Ouverture…';
+  try {
+    const r = await api('/api/sign', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ action: 'espace-ouvrir', nom: nom.trim(), motDePasse }),
+    });
+    espaceJeton = r.jeton; espaceNom = r.nom;
+    sessionStorage.setItem('signEspaceJeton', espaceJeton);
+    sessionStorage.setItem('signEspaceNom', espaceNom);
+    majEspace();
+    msg.className = 'msg ok';
+    msg.textContent = r.creation
+      ? 'Espace « ' + r.nom + ' » créé. Il se referme tout seul au bout de ' + r.heures + ' h.'
+      : 'Espace « ' + r.nom + ' » ouvert pour ' + r.heures + ' h.';
+    chargerListe();
+  } catch (e) {
+    msg.className = 'msg err'; msg.textContent = e.message;
+  }
 }
 
 // ---- Lignes signataires ----
@@ -580,6 +660,9 @@ async function telecharger(id, token) {
   a.click();
 }
 
+$('#ouvrirEspace').onclick = ouvrirEspace;
+$('#fermerEspace').onclick = () => { fermerEspace(); chargerListe(); };
+majEspace();
 chargerListe();
 
 // Mode appli : service worker (lancement instantané une fois installé)
