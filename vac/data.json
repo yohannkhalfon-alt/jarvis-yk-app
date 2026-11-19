@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-19T05:37:43Z",
+ "generated_at": "2026-11-19T09:00:49Z",
  "source": "Scan JARVIS via connecteur Dropbox",
  "periode": [
   {
@@ -161,13 +161,6 @@
      "note": "Départ retraite Papapostolou — jour non couvert"
     },
     {
-     "date": "2027-02-05",
-     "weekday": "vendredi",
-     "status": "none",
-     "hours": null,
-     "note": "Départ retraite Papapostolou — jour non couvert"
-    },
-    {
      "date": "2027-02-06",
      "weekday": "samedi",
      "status": "none",
@@ -239,6 +232,7 @@
     }
    ],
    "notes": [
+    "19/11 : le vendredi 05/02 est pris par Charakidas (validation via son cabinet de recrutement). Déjà en CDI dans la structure → PAS de CDD, simple note. Reste 29 jours sans ophta.",
     "Scan 19/11 : sureffectif orthos le jeu 05/11 (3 orthos). Novembre entièrement couvert côté ophtas (Kokkinos prend le sam 28/11).",
     "MAJ 18/11 : le samedi 09/01 est désormais couvert par Charakidas et le samedi 27/02 par Kokkinos Zafeiris (réservation JARVIS CDD du 17/11 reportée au planning). Reste 30 jours sans ophta.",
     "✅ Sam 30/01 RÉGLÉ (11/11) : Dr KOKKINOS ajouté 9h-19h. Restent 32 jours sans ophta (30-31/12 + 15 en janvier + 15 en février) — succession Papapostolou toujours à staffer sur les mar/mer/jeu.",

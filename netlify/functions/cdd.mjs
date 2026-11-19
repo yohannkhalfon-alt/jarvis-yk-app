@@ -520,6 +520,27 @@ export default async (req) => {
     return json({ ok: true, slots });
   }
 
+  // ---------- Admin : marquer une date « déjà couverte en CDI » ----------
+  // Règle Yohann (19/11) : quand un médecin déjà en CDI dans la structure
+  // prend la date, on ne fait PAS de CDD — la date sort de la réservation
+  // avec une simple note. Réversible avec liberer-cdi.
+  if (action === "marquer-cdi" || action === "liberer-cdi") {
+    const slots = await lireSlots(store);
+    const slot = slots.find((x) => x.id === champ(body.slotId, 20));
+    if (!slot) return json({ error: "date introuvable" }, 404);
+    if (action === "marquer-cdi") {
+      if (slot.resaId) return json({ error: "cette date porte déjà une réservation — traite-la d'abord" }, 409);
+      slot.status = "cdi";
+      slot.medecin = champ(body.medecin, 80) || "médecin en CDI";
+    } else {
+      if (slot.status !== "cdi") return json({ error: "cette date n'est pas marquée CDI" }, 409);
+      slot.status = "libre";
+      delete slot.medecin;
+    }
+    await store.setJSON("slots.json", slots);
+    return json({ ok: true, slot });
+  }
+
   // ---------- Admin : suspendre / réactiver d'un coup toutes les dates d'un centre ----------
   if (action === "suspendre-centre" || action === "reactiver-centre") {
     const centre = champ(body.centre, 20).toLowerCase();
