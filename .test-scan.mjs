@@ -113,7 +113,7 @@ stats.forEach((s, i) => {
   ok(`page ${i + 1} : la page est au format A4`, Math.abs(s.haut / s.larg - 2339 / 1654) < 0.02);
   ok(`page ${i + 1} : le fond (bois, bord de table) est écarté`, s.bord < 0.02);
   ok(`page ${i + 1} : le texte est conservé`, s.encre > 0.002);
-  ok(`page ${i + 1} : l'éclairage inégal est ramené au blanc`, s.blanc > 0.8);
+  ok(`page ${i + 1} : le fond est un blanc franc, pas un gris`, s.blanc > 0.95);
 });
 
 // Le nom du fichier est libre et sert au téléchargement.
@@ -137,6 +137,68 @@ ok("une page peut être supprimée", (await page.$$(".pg")).length === 1);
 await page.click("#vider");
 ok("« Tout effacer » vide la liste", (await page.$$(".pg")).length === 0);
 ok("et referme le téléchargement", await page.$eval("#telecharger", (b) => b.disabled));
+
+// Rendus : Document (noir et blanc), Gris, Couleur.
+console.log("\n=== Rendus ===");
+const rendus = await page.evaluate(async () => {
+  // Feuille sur fond bois, texte noir, tampon rouge, signature bleue,
+  // eclairage inegal, et quelques poussieres isolees.
+  const c = document.createElement("canvas");
+  c.width = 900; c.height = 1200;
+  const x = c.getContext("2d");
+  x.fillStyle = "#6b4a2f"; x.fillRect(0, 0, 900, 1200);
+  x.fillStyle = "#f4f2ee"; x.fillRect(48, 40, 804, 1120);
+  x.fillStyle = "#000"; x.font = "24px sans-serif";
+  for (let i = 0; i < 10; i++) x.fillText("Ligne de texte noire numero " + i, 110, 200 + i * 45);
+  x.strokeStyle = "#c2102a"; x.lineWidth = 7; x.strokeRect(520, 700, 230, 130);
+  x.fillStyle = "#c2102a"; x.font = "bold 26px sans-serif"; x.fillText("TAMPON", 565, 775);
+  x.strokeStyle = "#15389c"; x.lineWidth = 6;
+  x.beginPath(); x.moveTo(150, 900); x.bezierCurveTo(250, 830, 300, 980, 420, 890); x.stroke();
+  x.fillStyle = "#1a1a1a";
+  for (let i = 0; i < 40; i++) x.fillRect(120 + Math.random() * 700, 980 + Math.random() * 150, 2, 2);
+  const g = x.createLinearGradient(0, 0, 900, 1200);
+  g.addColorStop(0, "rgba(0,0,0,0.22)"); g.addColorStop(1, "rgba(0,0,0,0)");
+  x.fillStyle = g; x.fillRect(0, 0, 900, 1200);
+
+  const blob = await new Promise((r) => c.toBlob(r, "image/jpeg", 0.95));
+  const src = await JarvisScan.chargerFichier(new File([blob], "a.jpg", { type: "image/jpeg" }));
+  const out = {};
+  for (const mode of ["nb", "gris", "couleur"]) {
+    const p2 = await JarvisScan.traiter(src, { rotation: 0, auto: true, mode });
+    const d = p2.getContext("2d").getImageData(0, 0, p2.width, p2.height).data;
+    let blanc = 0, encre = 0, rouge = 0, bleu = 0;
+    const tot = d.length / 4;
+    for (let i = 0; i < d.length; i += 4) {
+      const r = d[i], v = d[i + 1], b = d[i + 2];
+      if (r >= 250 && v >= 250 && b >= 250) blanc++;
+      if (r < 110 && v < 110 && b < 110) encre++;
+      if (r - Math.max(v, b) > 45) rouge++;
+      if (b - Math.max(r, v) > 45) bleu++;
+    }
+    out[mode] = { blanc: blanc / tot, encre: encre / tot, rouge: rouge / tot, bleu: bleu / tot };
+  }
+  return out;
+});
+for (const [m, v] of Object.entries(rendus))
+  console.log(`   ${m.padEnd(8)} blanc ${(100 * v.blanc).toFixed(1)} %, encre ${(100 * v.encre).toFixed(2)} %, rouge ${(100 * v.rouge).toFixed(3)} %, bleu ${(100 * v.bleu).toFixed(3)} %`);
+
+ok("Document : fond blanc franc", rendus.nb.blanc > 0.95);
+ok("Document : le texte est conservé", rendus.nb.encre > 0.004);
+ok("Document : les couleurs sont ramenées au noir et blanc",
+  rendus.nb.rouge < 0.0002 && rendus.nb.bleu < 0.0002);
+ok("Couleur : fond blanc franc aussi", rendus.couleur.blanc > 0.9);
+ok("Couleur : le tampon rouge est conservé", rendus.couleur.rouge > 0.001);
+ok("Couleur : la signature bleue est conservée", rendus.couleur.bleu > 0.0005);
+ok("Gris : nuances conservées, donc moins de blanc pur", rendus.gris.blanc < rendus.nb.blanc);
+ok("Gris : le texte est conservé", rendus.gris.encre > 0.004);
+
+// Les boutons de rendu basculent et retraitent les pages deja prises.
+await page.click('#modes .mode[data-mode="couleur"]');
+ok("le rendu choisi devient le rendu actif",
+  await page.$eval('#modes .mode[data-mode="couleur"]', (b) => b.classList.contains("actif")));
+ok("un seul rendu est actif à la fois",
+  (await page.$$eval("#modes .mode.actif", (n) => n.length)) === 1);
+await page.click('#modes .mode[data-mode="nb"]');
 
 // Choix du titre a partir d'un texte OCR (fonction pure, sans reseau).
 const titres = await page.evaluate(() => ({

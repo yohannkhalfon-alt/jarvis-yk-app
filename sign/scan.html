@@ -70,6 +70,9 @@
   }
   .prise label.bouton:hover { filter:brightness(1.15); }
   .prise input[type=file] { display:none; }
+  .modes { display:flex; gap:8px; flex-wrap:wrap; }
+  .modes .mode { padding:9px 18px; border-radius:20px; font-size:14px; }
+  .modes .mode.actif { background:rgba(79,216,235,.18); border-color:var(--cyan); color:var(--cyan); }
   .pages { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px; margin-top:4px; }
   .pg { border:1px solid var(--line); border-radius:12px; overflow:hidden; background:rgba(4,6,12,.5); }
   .pg img { display:block; width:100%; background:#fff; }
@@ -119,6 +122,13 @@
       <input type="file" id="galerie" accept="image/*" multiple />
     </div>
     <div class="hint">Une photo par page, à plat et bien éclairée. Le cadrage, le redressement et le fond blanc sont faits automatiquement sur votre appareil : aucune image n'est envoyée ailleurs.</div>
+    <label>Rendu</label>
+    <div class="modes" id="modes">
+      <button type="button" class="mode actif" data-mode="nb">Document</button>
+      <button type="button" class="mode" data-mode="gris">Gris</button>
+      <button type="button" class="mode" data-mode="couleur">Couleur</button>
+    </div>
+    <div class="hint" id="hintMode">Document : fond blanc franc, texte noir, poussières et petites taches effacées. Le plus net et le plus léger — à garder pour un acte à déposer ou à signer.</div>
     <div class="msg" id="msgPrise"></div>
   </div>
 
@@ -146,6 +156,13 @@
 const $ = (s) => document.querySelector(s);
 const pages = [];          // { toile, apercu, rotation, auto, source }
 let titrePropose = '';
+let mode = 'nb';
+
+const EXPLICATION = {
+  nb: 'Document : fond blanc franc, texte noir, poussières et petites taches effacées. Le plus net et le plus léger — à garder pour un acte à déposer ou à signer.',
+  gris: 'Gris : conserve les nuances, utile pour une photo, un plan ou un tampon pâle que le mode Document durcirait trop.',
+  couleur: 'Couleur : garde les couleurs du document — tampon, surligneur, signature à l’encre bleue — tout en ramenant le papier au blanc.',
+};
 
 const fmtDate = () => new Date().toLocaleDateString('fr-CA');  // AAAA-MM-JJ
 
@@ -178,9 +195,25 @@ $('#pages').onclick = async (e) => {
 
 async function refaire(i) {
   const p = pages[i];
-  p.toile = await JarvisScan.traiter(p.source, { rotation: p.rotation, auto: p.auto });
+  p.toile = await JarvisScan.traiter(p.source, { rotation: p.rotation, auto: p.auto, mode });
   p.apercu = p.toile.toDataURL('image/jpeg', 0.6);
 }
+
+// Changer de rendu retraite les pages deja prises, a partir des photos
+// d'origine : rien n'est reperdu en repassant d'un mode a l'autre.
+$('#modes').onclick = async (e) => {
+  const b = e.target.closest('.mode');
+  if (!b || b.dataset.mode === mode) return;
+  mode = b.dataset.mode;
+  document.querySelectorAll('#modes .mode').forEach((m) => m.classList.toggle('actif', m.dataset.mode === mode));
+  $('#hintMode').textContent = EXPLICATION[mode];
+  if (!pages.length) return;
+  const msg = $('#msgPrise');
+  msg.className = 'msg'; msg.textContent = 'Nouveau rendu des pages…';
+  for (let i = 0; i < pages.length; i++) await refaire(i);
+  rafraichir();
+  msg.className = 'msg ok'; msg.textContent = 'Rendu mis à jour.';
+};
 
 async function ajouter(fichiers) {
   const msg = $('#msgPrise');
@@ -191,7 +224,7 @@ async function ajouter(fichiers) {
     msg.textContent = 'Traitement de la page ' + (pages.length + 1) + '…';
     try {
       const source = await JarvisScan.chargerFichier(f);
-      const toile = await JarvisScan.traiter(source, { rotation: 0, auto: true });
+      const toile = await JarvisScan.traiter(source, { rotation: 0, auto: true, mode });
       pages.push({ source, toile, apercu: toile.toDataURL('image/jpeg', 0.6), rotation: 0, auto: true });
       n++;
       rafraichir();
