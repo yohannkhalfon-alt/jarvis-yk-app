@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JARVIS CDD : Direction</title>
+<style>
+:root{
+  --fond:#04060C; --carte:rgba(10,16,28,.88); --bord:rgba(79,216,235,.25);
+  --cyan:#4FD8EB; --texte:#C8D6E5; --titre:#EAF4FF; --gris:#6B7C93;
+  --ok:#33d17a; --err:#FF5D6C; --or:#F5C04A;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fond);color:var(--texte);font-family:-apple-system,'Segoe UI',Roboto,sans-serif;min-height:100vh;padding:18px 16px 60px}
+.wrap{max-width:760px;margin:0 auto}
+h1{color:var(--titre);font-size:20px;margin:8px 0 18px;letter-spacing:.5px}
+.carte{background:var(--carte);border:1px solid var(--bord);border-radius:14px;padding:18px;margin-bottom:16px}
+h2{color:var(--titre);font-size:14px;letter-spacing:1px;text-transform:uppercase;margin:0 0 12px}
+label{display:block;font-size:12px;letter-spacing:1px;color:var(--gris);text-transform:uppercase;margin:12px 0 6px}
+input,select{width:100%;background:rgba(255,255,255,.06);border:1px solid var(--bord);border-radius:9px;padding:11px;color:var(--titre);font-size:15px;font-family:inherit}
+button{background:var(--cyan);color:#04121A;border:none;border-radius:9px;padding:11px 16px;font-size:14px;font-weight:800;cursor:pointer}
+button.ghost{background:rgba(79,216,235,.12);color:var(--cyan);border:1px solid var(--bord)}
+button.rouge{background:rgba(255,93,108,.15);color:var(--err);border:1px solid rgba(255,93,108,.4)}
+button.vert{background:var(--ok);color:#04140A}
+.ligne{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+.ligne > div{flex:1;min-width:130px}
+.item{background:rgba(255,255,255,.04);border:1px solid var(--bord);border-radius:11px;padding:13px;margin-bottom:9px}
+.item .tete{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.item b{color:var(--titre)}
+.badge{font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:20px}
+.badge.libre{background:rgba(79,216,235,.15);color:var(--cyan)}
+.badge.attente{background:rgba(245,192,74,.15);color:var(--or)}
+.badge.confirme{background:rgba(51,209,122,.15);color:var(--ok)}
+.detail{font-size:13px;color:var(--texte);margin-top:8px;line-height:1.65}
+.detail .cle{color:var(--gris)}
+.docs a{color:var(--cyan);font-size:13px;margin-right:12px}
+.actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.msg{font-size:13px;margin-top:8px}
+.msg.err{color:var(--err)} .msg.ok{color:var(--ok)}
+.vide{color:var(--gris);font-size:14px;padding:6px 0}
+.centre-tag{color:var(--cyan);font-size:12px;letter-spacing:1px}
+.note{color:var(--gris);font-size:12px;line-height:1.5;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🗓️ JARVIS CDD · Direction</h1>
+
+  <div id="ecran-code" class="carte">
+    <h2>Accès direction</h2>
+    <label>Code</label><input id="code" type="password">
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button onclick="entrer()">Entrer</button><button class="ghost" onclick="entrerParPasskey()">🔓 Face ID / Empreinte</button></div>
+    <div id="code-msg" class="msg"></div>
+  </div>
+
+  <div id="ecran-admin" style="display:none">
+
+    <div class="carte">
+      <h2>Ajouter des dates</h2>
+      <div class="ligne">
+        <div><label>Date</label><input id="aj-date" type="date"></div>
+        <div><label>Centre</label><select id="aj-centre"></select></div>
+        <div><label>Contrat</label><select id="aj-type"><option>CDD</option><option>CDI</option><option>Vacation</option></select></div>
+        <div style="flex:0"><button onclick="ajouter()">Ajouter</button></div>
+      </div>
+      <div id="aj-msg" class="msg"></div>
+    </div>
+
+    <div class="carte">
+      <h2>⏸️ Suspension par centre</h2>
+      <p class="note">Suspend d'un coup toutes les dates encore libres du centre (ex. CDI en pourparlers) :
+      elles disparaissent de la page de réservation sans rien supprimer. Les réservations déjà faites ne sont pas touchées.
+      Réactiver remet tout en ligne.</p>
+      <div id="susp-liste" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+      <div id="susp-msg" class="msg"></div>
+    </div>
+
+    <div class="carte">
+      <h2>Offres CDI (jours fixes)</h2>
+      <div class="ligne">
+        <div><label>Jours proposés</label><input id="cdi-jours" placeholder="Lundi et jeudi"></div>
+        <div><label>Centre</label><select id="cdi-centre"></select></div>
+        <div style="flex:0"><button onclick="ajouterCdi()">Ajouter</button></div>
+      </div>
+      <div id="cdi-msg" class="msg"></div>
+      <div id="cdi-liste" style="margin-top:12px"></div>
+    </div>
+
+    <div class="carte">
+      <h2>Réservations à valider</h2>
+      <div id="attente" class="vide">…</div>
+    </div>
+
+    <div class="carte">
+      <h2>Toutes les dates</h2>
+      <div id="slots" class="vide">…</div>
+    </div>
+
+    <div class="carte">
+      <h2>Boîtes d'envoi &amp; destinataire</h2>
+      <p class="note">Le mail « Merci de créer le CDD… » part <b>depuis la boîte direction du centre</b> de la date réservée
+      (adresse à saisir ci-dessous, validée comme expéditeur dans Brevo), vers le destinataire. Si la boîte du centre est vide
+      ou refusée par Brevo, l'envoi repart depuis l'adresse de secours BREVO_FROM.</p>
+      <label>Destinataire (gestionnaire de paie)</label><input id="cfg-to" placeholder="gestionpro.lk@gmail.com">
+      <label>Emails d'alerte, séparés par des virgules (la boîte direction du centre concerné est ajoutée automatiquement)</label><input id="cfg-notif" placeholder="Vide = pas d'alerte">
+      <label>Clé API Brevo (envoi des mails) · <span id="brevo-etat">état inconnu</span></label><input id="cfg-brevo" type="password" placeholder="Colle la clé ici une seule fois" autocomplete="off">
+      <div id="cfg-centres"></div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button onclick="sauverConfig()">Enregistrer</button><button class="ghost" onclick="testerExpediteurs()">✉️ Tester les expéditeurs</button><button class="ghost" onclick="activerPasskey()">📱 Activer Face ID / empreinte sur cet appareil</button></div>
+      <div id="cfg-msg" class="msg"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API = "/api/cdd";
+let CODE = "", DATA = null;
+
+const entetes = () => ({ "content-type": "application/json", "x-cdd-code": CODE });
+const dateFr = (iso) => {
+  const [a,m,j] = iso.split("-").map(Number);
+  const s = new Date(Date.UTC(a,m-1,j)).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:"UTC"});
+  return s.charAt(0).toUpperCase()+s.slice(1);
+};
+const echap = (x) => String(x ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+async function entrer(){
+  CODE = document.getElementById("code").value.trim();
+  const r = await fetch(API + "?list=1", { headers: entetes() });
+  if(!r.ok){ document.getElementById("code-msg").className="msg err"; document.getElementById("code-msg").textContent="Code invalide."; return; }
+  try{ localStorage.setItem("cdd_code", CODE); }catch(e){}
+  DATA = await r.json();
+  document.getElementById("ecran-code").style.display = "none";
+  document.getElementById("ecran-admin").style.display = "block";
+  afficher();
+}
+
+async function recharger(){
+  const r = await fetch(API + "?list=1", { headers: entetes() });
+  if(r.ok){ DATA = await r.json(); afficher(); }
+}
+
+function afficher(){
+  // Sélecteur de centres
+  const sel = document.getElementById("aj-centre");
+  sel.innerHTML = Object.entries(DATA.centres).map(([k,v]) => `<option value="${k}">${v}</option>`).join("");
+  document.getElementById("cdi-centre").innerHTML = sel.innerHTML;
+
+  // Suspension par centre
+  const zs = document.getElementById("susp-liste");
+  const susp = DATA.suspendus || {};
+  zs.innerHTML = Object.entries(DATA.centres).map(([k,v]) => {
+    const off = Boolean(susp[k]);
+    const libres = (DATA.slots||[]).filter(x => x.centre === k && x.status === "libre").length;
+    return `<button class="${off ? "" : "ghost"}" style="padding:8px 12px;font-size:13px${off ? ";background:#B3261E;border-color:#B3261E" : ""}"
+      onclick="basculerSuspension('${k}', ${off ? "false" : "true"})">${off ? "▶️ Réactiver" : "⏸️ Suspendre"} ${echap(v)}${off ? " (suspendu)" : ` · ${libres} libre${libres > 1 ? "s" : ""}`}</button>`;
+  }).join("");
+
+  // Offres CDI
+  const zc = document.getElementById("cdi-liste");
+  const cdis = DATA.cdis || [];
+  if(!cdis.length) zc.innerHTML = '<div class="vide">Aucune offre CDI créée.</div>';
+  else zc.innerHTML = cdis.map(o => {
+    const resa = (DATA.resas||[]).find(r => r.id === o.resaId);
+    const badge = o.status === "libre" ? '<span class="badge libre">Ouverte</span>'
+      : o.status === "pourvu" ? '<span class="badge confirme">Pourvue</span>'
+      : '<span class="badge attente">En attente</span>';
+    const qui = resa ? ` · Dr ${echap(resa.prenom)} ${echap(resa.nom)}` : "";
+    const suppr = o.status === "libre" ? `<button class="ghost" style="padding:6px 10px;font-size:12px" onclick="retirerCdi('${o.id}')">Retirer</button>` : "";
+    const btnMail = resa ? `<button class="ghost" style="padding:6px 10px;font-size:12px" onclick="voirMail('${resa.id}')">✉️ Mail</button>` : "";
+    return `<div class="item"><div class="tete">
+      <span><b>${echap(o.jours)}</b> <span class="centre-tag">${echap(DATA.centres[o.centre]||o.centre)}</span>${qui}</span>
+      <span style="display:flex;gap:8px;align-items:center">${badge}${btnMail}${suppr}</span></div></div>`;
+  }).join("");
+
+  // Réservations en attente
+  const attente = (DATA.resas || []).filter(r => r.status === "en_attente");
+  const zoneA = document.getElementById("attente");
+  if(!attente.length){ zoneA.className = "vide"; zoneA.textContent = "Aucune réservation en attente."; }
+  else {
+    zoneA.className = "";
+    zoneA.innerHTML = attente.map(r => {
+      const docs = (r.docs || []).map(d =>
+        `<a href="${API}?doc=${r.id}/${d.cle}" target="_blank" onclick="this.href='${API}?doc=${r.id}/${d.cle}'">` +
+        `📎 ${echap((DATA.docs.find(x=>x.cle===d.cle)||{}).label || d.cle)}</a>`).join("");
+      return `<div class="item">
+        <div class="tete"><b>Dr ${echap(r.prenom)} ${echap(r.nom)}</b><span class="badge attente">En attente</span></div>
+        <div class="detail">
+          <span class="cle">${r.type === "CDI" ? "CDI, jours fixes :" : "Date :"}</span> ${r.date ? dateFr(r.date) : echap(r.jours||"")} · <span class="centre-tag">${echap(DATA.centres[r.centre]||r.centre)}</span><br>
+          <span class="cle">RPPS :</span> ${echap(r.rpps)} · <span class="cle">Sécu :</span> ${echap(r.secu || "non renseigné")}<br>
+          <span class="cle">État civil :</span> ${r.civilite === "Mme" ? "Mme" : "M."} · né${r.civilite === "Mme" ? "e" : ""} le ${echap(r.dateNaissance || "?")} à ${echap(r.lieuNaissance || "?")} · ${echap(r.nationalite || "nationalité ?")}<br>
+          <span class="cle">Adresse :</span> ${echap(r.adresse)}<br>
+          <span class="cle">Contact :</span> ${echap(r.tel || "non renseigné")} · ${echap(r.email || "non renseigné")}
+        </div>
+        <div class="docs" style="margin-top:8px">${docs || '<span class="cle" style="font-size:12px">Aucun document importé</span>'}</div>
+        <div class="actions">
+          <button class="vert" onclick="decider('${r.id}','confirm')">✅ Valider → mail CDD</button>
+          <button class="rouge" onclick="decider('${r.id}','reject')">Refuser (libère la date)</button>
+          <button class="ghost" onclick="voirMail('${r.id}')">✉️ Mail (brouillon)</button>
+          ${r.date ? `<button class="ghost" onclick="voirContrat('${r.id}')">📄 Contrat (brouillon)</button>` : ""}
+        </div>
+        <div id="dec-${r.id}" class="msg"></div>
+      </div>`;
+    }).join("");
+  }
+
+  // Toutes les dates
+  const zoneS = document.getElementById("slots");
+  if(!(DATA.slots||[]).length){ zoneS.className="vide"; zoneS.textContent="Aucune date créée."; }
+  else {
+    zoneS.className = "";
+    zoneS.innerHTML = DATA.slots.map(s => {
+      const resa = (DATA.resas||[]).find(r => r.id === s.resaId);
+      const badge = s.status === "libre" ? '<span class="badge libre">Libre</span>'
+        : s.status === "confirme" ? '<span class="badge confirme">Confirmée</span>'
+        : s.status === "cdi" ? `<span class="badge confirme">Déjà en CDI · ${echap(s.medecin||"")}</span>`
+        : '<span class="badge attente">En attente</span>';
+      const qui = resa ? ` · Dr ${echap(resa.prenom)} ${echap(resa.nom)}` : "";
+      const suppr = s.status === "libre" ? `<button class="ghost" style="padding:6px 10px;font-size:12px" onclick="retirer('${s.id}')">Retirer</button>`
+        : s.status === "cdi" ? `<button class="ghost" style="padding:6px 10px;font-size:12px" onclick="libererCdi('${s.id}')">Libérer</button>` : "";
+      const btnCdi = s.status === "libre" ? `<button class="ghost" style="padding:6px 10px;font-size:12px" onclick="marquerCdi('${s.id}')">Déjà en CDI</button>` : "";
+      const notif = resa?.notif?.sent ? ' <span style="color:var(--ok);font-size:12px">✉️ mail envoyé</span>'
+        : resa?.notif?.error ? ` <span style="color:var(--err);font-size:12px">✉️ échec : ${echap(resa.notif.error)}</span>`
+        : resa?.notif?.skipped ? ` <span style="color:var(--or);font-size:12px">✉️ non envoyé : ${echap(resa.notif.skipped)}</span>` : "";
+      const btnStyle = 'style="padding:6px 10px;font-size:12px"';
+      const boutons = resa
+        ? `<button class="ghost" ${btnStyle} onclick="voirMail('${resa.id}')">✉️ Mail</button>` +
+          (resa.date ? `<button class="ghost" ${btnStyle} onclick="voirContrat('${resa.id}')">📄 Contrat</button>` : "")
+        : "";
+      return `<div class="item"><div class="tete">
+        <span><b>${dateFr(s.date)}</b> <span class="centre-tag">${echap(DATA.centres[s.centre]||s.centre)}</span> · ${echap(s.type||"CDD")}${qui}${notif}</span>
+        <span style="display:flex;gap:8px;align-items:center">${badge}${boutons}${btnCdi}${suppr}</span></div></div>`;
+    }).join("");
+  }
+
+  // Config
+  document.getElementById("cfg-to").value = DATA.config.to || "";
+  document.getElementById("cfg-notif").value = DATA.config.notif || "";
+  document.getElementById("brevo-etat").textContent = DATA.brevoPret ? "✅ enregistrée" : "❌ absente, les mails ne partent pas";
+  document.getElementById("cfg-centres").innerHTML = Object.entries(DATA.centres).map(([k,v]) =>
+    `<label>Boîte direction ${v}</label><input id="cfg-from-${k}" value="${echap(DATA.config.fromByCentre[k]||"")}" placeholder="direction.${k}@…">
+     <label>Praticien remplacé à ${v} (motif du CDD)</label><input id="cfg-rempl-${k}" value="${echap((DATA.config.remplaceByCentre||{})[k]||"")}" placeholder="M PAPAPOSTOLOU Dimitri">
+     <label>Tampon + signature ${v} — ${(DATA.tampons||{})[k] ? "✅ en place" : "aucun (image à importer)"}</label><input type="file" id="cfg-tampon-${k}" accept="image/*">`).join("");
+}
+
+async function ajouter(){
+  const date = document.getElementById("aj-date").value;
+  const msg = document.getElementById("aj-msg");
+  if(!date){ msg.className="msg err"; msg.textContent="Choisis une date."; return; }
+  const r = await fetch(API, { method:"POST", headers: entetes(),
+    body: JSON.stringify({ action:"add-slots", dates:[{ date, centre: document.getElementById("aj-centre").value, type: document.getElementById("aj-type").value }] }) });
+  const rep = await r.json();
+  msg.className = r.ok ? "msg ok" : "msg err";
+  msg.textContent = r.ok ? (rep.ajoutes ? "Date ajoutée." : "Cette date existe déjà pour ce centre.") : (rep.error || "Erreur");
+  recharger();
+}
+
+async function ajouterCdi(){
+  const jours = document.getElementById("cdi-jours").value.trim();
+  const msg = document.getElementById("cdi-msg");
+  if(!jours){ msg.className="msg err"; msg.textContent="Indique les jours (ex. « Lundi et jeudi »)."; return; }
+  const r = await fetch(API, { method:"POST", headers: entetes(),
+    body: JSON.stringify({ action:"add-cdi", jours, centre: document.getElementById("cdi-centre").value }) });
+  const rep = await r.json();
+  msg.className = r.ok ? "msg ok" : "msg err";
+  msg.textContent = r.ok ? "Offre CDI ajoutée." : (rep.error || "Erreur");
+  if(r.ok) document.getElementById("cdi-jours").value = "";
+  recharger();
+}
+
+async function basculerSuspension(centre, suspendre){
+  const nomCentre = (DATA.centres||{})[centre] || centre;
+  if(suspendre && !confirm(`Suspendre toutes les dates libres de ${nomCentre} ?`)) return;
+  const msg = document.getElementById("susp-msg");
+  const r = await fetch(API, { method:"POST", headers: entetes(),
+    body: JSON.stringify({ action: suspendre ? "suspendre-centre" : "reactiver-centre", centre }) });
+  const d = await r.json();
+  msg.textContent = r.ok ? (suspendre ? `⏸️ ${nomCentre} suspendu : plus aucune date réservable.` : `▶️ ${nomCentre} réactivé.`) : (d.error || "Erreur");
+  msg.className = "msg " + (r.ok ? "ok" : "err");
+  await recharger();
+}
+
+async function retirerCdi(cdiId){
+  if(!confirm("Retirer cette offre CDI ?")) return;
+  await fetch(API, { method:"POST", headers: entetes(), body: JSON.stringify({ action:"remove-cdi", cdiId }) });
+  recharger();
+}
+
+async function retirer(slotId){
+  if(!confirm("Retirer cette date ?")) return;
+  await fetch(API, { method:"POST", headers: entetes(), body: JSON.stringify({ action:"remove-slot", slotId }) });
+  recharger();
+}
+
+async function decider(resaId, action){
+  if(action === "confirm" && !confirm("Valider : le mail « Merci de créer le CDD… » part immédiatement au gestionnaire. Continuer ?")) return;
+  if(action === "reject" && !confirm("Refuser cette réservation ? La date redevient réservable.")) return;
+  const el = document.getElementById("dec-"+resaId);
+  el.className = "msg"; el.textContent = "…";
+  const r = await fetch(API, { method:"POST", headers: entetes(), body: JSON.stringify({ action, resaId }) });
+  const rep = await r.json();
+  if(!r.ok){ el.className="msg err"; el.textContent = rep.error || "Erreur"; return; }
+  if(action === "confirm"){
+    el.className = rep.notif?.sent ? "msg ok" : "msg err";
+    el.textContent = rep.notif?.sent ? "Mail envoyé à " + rep.notif.to
+      : "Réservation validée mais mail NON parti : " + (rep.notif?.error || rep.notif?.skipped || "raison inconnue");
+  }
+  setTimeout(recharger, 1200);
+}
+
+async function voirContrat(resaId){
+  const r = await fetch(API + "?contrat=" + resaId, { headers: entetes() });
+  if(!r.ok){ const rep = await r.json().catch(()=>({})); alert(rep.error || "Génération impossible"); return; }
+  const url = URL.createObjectURL(await r.blob());
+  window.open(url, "_blank");
+  setTimeout(() => URL.revokeObjectURL(url), 120_000);
+}
+
+async function marquerCdi(slotId){
+  const medecin = prompt("Nom du médecin déjà en CDI qui prend cette date ?", "Dr ");
+  if(!medecin) return;
+  const r = await fetch(API, { method:"POST", headers: entetes(), body: JSON.stringify({ action:"marquer-cdi", slotId, medecin }) });
+  const d = await r.json();
+  if(!r.ok) alert(d.error || "Erreur");
+  recharger();
+}
+
+async function libererCdi(slotId){
+  if(!confirm("Libérer cette date ? Elle redevient réservable.")) return;
+  await fetch(API, { method:"POST", headers: entetes(), body: JSON.stringify({ action:"liberer-cdi", slotId }) });
+  recharger();
+}
+
+async function voirMail(resaId){
+  const r = await fetch(API + "?mail=" + resaId, { headers: entetes() });
+  if(!r.ok){ const rep = await r.json().catch(()=>({})); alert(rep.error || "Aperçu impossible"); return; }
+  const url = URL.createObjectURL(await r.blob());
+  window.open(url, "_blank");
+  setTimeout(() => URL.revokeObjectURL(url), 120_000);
+}
+
+const base64Fichier = (file) => new Promise((res, rej) => {
+  const fr = new FileReader();
+  fr.onload = () => res(String(fr.result).split(",")[1]);
+  fr.onerror = rej;
+  fr.readAsDataURL(file);
+});
+
+async function testerExpediteurs(){
+  const msg = document.getElementById("cfg-msg");
+  const notif = document.getElementById("cfg-notif").value.split(/[\s,;]+/).find((x) => x.includes("@"));
+  const vers = prompt("Envoyer les mails de test vers quelle adresse ?", notif || "");
+  if (!vers || !vers.includes("@")) return;
+  msg.className = "msg"; msg.textContent = "Test en cours… un mail part de chaque boîte direction.";
+  try {
+    const r = await fetch(API, { method:"POST", headers: entetes(), body: JSON.stringify({ action:"test-expediteurs", vers }) });
+    const d = await r.json();
+    if (!r.ok || d.error) { msg.className = "msg err"; msg.textContent = d.error || ("Erreur " + r.status); return; }
+    const lignes = Object.entries(d.resultats || {}).map(([c, v]) => `${c.toUpperCase()} : ${v}`);
+    const toutOk = lignes.length && lignes.every((l) => l.includes("OK"));
+    msg.className = toutOk ? "msg ok" : "msg err";
+    msg.textContent = lignes.join(" · ") || "Aucun centre configuré.";
+  } catch (e) { msg.className = "msg err"; msg.textContent = "Erreur réseau : " + e.message; }
+}
+
+async function sauverConfig(){
+  const fromByCentre = {}, remplaceByCentre = {};
+  for(const k of Object.keys(DATA.centres)){
+    fromByCentre[k] = document.getElementById("cfg-from-"+k).value.trim();
+    remplaceByCentre[k] = document.getElementById("cfg-rempl-"+k).value.trim();
+  }
+  // Tampons : un envoi par centre dont une image a été choisie
+  for(const k of Object.keys(DATA.centres)){
+    const inp = document.getElementById("cfg-tampon-"+k);
+    if(inp && inp.files[0]){
+      const f = inp.files[0];
+      await fetch(API, { method:"POST", headers: entetes(),
+        body: JSON.stringify({ action:"config-tampon", centre:k, mime:f.type||"image/jpeg", dataBase64: await base64Fichier(f) }) });
+    }
+  }
+  const r = await fetch(API, { method:"POST", headers: entetes(),
+    body: JSON.stringify({ action:"config", to: document.getElementById("cfg-to").value.trim(), notif: document.getElementById("cfg-notif").value.trim(), brevoApiKey: document.getElementById("cfg-brevo").value.trim() || undefined, fromByCentre, remplaceByCentre }) });
+  document.getElementById("cfg-brevo").value = "";
+  const msg = document.getElementById("cfg-msg");
+  msg.className = r.ok ? "msg ok" : "msg err";
+  msg.textContent = r.ok ? "Configuration enregistrée." : "Erreur d'enregistrement.";
+  recharger();
+}
+
+// Les liens de documents ont besoin du code : on passe par fetch + blob
+document.addEventListener("click", async (e) => {
+  const a = e.target.closest(".docs a");
+  if(!a) return;
+  e.preventDefault();
+  const r = await fetch(a.getAttribute("href"), { headers: { "x-cdd-code": CODE } });
+  if(!r.ok){ alert("Document introuvable"); return; }
+  const url = URL.createObjectURL(await r.blob());
+  window.open(url, "_blank");
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+});
+
+
+const b64uVersOctets = (s) => Uint8Array.from(atob(String(s).replace(/-/g,"+").replace(/_/g,"/")), c => c.charCodeAt(0));
+const octetsVersB64u = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const octetsVersB64 = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf)));
+
+async function passkeyLogin(){
+  try{
+    const r = await fetch(API, { method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify({ action:"passkey-challenge" }) });
+    const { challenge, credIds } = await r.json();
+    if(!credIds || !credIds.length){ alert("Aucun appareil enregistré : entre d'abord le code, puis active Face ID dans la configuration."); return null; }
+    const assertion = await navigator.credentials.get({ publicKey: {
+      challenge: b64uVersOctets(challenge),
+      allowCredentials: credIds.map(id => ({ type:"public-key", id: b64uVersOctets(id) })),
+      userVerification: "required", timeout: 60000,
+    }});
+    const rep = await (await fetch(API, { method:"POST", headers:{"content-type":"application/json"},
+      body: JSON.stringify({ action:"passkey-login", challenge,
+        credId: octetsVersB64u(assertion.rawId),
+        authenticatorData: octetsVersB64u(assertion.response.authenticatorData),
+        clientDataJSON: octetsVersB64u(assertion.response.clientDataJSON),
+        signature: octetsVersB64u(assertion.response.signature) }) })).json();
+    if(!rep.ok){ alert(rep.error || "Vérification refusée"); return null; }
+    try{ localStorage.setItem("cdd_code", rep.code); }catch(e){}
+    return rep.code;
+  }catch(e){
+    if(e.name !== "NotAllowedError") alert("Face ID indisponible : " + e.message);
+    return null;
+  }
+}
+
+async function entrerParPasskey(){
+  const code = await passkeyLogin();
+  if(code === null) return;
+  document.getElementById("code").value = code;
+  entrer();
+}
+
+async function activerPasskey(){
+  const msg = document.getElementById("cfg-msg");
+  try{
+    const { challenge } = await (await fetch(API, { method:"POST", headers: entetes(), body: JSON.stringify({ action:"passkey-challenge" }) })).json();
+    const cred = await navigator.credentials.create({ publicKey: {
+      challenge: b64uVersOctets(challenge),
+      rp: { name: "JARVIS CDD", id: location.hostname },
+      user: { id: crypto.getRandomValues(new Uint8Array(16)), name: "direction", displayName: "Direction" },
+      pubKeyCredParams: [{ type:"public-key", alg:-7 }, { type:"public-key", alg:-257 }],
+      authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required", residentKey: "preferred" },
+      timeout: 60000,
+    }});
+    if(!cred.response.getPublicKey){ msg.className="msg err"; msg.textContent="Navigateur trop ancien pour Face ID."; return; }
+    const rep = await (await fetch(API, { method:"POST", headers: entetes(),
+      body: JSON.stringify({ action:"passkey-register", challenge,
+        credId: octetsVersB64u(cred.rawId),
+        publicKey: octetsVersB64(cred.response.getPublicKey()),
+        alg: cred.response.getPublicKeyAlgorithm(),
+        label: (navigator.userAgentData?.platform || navigator.platform || "appareil") }) })).json();
+    msg.className = rep.ok ? "msg ok" : "msg err";
+    msg.textContent = rep.ok ? "✅ Face ID / empreinte activé sur cet appareil (" + rep.total + " appareil(s) enregistré(s))." : (rep.error || "Échec");
+  }catch(e){
+    if(e.name !== "NotAllowedError"){ msg.className="msg err"; msg.textContent = "Échec : " + e.message; }
+  }
+}
+
+// Code mémorisé
+try{
+  const memo = localStorage.getItem("cdd_code");
+  if(memo !== null){ document.getElementById("code").value = memo; entrer(); }
+}catch(e){}
+</script>
+</body>
+</html>

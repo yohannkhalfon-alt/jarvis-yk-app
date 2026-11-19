@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vacations Ophtalmologie : Réservation</title>
+<meta property="og:title" content="Choisissez vos vacations en direct">
+<meta property="og:description" content="Ophtalmologues : CDD à la date ou CDI jours fixes dans nos centres. Soyez le premier à prendre votre vacation. Contrat envoyé sous 48 h.">
+<meta property="og:image" content="https://jarvis-yk-app.netlify.app/cdd/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://jarvis-yk-app.netlify.app/cdd/">
+<style>
+:root{
+  --fond:#04060C; --carte:rgba(10,16,28,.88); --bord:rgba(79,216,235,.25);
+  --cyan:#4FD8EB; --texte:#C8D6E5; --titre:#EAF4FF; --gris:#6B7C93;
+  --ok:#33d17a; --err:#FF5D6C; --or:#F5C04A;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fond);color:var(--texte);font-family:-apple-system,'Segoe UI',Roboto,sans-serif;min-height:100vh;padding:18px 16px 60px}
+.wrap{max-width:640px;margin:0 auto}
+h1{color:var(--titre);font-size:21px;margin:8px 0 4px;letter-spacing:.5px}
+.sous{color:var(--gris);font-size:13px;margin:0 0 18px}
+.carte{background:var(--carte);border:1px solid var(--bord);border-radius:14px;padding:18px;margin-bottom:16px}
+.cond{display:flex;flex-direction:column;gap:8px;font-size:15px}
+.cond b{color:var(--titre)}
+.cond .fixe{color:var(--or);font-size:12px;letter-spacing:1px;text-transform:uppercase}
+h2{color:var(--titre);font-size:15px;letter-spacing:1px;text-transform:uppercase;margin:4px 0 12px}
+.mois{color:var(--cyan);font-size:12px;letter-spacing:2px;text-transform:uppercase;margin:14px 0 8px}
+.slot{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;background:rgba(255,255,255,.05);border:1px solid var(--bord);border-radius:11px;padding:13px 14px;margin-bottom:8px;color:var(--texte);font-size:15px;cursor:pointer;text-align:left}
+.slot:active{background:rgba(79,216,235,.12)}
+.slot .date{color:var(--titre);font-weight:700}
+.slot .centre{color:var(--cyan);font-size:12px;letter-spacing:1px}
+.slot.pris{opacity:.45;cursor:default}
+.slot .etat{font-size:12px;color:var(--gris)}
+label{display:block;font-size:12px;letter-spacing:1px;color:var(--gris);text-transform:uppercase;margin:14px 0 6px}
+input,select,textarea{width:100%;background:rgba(255,255,255,.06);border:1px solid var(--bord);border-radius:9px;padding:12px;color:var(--titre);font-size:16px;font-family:inherit}
+textarea{min-height:64px;resize:vertical}
+.docs .doc{display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(255,255,255,.04);border:1px dashed var(--bord);border-radius:10px;padding:11px 12px;margin-bottom:8px}
+.docs .nom{font-size:14px}
+.docs .req{color:var(--err)}
+.docs .etat{font-size:12px;color:var(--gris);white-space:nowrap}
+.docs .etat.ok{color:var(--ok)}
+.btn-doc{background:rgba(79,216,235,.15);color:var(--cyan);border:1px solid var(--bord);border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+button.principal{margin-top:18px;width:100%;background:var(--cyan);color:#04121A;border:none;border-radius:10px;padding:15px 0;font-size:16px;font-weight:800;letter-spacing:1px;cursor:pointer}
+button.principal:disabled{opacity:.5;cursor:default}
+.retour{background:none;border:none;color:var(--gris);font-size:14px;cursor:pointer;padding:6px 0;margin-bottom:4px}
+.msg{font-size:14px;margin-top:12px;line-height:1.5}
+.msg.err{color:var(--err)}
+.ok-ecran{text-align:center;padding:30px 10px}
+.ok-ecran .pastille{font-size:42px}
+.ok-ecran h2{text-transform:none;letter-spacing:0;font-size:19px;margin:12px 0 8px}
+.rgpd{color:var(--gris);font-size:11px;line-height:1.5;margin-top:20px}
+.vide{color:var(--gris);font-size:14px;text-align:center;padding:14px 0}
+.onglets{display:flex;gap:8px;margin-bottom:14px}
+.ong{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--bord);border-radius:10px;padding:11px 0;color:var(--gris);font-size:14px;font-weight:700;letter-spacing:.5px;cursor:pointer;font-family:inherit}
+.ong.on{background:rgba(79,216,235,.15);color:var(--cyan)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Vacations Ophtalmologie</h1>
+  <p class="sous">Argenteuil · Sartrouville · Tremblay · Antony · Annecy</p>
+
+  <div class="carte cond">
+    <span class="fixe">Conditions de la vacation</span>
+    <span>💶 <b id="c-remu">1 300 € net la journée</b></span>
+    <span>🕘 <b id="c-horaires">9h00 à 19h00 (centre fermé de 13h à 14h)</b></span>
+  </div>
+
+  <div id="ecran-liste" class="carte">
+    <div class="onglets">
+      <button class="ong on" id="ong-cdd" onclick="onglet('cdd')">Vacations · CDD</button>
+      <button class="ong" id="ong-cdi" onclick="onglet('cdi')">Jours fixes · CDI</button>
+    </div>
+    <h2 id="liste-titre">Choisis ta date</h2>
+    <div id="liste" class="vide">Chargement des dates…</div>
+    <div id="liste-cdi" class="vide" style="display:none">Chargement…</div>
+  </div>
+
+  <div id="ecran-form" class="carte" style="display:none">
+    <button class="retour" onclick="retourListe()">← Changer de date</button>
+    <h2 id="form-titre">Réservation</h2>
+
+    <label>Nom *</label><input id="f-nom" autocomplete="family-name">
+    <label>Prénom *</label><input id="f-prenom" autocomplete="given-name">
+    <label>Civilité *</label><select id="f-civ"><option value="M">Monsieur</option><option value="Mme">Madame</option></select>
+    <label>Date de naissance *</label><input id="f-naissance" type="date">
+    <label>Lieu de naissance *</label><input id="f-lieun" placeholder="Ville, pays">
+    <label>Nationalité *</label><input id="f-natio">
+    <label>N° RPPS (11 chiffres) *</label><input id="f-rpps" inputmode="numeric" maxlength="11">
+    <label>N° de sécurité sociale</label><input id="f-secu" inputmode="numeric" placeholder="Si disponible">
+    <label>Adresse postale *</label><textarea id="f-adresse" autocomplete="street-address"></textarea>
+    <label>Téléphone</label><input id="f-tel" type="tel" autocomplete="tel">
+    <label>Email</label><input id="f-email" type="email" autocomplete="email">
+
+    <label style="margin-top:20px">Tes documents : photographie-les ou importe-les</label>
+    <div id="zone-docs" class="docs"></div>
+
+    <button id="btn-envoyer" class="principal" onclick="envoyer()">Réserver cette date</button>
+    <div id="form-msg" class="msg"></div>
+
+    <p class="rgpd">Les informations et documents transmis sont utilisés uniquement pour l'établissement de ton contrat
+    de travail (CDD) par le service de gestion du groupe, et ne sont accessibles qu'à la direction et au gestionnaire de paie.
+    Tu peux demander leur rectification ou leur suppression auprès de la direction du centre.</p>
+  </div>
+
+  <div id="ecran-ok" class="carte ok-ecran" style="display:none">
+    <div class="pastille">✅</div>
+    <h2>Demande envoyée !</h2>
+    <p id="ok-texte" class="msg"></p>
+    <p class="msg" style="color:var(--gris)">La direction valide ta réservation, puis le contrat est préparé.
+    Tu seras contacté·e pour la signature. Merci !</p>
+  </div>
+</div>
+
+<script>
+const API = "/api/cdd";
+let DATA = null, SLOT = null, OFFRE = null;
+// Fichiers choisis : { cle: {blob, filename, mime} }
+const FICHIERS = {};
+
+const dateFr = (iso) => {
+  const [a,m,j] = iso.split("-").map(Number);
+  const s = new Date(Date.UTC(a,m-1,j)).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long",timeZone:"UTC"});
+  return s.charAt(0).toUpperCase()+s.slice(1);
+};
+const moisFr = (iso) => {
+  const [a,m] = iso.split("-").map(Number);
+  const s = new Date(Date.UTC(a,m-1,1)).toLocaleDateString("fr-FR",{month:"long",year:"numeric",timeZone:"UTC"});
+  return s.charAt(0).toUpperCase()+s.slice(1);
+};
+
+function onglet(m){
+  document.getElementById("ong-cdd").classList.toggle("on", m === "cdd");
+  document.getElementById("ong-cdi").classList.toggle("on", m === "cdi");
+  document.getElementById("liste").style.display = m === "cdd" ? "" : "none";
+  document.getElementById("liste-cdi").style.display = m === "cdi" ? "" : "none";
+  document.getElementById("liste-titre").textContent = m === "cdd" ? "Choisis ta date" : "Nos postes en CDI";
+}
+
+async function charger(){
+  try{
+    DATA = await (await fetch(API)).json();
+    document.getElementById("c-remu").textContent = DATA.conditions.remuneration;
+    document.getElementById("c-horaires").textContent = DATA.conditions.horaires;
+    const el = document.getElementById("liste");
+    const libres = DATA.slots || [];
+    if(!libres.length){ el.textContent = "Aucune date proposée pour le moment, reviens bientôt."; return; }
+    el.classList.remove("vide");
+    let html = "", moisCourant = "";
+    for(const s of libres){
+      const mois = s.date.slice(0,7);
+      if(mois !== moisCourant){ moisCourant = mois; html += `<div class="mois">${moisFr(s.date)}</div>`; }
+      const centre = DATA.centres[s.centre] || s.centre.toUpperCase();
+      html += s.libre
+        ? `<button class="slot" onclick="choisir('${s.id}')"><span><span class="date">${dateFr(s.date)}</span><br><span class="centre">${centre}</span></span><span style="color:var(--cyan)">Réserver →</span></button>`
+        : `<div class="slot pris"><span><span class="date">${dateFr(s.date)}</span><br><span class="centre">${centre}</span></span><span class="etat">Déjà prise</span></div>`;
+    }
+    el.innerHTML = html;
+    const elc = document.getElementById("liste-cdi");
+    const offres = DATA.cdi || [];
+    if(!offres.length){ elc.className = "vide"; elc.textContent = "Aucun poste en CDI proposé pour le moment."; }
+    else {
+      elc.classList.remove("vide");
+      elc.innerHTML = offres.map(o => {
+        const centre = DATA.centres[o.centre] || o.centre.toUpperCase();
+        return o.libre
+          ? `<button class="slot" onclick="choisirCdi('${o.id}')"><span><span class="date">${o.jours}</span><br><span class="centre">${centre}</span></span><span style="color:var(--cyan)">Postuler →</span></button>`
+          : `<div class="slot pris"><span><span class="date">${o.jours}</span><br><span class="centre">${centre}</span></span><span class="etat">Déjà pourvu</span></div>`;
+      }).join("");
+    }
+  }catch(e){
+    document.getElementById("liste").textContent = "Impossible de charger les dates. Réessaie dans un instant.";
+  }
+}
+
+function choisir(id){
+  SLOT = DATA.slots.find(s => s.id === id);
+  OFFRE = null;
+  if(!SLOT) return;
+  document.getElementById("form-titre").textContent =
+    `${dateFr(SLOT.date)} · ${DATA.centres[SLOT.centre] || SLOT.centre}`;
+  construireDocs();
+  document.getElementById("ecran-liste").style.display = "none";
+  document.getElementById("ecran-form").style.display = "block";
+  window.scrollTo({top:0});
+}
+function choisirCdi(id){
+  OFFRE = (DATA.cdi||[]).find(o => o.id === id);
+  SLOT = null;
+  if(!OFFRE) return;
+  document.getElementById("form-titre").textContent =
+    `CDI · ${OFFRE.jours} (${DATA.centres[OFFRE.centre] || OFFRE.centre})`;
+  construireDocs();
+  document.getElementById("ecran-liste").style.display = "none";
+  document.getElementById("ecran-form").style.display = "block";
+  window.scrollTo({top:0});
+}
+function retourListe(){
+  document.getElementById("ecran-form").style.display = "none";
+  document.getElementById("ecran-liste").style.display = "block";
+}
+
+function construireDocs(){
+  const zone = document.getElementById("zone-docs");
+  zone.innerHTML = "";
+  for(const d of DATA.docs){
+    const ligne = document.createElement("div");
+    ligne.className = "doc";
+    ligne.innerHTML =
+      `<span class="nom">${d.label}${d.requis ? ' <span class="req">*</span>' : ''}<br><span class="etat" id="etat-${d.cle}">${d.requis ? "À fournir" : "Si disponible"}</span></span>`;
+    const btn = document.createElement("button");
+    btn.className = "btn-doc"; btn.type = "button"; btn.textContent = "📷 Ajouter";
+    const input = document.createElement("input");
+    input.type = "file"; input.accept = "image/*,.pdf"; input.style.display = "none";
+    input.addEventListener("change", () => fichierChoisi(d.cle, input));
+    btn.addEventListener("click", () => input.click());
+    ligne.appendChild(btn); ligne.appendChild(input);
+    zone.appendChild(ligne);
+  }
+}
+
+// Compression côté client : les photos de téléphone font 3-8 Mo, l'API accepte 4 Mo
+// par document — on redimensionne à 1800 px max et on encode en JPEG.
+async function compresserImage(file){
+  const img = await new Promise((res, rej) => {
+    const i = new Image();
+    i.onload = () => res(i); i.onerror = rej;
+    i.src = URL.createObjectURL(file);
+  });
+  const MAX = 1800;
+  const ratio = Math.min(1, MAX / Math.max(img.width, img.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(img.width * ratio);
+  canvas.height = Math.round(img.height * ratio);
+  canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+  URL.revokeObjectURL(img.src);
+  for(const q of [0.85, 0.7, 0.5]){
+    const blob = await new Promise(r => canvas.toBlob(r, "image/jpeg", q));
+    if(blob && blob.size < 2.5*1024*1024) return blob;
+  }
+  return await new Promise(r => canvas.toBlob(r, "image/jpeg", 0.4));
+}
+
+async function fichierChoisi(cle, input){
+  const file = input.files[0];
+  if(!file) return;
+  const etat = document.getElementById("etat-"+cle);
+  etat.textContent = "Préparation…";
+  try{
+    let blob = file, mime = file.type || "application/octet-stream", nomFichier = file.name || cle;
+    if(mime.startsWith("image/")){
+      blob = await compresserImage(file);
+      mime = "image/jpeg";
+      nomFichier = cle + ".jpg";
+    }
+    if(blob.size > 4*1024*1024){ etat.textContent = "Fichier trop lourd (4 Mo max)"; etat.classList.remove("ok"); return; }
+    FICHIERS[cle] = { blob, filename: nomFichier, mime };
+    etat.textContent = "✓ Prêt (" + Math.round(blob.size/1024) + " Ko)";
+    etat.classList.add("ok");
+  }catch(e){
+    etat.textContent = "Échec de lecture, réessaie";
+  }
+}
+
+const base64DeBlob = (blob) => new Promise((res, rej) => {
+  const r = new FileReader();
+  r.onload = () => res(String(r.result).split(",")[1]);
+  r.onerror = rej;
+  r.readAsDataURL(blob);
+});
+
+async function envoyer(){
+  const msg = document.getElementById("form-msg");
+  const btn = document.getElementById("btn-envoyer");
+  msg.className = "msg"; msg.textContent = "";
+  const v = (id) => document.getElementById(id).value.trim();
+  const corps = {
+    action: "book", ...(OFFRE ? { cdiId: OFFRE.id } : { slotId: SLOT.id }),
+    nom: v("f-nom"), prenom: v("f-prenom"), rpps: v("f-rpps").replace(/\D/g,""),
+    secu: v("f-secu"), adresse: v("f-adresse"), tel: v("f-tel"), email: v("f-email"),
+    civilite: document.getElementById("f-civ").value,
+    dateNaissance: v("f-naissance"), lieuNaissance: v("f-lieun"), nationalite: v("f-natio"),
+  };
+  if(!corps.nom || !corps.prenom){ msg.className="msg err"; msg.textContent="Indique ton nom et ton prénom."; return; }
+  if(!/^\d{11}$/.test(corps.rpps)){ msg.className="msg err"; msg.textContent="Le numéro RPPS doit comporter 11 chiffres."; return; }
+  if(!corps.dateNaissance || !corps.lieuNaissance || !corps.nationalite){ msg.className="msg err"; msg.textContent="Date et lieu de naissance et nationalité sont nécessaires pour établir le contrat."; return; }
+  if(!corps.adresse){ msg.className="msg err"; msg.textContent="L'adresse postale est obligatoire (elle figure sur le contrat)."; return; }
+  if(!corps.tel && !corps.email){ msg.className="msg err"; msg.textContent="Indique au moins un téléphone ou un email pour être recontacté·e."; return; }
+  const manquants = DATA.docs.filter(d => d.requis && !FICHIERS[d.cle]).map(d => d.label);
+  if(manquants.length && !confirm("Documents manquants : " + manquants.join(", ") + ".\n\nRéserver quand même ? (ils te seront redemandés)")) return;
+
+  btn.disabled = true; btn.textContent = "Réservation…";
+  try{
+    const r = await fetch(API, { method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify(corps) });
+    const rep = await r.json();
+    if(!r.ok) throw new Error(rep.error || "Erreur serveur");
+
+    // Envoi des documents un par un (limite Netlify par requête)
+    const cles = Object.keys(FICHIERS);
+    for(let i = 0; i < cles.length; i++){
+      btn.textContent = `Envoi des documents… ${i+1}/${cles.length}`;
+      const f = FICHIERS[cles[i]];
+      const ru = await fetch(API, { method:"POST", headers:{"content-type":"application/json"},
+        body: JSON.stringify({ action:"upload-doc", resaId: rep.resaId, upToken: rep.upToken,
+          cle: cles[i], filename: f.filename, mime: f.mime, dataBase64: await base64DeBlob(f.blob) }) });
+      if(!ru.ok) document.getElementById("etat-"+cles[i]).textContent = "⚠️ Échec d'envoi";
+    }
+
+    document.getElementById("ok-texte").textContent = OFFRE
+      ? `Ta candidature CDI (${OFFRE.jours}, ${DATA.centres[OFFRE.centre] || OFFRE.centre}) est bien enregistrée, Dr ${corps.prenom} ${corps.nom}.`
+      : `${dateFr(SLOT.date)} (${DATA.centres[SLOT.centre] || SLOT.centre}) est réservée pour toi, Dr ${corps.prenom} ${corps.nom}.`;
+    document.getElementById("ecran-form").style.display = "none";
+    document.getElementById("ecran-ok").style.display = "block";
+    window.scrollTo({top:0});
+  }catch(e){
+    msg.className = "msg err";
+    msg.textContent = e.message === "Désolé, ce créneau vient d'être pris."
+      ? "Désolé, ce créneau vient d'être pris. Choisis une autre date." : ("Échec : " + e.message);
+    btn.disabled = false; btn.textContent = "Réserver cette date";
+    if(e.message.includes("pris")){ retourListe(); charger(); }
+  }
+}
+
+charger();
+</script>
+</body>
+</html>
