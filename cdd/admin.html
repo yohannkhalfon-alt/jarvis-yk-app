@@ -57,6 +57,16 @@ button.vert{background:var(--ok);color:#04140A}
   <div id="ecran-admin" style="display:none">
 
     <div class="carte">
+      <h2>🤖 JARVIS <span style="font-weight:400;font-size:12px;color:var(--dim,#889)">— propulsé par Claude</span></h2>
+      <div id="chat-fil" style="max-height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
+      <div style="display:flex;gap:8px">
+        <input id="chat-saisie" placeholder="Demande-moi : une attestation, l'état des vacations, un fichier Dropbox, une action admin…" style="flex:1" onkeydown="if(event.key==='Enter')envoyerChat()">
+        <button onclick="envoyerChat()" id="chat-btn" style="flex:0">Envoyer</button>
+      </div>
+      <div id="chat-msg" class="msg"></div>
+    </div>
+
+    <div class="carte">
       <h2>Ajouter des dates</h2>
       <div class="ligne">
         <div><label>Date</label><input id="aj-date" type="date"></div>
@@ -315,6 +325,68 @@ async function voirContrat(resaId){
   const url = URL.createObjectURL(await r.blob());
   window.open(url, "_blank");
   setTimeout(() => URL.revokeObjectURL(url), 120_000);
+}
+
+// ---------- JARVIS (chatbot) ----------
+let CHAT_MSGS = [];
+
+function bulleChat(role, texte){
+  const fil = document.getElementById("chat-fil");
+  const b = document.createElement("div");
+  b.style.cssText = role === "user"
+    ? "align-self:flex-end;background:#1B6FD8;color:#fff;border-radius:12px 12px 2px 12px;padding:8px 12px;max-width:85%;white-space:pre-wrap;font-size:14px"
+    : "align-self:flex-start;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:12px 12px 12px 2px;padding:8px 12px;max-width:85%;white-space:pre-wrap;font-size:14px";
+  b.textContent = texte;
+  fil.appendChild(b);
+  fil.scrollTop = fil.scrollHeight;
+  return b;
+}
+
+function boutonDocChat(doc){
+  const fil = document.getElementById("chat-fil");
+  const btn = document.createElement("button");
+  btn.className = "ghost";
+  btn.style.cssText = "align-self:flex-start;padding:8px 12px;font-size:13px";
+  btn.textContent = "📄 Télécharger · " + doc.nom;
+  btn.onclick = async () => {
+    const r = await fetch(API_CHAT + "?doc=" + doc.id, { headers: entetes() });
+    if(!r.ok){ alert("Document introuvable"); return; }
+    const url = URL.createObjectURL(await r.blob());
+    window.open(url, "_blank");
+    setTimeout(() => URL.revokeObjectURL(url), 120_000);
+  };
+  fil.appendChild(btn);
+  fil.scrollTop = fil.scrollHeight;
+}
+
+const API_CHAT = "/api/chat";
+
+async function envoyerChat(){
+  const saisie = document.getElementById("chat-saisie");
+  const texte = saisie.value.trim();
+  if(!texte) return;
+  saisie.value = "";
+  document.getElementById("chat-btn").disabled = true;
+  document.getElementById("chat-msg").textContent = "";
+  bulleChat("user", texte);
+  CHAT_MSGS.push({ role: "user", content: texte });
+  const attente = bulleChat("assistant", "…");
+  try {
+    for(let tour = 0; tour < 10; tour++){
+      const r = await fetch(API_CHAT, { method: "POST", headers: entetes(), body: JSON.stringify({ messages: CHAT_MSGS }) });
+      const d = await r.json();
+      if(!r.ok) throw new Error(d.error || "Erreur serveur");
+      CHAT_MSGS = d.messages;
+      for(const doc of d.docs || []) boutonDocChat(doc);
+      if(d.done){ attente.textContent = d.texte || "(fini)"; break; }
+      attente.textContent = "… (je travaille : outils en cours)";
+      if(tour === 9) attente.textContent = "⚠️ Trop d'étapes — reformule ou découpe ta demande.";
+    }
+  } catch(e){
+    attente.textContent = "⚠️ " + (e.message || e);
+  }
+  document.getElementById("chat-btn").disabled = false;
+  document.getElementById("chat-fil").scrollTop = 1e9;
 }
 
 async function marquerCdi(slotId){
