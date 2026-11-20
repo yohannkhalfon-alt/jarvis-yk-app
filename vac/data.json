@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-19T09:00:49Z",
+ "generated_at": "2026-11-20T05:38:43Z",
  "source": "Scan JARVIS via connecteur Dropbox",
  "periode": [
   {
@@ -232,6 +232,7 @@
     }
    ],
    "notes": [
+    "Scan 20/11 : décembre inchangé (30-31/12 seuls jours sans ophta ; 21-26/12 couverts par Lahmar Rahma, 28-29/12 par Slimane). Sahin Sarah en CP du 07 au 31/12. Renforts déc : Ouamri (04/12), Kokkinos (05/12).",
     "19/11 : le vendredi 05/02 est pris par Charakidas (validation via son cabinet de recrutement). Déjà en CDI dans la structure → PAS de CDD, simple note. Reste 29 jours sans ophta.",
     "Scan 19/11 : sureffectif orthos le jeu 05/11 (3 orthos). Novembre entièrement couvert côté ophtas (Kokkinos prend le sam 28/11).",
     "MAJ 18/11 : le samedi 09/01 est désormais couvert par Charakidas et le samedi 27/02 par Kokkinos Zafeiris (réservation JARVIS CDD du 17/11 reportée au planning). Reste 30 jours sans ophta.",
@@ -275,6 +276,7 @@
    "label": "TREMBLAY",
    "days": [],
    "notes": [
+    "Scan 20/11 : Echi Maissa — congés patho dès le 25/11 puis CONGÉ MATERNITÉ du 10/12 au 31/03. Décembre : aucun sureffectif (max 3 orthos), 31/12 couvert par Slimane Hadj.",
     "Scan 19/11 : sureffectif orthos le jeu 12/11 (4 orthos). Echi Maissa en congés patho dès le 25/11 (en attente) ; retour Oubalkas Basma le 24/11 ; Aeshliman Flavie a démissionné de Tremblay au 31/10 (reste Argenteuil uniquement).",
     "✅ SUREFFECTIF ORTHOS RÉSOLU (13/11) : le jeu 19/11 est repassé à 3 orthos — Echi Maissa posée en CP ce jour-là, le CDD Salima couvre donc un vrai besoin et ne fait plus doublon. Le jeu 12/11 (4 orthos, reliquat du CDD posé avant l'arrivée de Shirel au 95) est passé. Plus aucun sureffectif sur les 4 mois. Règle de surveillance active : Argenteuil > 2 orthos, Tremblay > 3.",
     "Sam 14/11 : Samak en ABS (détachée à Sartrouville), Chemerzelin la remplace au planning — 3 orthos ce jour-là (Echi, Le Bras, Chemerzelin), pas de sureffectif.",
@@ -402,6 +404,7 @@
     }
    ],
    "notes": [
+    "Scan 20/11 : le mardi 29/12 reste NON couvert (Saade ABS, Papa/Slimane/Chahine/Addala OFF, centre ouvert). Naji « ARRET ? » tout décembre. Rappel note planning : « abs Slimane 02/01, rempla Diana Ionita, lui va au 93 ».",
     "NOUVEAU 18/11 : mardi 29/12 sans ophta (Saade ABS, personne en remplacement) — date à ouvrir dans JARVIS CDD si besoin. Diana Ionita (nouvelle) couvre le sam 02/01 ; ven 12/02 couvert par Slimane.",
     "Sam 14/11 : Samak Hannah (ortho Tremblay) vient en renfort à Sartrouville 9h-19h (mise en ABS à Tremblay le même jour, remplacée là-bas par Chemerzelin — pas de doublon). Arrêt Naji Leila prolongé jusqu'au 30/11.",
     "🚨 MAJEUR (10/11) : Papapostolou (fin de contrat 31/12, retraite) est remplacé dans les plannings JANVIER/FEVRIER 2027 par une ligne « A REMPLACER » sur ses lundis et vendredis → 7 jours sans ophta en janvier + 7 en février. Le reste tient : Saade mar, Addala mer, Chahine jeu, Slimane ven/sam en alternance.",
@@ -440,6 +443,7 @@
     }
    ],
    "notes": [
+    "Scan 20/11 : ligne « DIEYE BINTOU » toujours en DOUBLE (sem. 16-21/11, plannings contradictoires) malgré la modif du 19/11 — à corriger. 30/12 couvert par Ntovas ; 31/12 reste sans ophta. Fey Delphine « ARRET ? » dès le 23/11.",
     "Scan 19/11 : anomalie planning novembre — la ligne « DIEYE BINTOU » apparaît en DOUBLE sem. 16-21/11 avec deux horaires différents (l'une des deux est probablement « Clara » ?) — à corriger. Fins de contrat : Dieye Bintou 26/11, Fenelon Shouselie 27/11. Arrêts : Agouni prolongé au 10/12, Fey Delphine → 22/11 puis en attente.",
     "MAJ 18/11 : les samedis 16/01, 13/02 et 20/02 sont désormais couverts par Kokkinos Zafeiris (réservations JARVIS CDD du 17/11 reportées au planning). Restent le jeu 31/12 (Sconamiglio ABS) et le sam 30/01.",
     "RH : arrêt Agouni Kenza prolongé jusqu'au 10/12 (Bedez Margaux continue en rempla).",
