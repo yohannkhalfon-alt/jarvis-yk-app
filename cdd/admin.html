@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
+<link rel="icon" type="image/svg+xml" href="jarvis-logo.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>JARVIS CDD : Direction</title>
 <style>
@@ -57,10 +58,13 @@ button.vert{background:var(--ok);color:#04140A}
   <div id="ecran-admin" style="display:none">
 
     <div class="carte">
-      <h2>🤖 JARVIS <span style="font-weight:400;font-size:12px;color:var(--dim,#889)">— propulsé par Claude</span></h2>
+      <h2 style="display:flex;align-items:center;gap:10px"><img src="jarvis-logo.svg" alt="" style="width:34px;height:34px;border-radius:8px">JARVIS <span style="font-weight:400;font-size:12px;color:var(--dim,#889)">— propulsé par Claude</span></h2>
       <div id="chat-fil" style="max-height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
+      <div id="chat-apercus" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px"></div>
       <div style="display:flex;gap:8px">
-        <input id="chat-saisie" placeholder="Demande-moi : une attestation, l'état des vacations, un fichier Dropbox, une action admin…" style="flex:1" onkeydown="if(event.key==='Enter')envoyerChat()">
+        <button class="ghost" style="flex:0;padding:10px 12px" title="Joindre une capture d'écran" onclick="document.getElementById('chat-fichier').click()">📎</button>
+        <input id="chat-fichier" type="file" accept="image/*" multiple style="display:none" onchange="ajouterCaptures(this.files); this.value=''">
+        <input id="chat-saisie" placeholder="Demande-moi : une attestation, une réponse à un WhatsApp (colle la capture), l'état des vacations…" style="flex:1" onkeydown="if(event.key==='Enter')envoyerChat()" onpaste="collerCapture(event)">
         <button onclick="envoyerChat()" id="chat-btn" style="flex:0">Envoyer</button>
       </div>
       <div id="chat-msg" class="msg"></div>
@@ -360,16 +364,80 @@ function boutonDocChat(doc){
 }
 
 const API_CHAT = "/api/chat";
+let CHAT_IMAGES = [];  // captures en attente d'envoi [{media_type, data(b64), apercu}]
+
+// Réduit une image à 1400px max et renvoie {media_type, data}
+function reduireImage(fichier){
+  return new Promise((res, rej) => {
+    const img = new Image();
+    const url = URL.createObjectURL(fichier);
+    img.onload = () => {
+      const max = 1400;
+      const ratio = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * ratio); c.height = Math.round(img.height * ratio);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      const dataUrl = c.toDataURL("image/jpeg", 0.85);
+      res({ media_type: "image/jpeg", data: dataUrl.split(",")[1], apercu: dataUrl });
+    };
+    img.onerror = rej;
+    img.src = url;
+  });
+}
+
+async function ajouterCaptures(fichiers){
+  for(const f of Array.from(fichiers || [])){
+    if(!f.type.startsWith("image/")) continue;
+    if(CHAT_IMAGES.length >= 4){ alert("4 captures maximum par message."); break; }
+    try { CHAT_IMAGES.push(await reduireImage(f)); } catch(e){ alert("Image illisible"); }
+  }
+  afficherApercus();
+}
+
+function collerCapture(ev){
+  const items = Array.from(ev.clipboardData?.items || []).filter(i => i.type.startsWith("image/"));
+  if(!items.length) return;
+  ev.preventDefault();
+  ajouterCaptures(items.map(i => i.getAsFile()).filter(Boolean));
+}
+
+function afficherApercus(){
+  const z = document.getElementById("chat-apercus");
+  z.innerHTML = CHAT_IMAGES.map((im, i) =>
+    `<span style="position:relative;display:inline-block"><img src="${im.apercu}" style="height:52px;border-radius:8px;border:1px solid rgba(255,255,255,.2)">` +
+    `<button onclick="CHAT_IMAGES.splice(${i},1);afficherApercus()" style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;line-height:1;padding:0;border-radius:50%;font-size:11px">×</button></span>`
+  ).join("");
+}
+
+// Allège l'historique : les images des anciens messages sont remplacées par
+// une mention texte (le serveur et Claude n'en ont plus besoin, et ça évite
+// de renvoyer des méga-octets à chaque tour).
+function elaguerHistorique(msgs){
+  return msgs.map((m, idx) => {
+    if(m.role !== "user" || !Array.isArray(m.content) || idx >= msgs.length - 3) return m;
+    const contenu = m.content.map(c => c.type === "image" ? { type: "text", text: "[capture d'écran déjà analysée plus haut]" } : c);
+    return { ...m, content: contenu };
+  });
+}
 
 async function envoyerChat(){
   const saisie = document.getElementById("chat-saisie");
   const texte = saisie.value.trim();
-  if(!texte) return;
+  if(!texte && !CHAT_IMAGES.length) return;
   saisie.value = "";
   document.getElementById("chat-btn").disabled = true;
   document.getElementById("chat-msg").textContent = "";
-  bulleChat("user", texte);
-  CHAT_MSGS.push({ role: "user", content: texte });
+  bulleChat("user", (CHAT_IMAGES.length ? `📷 ${CHAT_IMAGES.length} capture${CHAT_IMAGES.length>1?"s":""}\n` : "") + texte);
+  if(CHAT_IMAGES.length){
+    const contenu = CHAT_IMAGES.map(im => ({ type: "image", source: { type: "base64", media_type: im.media_type, data: im.data } }));
+    contenu.push({ type: "text", text: texte || "Analyse cette capture et propose-moi une réponse." });
+    CHAT_MSGS.push({ role: "user", content: contenu });
+    CHAT_IMAGES = []; afficherApercus();
+  } else {
+    CHAT_MSGS.push({ role: "user", content: texte });
+  }
+  CHAT_MSGS = elaguerHistorique(CHAT_MSGS);
   const attente = bulleChat("assistant", "…");
   try {
     for(let tour = 0; tour < 10; tour++){
