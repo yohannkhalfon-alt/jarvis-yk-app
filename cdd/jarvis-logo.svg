@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="fond" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#0E1B30"/>
+      <stop offset="60%" stop-color="#081020"/>
+      <stop offset="100%" stop-color="#05080F"/>
+    </radialGradient>
+    <linearGradient id="casque" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2E6FD8"/>
+      <stop offset="45%" stop-color="#1B4FA8"/>
+      <stop offset="100%" stop-color="#0E2F6B"/>
+    </linearGradient>
+    <linearGradient id="visage" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#17407F"/>
+      <stop offset="100%" stop-color="#0A2450"/>
+    </linearGradient>
+    <linearGradient id="lueur" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#53D7F0"/>
+      <stop offset="100%" stop-color="#9BEBFF"/>
+    </linearGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="4.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glowFort" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="7" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Fond badge -->
+  <rect x="8" y="8" width="496" height="496" rx="100" fill="url(#fond)"/>
+  <rect x="8" y="8" width="496" height="496" rx="100" fill="none" stroke="#1E3A66" stroke-width="2.5"/>
+
+  <!-- ===== Casque (original, facetté) ===== -->
+  <g transform="translate(256 178)">
+    <!-- calotte -->
+    <path d="M -92 18 C -92 -72 -52 -112 0 -112 C 52 -112 92 -72 92 18
+             L 86 66 C 80 92 58 104 38 108 L -38 108 C -58 104 -80 92 -86 66 Z"
+          fill="url(#casque)" stroke="#4D8BE8" stroke-width="3"/>
+    <!-- plaque faciale -->
+    <path d="M -64 -2 C -64 -48 -34 -72 0 -72 C 34 -72 64 -48 64 -2
+             L 58 54 C 54 76 36 88 22 92 L -22 92 C -36 88 -54 76 -58 54 Z"
+          fill="url(#visage)" stroke="#3E77D0" stroke-width="2.5"/>
+    <!-- arêtes facettes -->
+    <path d="M 0 -72 L 0 -16 M -58 24 L -24 14 L 24 14 L 58 24" fill="none" stroke="#2C5CA8" stroke-width="2" opacity="0.9"/>
+    <!-- yeux lumineux -->
+    <path d="M -48 22 L -14 14 L -14 28 L -46 34 Z" fill="url(#lueur)" filter="url(#glowFort)"/>
+    <path d="M 48 22 L 14 14 L 14 28 L 46 34 Z" fill="url(#lueur)" filter="url(#glowFort)"/>
+    <!-- menton -->
+    <path d="M -20 62 L 20 62 L 14 86 L -14 86 Z" fill="#102C5E" stroke="#2C5CA8" stroke-width="2"/>
+    <!-- croix santé sur le front, cœur lumineux -->
+    <g filter="url(#glow)">
+      <rect x="-7" y="-58" width="14" height="38" rx="3.5" fill="url(#lueur)"/>
+      <rect x="-19" y="-46" width="38" height="14" rx="3.5" fill="url(#lueur)"/>
+    </g>
+    <!-- oreilles / disques -->
+    <circle cx="-92" cy="26" r="15" fill="#123163" stroke="#4D8BE8" stroke-width="2.5"/>
+    <circle cx="92" cy="26" r="15" fill="#123163" stroke="#4D8BE8" stroke-width="2.5"/>
+    <circle cx="-92" cy="26" r="6" fill="#53D7F0" filter="url(#glow)"/>
+    <circle cx="92" cy="26" r="6" fill="#53D7F0" filter="url(#glow)"/>
+  </g>
+
+  <!-- ===== Wordmark ===== -->
+  <text x="256" y="366" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="bold"
+        font-size="58" letter-spacing="14" fill="#EAF4FF">JARVIS</text>
+  <rect x="140" y="382" width="232" height="3" rx="1.5" fill="url(#lueur)" opacity="0.85"/>
+
+  <!-- ===== Balance juridique ===== -->
+  <g transform="translate(256 432)" stroke="#8FB7E8" stroke-width="3.5" fill="none" stroke-linecap="round">
+    <line x1="0" y1="-18" x2="0" y2="22"/>
+    <line x1="-52" y1="-12" x2="52" y2="-12"/>
+    <circle cx="0" cy="-22" r="4.5" fill="#53D7F0" stroke="none" filter="url(#glow)"/>
+    <!-- plateau gauche -->
+    <line x1="-52" y1="-12" x2="-62" y2="8"/><line x1="-52" y1="-12" x2="-42" y2="8"/>
+    <path d="M -66 8 A 14 11 0 0 0 -38 8" />
+    <!-- plateau droit -->
+    <line x1="52" y1="-12" x2="42" y2="8"/><line x1="52" y1="-12" x2="62" y2="8"/>
+    <path d="M 38 8 A 14 11 0 0 0 66 8" />
+    <!-- socle -->
+    <line x1="-14" y1="22" x2="14" y2="22"/>
+  </g>
+</svg>
