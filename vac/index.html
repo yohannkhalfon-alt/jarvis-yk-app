@@ -77,17 +77,20 @@
   #btnVac.scanning { animation:pulse 1.2s infinite; }
   #lastScan { font-size:11px; color:var(--dim); letter-spacing:1px; }
   .btnrow { display:flex; align-items:center; justify-content:center; gap:20px; }
+  @keyframes jarvisSpin { from { transform:rotateY(0); } to { transform:rotateY(360deg); } }
   #btnJarvis {
-    width:118px; height:118px; border-radius:50%; cursor:pointer; border:2px solid rgba(79,216,235,.55);
-    background:radial-gradient(circle at 50% 35%, rgba(27,111,216,.26), rgba(79,216,235,.08) 60%, transparent);
-    box-shadow:0 0 26px rgba(27,111,216,.35), inset 0 0 18px rgba(79,216,235,.1);
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
-    color:#EAF4FF; font-family:'Orbitron'; transition:.2s; padding:0;
+    width:auto; background:none; border:none; cursor:pointer; padding:0;
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    color:#EAF4FF; font-family:'Orbitron'; perspective:420px;
   }
-  #btnJarvis img { width:52px; height:52px; border-radius:12px; }
+  #btnJarvis img {
+    width:96px; height:96px;
+    animation:jarvisSpin 6s linear infinite; transform-style:preserve-3d;
+    filter:drop-shadow(0 0 18px rgba(79,216,235,.45));
+  }
   #btnJarvis b { font-size:13px; letter-spacing:2px; font-weight:900; }
   #btnJarvis span { font-family:'Rajdhani'; font-size:8.5px; letter-spacing:1.2px; color:var(--dim); text-transform:uppercase; }
-  #btnJarvis:active { transform:scale(.96); }
+  #btnJarvis:active img { animation-duration:1.2s; }
 
   /* Sélecteur de période */
   .seg { display:flex; gap:8px; justify-content:center; }
@@ -153,7 +156,7 @@
   <div class="btnwrap">
     <div class="btnrow">
       <button id="btnVac" onclick="lancerScan()"><b>MAJ VAC</b><span>Scanner les plannings</span></button>
-      <button id="btnJarvis" onclick="jarvisOuvrir()"><img src="/cdd/jarvis-logo.svg" alt=""><b>JARVIS</b><span>Assistant IA</span></button>
+      <button id="btnJarvis" onclick="jarvisOuvrir()" title="Ouvrir JARVIS"><img src="/cdd/jarvis-robot.svg" alt=""><b>JARVIS</b><span>Assistant IA</span></button>
     </div>
     <div id="lastScan"></div>
     <a href="/vac/equipe.html" style="display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:9px 16px;border:1px solid var(--line);border-radius:999px;color:var(--cyan);text-decoration:none;font-size:13px;letter-spacing:.5px">👥 Équipe du jour &amp; de la semaine ›</a>
