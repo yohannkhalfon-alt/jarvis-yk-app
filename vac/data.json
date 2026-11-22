@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-22T05:40:29Z",
+  "generated_at": "2026-11-22T14:23:34Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -251,9 +251,7 @@
         "ℹ️ Plannings réécrits le 06/10 avec noms complets + section « INFOS SALARIES » en pied de fichier — le parseur de l'app a été corrigé en conséquence (PR #128/#129).",
         "RH (23/10) : ⚠️ démission de Beddar Assia au 31/10 (secrétaire 4 j/sem — lun/mar/ven/sam à re-staffer dès novembre). Nouvelle secrétaire : Boudjemaa Manel, début de contrat le 27/10 (36h lun/mer/jeu/sam), en formation à Sartrouville du 26 au 30/10 ; elle reprend la ligne « secrétaire à trouver » sur nov-déc."
       ],
-      "alertes": [
-        "⚠️ Sureffectif orthoptistes : jeudi 05/11, 3 orthos en travail (Yalingui, Vignand, Benyoucef) — seuil Argenteuil : 2. Détecté au scan du 19/11 (planning novembre modifié le 18/11)."
-      ]
+      "alertes": []
     },
     "annecy": {
       "label": "ANNECY",
@@ -290,9 +288,7 @@
         "⚠️ NOUVEAU (23/10) : jeu 31/12 sans ophta — Adalla passé « ABS AR », aucun remplaçant positionné.",
         "⚠️ À ANTICIPER (note du fichier décembre) : « janvier Yakine abs le 02/01 » — le sam 02/01/27, actuellement couvert par Adalla sur le planning janvier, va se découvrir. Remplaçant à prévoir."
       ],
-      "alertes": [
-        "⚠️ Sureffectif orthoptistes : jeudi 12/11, 4 orthos en travail (Decoste, Samak, Echi 9h-16h, Chemerzelin) — seuil Tremblay : 3. Détecté au scan du 19/11 (planning novembre modifié le 18/11)."
-      ]
+      "alertes": []
     },
     "sartrouville": {
       "label": "SARTROUVILLE",
