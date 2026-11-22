@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T05:39:15Z",
+  "generated_at": "2026-11-22T05:40:29Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -443,7 +443,6 @@
         }
       ],
       "notes": [
-        "Scan 20/11 : ligne « DIEYE BINTOU » toujours en DOUBLE (sem. 16-21/11, plannings contradictoires) malgré la modif du 19/11 — à corriger. 30/12 couvert par Ntovas ; 31/12 reste sans ophta. Fey Delphine « ARRET ? » dès le 23/11.",
         "Scan 19/11 : anomalie planning novembre — la ligne « DIEYE BINTOU » apparaît en DOUBLE sem. 16-21/11 avec deux horaires différents (l'une des deux est probablement « Clara » ?) — à corriger. Fins de contrat : Dieye Bintou 26/11, Fenelon Shouselie 27/11. Arrêts : Agouni prolongé au 10/12, Fey Delphine → 22/11 puis en attente.",
         "MAJ 18/11 : les samedis 16/01, 13/02 et 20/02 sont désormais couverts par Kokkinos Zafeiris (réservations JARVIS CDD du 17/11 reportées au planning). Restent le jeu 31/12 (Sconamiglio ABS) et le sam 30/01.",
         "RH : arrêt Agouni Kenza prolongé jusqu'au 10/12 (Bedez Margaux continue en rempla).",
@@ -459,7 +458,7 @@
         "Kokkinos couvre les sam 12 et 19/12 (9h-19h). Nouveaux remplaçants samedis : Segkos (24/10), Karkamani (31/10), Kepisis Dimitrios (14/11), Di Clemente (07 et 21/11), Ntovas (28/11, 26 et 30/12).",
         "⚠️ Décembre : 1 jour sans ophta restant — jeu 31/12. Ven 25/12 FERIE = fermé.",
         "✅ NOUVEAU (14/10) : le Dr KOKKINOS Zafeiris couvre les sam 12/12 et sam 19/12 (9h-19h) — pas de doublon, à Argenteuil il ne fait que le sam 05/12 (Charakidas y prend les 12 et 19/12).",
-        "Scan 21/11 : planning novembre Antony modifié le 20/11 — toujours aucun jour sans ophta en novembre ; ligne DIEYE BINTOU toujours en double (sem 16-21/11, horaires contradictoires, à vérifier) ; aucun doublon inter-centres."
+        "Scan 22/11 : plannings nov/déc/janv Antony mis à jour le 21/11 — jours sans ophta inchangés (31/12, 30/01). Ligne DIEYE BINTOU toujours en double sem 16-21/11 (fin de contrat le 26/11). Nouveau doublon interne : BEDEZ MARGAUX en double sem 25-30/01 (horaires différents). Janvier : ligne ophta affichée « ERROR:#NAME? » sem 18-23/01 (vraisemblablement Meskini — si ce n'est pas elle, les 18, 19 et 22/01 seraient sans ophta, à vérifier). Arrêts : Fabre 18/11→15/01, Agouni « ARRET ? » déc-janv, Fey « ARRET ? » déc-janv. Direction : « DIRECTRICE A TROUVER » sur tout janvier (départ Fenelon 27/11, Dijoux en déc)."
       ],
       "alertes": []
     }
