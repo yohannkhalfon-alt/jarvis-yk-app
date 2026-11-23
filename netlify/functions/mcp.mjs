@@ -11,7 +11,7 @@
 // /api/sign existante en interne (import direct du handler, avec le code
 // admin lu côté serveur). /api/sign et les pages /sign/* sont inchangées.
 import signHandler from "./sign.mjs";
-import { cleBrevo } from "./lib/preuve.mjs";
+import { cleBrevo, enteteEmail as cleEntete } from "./lib/preuve.mjs";
 
 const VERSION = "1.0.0";
 
@@ -172,6 +172,7 @@ async function outilSend(origin, args) {
             to: [{ email: s.email, name: s.name }],
             subject: `Signature requise : ${env.title}`,
             htmlContent:
+              cleEntete() +
               `<p>Bonjour ${s.name},</p>` +
               (args.message ? `<p>${String(args.message).slice(0, 500)}</p>` : "") +
               `<p>Merci de signer le document <b>${env.title}</b> :</p>` +

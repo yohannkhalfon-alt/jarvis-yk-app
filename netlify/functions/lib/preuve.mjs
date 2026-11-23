@@ -17,6 +17,10 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
 export const BREVO_BASE = () => process.env.BREVO_API_BASE || "https://api.brevo.com";
 
+// Bannière en tête des emails JARVIS SIGN (le stylo de l'app).
+export const enteteEmail = () =>
+  '<div style="margin:0 0 16px"><img src="https://jarvis-yk-app.netlify.app/sign/logo-email.png" alt="JARVIS SIGN" width="300" style="display:block;max-width:300px;height:auto;border:0"></div>';
+
 // Clé Brevo : variable Netlify en priorité, sinon la clé collée dans l'admin
 // CDD (blob "secret/brevo" du store "cdd") — une seule clé pour toute l'app.
 export async function cleBrevo() {
@@ -99,6 +103,7 @@ export async function envoyerOtpEmail(email, code, titre, expediteur) {
       to: [{ email }],
       subject: `Votre code de signature : ${code}`,
       htmlContent:
+        enteteEmail() +
         `<p>Votre code de signature pour le document <b>${echapHtmlLib(titre)}</b> :</p>` +
         `<p style="font-size:30px;font-weight:bold;letter-spacing:8px;margin:18px 0;">${code}</p>` +
         `<p>Ce code est valable <b>10 minutes</b> et ne peut servir qu'une fois.</p>` +
@@ -131,7 +136,7 @@ export async function alerter(destinataire, sujet, html) {
         sender: { name: "JARVIS SIGN — Alerte", email: process.env.BREVO_FROM || destinataire },
         to: [{ email: destinataire }],
         subject: "⚠ " + sujet,
-        htmlContent: html + '<p style="color:#888;font-size:12px;">JARVIS SIGN — module probatoire</p>',
+        htmlContent: enteteEmail() + html + '<p style="color:#888;font-size:12px;">JARVIS SIGN — module probatoire</p>',
       }),
     });
     return res.ok;
