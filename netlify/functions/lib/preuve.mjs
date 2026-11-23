@@ -16,6 +16,16 @@ import bcrypt from "bcryptjs";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
 export const BREVO_BASE = () => process.env.BREVO_API_BASE || "https://api.brevo.com";
+
+// Clé Brevo : variable Netlify en priorité, sinon la clé collée dans l'admin
+// CDD (blob "secret/brevo" du store "cdd") — une seule clé pour toute l'app.
+export async function cleBrevo() {
+  if (process.env.BREVO_API_KEY) return process.env.BREVO_API_KEY;
+  try {
+    const { getStore } = await import("@netlify/blobs");
+    return (await getStore("cdd").get("secret/brevo")) || "";
+  } catch { return ""; }
+}
 export const TSA_URL = () => process.env.TSA_URL || "http://zeitstempel.dfn.de";
 export const TSA_URL_SECOURS = () => process.env.TSA_URL_SECOURS || "https://freetsa.org/tsr";
 export const TSA_CHAIN_URL = () => process.env.TSA_CHAIN_URL || "https://pki.pca.dfn.de/dfn-ca-global-g2/pub/cacert/chain.txt";
@@ -79,8 +89,8 @@ export const verifierOtp = (code, hash) => bcrypt.compareSync(String(code || "")
 // Le code part sur la boîte personnelle du signataire, distincte du canal par
 // lequel le gestionnaire lui a transmis son lien (WhatsApp, SMS, en main propre).
 export async function envoyerOtpEmail(email, code, titre, expediteur) {
-  const cle = process.env.BREVO_API_KEY;
-  if (!cle) throw new Error("BREVO_API_KEY non configurée (envoi du code indisponible)");
+  const cle = await cleBrevo();
+  if (!cle) throw new Error("clé Brevo absente (envoi du code indisponible)");
   const res = await fetch(BREVO_BASE() + "/v3/smtp/email", {
     method: "POST",
     headers: { "api-key": cle, "content-type": "application/json" },
@@ -111,7 +121,7 @@ export const masquerEmail = (e) => {
 
 // ---------- alerte email au gestionnaire ----------
 export async function alerter(destinataire, sujet, html) {
-  const cle = process.env.BREVO_API_KEY;
+  const cle = await cleBrevo();
   if (!cle || !destinataire) return false;
   try {
     const res = await fetch(BREVO_BASE() + "/v3/smtp/email", {

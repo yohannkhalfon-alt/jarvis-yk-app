@@ -11,6 +11,7 @@
 // /api/sign existante en interne (import direct du handler, avec le code
 // admin lu côté serveur). /api/sign et les pages /sign/* sont inchangées.
 import signHandler from "./sign.mjs";
+import { cleBrevo } from "./lib/preuve.mjs";
 
 const VERSION = "1.0.0";
 
@@ -151,7 +152,7 @@ async function outilCreate(origin, args) {
 
 async function outilSend(origin, args) {
   const env = await chargerEnv(origin, args.document_id);
-  const cle = process.env.BREVO_API_KEY;
+  const cle = await cleBrevo();
   const expediteur = env.fromEmail || process.env.BREVO_FROM || "";
   const resultats = [];
   for (const s of env.signers) {
@@ -188,7 +189,7 @@ async function outilSend(origin, args) {
         entree.erreur_email = String(e.message || e).slice(0, 160);
       }
     } else if (!cle) {
-      entree.erreur_email = "BREVO_API_KEY non configurée : transmettre le lien manuellement";
+      entree.erreur_email = "clé Brevo absente : transmettre le lien manuellement";
     } else if (!s.email) {
       entree.erreur_email = "Signataire sans email : transmettre le lien manuellement";
     }
