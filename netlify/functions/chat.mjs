@@ -153,11 +153,18 @@ async function outilDropboxLire(id) {
     const wb = XLSX.read(buf, { type: "buffer" });
     let texte = "";
     for (const nomFeuille of wb.SheetNames.slice(0, 3)) {
-      texte += `=== ${nomFeuille} ===\n` + XLSX.utils.sheet_to_csv(wb.Sheets[nomFeuille], { blankrows: false }) + "\n";
+      const csv = XLSX.utils.sheet_to_csv(wb.Sheets[nomFeuille], { blankrows: false })
+        .split("\n").map((l) => l.replace(/,+$/, "")).join("\n");
+      texte += `=== ${nomFeuille} ===\n` + csv + "\n";
     }
-    return { nom: meta.name, contenu: texte.slice(0, 18000) };
+    // 60K chars ≈ un planning mensuel complet : ne JAMAIS tronquer au milieu
+    // d'une grille (les derniers blocs/semaines disparaîtraient en silence).
+    if (texte.length > 60000) texte = texte.slice(0, 60000) + "\n[FICHIER TRONQUÉ — données incomplètes au-delà de ce point]";
+    return { nom: meta.name, contenu: texte };
   }
-  return { nom: meta.name, contenu: buf.toString("utf-8").slice(0, 18000) };
+  let brut = buf.toString("utf-8");
+  if (brut.length > 60000) brut = brut.slice(0, 60000) + "\n[FICHIER TRONQUÉ]";
+  return { nom: meta.name, contenu: brut };
 }
 
 async function outilAttestation(args, store) {
@@ -319,7 +326,7 @@ export default async (req) => {
     } catch (e) {
       resultat = { erreur: String(e.message || e).slice(0, 300) };
     }
-    resultats.push({ type: "tool_result", tool_use_id: d.id, content: JSON.stringify(resultat).slice(0, 25000) });
+    resultats.push({ type: "tool_result", tool_use_id: d.id, content: JSON.stringify(resultat).slice(0, 70000) });
   }
 
   return json({
