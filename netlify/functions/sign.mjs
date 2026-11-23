@@ -319,7 +319,7 @@ async function tenterFinalisation(store, env, origin) {
 
 // Module 5 : envoi de la copie signée à chaque signataire, avec traçabilité.
 async function envoyerCopies(store, env, origin) {
-  const cle = process.env.BREVO_API_KEY;
+  const cle = await preuve.cleBrevo();
   // Exemplaire du signataire : sans la page de certificat.
   const pdfFinal = (await lireSigneSansCertificat(store, env)) || (await lireSigne(store, env));
   const nature = preuve.TYPES_DOCUMENT[env.preuve?.type] || "document";
@@ -362,8 +362,8 @@ const echapHtml = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&am
 // Ne fait jamais échouer la signature : le résultat est consigné dans env.notif.
 async function notifierCompletion(store, env, origin) {
   if (!env.fromEmail) return;
-  const key = process.env.BREVO_API_KEY;
-  if (!key) { env.notif = { skipped: "BREVO_API_KEY non configurée sur Netlify" }; return; }
+  const key = await preuve.cleBrevo();
+  if (!key) { env.notif = { skipped: "clé Brevo absente : colle-la dans l'admin CDD (ou variable BREVO_API_KEY)" }; return; }
   try {
     const pdf = await store.get(`signed/${env.id}`, { type: "arrayBuffer" });
     const b64 = Buffer.from(pdf).toString("base64");
@@ -788,6 +788,20 @@ export default async (req) => {
     }
 
     // --- Suppression d'une demande (admin) ---
+    // Relance de l'envoi final (admin) : renvoie le PDF signé sur la boîte
+    // du centre + les copies aux signataires qui ne les ont pas reçues.
+    if (body.action === "renvoyer") {
+      if (!adminOk(req)) return json({ error: "Code admin invalide" }, 403);
+      const env = await store.get(`env/${body.id}.json`, { type: "json" });
+      if (!env) return json({ error: "Demande introuvable" }, 404);
+      if (env.status !== "complet") return json({ error: "Demande non finalisée (" + env.status + ")" }, 409);
+      const origin = new URL(req.url).origin;
+      await notifierCompletion(store, env, origin);
+      if (env.preuve) { try { await envoyerCopies(store, env, origin); } catch (e) {} }
+      await store.setJSON(`env/${env.id}.json`, env);
+      return json({ ok: true, notif: env.notif || null, copies: env.preuve?.copies || null });
+    }
+
     if (body.action === "delete") {
       if (!adminOk(req)) return json({ error: "Code admin invalide" }, 403);
       const { id } = body;
