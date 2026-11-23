@@ -337,6 +337,7 @@ async function envoyerCopies(store, env, origin) {
           to: [{ email: s.email, name: s.name }],
           subject: `Votre exemplaire signé — ${nature} : ${env.title}`,
           htmlContent:
+            preuve.enteteEmail() +
             `<p>Bonjour ${echapHtml(s.name)},</p>` +
             `<p>Vous trouverez en pièce jointe votre exemplaire du document <b>${echapHtml(env.title)}</b> (${echapHtml(nature)}), signé le ${preuve.dateFrEtUtc(env.preuve.finaliseLe)}.</p>` +
             `<p><b>Conservez ce document.</b> En cas de besoin, vous pouvez aussi le retélécharger pendant 90 jours depuis votre lien de signature (un code de vérification vous sera demandé).</p>`,
@@ -377,6 +378,7 @@ async function notifierCompletion(store, env, origin) {
         to: [{ email: env.fromEmail }],
         subject: `Document signé : ${env.title}`,
         htmlContent:
+          preuve.enteteEmail() +
           `<p>Le document <b>${echapHtml(env.title)}</b> a été signé par tous les signataires (${echapHtml(noms)}).</p>` +
           `<p>Le PDF signé (avec certificat) est en pièce jointe. Lien de secours : <a href="${lien}">télécharger</a>.</p>` +
           `<p style="color:#888;font-size:12px;">JARVIS SIGN — signature électronique</p>`,
