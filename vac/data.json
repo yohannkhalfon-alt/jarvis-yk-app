@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-23T05:35:31Z",
+  "generated_at": "2026-11-24T05:38:29Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -274,7 +274,6 @@
       "label": "TREMBLAY",
       "days": [],
       "notes": [
-        "Scan 20/11 : Echi Maissa — congés patho dès le 25/11 puis CONGÉ MATERNITÉ du 10/12 au 31/03. Décembre : aucun sureffectif (max 3 orthos), 31/12 couvert par Slimane Hadj.",
         "Scan 19/11 : sureffectif orthos le jeu 12/11 (4 orthos). Echi Maissa en congés patho dès le 25/11 (en attente) ; retour Oubalkas Basma le 24/11 ; Aeshliman Flavie a démissionné de Tremblay au 31/10 (reste Argenteuil uniquement).",
         "✅ SUREFFECTIF ORTHOS RÉSOLU (13/11) : le jeu 19/11 est repassé à 3 orthos — Echi Maissa posée en CP ce jour-là, le CDD Salima couvre donc un vrai besoin et ne fait plus doublon. Le jeu 12/11 (4 orthos, reliquat du CDD posé avant l'arrivée de Shirel au 95) est passé. Plus aucun sureffectif sur les 4 mois. Règle de surveillance active : Argenteuil > 2 orthos, Tremblay > 3.",
         "Sam 14/11 : Samak en ABS (détachée à Sartrouville), Chemerzelin la remplace au planning — 3 orthos ce jour-là (Echi, Le Bras, Chemerzelin), pas de sureffectif.",
@@ -286,7 +285,8 @@
         "✅ Sam 02/01/2027 RÉGLÉ (04/11) : Hadj Slimane 9h-19h (Adalla reste absent). ⚠️ MAIS doublon détecté : Slimane est AUSSI positionné 9h-19h le même jour à Sartrouville — à vérifier/arbitrer (même personne, titulaire des deux centres ; si Tremblay est retenu, le sam 02/01 à Sartrouville se découvre).",
         "✅ Sam 28/11 RÉGLÉ (22/10) : Dr ROSATI Alessandra le couvre 9h-18h30 (Adalla ABS).",
         "⚠️ NOUVEAU (23/10) : jeu 31/12 sans ophta — Adalla passé « ABS AR », aucun remplaçant positionné.",
-        "⚠️ À ANTICIPER (note du fichier décembre) : « janvier Yakine abs le 02/01 » — le sam 02/01/27, actuellement couvert par Adalla sur le planning janvier, va se découvrir. Remplaçant à prévoir."
+        "⚠️ À ANTICIPER (note du fichier décembre) : « janvier Yakine abs le 02/01 » — le sam 02/01/27, actuellement couvert par Adalla sur le planning janvier, va se découvrir. Remplaçant à prévoir.",
+        "Scan 24/11 : Echi Maissa — arrêt 25/11, congés patho jusqu'au 09/12 puis congé maternité jusqu'au 31/03. Sahin Sarah CP 07/12→06/01. Oubalkas reprend le 24/11. Vacataires samedis : Rosati 28/11, Charakidas 05/12. Aucun jour sans ophta, aucun sureffectif orthos à venir."
       ],
       "alertes": []
     },
@@ -454,7 +454,7 @@
         "Kokkinos couvre les sam 12 et 19/12 (9h-19h). Nouveaux remplaçants samedis : Segkos (24/10), Karkamani (31/10), Kepisis Dimitrios (14/11), Di Clemente (07 et 21/11), Ntovas (28/11, 26 et 30/12).",
         "⚠️ Décembre : 1 jour sans ophta restant — jeu 31/12. Ven 25/12 FERIE = fermé.",
         "✅ NOUVEAU (14/10) : le Dr KOKKINOS Zafeiris couvre les sam 12/12 et sam 19/12 (9h-19h) — pas de doublon, à Argenteuil il ne fait que le sam 05/12 (Charakidas y prend les 12 et 19/12).",
-        "Scan 22/11 : plannings nov/déc/janv Antony mis à jour le 21/11 — jours sans ophta inchangés (31/12, 30/01). Ligne DIEYE BINTOU toujours en double sem 16-21/11 (fin de contrat le 26/11). Nouveau doublon interne : BEDEZ MARGAUX en double sem 25-30/01 (horaires différents). Janvier : ligne ophta affichée « ERROR:#NAME? » sem 18-23/01 (vraisemblablement Meskini — si ce n'est pas elle, les 18, 19 et 22/01 seraient sans ophta, à vérifier). Arrêts : Fabre 18/11→15/01, Agouni « ARRET ? » déc-janv, Fey « ARRET ? » déc-janv. Direction : « DIRECTRICE A TROUVER » sur tout janvier (départ Fenelon 27/11, Dijoux en déc)."
+        "Scan 24/11 : plannings Antony nov/janv et Tremblay nov/déc mis à jour le 23/11 — aucun changement sur les jours sans ophta (janv : 30/01 seul). Ligne ophta « ERROR:#NAME? » sem 18-23/01 toujours pas corrigée (vraisemblablement Meskini — à faire corriger). Doublons internes toujours présents : DIEYE BINTOU (sem 16-21/11, sans objet après son départ le 26/11) et BEDEZ MARGAUX (sem 25-30/01). Nouveaux ophtas samedis : Ntovas 28/11, Amad 02/01, Ionita 09/01, Kokkinos 16/01, Di Clemente 23/01."
       ],
       "alertes": []
     }
