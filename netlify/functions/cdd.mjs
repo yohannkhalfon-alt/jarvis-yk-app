@@ -621,6 +621,77 @@ export default async (req) => {
     return json({ ok: true, notif: resa.notif || null });
   }
 
+  // Annulation (admin) d'une réservation même déjà confirmée : la date a été
+  // pourvue autrement (ex. accord donné à l'oral à un autre praticien).
+  // - la réservation passe en "annulee" (le brouillon de contrat ne sort plus)
+  // - la date est RETIRÉE de l'offre (pas re-libérée), sauf body.liberer=true
+  // - email au praticien demandeur : date déjà pourvue (jamais bloquant)
+  // - email à la gestionnaire : annuler la demande de CDD partie à la validation
+  if (action === "annuler") {
+    const resaId = champ(body.resaId, 40);
+    const slots = await lireSlots(store);
+    const slot = slots.find((s) => s.resaId === resaId);
+    const resa = await store.get(`resa/${resaId}.json`, { type: "json" });
+    if (!resa) return json({ error: "réservation introuvable" }, 404);
+    const etaitConfirmee = resa.status === "confirmee";
+    resa.status = "annulee";
+    resa.annuleeAt = new Date().toISOString();
+    resa.annuleeMotif = champ(body.motif, 200) || "date déjà pourvue";
+    let slotsOut = slots;
+    if (slot) {
+      if (body.liberer) { slot.status = "libre"; slot.resaId = null; }
+      else slotsOut = slots.filter((x) => x.id !== slot.id);
+    }
+    await store.setJSON(`resa/${resa.id}.json`, resa);
+    await store.setJSON("slots.json", slotsOut);
+
+    const mails = { praticien: false, gestionnaire: false };
+    try {
+      const key = await cleBrevo(store);
+      const cfg = await lireConfig(store);
+      const centre = (slot && slot.centre) || resa.centre;
+      const centreLabel = CENTRES[centre] || centre || "";
+      const quand = dateFr((slot && slot.date) || resa.date);
+      const expediteur = cfg.fromByCentre[centre] || process.env.BREVO_FROM;
+      if (key && expediteur && resa.email) {
+        const r1 = await fetch("https://api.brevo.com/v3/smtp/email", {
+          method: "POST",
+          headers: { "api-key": key, "content-type": "application/json" },
+          body: JSON.stringify({
+            sender: { name: "Groupe Ophtalmologie Medical", email: expediteur },
+            to: [{ email: resa.email, name: `Dr ${resa.prenom} ${resa.nom}` }],
+            subject: `Vacation du ${quand} à ${centreLabel} — date déjà pourvue`,
+            htmlContent:
+              `<p>Bonjour Docteur ${echapHtml(resa.nom)},</p>` +
+              `<p>Merci pour votre demande concernant la vacation du <b>${echapHtml(quand)}</b> au centre de <b>${echapHtml(centreLabel)}</b>.</p>` +
+              `<p>Malheureusement, cette date venait d'être pourvue par un autre praticien au moment du traitement de votre demande : nous ne pouvons donc pas la confirmer, et nous vous prions de nous en excuser.</p>` +
+              `<p>Les prochaines dates disponibles restent ouvertes ici : <a href="${url.origin}/cdd/">réserver une vacation</a>. Au plaisir de travailler avec vous très prochainement.</p>` +
+              `<p>Bien cordialement,<br>La direction — ${echapHtml(centreLabel)}</p>`,
+          }),
+        });
+        mails.praticien = r1.ok;
+      }
+      if (key && expediteur && etaitConfirmee && cfg.to) {
+        const r2 = await fetch("https://api.brevo.com/v3/smtp/email", {
+          method: "POST",
+          headers: { "api-key": key, "content-type": "application/json" },
+          body: JSON.stringify({
+            sender: { name: "JARVIS CDD", email: expediteur },
+            to: [{ email: cfg.to }],
+            subject: `❌ ANNULATION — pas de CDD : Dr ${resa.prenom} ${resa.nom}, ${quand} (${centreLabel})`,
+            htmlContent:
+              `<p><b>Merci de ne PAS établir</b> le CDD du Dr ${echapHtml(resa.prenom)} ${echapHtml(resa.nom)} pour le <b>${echapHtml(quand)}</b> à <b>${echapHtml(centreLabel)}</b> : la demande envoyée précédemment est <b>annulée</b> (date déjà pourvue par un autre praticien).</p>` +
+              `<p style="color:#888;font-size:12px;">JARVIS CDD — annulation automatique</p>`,
+          }),
+        });
+        mails.gestionnaire = r2.ok;
+      }
+    } catch {}
+    resa.notif = Object.assign({}, resa.notif, { annulation: mails });
+    await store.setJSON(`resa/${resa.id}.json`, resa);
+    return json({ ok: true, annulee: resa.id, dateRetiree: Boolean(slot && !body.liberer), mails });
+  }
+
   // Relais de lecture (admin) : rapatrie un fichier Dropbox (lien temporaire)
   // et le renvoie tel quel. Restreint aux hôtes de téléchargement Dropbox.
   if (action === "fetch-doc") {
