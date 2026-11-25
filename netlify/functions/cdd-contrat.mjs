@@ -136,19 +136,22 @@ export function blocsContrat(resa, slot, cfg) {
   const remu = paquet.base;
   const prime = paquet.prime;
 
+  const adresseSansRetour = String(resa.adresse || "____________").replace(/\s*\n\s*/g, ", ");
+  const enteteLignes = A.entete.split("\n");
   const blocs = [
     { t: "titre", x: "CONTRAT DE TRAVAIL A DUREE DETERMINEE\nA TERME PRECIS" },
-    { t: "p", x: "Entre les soussignés :" },
-    { t: "p", x: A.entete },
+    { t: "bande", x: "Entre les soussignés :" },
+    { t: "p", x: `**${enteteLignes[0]}**\n` + enteteLignes.slice(1).join("\n"), brut: true },
     { t: "p", x: `(ci-après désignée « le ${A.nomCourt} » ou « l’employeur » ou « l’Association »)` },
-    { t: "p", x: "d'une part," },
-    { t: "p", x: "Et :" },
-    { t: "p", x: `${P.civLong} ${P.nom}, né${P.e} le ${neLe} à ${lieuN}, de nationalité ${natio}, inscrit${P.e} à la sécurité sociale sous le numéro ${secu}, demeurant ${resa.adresse || "____________"}.` },
+    { t: "droite", x: "d'une part," },
+    { t: "bande", x: "Et :" },
+    { t: "p", x: `**${P.civLong} ${P.nom}**, né${P.e} le **${neLe}** à **${lieuN}**, de nationalité **${natio}** inscrit${P.e} à la sécurité sociale sous le numéro **${secu}**, demeurant **${adresseSansRetour}**.`, brut: true },
     { t: "p", x: `N° RPPS : ${resa.rpps || "____________"}` },
-    { t: "p", x: `(ci-après ${P.designe} « le Salarié » ou « Dr ${P.nom} » ou « le Praticien »)` },
-    { t: "p", x: "d'autre part," },
+    { t: "p", x: `(ci-après ${P.designe} « **le Salarié** » ou « **Dr ${P.nom}** » ou « **le Praticien** » )`, brut: true },
+    { t: "droite", x: "d'autre part," },
     { t: "p", x: "Ci-après ensemble dénommé(e)s les « Parties »." },
     { t: "p", x: "Il a été convenu et arrêté ce qui suit :" },
+    { t: "bande", x: "Il a été convenu ce qui suit :" },
 
     { t: "h", x: "Préambule" },
     { t: "p", x: `La déclaration préalable à l'embauche de ${P.mNom} a été effectuée à l'Urssaf ${A.urssafDe} auprès de laquelle le Centre de santé Ophtalmo Argenteuil est immatriculé. ${P.ilElle} pourra exercer auprès de cet organisme son droit d'accès et de rectification conformément à la loi n° 78-17 du 6 janvier 1978.` },
@@ -160,7 +163,7 @@ export function blocsContrat(resa, slot, cfg) {
     { t: "p", x: remplace
       ? `Le Centre de santé Ophtalmo Argenteuil engage ${P.mNom} à compter du ${dateVac} en qualité d’Ophtalmologue, pour une durée déterminée pour assurer le remplacement temporaire de ${remplace} habituellement employé dans le centre en qualité d’Ophtalmologue Statut Cadre, Positionnement 15, pendant son absence pour congés.`
       : `Le Centre de santé Ophtalmo Argenteuil engage ${P.mNom} à compter du ${dateVac} en qualité d’Ophtalmologue, pour une durée déterminée, pour assurer le remplacement temporaire dans l’attente de l’entrée en service d’un salarié recruté par CDI.` },
-    { t: "p", x: `Le présent contrat à durée déterminée est conclu pour une durée d’une journée. Il prend effet le ${dateVac} à 9 heures et se terminera le ${dateVac} au soir.` },
+    { t: "p", x: `**Le présent contrat à durée déterminée est conclu pour une durée d’une journée. Il prend effet le ${dateVac} à 9 heures et se terminera le ${dateVac} au soir.**`, brut: true },
     { t: "p", x: `${P.mNom}, qui accepte cet engagement, déclare formellement ne faire l'objet d'aucune restriction pouvant affecter la signature du présent contrat et/ou l'accomplissement de ses fonctions au sein du Centre de santé Ophtalmo Argenteuil.` },
     { t: "p", x: `${P.mNom} déclare au jour de la signature des présentes n’être tenu${P.e} à aucune clause de non-concurrence envers son ancien employeur ou ses autres employeurs éventuels.` },
     { t: "p", x: `${P.mNom} s’engage sur la véracité de l’ensemble des documents et renseignements remis lors de son embauche, ayant trait à sa situation propre. ${P.ilElle} est informé${P.e} que ces documents pourront être vérifiés, et ce conformément aux obligations incombant à l’employeur.` },
@@ -311,13 +314,23 @@ export function blocsContrat(resa, slot, cfg) {
     { t: "p", x: "Toutes les contestations qui pourraient s’élever entre les Parties sur la validité, l’interprétation, l’exécution ou la résolution de leur présente convention pourront, avant toute action en justice, être soumises à une tentative de conciliation devant le président du conseil départemental de l’ordre conformément aux dispositions de l’article R.4127-56 du code de la santé publique." },
     { t: "p", x: "En cas de désaccord sur l’interprétation, l’exécution ou la résiliation du présent contrat, les parties s’engagent, préalablement à toute action contentieuse, à soumettre leur différend à deux conciliateurs, l’un étant désigné parmi les membres du Conseil de l’Ordre." },
     { t: "p", x: "Ceux-ci s’efforceront de trouver une solution amiable, dans un délai maximum de trois mois à compter de la désignation du premier des conciliateurs." },
-    { t: "p", x: "***" },
+    { t: "etoiles", x: "***" },
   ];
-  return blocs.map((b) => ({ ...b, x: b.x.replaceAll("Centre de santé Ophtalmo Argenteuil", A.nomCourt) }));
+  // Gras automatique (calque du modèle Word de l'avocate) : noms du praticien,
+  // du remplacé, dates et montants. Les blocs marqués `brut` gèrent déjà leur gras.
+  const cibles = [P.mNom, `Dr ${P.nom}`, remplace, dateVac, remu, prime].filter(Boolean)
+    .sort((a, b) => b.length - a.length);
+  return blocs.map((b) => {
+    let x = b.x.replaceAll("Centre de santé Ophtalmo Argenteuil", A.nomCourt);
+    if (!b.brut && (b.t === "p" || b.t === "li"))
+      for (const c of cibles) x = x.split(`**${c}**`).join(c).replaceAll(c, `**${c}**`);
+    return { ...b, x };
+  });
 }
 
-// Coupe une ligne en morceaux tenant dans `largeur` points.
-function couper(texte, font, taille, largeur) {
+// Coupe une ligne en morceaux tenant dans `largeur` points (utilisée aussi
+// par chat.mjs pour les attestations).
+export function couper(texte, font, taille, largeur) {
   const lignes = [];
   for (const brute of texte.split("\n")) {
     const mots = brute.split(/\s+/).filter(Boolean);
@@ -332,11 +345,54 @@ function couper(texte, font, taille, largeur) {
   return lignes;
 }
 
-// Génère le PDF. tamponBytes : image JPEG/PNG du tampon du centre (ou null).
+// ---------- Rendu riche (calque de la mise en page Word de l'avocate) ----------
+// Un texte peut contenir des segments **gras**. On le découpe en mots typés,
+// on compose des lignes, et on les dessine justifiées (sauf dernière ligne).
+function motsTypes(texte) {
+  const mots = [];
+  for (const seg of texte.split(/(\*\*[^*]+\*\*)/)) {
+    if (!seg) continue;
+    const gras = seg.startsWith("**");
+    let propre = seg.replace(/\*\*/g, "");
+    // Une ponctuation qui suit immédiatement un segment gras (« **nom**, »)
+    // se rattache au mot précédent au lieu de flotter seule.
+    const ponct = !gras && mots.length ? propre.match(/^([,.;:)»]+)/) : null;
+    if (ponct) { mots[mots.length - 1].m += ponct[1]; propre = propre.slice(ponct[1].length); }
+    for (const m of propre.split(/\s+/)) if (m) mots.push({ m, gras });
+  }
+  return mots;
+}
+
+// Largeur d'un mot SANS crénage : widthOfTextAtSize applique les paires de
+// kerning alors que drawText avance glyphe par glyphe — mesurer caractère par
+// caractère reproduit exactement l'avance réelle du rendu.
+function largeurMot(f, texte, taille) {
+  let w = 0;
+  for (const c of texte) w += f.widthOfTextAtSize(c, taille);
+  return w;
+}
+
+function composerLignes(mots, polices, taille, largeur) {
+  const esp = polices.normale.widthOfTextAtSize(" ", taille);
+  const lignes = []; let ligne = []; let w = 0;
+  for (const mot of mots) {
+    const f = mot.gras ? polices.grasse : polices.normale;
+    const wm = largeurMot(f, mot.m, taille);
+    if (ligne.length && w + esp + wm > largeur) { lignes.push({ mots: ligne, w }); ligne = []; w = 0; }
+    w += (ligne.length ? esp : 0) + wm;
+    ligne.push({ ...mot, wm });
+  }
+  if (ligne.length) lignes.push({ mots: ligne, w });
+  return lignes;
+}
+
 export async function genererContratPdf(resa, slot, cfg, tamponBytes, tamponMime) {
   const doc = await PDFDocument.create();
   const police = await doc.embedFont(StandardFonts.TimesRoman);
   const gras = await doc.embedFont(StandardFonts.TimesRomanBold);
+  const italique = await doc.embedFont(StandardFonts.TimesRomanItalic);
+  const script = await doc.embedFont(StandardFonts.TimesRomanBoldItalic);
+  const polices = { normale: police, grasse: gras };
   let tampon = null;
   if (tamponBytes) {
     try {
@@ -347,67 +403,171 @@ export async function genererContratPdf(resa, slot, cfg, tamponBytes, tamponMime
   }
 
   const largeur = PAGE_L - 2 * MARGE;
+  const ENCRE = rgb(0.05, 0.05, 0.08);
   let page = doc.addPage([PAGE_L, PAGE_H]);
   let y = PAGE_H - MARGE;
-
   const nouvellePage = () => { page = doc.addPage([PAGE_L, PAGE_H]); y = PAGE_H - MARGE; };
   const assurer = (h) => { if (y - h < BAS) nouvellePage(); };
 
-  const ecrire = (texte, { f = police, taille = 10.5, interligne = 13.2, avant = 0, apres = 6, retrait = 0, centre = false } = {}) => {
-    y -= avant;
-    const lignes = couper(texte, f, taille, largeur - retrait);
-    for (const l of lignes) {
-      assurer(interligne);
-      const x = centre ? (PAGE_L - f.widthOfTextAtSize(l, taille)) / 2 : MARGE + retrait;
-      page.drawText(l, { x, y: y - taille, size: taille, font: f, color: rgb(0.05, 0.05, 0.1) });
-      y -= interligne;
+  const TAILLE = 10.5, INTER = 13.4;
+
+  // Paragraphe justifié avec runs gras. retrait = indentation gauche.
+  const paragraphe = (texte, { taille = TAILLE, retrait = 0, apres = 7, justifie = true, forceGras = false } = {}) => {
+    const esp = police.widthOfTextAtSize(" ", taille);
+    const segsParLigne = texte.split("\n");
+    for (let si = 0; si < segsParLigne.length; si++) {
+      const lignes = composerLignes(motsTypes(segsParLigne[si]).map((m) => (forceGras ? { ...m, gras: true } : m)), polices, taille, largeur - retrait);
+      for (let i = 0; i < lignes.length; i++) {
+        assurer(INTER);
+        const l = lignes[i];
+        const derniere = i === lignes.length - 1;
+        const extra = justifie && !derniere && l.mots.length > 1 ? (largeur - retrait - l.w) / (l.mots.length - 1) : 0;
+        let x = MARGE + retrait;
+        for (const mot of l.mots) {
+          const f = mot.gras ? gras : police;
+          page.drawText(mot.m, { x, y: y - taille, size: taille, font: f, color: ENCRE });
+          x += mot.wm + esp + extra;
+        }
+        y -= INTER;
+      }
     }
     y -= apres;
   };
 
-  const P = formes(resa);
-  for (const b of blocsContrat(resa, slot, cfg)) {
-    if (b.t === "titre") { for (const l of b.x.split("\n")) ecrire(l, { f: gras, taille: 14, interligne: 18, apres: 2, centre: true }); y -= 12; }
-    else if (b.t === "h") ecrire(b.x, { f: gras, taille: 11.5, avant: 8, apres: 5 });
-    else if (b.t === "h2") ecrire(b.x, { f: gras, taille: 10.5, avant: 4, apres: 4 });
-    else if (b.t === "li") ecrire("•  " + b.x, { retrait: 14, apres: 3 });
-    else ecrire(b.x);
-  }
+  // Ligne alignée à droite, en gras (« d'une part, » / « d'autre part, »).
+  const droite = (texte) => {
+    assurer(INTER + 14);
+    y -= 6;
+    const w = gras.widthOfTextAtSize(texte, TAILLE);
+    page.drawText(texte, { x: MARGE + largeur - w, y: y - TAILLE, size: TAILLE, font: gras, color: ENCRE });
+    y -= INTER + 8;
+  };
 
-  // Bloc signatures (dernière page ; saute une page si trop bas)
-  assurer(230);
-  const dateJour = new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Paris" });
-  const A = ASSOS[slot.centre] || ASSOS.argenteuil;
-  ecrire(`Fait à ${A.ville} en trois exemplaires originaux, le ${dateJour}.`, { avant: 8 });
-  const yBloc = y;
-  const col2 = PAGE_L / 2 + 10;
-  page.drawText(`Pour le ${A.nomCourt}*`, { x: MARGE, y: yBloc - 12, size: 10.5, font: gras });
-  page.drawText("Pour le Praticien*", { x: col2, y: yBloc - 12, size: 10.5, font: gras });
-  if (tampon) {
-    const dims = tampon.scale(Math.min(170 / tampon.width, 110 / tampon.height));
-    page.drawImage(tampon, { x: MARGE, y: yBloc - 30 - dims.height, width: dims.width, height: dims.height });
-  } else {
-    page.drawText("(tampon et signature)", { x: MARGE, y: yBloc - 60, size: 9, font: police, color: rgb(0.5, 0.5, 0.5) });
-  }
-  page.drawText(`Dr ${P.nom}`, { x: col2, y: yBloc - 32, size: 10.5, font: police });
-  page.drawText("Signature, précédée de « Lu et approuvé » :", { x: col2, y: yBloc - 48, size: 9, font: police, color: rgb(0.4, 0.4, 0.45) });
-  y = yBloc - 160;
-  ecrire("*Les signatures seront précédées de la mention manuscrite \"Lu et approuvé\". Chacune des pages autres que la dernière doit être paraphée par chacune des Parties.", { taille: 8.5, interligne: 10.5, avant: 6 });
+  // Bandeau gris pleine largeur (« Entre les soussignés : », « Et : », …).
+  const bande = (texte) => {
+    assurer(26);
+    y -= 4;
+    page.drawRectangle({ x: MARGE - 2, y: y - TAILLE - 5, width: largeur + 4, height: TAILLE + 8, color: rgb(0.855, 0.855, 0.855) });
+    page.drawText(texte, { x: MARGE + 2, y: y - TAILLE, size: TAILLE, font: gras, color: ENCRE });
+    y -= INTER + 10;
+  };
 
-  // Zone « Paraphes : » + numérotation sur chaque page sauf la dernière.
-  // Demande Yohann (17/11) : le paraphe du représentant légal de l'association
-  // (ASSOS[centre].paraphes) est pré-rempli sur chaque page ; le praticien
-  // paraphe à la main à côté.
-  // Pas de tampon sur les pages (il ne figure qu'au bloc signature final).
-  const italique = await doc.embedFont(StandardFonts.TimesRomanBoldItalic);
-  const pages = doc.getPages();
-  pages.forEach((p, i) => {
-    p.drawText(`Page ${i + 1} / ${pages.length}`, { x: PAGE_L - MARGE - 50, y: 30, size: 8, font: police, color: rgb(0.5, 0.5, 0.55) });
-    if (i < pages.length - 1) {
-      p.drawText("Paraphes :", { x: MARGE, y: 34, size: 8, font: police, color: rgb(0.5, 0.5, 0.55) });
-      p.drawText(A.paraphes, { x: MARGE + 46, y: 30, size: 15, font: italique, color: rgb(0.12, 0.18, 0.45) });
+  // Titre d'article : indenté, « Article N. » gras + intitulé gras souligné.
+  const article = (texte, { retrait = 24, taille = TAILLE } = {}) => {
+    assurer(26);
+    y -= 9;
+    const m = texte.match(/^(Article [^ ]+ ?[.:]?)\s+(.*)$/);
+    const avantT = m ? m[1] : "";
+    const titreT = m ? m[2] : texte;
+    let x = MARGE + retrait;
+    if (avantT) {
+      page.drawText(avantT, { x, y: y - taille, size: taille, font: gras, color: ENCRE });
+      x += gras.widthOfTextAtSize(avantT, taille) + 10;
     }
+    page.drawText(titreT, { x, y: y - taille, size: taille, font: gras, color: ENCRE });
+    const wT = gras.widthOfTextAtSize(titreT, taille);
+    page.drawLine({ start: { x, y: y - taille - 1.8 }, end: { x: x + wT, y: y - taille - 1.8 }, thickness: 0.8, color: ENCRE });
+    y -= INTER + 7;
+  };
+
+  // Sous-article (11-A, 12.B, 18.1…) : gras souligné, aligné à gauche.
+  const sousArticle = (texte) => {
+    assurer(22);
+    y -= 5;
+    page.drawText(texte, { x: MARGE, y: y - TAILLE, size: TAILLE, font: gras, color: ENCRE });
+    const w = gras.widthOfTextAtSize(texte, TAILLE);
+    page.drawLine({ start: { x: MARGE, y: y - TAILLE - 1.8 }, end: { x: MARGE + w, y: y - TAILLE - 1.8 }, thickness: 0.8, color: ENCRE });
+    y -= INTER + 5;
+  };
+
+  const P = formes(resa);
+  const A = ASSOS[slot.centre] || ASSOS.argenteuil;
+
+  for (const b of blocsContrat(resa, slot, cfg)) {
+    if (b.t === "titre") {
+      for (const l of b.x.split("\n")) {
+        const w = gras.widthOfTextAtSize(l, 12.5);
+        assurer(20);
+        page.drawText(l, { x: (PAGE_L - w) / 2, y: y - 12.5, size: 12.5, font: gras, color: ENCRE });
+        y -= 19;
+      }
+      y -= 10;
+    }
+    else if (b.t === "bande") bande(b.x);
+    else if (b.t === "droite") droite(b.x);
+    else if (b.t === "etoiles") {
+      assurer(24);
+      const w = police.widthOfTextAtSize("***", TAILLE);
+      page.drawText("***", { x: (PAGE_L - w) / 2, y: y - TAILLE - 8, size: TAILLE, font: police, color: ENCRE });
+      y -= 34;
+    }
+    else if (b.t === "h") {
+      if (/^Article /.test(b.x)) article(b.x);
+      else { assurer(24); y -= 8; page.drawText(b.x, { x: MARGE, y: y - 11.5, size: 11.5, font: gras, color: ENCRE }); y -= INTER + 6; }
+    }
+    else if (b.t === "h2") sousArticle(b.x);
+    else if (b.t === "li") {
+      // puce ronde + texte justifié en retrait
+      assurer(INTER);
+      page.drawText("•", { x: MARGE + 14, y: y - TAILLE, size: TAILLE, font: police, color: ENCRE });
+      paragraphe(b.x, { retrait: 30, apres: 4 });
+    }
+    else paragraphe(b.x);
+  }
+
+  // ---------- « Fait à … » + tableau de signatures encadré ----------
+  assurer(240);
+  const dateJour = new Date().toLocaleDateString("fr-FR", { timeZone: "Europe/Paris" });
+  paragraphe(`Fait à **${A.ville}** en trois exemplaires originaux\nLe **${dateJour}**`, { justifie: false, apres: 10 });
+
+  const hTab = 170;
+  assurer(hTab + 20);
+  const yHaut = y;
+  const col2 = PAGE_L / 2;
+  page.drawRectangle({ x: MARGE, y: yHaut - hTab, width: largeur, height: hTab, borderColor: ENCRE, borderWidth: 1 });
+  // En-têtes centrés par colonne (le nom du centre peut tenir sur 2 lignes)
+  const centrerCol = (texte, xDebut, xFin, yTexte, f = gras, taille = TAILLE) => {
+    const dispo = xFin - xDebut - 16;
+    const lignes = composerLignes(motsTypes(texte).map((m) => ({ ...m, gras: true })), polices, taille, dispo);
+    let yy = yTexte;
+    for (const l of lignes) {
+      let x = xDebut + (xFin - xDebut - l.w) / 2;
+      for (const mot of l.mots) {
+        page.drawText(mot.m, { x, y: yy, size: taille, font: f, color: ENCRE });
+        x += mot.wm + police.widthOfTextAtSize(" ", taille);
+      }
+      yy -= INTER;
+    }
+    return yy;
+  };
+  centrerCol(`Pour le ${A.nomCourt}*`, MARGE, col2, yHaut - 22);
+  centrerCol("Pour le Praticien*", col2, PAGE_L - MARGE, yHaut - 22);
+  page.drawText(`Date de signature : le ${dateJour}`, { x: MARGE + 12, y: yHaut - 64, size: TAILLE, font: police, color: ENCRE });
+  page.drawText("Date de signature :", { x: col2 + 12, y: yHaut - 64, size: TAILLE, font: police, color: ENCRE });
+  page.drawText("Signature* :", { x: MARGE + 12, y: yHaut - 110, size: TAILLE, font: police, color: ENCRE });
+  page.drawText("Signature* :", { x: col2 + 12, y: yHaut - 110, size: TAILLE, font: police, color: ENCRE });
+  if (tampon) {
+    const dims = tampon.scale(Math.min(150 / tampon.width, 78 / tampon.height));
+    page.drawImage(tampon, { x: MARGE + 78, y: yHaut - 92 - dims.height, width: dims.width, height: dims.height });
+  }
+  y = yHaut - hTab - 18;
+
+  // Note en italique sous le tableau (comme le modèle).
+  const noteTexte = "*Les signatures seront précédées de la mention manuscrite \"Lu et approuvé\". Chacune des pages autres que la dernière doit être paraphée par chacune des Parties.";
+  for (const l of (function dec(t) { const out = []; const ms = t.split(/\s+/); let lg = ""; for (const m of ms) { const e = lg ? lg + " " + m : m; if (italique.widthOfTextAtSize(e, 9.5) > largeur && lg) { out.push(lg); lg = m; } else lg = e; } out.push(lg); return out; })(noteTexte)) {
+    assurer(12);
+    page.drawText(l, { x: MARGE, y: y - 9.5, size: 9.5, font: italique, color: ENCRE });
+    y -= 12.5;
+  }
+
+  // ---------- Pied de page : numéro simple + paraphe script à droite ----------
+  const pages = doc.getPages();
+  pages.forEach((pg, i) => {
+    const num = String(i + 1);
+    pg.drawText(num, { x: PAGE_L - MARGE - 8 - police.widthOfTextAtSize(num, 9), y: 42, size: 9, font: police, color: ENCRE });
+    pg.drawText(A.paraphes, { x: PAGE_L - MARGE - 24, y: 18, size: 16, font: script, color: rgb(0.08, 0.08, 0.15) });
   });
 
   return doc.save();
 }
+
