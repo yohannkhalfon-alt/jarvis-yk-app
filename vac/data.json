@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-24T05:38:29Z",
+  "generated_at": "2026-11-25T05:39:19Z",
   "source": "Scan JARVIS via connecteur Dropbox",
   "periode": [
     {
@@ -429,13 +429,6 @@
           "status": "none",
           "hours": null,
           "note": "Sconamiglio ABS, remplaçant ABS AR — aucun ophta, le personnel travaille"
-        },
-        {
-          "date": "2027-01-30",
-          "weekday": "samedi",
-          "status": "none",
-          "hours": null,
-          "note": "Samedi sans remplaçant positionné (Meskini/Sconamiglio OFF)"
         }
       ],
       "notes": [
@@ -454,7 +447,7 @@
         "Kokkinos couvre les sam 12 et 19/12 (9h-19h). Nouveaux remplaçants samedis : Segkos (24/10), Karkamani (31/10), Kepisis Dimitrios (14/11), Di Clemente (07 et 21/11), Ntovas (28/11, 26 et 30/12).",
         "⚠️ Décembre : 1 jour sans ophta restant — jeu 31/12. Ven 25/12 FERIE = fermé.",
         "✅ NOUVEAU (14/10) : le Dr KOKKINOS Zafeiris couvre les sam 12/12 et sam 19/12 (9h-19h) — pas de doublon, à Argenteuil il ne fait que le sam 05/12 (Charakidas y prend les 12 et 19/12).",
-        "Scan 24/11 : plannings Antony nov/janv et Tremblay nov/déc mis à jour le 23/11 — aucun changement sur les jours sans ophta (janv : 30/01 seul). Ligne ophta « ERROR:#NAME? » sem 18-23/01 toujours pas corrigée (vraisemblablement Meskini — à faire corriger). Doublons internes toujours présents : DIEYE BINTOU (sem 16-21/11, sans objet après son départ le 26/11) et BEDEZ MARGAUX (sem 25-30/01). Nouveaux ophtas samedis : Ntovas 28/11, Amad 02/01, Ionita 09/01, Kokkinos 16/01, Di Clemente 23/01."
+        "Scan 25/11 : 30/01 désormais couvert par SOL BENBUNAN (validation orale reportée au planning) — il ne reste que le 31/12 à Antony. Nouveau médecin SOL BENBUNAN (30/01 + à ajouter les 06/03 et 20/03 sur le planning mars, note du fichier février). Ligne « ERROR:#NAME? » toujours pas corrigée (janv sem 18-23/01 ET fév sem 22-27/02 — vraisemblablement Meskini). Bedez Margaux toujours en double sem 25-30/01. Février : samedis couverts (Kokkinos 13 et 20/02, Charakidas 06/02, Di Clemente 27/02)."
       ],
       "alertes": []
     }
