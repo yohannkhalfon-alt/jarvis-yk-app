@@ -6,6 +6,7 @@ import { Archive } from "./archive.js";
 import { Contacts } from "./contacts.js";
 import { buildDigest } from "./digest.js";
 import { draftReply } from "./autoreply.js";
+import { ask } from "./claude.js";
 
 const HOUR = 3600 * 1000;
 const REPLY_COOLDOWN_MS = 90 * 1000;
@@ -60,6 +61,7 @@ export async function startAccount(account, config) {
     pending: new Map(),
     pendingSeq: 0,
     lastReplyAt: new Map(),
+    lastGroupReplyAt: new Map(),
     groupNames: new Map(),
     sock: null,
     connected: false,
@@ -203,6 +205,24 @@ export async function startAccount(account, config) {
     const rec = await toRecord(sock, msg, true);
     if (rec) archive.add(rec);
 
+    // Assistant de groupe : quelqu'un écrit @IA dans un groupe -> l'IA répond dans le groupe
+    if (isGroup && text) {
+      const ga = account.groupAssistant || {};
+      if (ga.enabled !== false) {
+        const trig = (ga.trigger || "@IA").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const re = new RegExp("(^|\\s)" + trig + "(\\b|\\s|$)", "i");
+        if (re.test(text)) {
+          const since = ctx.lastGroupReplyAt.get(jid) || 0;
+          if (Date.now() - since > 6000) {
+            ctx.lastGroupReplyAt.set(jid, Date.now());
+            const question = text.replace(re, " ").trim();
+            groupAnswer(sock, jid, question).catch((e) => log("groupe:", e.message));
+          }
+          return;
+        }
+      }
+    }
+
     // Reponse assistee : 1-a-1 entrant uniquement, hors chat de pilotage
     if (fromMe || isGroup || !text || bare(jid) === bare(account.notify)) return;
     const ar = account.autoReply || {};
@@ -249,6 +269,17 @@ export async function startAccount(account, config) {
       await sock.sendMessage(p.jid, { text: finalText });
       return reply(`✅ Envoyé à *${p.chatName}*.`);
     }
+  }
+
+  async function groupAnswer(sock, jid, question) {
+    const chatName = ctx.groupNames.get(jid) || "";
+    const history = archive.messages(jid, { limit: 30 })
+      .map((m) => `${m.fromMe ? "moi" : m.sender}: ${m.text}`);
+    const persona = account.groupAssistant?.persona ||
+      `Tu es l'assistant IA du groupe WhatsApp « ${chatName} » (contexte professionnel). On vient de t'interpeller avec @IA. Réponds en français, de façon concise, claire et directement utile à la demande, en t'appuyant sur la conversation récente du groupe quand c'est pertinent. Va à l'essentiel, ton pro et cordial, pas de blabla ni de formule d'accroche. Si la demande exige des infos que tu n'as pas (agenda réel, mails, fichiers), dis-le simplement en une phrase.`;
+    const user = `Derniers messages du groupe :\n${history.join("\n")}\n\nDemande adressée à l'IA : ${question || "(aide / résume la discussion)"}`;
+    const answer = await ask(persona, user, { maxTokens: 700 });
+    if (answer && answer.trim()) await sock.sendMessage(jid, { text: answer.trim() });
   }
 
   async function runDigest(forced = false, lookbackHours = null) {
