@@ -701,6 +701,7 @@ export default async (req) => {
               if (vus.has(cle)) continue;
               vus.add(cle);
               const envoi = journalRappels[`${centreId}|${iso}|${norm(pers.nom)}`] || null;
+              const envoiJ7 = journalRappels[`${centreId}|${iso}|${norm(pers.nom)}|J7`] || null;
               vacations.push({
                 date: iso,
                 weekday: JOURS_FR[new Date(iso + "T12:00:00Z").getUTCDay()],
@@ -710,6 +711,7 @@ export default async (req) => {
                 // uniquement "connue ou non" + trace d'envoi.
                 emailConnu: tokensNom(pers.nom).some((t) => annuaireEmails[t]),
                 envoye: envoi ? { quand: envoi.quand, mode: envoi.mode } : null,
+                envoyeSemaine: envoiJ7 ? { quand: envoiJ7.quand, mode: envoiJ7.mode } : null,
               });
             }
           }

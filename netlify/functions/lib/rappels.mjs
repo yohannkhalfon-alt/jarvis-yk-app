@@ -109,7 +109,7 @@ export function fabriquerIcs({ centreId, centreLabel, adresse, dateIso, heures, 
     `DTEND;TZID=Europe/Paris:${d}T${h2}${mn2}00`,
     `SUMMARY:${icsEchap(`Vacation — Centre d'ophtalmologie ${deCentre(centreLabel)}`)}`,
     `LOCATION:${icsEchap(adresse)}`,
-    `DESCRIPTION:${icsEchap(`Vacation du Dr ${nomJoli} au centre d'ophtalmologie ${deCentre(centreLabel)}. En cas d'empêchement, répondre au mail de confirmation.`)}`,
+    `DESCRIPTION:${icsEchap(`Vacation du Dr ${nomJoli} au centre d'ophtalmologie ${deCentre(centreLabel)}.`)}`,
     `ORGANIZER;CN=${icsEchap(`Centre d'ophtalmologie ${deCentre(centreLabel)}`)}:mailto:${expediteur}`,
     ...(emailDr ? [`ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN=${icsEchap("Dr " + nomJoli)}:mailto:${emailDr}`] : []),
     "STATUS:CONFIRMED",
@@ -142,7 +142,6 @@ function corpsMail({ nomJoli, dateTxt, heuresTxt, centreLabel, adresse, viaAlphi
 <p>Nous vous confirmons votre vacation du <b>${echapHtml(dateTxt)}</b>, ${echapHtml(heuresTxt)}, au <b>centre d'ophtalmologie ${echapHtml(deCentre(centreLabel))}</b> (${echapHtml(adresse)}).</p>
 <p style="margin:18px 0"><a href="${lienAgenda}" style="background:#1B6FD8;color:#fff;padding:11px 20px;border-radius:8px;text-decoration:none;font-weight:700">📅 Ajouter à mon agenda</a><br>
 <span style="color:#889;font-size:12px">L'invitation agenda est aussi jointe à ce mail (fichier .ics) — un appui et la vacation est dans votre calendrier.</span></p>
-<p>En cas d'empêchement ou de question, merci de nous prévenir au plus vite en répondant simplement à ce mail.</p>
 <p>À très bientôt,<br>La direction — Centre d'ophtalmologie ${echapHtml(deCentre(centreLabel))}<br><span style="color:#889;font-size:12px">Groupe Ophtalmologie Medical</span></p>`;
 }
 
@@ -206,8 +205,14 @@ export async function envoyerRappels(site) {
     }
     for (const v of data.vacations || []) {
       const e = ecartJours(v.date, auj);
-      if (e < 0 || e > 2) continue; // envoi à J-2, rattrapage J-1 / jour J
-      const cleJ = `${centreId}|${v.date}|${norm(v.nom)}`;
+      // Deux confirmations par vacation : une semaine avant (fenêtre J-7 à
+      // J-3) puis 48 h avant (fenêtre J-2 à jour J) — jamais deux fois la
+      // même grâce au journal (la clé J-2 reste l'historique sans suffixe).
+      let phase;
+      if (e >= 0 && e <= 2) phase = "J2";
+      else if (e >= 3 && e <= 7) phase = "J7";
+      else continue;
+      const cleJ = `${centreId}|${v.date}|${norm(v.nom)}` + (phase === "J7" ? "|J7" : "");
       if (journal[cleJ]) { bilan.ignores++; continue; }
       const expediteur = fromByCentre[centreId];
       if (!expediteur) { bilan.erreurs.push(`${centreId} : boîte direction non configurée`); continue; }
@@ -246,7 +251,7 @@ export async function envoyerRappels(site) {
           centre: centreId, date: v.date, nom: v.nom, heures: v.heures,
         };
         changement = true;
-        bilan.envoyes.push({ centre: centreId, date: v.date, nom: v.nom, mode: journal[cleJ].mode });
+        bilan.envoyes.push({ centre: centreId, date: v.date, nom: v.nom, phase, mode: journal[cleJ].mode });
       } catch (err) {
         bilan.erreurs.push(`${centreId} ${v.date} ${v.nom} : ${String(err.message || err).slice(0, 160)}`);
       }
