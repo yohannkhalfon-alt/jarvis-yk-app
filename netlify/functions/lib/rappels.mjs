@@ -146,6 +146,36 @@ function corpsMail({ nomJoli, dateTxt, heuresTxt, centreLabel, adresse, viaAlphi
 <p>À très bientôt,<br>La direction — Centre d'ophtalmologie ${echapHtml(deCentre(centreLabel))}<br><span style="color:#889;font-size:12px">Groupe Ophtalmologie Medical</span></p>`;
 }
 
+// Envoi d'UN mail de confirmation d'exemple (vacation fictive de demain à
+// Argenteuil) vers une adresse donnée — pour voir le rendu + l'invitation
+// agenda sans toucher au journal ni aux médecins.
+export async function envoyerExemple(destinataire) {
+  const store = getStore("cdd");
+  const cle = process.env.BREVO_API_KEY || (await store.get("secret/brevo")) || "";
+  const cfg = (await store.get("config.json", { type: "json" })) || {};
+  const expediteur = (cfg.fromByCentre || {}).argenteuil;
+  if (!cle || !expediteur) return { ok: false, erreur: "Brevo ou boîte Argenteuil non configurés" };
+  const auj = aujourdhuiParis();
+  const demain = new Date(new Date(auj + "T12:00:00Z").getTime() + 86400000).toISOString().slice(0, 10);
+  const centreLabel = CENTRES_LABELS.argenteuil, adresse = ADRESSES.argenteuil;
+  const nomJoli = "Exemple (Test Jarvis)", heures = "09H-19H";
+  const ics = fabriquerIcs({ centreId: "argenteuil", centreLabel, adresse, dateIso: demain, heures, nomJoli, emailDr: destinataire, expediteur });
+  const lienAgenda = lienGoogleAgenda({ centreLabel, adresse, dateIso: demain, heures });
+  const r = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: { "api-key": cle, "content-type": "application/json" },
+    body: JSON.stringify({
+      sender: { name: `Centre d'ophtalmologie ${deCentre(centreLabel)}`, email: expediteur },
+      replyTo: { email: expediteur },
+      to: [{ email: destinataire }],
+      subject: `[TEST] Confirmation de votre vacation — ${dateLongue(demain)} (${centreLabel})`,
+      htmlContent: corpsMail({ nomJoli, dateTxt: dateLongue(demain), heuresTxt: joliHeures(heures), centreLabel, adresse, viaAlphika: false, lienAgenda }),
+      attachment: [{ name: "vacation.ics", content: Buffer.from(ics, "utf8").toString("base64") }],
+    }),
+  });
+  return { ok: r.ok, statut: r.status };
+}
+
 // Lance une passe de rappels. `site` = origine https du site (pour appeler
 // /api/majvac). Retourne un bilan détaillé ; n'envoie JAMAIS deux fois le
 // même rappel (journal), et ne touche pas aux médecins en CDI (filtrés en
