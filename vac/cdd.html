@@ -52,13 +52,12 @@
   .nom { font-size:17px; font-weight:700; color:#EAF4FF; }
   .det { font-size:13.5px; color:var(--txt); margin-top:4px; }
   .det b { color:var(--cyan); font-weight:700; }
-  .acts { display:flex; gap:8px; margin-top:10px; }
-  .acts a, .acts button {
-    flex:1; text-align:center; border-radius:9px; padding:10px 0; font-size:13px; font-weight:700;
-    letter-spacing:.5px; cursor:pointer; font-family:'Rajdhani'; text-decoration:none;
-  }
-  .wa { background:#1FAF5E; border:none; color:#04140B; }
-  .cp { background:transparent; border:1.5px solid rgba(79,216,235,.5); color:var(--cyan); }
+  .envoi { display:flex; align-items:center; gap:7px; margin-top:9px; font-size:12.5px; font-weight:600; }
+  .envoi.ok { color:#6FB8FF; }
+  .envoi.attente { color:var(--dim); }
+  .envoi.pret { color:var(--orange); }
+  .envoi .pt { width:7px; height:7px; border-radius:50%; background:currentColor; flex:none; }
+  .alphika { color:var(--dim); font-weight:500; }
   .empty { text-align:center; color:var(--dim); font-size:14px; padding:30px 0; line-height:1.6; }
   .err { color:var(--orange); font-size:12.5px; margin-top:10px; }
 </style>
@@ -69,8 +68,9 @@
   <h1>RAPPELS<span>·CDD</span></h1>
 </header>
 <main>
-  <p class="intro">Vacations des médecins remplaçants sur les 14 prochains jours.
-  Un appui sur <b>WhatsApp</b> ouvre le message de rappel tout prêt — choisis le contact du médecin et envoie.</p>
+  <p class="intro">Vacations des médecins <b>vacataires</b> (CDD — les CDI de la structure ne sont pas listés) sur les 14 prochains jours.
+  À <b>J-2</b>, un mail de confirmation part automatiquement depuis la boîte direction du centre concerné,
+  au médecin avec le cabinet Alphika en copie (ou à Alphika seul si l'adresse du médecin est inconnue).</p>
   <div id="liste"><span class="spin"></span> Lecture des plannings…</div>
 </main>
 <script>
@@ -104,17 +104,20 @@ function ecart(iso) {
   const un = 24*3600*1000;
   return Math.round((new Date(iso+"T12:00:00") - new Date(AUJ+"T12:00:00")) / un);
 }
-function message(v, centreLabel) {
-  return "Bonjour Docteur " + joliNom(v.nom) + ",\n" +
-    "J'espère que vous allez bien. Je me permets de vous rappeler votre vacation du " +
-    joliDate(v.date, v.weekday) + " " + joliHeures(v.heures) +
-    " au centre d'ophtalmologie de " + centreLabel + ".\n" +
-    "À très bientôt,\nGroupe Ophtalmologie Medical";
+function quandFr(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) + " à " +
+    d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris" });
 }
-function copier(btn, txt) {
-  const done = () => { btn.textContent = "✓ Copié"; setTimeout(() => btn.textContent = "📋 Copier", 1500); };
-  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done);
-  else { const ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); done(); }
+// Statut d'envoi du mail de confirmation pour une vacation.
+function ligneEnvoi(v, e) {
+  if (v.envoye) {
+    const qui = v.envoye.mode === "copie-seule" ? "Alphika seul (adresse du Dr inconnue)" : "Dr + Alphika";
+    return '<div class="envoi ok"><span class="pt"></span>✉️ Mail envoyé le ' + quandFr(v.envoye.quand) + ' · ' + qui + '</div>';
+  }
+  if (e <= 2) return '<div class="envoi pret"><span class="pt"></span>Envoi au prochain passage automatique (2×/jour)</div>';
+  return '<div class="envoi attente"><span class="pt"></span>Envoi automatique à J-2' +
+    (v.emailConnu === false ? ' · <span class="alphika">adresse du Dr inconnue → Alphika seul</span>' : '') + '</div>';
 }
 
 async function charger() {
@@ -137,22 +140,18 @@ async function charger() {
       (erreurs.length ? '<div class="err">' + erreurs.join("<br>") + '</div>' : "");
     return;
   }
-  el.innerHTML = tout.map((v, i) => {
+  el.innerHTML = tout.map((v) => {
     const e = ecart(v.date);
     const badge = e === 0 ? '<span class="badge now">Aujourd’hui</span>'
       : e === 1 ? '<span class="badge hot">Demain</span>'
-      : e === 2 ? '<span class="badge hot">J-2 — à rappeler</span>'
+      : e === 2 ? '<span class="badge hot">J-2</span>'
       : '<span class="badge">J-' + e + '</span>';
-    const msg = message(v, v.centre);
     return '<div class="card' + (e <= 2 ? ' hot' : '') + '">' +
       '<div class="top">' + badge + '<span class="nom">Dr ' + joliNom(v.nom) + '</span></div>' +
       '<div class="det"><b>' + v.centre + '</b> · ' + joliDate(v.date, v.weekday) + ' · ' + v.heures + '</div>' +
-      '<div class="acts">' +
-        '<a class="wa" href="https://wa.me/?text=' + encodeURIComponent(msg) + '" target="_blank">📲 WhatsApp</a>' +
-        '<button class="cp" onclick="copier(this, MSGS[' + i + '])">📋 Copier</button>' +
-      '</div></div>';
+      ligneEnvoi(v, e) +
+      '</div>';
   }).join("") + (erreurs.length ? '<div class="err">' + erreurs.join("<br>") + '</div>' : "");
-  window.MSGS = tout.map(v => message(v, v.centre));
 }
 charger();
 </script>
