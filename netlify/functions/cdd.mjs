@@ -798,6 +798,14 @@ export default async (req) => {
   // Passe de rappels de vacation immédiate (les crons tournent 2×/jour) :
   // utile pour tester ou rattraper sans attendre. Jamais de double envoi
   // (journal dans lib/rappels.mjs).
+  // Mail de confirmation d'exemple (vacation fictive) vers une adresse donnée.
+  if (action === "rappels-test") {
+    const dest = champ(body.email, 120);
+    if (!dest.includes("@")) return json({ error: "email invalide" }, 400);
+    const { envoyerExemple } = await import("./lib/rappels.mjs");
+    return json(await envoyerExemple(dest));
+  }
+
   if (action === "rappels-run") {
     // body.oublier = ["centre|date|NOM", …] : efface ces entrées du journal
     // pour forcer un nouvel envoi (ex. adresse du médecin ajoutée après coup).
