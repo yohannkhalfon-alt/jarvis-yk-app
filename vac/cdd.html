@@ -69,8 +69,9 @@
 </header>
 <main>
   <p class="intro">Vacations des médecins <b>vacataires</b> (CDD — les CDI de la structure ne sont pas listés) sur les 14 prochains jours.
-  À <b>J-2</b>, un mail de confirmation part automatiquement depuis la boîte direction du centre concerné,
-  au médecin avec le cabinet Alphika en copie (ou à Alphika seul si l'adresse du médecin est inconnue).</p>
+  <b>Une semaine avant</b> puis <b>48 h avant</b>, un mail de confirmation (avec invitation agenda) part automatiquement
+  depuis la boîte direction du centre concerné, au médecin avec le cabinet Alphika en copie
+  (ou à Alphika seul si l'adresse du médecin est inconnue).</p>
   <div id="liste"><span class="spin"></span> Lecture des plannings…</div>
 </main>
 <script>
@@ -109,15 +110,22 @@ function quandFr(iso) {
   return d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) + " à " +
     d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris" });
 }
-// Statut d'envoi du mail de confirmation pour une vacation.
+// Statut des deux mails de confirmation (J-7 puis 48 h avant) d'une vacation.
 function ligneEnvoi(v, e) {
-  if (v.envoye) {
-    const qui = v.envoye.mode === "copie-seule" ? "Alphika seul (adresse du Dr inconnue)" : "Dr + Alphika";
-    return '<div class="envoi ok"><span class="pt"></span>✉️ Mail envoyé le ' + quandFr(v.envoye.quand) + ' · ' + qui + '</div>';
+  const qui = (env) => env.mode === "copie-seule" ? "Alphika seul (adresse du Dr inconnue)" : "Dr + Alphika";
+  const lignes = [];
+  if (v.envoyeSemaine)
+    lignes.push('<div class="envoi ok"><span class="pt"></span>✉️ Mail J-7 envoyé le ' + quandFr(v.envoyeSemaine.quand) + ' · ' + qui(v.envoyeSemaine) + '</div>');
+  if (v.envoye)
+    lignes.push('<div class="envoi ok"><span class="pt"></span>✉️ Mail 48 h envoyé le ' + quandFr(v.envoye.quand) + ' · ' + qui(v.envoye) + '</div>');
+  if (!v.envoye) {
+    if (e <= 2) lignes.push('<div class="envoi pret"><span class="pt"></span>Envoi 48 h au prochain passage automatique (2×/jour)</div>');
+    else if (!v.envoyeSemaine && e <= 7) lignes.push('<div class="envoi pret"><span class="pt"></span>Envoi J-7 au prochain passage automatique (2×/jour)</div>');
+    else if (e > 7) lignes.push('<div class="envoi attente"><span class="pt"></span>Mails automatiques à J-7 puis 48 h avant' +
+      (v.emailConnu === false ? ' · <span class="alphika">adresse du Dr inconnue → Alphika seul</span>' : '') + '</div>');
+    else lignes.push('<div class="envoi attente"><span class="pt"></span>Prochain mail : 48 h avant</div>');
   }
-  if (e <= 2) return '<div class="envoi pret"><span class="pt"></span>Envoi au prochain passage automatique (2×/jour)</div>';
-  return '<div class="envoi attente"><span class="pt"></span>Envoi automatique à J-2' +
-    (v.emailConnu === false ? ' · <span class="alphika">adresse du Dr inconnue → Alphika seul</span>' : '') + '</div>';
+  return lignes.join("");
 }
 
 async function charger() {
