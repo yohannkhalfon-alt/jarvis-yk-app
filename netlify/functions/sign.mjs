@@ -50,6 +50,33 @@ const adminOk = (req) => {
   return !code || req.headers.get("x-sign-code") === code;
 };
 
+// ---------- Espaces ----------
+// Une demande appartient soit a l'espace « groupe », que tout le monde lit,
+// soit a un espace personnel, protege par un mot de passe propre a son
+// titulaire : ses documents restent invisibles aux autres, code de groupe
+// compris. Les liens de signature, eux, ne dependent pas de l'espace : un
+// signataire ouvre le sien avec son jeton, comme avant.
+const GROUPE = "groupe";
+const JETON_HEURES = 12;
+
+const identifiantEspace = (nom) =>
+  String(nom || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
+
+// Espace demande par l'appelant : « groupe », ou l'espace personnel dont il
+// detient un jeton valide. Renvoie null si le jeton est absent ou perime.
+async function espaceDemande(store, req) {
+  const jeton = req.headers.get("x-sign-espace");
+  if (!jeton) return GROUPE;
+  const j = await store.get(`jeton/${String(jeton).slice(0, 64)}.json`, { type: "json" });
+  if (!j || new Date(j.exp) < new Date()) return null;
+  return j.espace;
+}
+
+// Une demande est lisible si elle est au groupe, ou si l'appelant a ouvert
+// l'espace personnel auquel elle appartient.
+const litEspace = (env, espace) => (env.espace || GROUPE) === (espace || GROUPE);
+
 // Les polices standard PDF n'acceptent que le Latin-1 : on remplace le reste.
 const txt = (s) => String(s ?? "").replace(/[^\x20-\x7E -ÿ]/g, "?");
 
@@ -440,6 +467,11 @@ export default async (req) => {
       // dlToken : lien de téléchargement direct (utilisé dans l'email au centre)
       const dlOk = Boolean(token) && token === env.dlToken;
       if (idx < 0 && !dlOk && !adminOk(req)) return json({ error: "Lien invalide" }, 403);
+      // Une demande rangee dans un espace personnel n'est pas lisible avec le
+      // seul code de groupe : il faut avoir ouvert cet espace. Le signataire
+      // (idx >= 0) et le lien de telechargement direct restent valables.
+      if (idx < 0 && !dlOk && !litEspace(env, await espaceDemande(store, req)))
+        return json({ error: "Cette demande appartient à un espace personnel" }, 403);
 
       // --- export du dossier de preuve (gestionnaire : admin ou dlToken) ---
       if (url.searchParams.get("preuve") && env.preuve) {
@@ -512,14 +544,16 @@ export default async (req) => {
     // --- Liste (admin) ---
     if (url.searchParams.get("list")) {
       if (!adminOk(req)) return json({ error: "Code admin invalide" }, 403);
+      const espace = await espaceDemande(store, req);
+      if (!espace) return json({ error: "Session de l'espace personnel expirée" }, 401);
       const { blobs } = await store.list({ prefix: "env/" });
       const envs = [];
       for (const b of blobs) {
         const e = await store.get(b.key, { type: "json" });
-        if (e) envs.push(e);
+        if (e && litEspace(e, espace)) envs.push(e);
       }
       envs.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
-      return json({ envelopes: envs });
+      return json({ envelopes: envs, espace });
     }
 
     // --- Config pour le tableau de bord ---
@@ -548,8 +582,41 @@ export default async (req) => {
     }
 
     // --- Création d'une demande (admin) ---
+    // --- Ouverture d'un espace personnel ---
+    // Le premier a ouvrir un nom le cree et en fixe le mot de passe ; ensuite
+    // il faut ce mot de passe. Rien ne permet de le retrouver : c'est le prix
+    // d'un espace que personne d'autre ne lit, code de groupe inclus.
+    if (body.action === "espace-ouvrir") {
+      if (!adminOk(req)) return json({ error: "Code admin invalide" }, 403);
+      const nom = String(body.nom || "").trim().slice(0, 60);
+      const motDePasse = String(body.motDePasse || "");
+      const id = identifiantEspace(nom);
+      if (!id) return json({ error: "Indiquez un nom d'espace" }, 400);
+      if (motDePasse.length < 6) return json({ error: "Le mot de passe doit faire au moins 6 caractères" }, 400);
+
+      const cle = `espace/${id}.json`;
+      let espace = await store.get(cle, { type: "json" });
+      let creation = false;
+      if (!espace) {
+        espace = { id, nom, hash: preuve.hasherOtp(motDePasse), creeLe: new Date().toISOString() };
+        await store.setJSON(cle, espace);
+        creation = true;
+      } else if (!preuve.verifierOtp(motDePasse, espace.hash)) {
+        return json({ error: "Mot de passe incorrect pour cet espace" }, 403);
+      }
+
+      const jeton = randomBytes(24).toString("hex");
+      await store.setJSON(`jeton/${jeton}.json`, {
+        espace: `perso:${id}`,
+        exp: new Date(Date.now() + JETON_HEURES * 3600_000).toISOString(),
+      });
+      return json({ jeton, id, nom: espace.nom, creation, heures: JETON_HEURES });
+    }
+
     if (body.action === "create") {
       if (!adminOk(req)) return json({ error: "Code admin invalide" }, 403);
+      const espace = await espaceDemande(store, req);
+      if (!espace) return json({ error: "Session de l'espace personnel expirée" }, 401);
       const { title, pdfBase64, signers, fromEmail, mentions, paraphe, positions, dateImposee } = body;
       if (!title || (!pdfBase64 && !body.uploadId) || !Array.isArray(signers) || !signers.length)
         return json({ error: "Titre, PDF et au moins un signataire requis" }, 400);
@@ -602,6 +669,9 @@ export default async (req) => {
               .filter((p) => p && Number.isInteger(p.s) && p.s >= 0 && p.s < Math.min(signers.length, 8) && Number.isFinite(p.x) && Number.isFinite(p.y))
               .map((p) => ({ s: p.s, page: Math.max(0, Math.floor(p.page || 0)), x: Math.min(1, Math.max(0, p.x)), y: Math.min(1, Math.max(0, p.y)) }))
           : [],
+        // Espace de la demande : « groupe », lisible par tous, ou l'espace
+        // personnel ouvert par celui qui la cree.
+        espace,
         dlToken: randomBytes(16).toString("hex"),
         status: "attente",
         signers: signers.slice(0, 8).map((s) => ({
@@ -809,6 +879,9 @@ export default async (req) => {
       const { id } = body;
       const env = await store.get(`env/${id}.json`, { type: "json" });
       if (!env) return json({ error: "Demande introuvable" }, 404);
+      // On ne supprime que dans l'espace ou l'on se trouve.
+      if (!litEspace(env, await espaceDemande(store, req)))
+        return json({ error: "Cette demande appartient à un espace personnel" }, 403);
       // Immuabilité (règle transversale n°2) : un dossier probatoire finalisé
       // ne se supprime pas — il s'annule, en conservant la trace.
       if (env.preuve?.finaliseLe && !body.purge) {
