@@ -104,7 +104,7 @@ async function cleBrevo(store) {
 
 async function lireConfig(store) {
   const c = (await store.get("config.json", { type: "json" })) || {};
-  return { to: c.to || DEST_DEFAUT, fromByCentre: c.fromByCentre || {}, notif: c.notif || "", remplaceByCentre: c.remplaceByCentre || {}, remplaceByCentreJour: c.remplaceByCentreJour || {}, medecinsCdi: c.medecinsCdi || {} };
+  return { to: c.to || DEST_DEFAUT, fromByCentre: c.fromByCentre || {}, notif: c.notif || "", remplaceByCentre: c.remplaceByCentre || {}, remplaceByCentreJour: c.remplaceByCentreJour || {}, medecinsCdi: c.medecinsCdi || {}, medecinsEmails: c.medecinsEmails || {}, rappelsCopie: c.rappelsCopie || [] };
 }
 
 // Centres suspendus (CDI en pourparlers, etc.) : les dates libres de ces
@@ -773,6 +773,17 @@ export default async (req) => {
       if (CENTRES[c]) cfg.fromByCentre[c] = champ(mail, 120);
     for (const [c, nom] of Object.entries(body.remplaceByCentre || {}))
       if (CENTRES[c]) cfg.remplaceByCentre[c] = champ(nom, 120);
+    // Annuaire des emails des médecins VACATAIRES : { "NOM": "email" } ;
+    // email vide = retrait. Sert aux rappels de vacation automatiques.
+    for (const [nomV, mail] of Object.entries(body.medecinsEmails || {})) {
+      const cle = champ(nomV, 60).toUpperCase().trim();
+      if (!cle) continue;
+      if (champ(mail, 120).includes("@")) cfg.medecinsEmails[cle] = champ(mail, 120);
+      else delete cfg.medecinsEmails[cle];
+    }
+    // Adresses en copie des rappels (cabinet de recrutement) — liste complète à chaque fois.
+    if (Array.isArray(body.rappelsCopie))
+      cfg.rappelsCopie = body.rappelsCopie.map((x) => champ(x, 120)).filter((x) => x.includes("@")).slice(0, 6);
     // Annuaire des médecins en CDI : { "<rpps>": "Dr Nom" } ; nom vide = retrait.
     for (const [rpps, nom] of Object.entries(body.medecinsCdi || {})) {
       const cle = champ(rpps, 20).replace(/\D/g, "");
@@ -782,6 +793,15 @@ export default async (req) => {
     }
     await store.setJSON("config.json", cfg);
     return json({ ok: true, config: cfg });
+  }
+
+  // Passe de rappels de vacation immédiate (les crons tournent 2×/jour) :
+  // utile pour tester ou rattraper sans attendre. Jamais de double envoi
+  // (journal dans lib/rappels.mjs).
+  if (action === "rappels-run") {
+    const { envoyerRappels } = await import("./lib/rappels.mjs");
+    const bilan = await envoyerRappels(url.origin);
+    return json({ ok: true, bilan });
   }
 
   return json({ error: "action inconnue" }, 400);

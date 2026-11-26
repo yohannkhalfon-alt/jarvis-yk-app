@@ -432,19 +432,21 @@ function calculerJours(grille, ophtasSet) {
 // ---------- Vue « Équipe » (qui travaille, par rôle) ----------
 const ROLE_LABEL = { ophta: "Ophtalmologue", ortho: "Orthoptistes", secretaire: "Secrétaires" };
 
-// Médecins permanents par centre : tout autre ophtalmologue planifié est un
-// CDD / remplaçant, à rappeler avant sa vacation (vue "cdd").
-const PERMANENTS = {
-  argenteuil:   ["SLIMANE", "PAPAPOSTOLOU", "NIZARD", "HAJJAR", "HAJAR"],
-  annecy:       ["ADINA", "EMA"],
-  tremblay:     ["SEBE", "SLIMANE", "ADALLA"],
-  sartrouville: ["PAPAPOSTOLOU", "SLIMANE", "SAADE", "CHAHINE", "ADDALA"],
-  antony:       ["MESKINI", "ALESSANDRO"],
-};
-const estPermanent = (centreId, nom) => {
-  const n = norm(nom).replace(/^DR\.?\s+/, "");
-  return (PERMANENTS[centreId] || []).some((p) => n === p || n.startsWith(p + " "));
-};
+// Médecins en CDI dans la structure (tous centres) : seuls les VACATAIRES
+// (CDD, non signataires d'un CDI) sont listés dans la vue "cdd" et reçoivent
+// un mail de confirmation. Appariement par JETON du nom ("HADJ SLIMANE",
+// "SLIMANE" et "Dr Slimane" matchent tous SLIMANE) — la liste de l'admin
+// JARVIS CDD (config.medecinsCdi) complète cette liste sans redéploiement.
+const CDI_TOKENS = new Set([
+  "SLIMANE", "PAPAPOSTOLOU", "HAJAR", "HAJJAR", "BACHAR",
+  "ADDALA", "ADALLA", "SAADE", "CHAHINE",
+  "MESKINI", "SCONAMIGLIO",
+  "SPINEAN", "ADINA", "POULLOT", "EMA",
+  "CHARAKIDAS", "SEBE", "NIZARD",
+]);
+const tokensNom = (nom) => norm(nom).replace(/^DR\.?\s+/, "").split(/[\s,'-]+/).filter(Boolean);
+const estCdi = (nom, extra) =>
+  tokensNom(nom).some((t) => CDI_TOKENS.has(t) || (extra && extra.has(t)));
 
 // Rôle d'une personne : ophta si classée comme telle, sinon d'après le bloc
 // (bloc 2 = orthoptistes, bloc 3+ = secrétaires ; bloc 1 par défaut = ophta).
@@ -672,12 +674,25 @@ export default async (req) => {
           grillesC.push(parseGrille(xlsxVersLignes(buffer), m.mois, m.annee));
         }
         const ophtasSetC = grillesC.length ? await classifierOphtas(grillesC, centreId, centre.label) : new Set();
+        // Config JARVIS CDD : CDI déclarés dans l'admin + annuaire des emails + journal des mails envoyés
+        let cfgCdd = {}, journalRappels = {};
+        try {
+          const storeCdd = getStore("cdd");
+          cfgCdd = (await storeCdd.get("config.json", { type: "json" })) || {};
+          journalRappels = (await storeCdd.get("rappels/journal.json", { type: "json" })) || {};
+        } catch {}
+        const extraCdi = new Set();
+        for (const nomCdi of Object.values(cfgCdd.medecinsCdi || {}))
+          for (const t of tokensNom(nomCdi)) if (t.length >= 3) extraCdi.add(t);
+        const annuaireEmails = {};
+        for (const [k, v] of Object.entries(cfgCdd.medecinsEmails || {}))
+          if (v && String(v).includes("@")) annuaireEmails[norm(k)] = true;
         const vacations = [];
         const vus = new Set();
         for (const g of grillesC) {
           for (const pers of g.personnes.values()) {
             if (roleDe(pers.nom, pers.bloc, ophtasSetC) !== "ophta") continue;
-            if (estPermanent(centreId, pers.nom)) continue;
+            if (estCdi(pers.nom, extraCdi)) continue;
             for (const [iso, cell] of pers.cellules) {
               if (!joursCibles.includes(iso)) continue;
               const c = lireCellule(cell);
@@ -685,11 +700,16 @@ export default async (req) => {
               const cle = `${iso}|${norm(pers.nom)}`;
               if (vus.has(cle)) continue;
               vus.add(cle);
+              const envoi = journalRappels[`${centreId}|${iso}|${norm(pers.nom)}`] || null;
               vacations.push({
                 date: iso,
                 weekday: JOURS_FR[new Date(iso + "T12:00:00Z").getUTCDay()],
                 nom: pers.nom.trim(),
                 heures: `${fmtH(c.debut)}-${fmtH(c.fin)}`,
+                // Jamais d'adresse email dans la réponse (page publique) :
+                // uniquement "connue ou non" + trace d'envoi.
+                emailConnu: tokensNom(pers.nom).some((t) => annuaireEmails[t]),
+                envoye: envoi ? { quand: envoi.quand, mode: envoi.mode } : null,
               });
             }
           }
