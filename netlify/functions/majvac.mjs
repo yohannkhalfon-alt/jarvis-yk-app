@@ -807,4 +807,4 @@ export default async (req) => {
 export const config = { path: "/api/majvac" };
 
 // Exports internes pour les tests
-export { moisAnalyses, trouverPlanning, xlsxVersTexte, xlsxVersLignes, parseGrille, lireCellule, calculerJours, classifierOphtas, semaineDe, roleDe, construireEquipe };
+export { getCreds, dropboxToken, dropboxDownload, moisAnalyses, trouverPlanning, xlsxVersTexte, xlsxVersLignes, parseGrille, lireCellule, calculerJours, classifierOphtas, semaineDe, roleDe, construireEquipe };
