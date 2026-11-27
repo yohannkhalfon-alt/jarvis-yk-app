@@ -618,6 +618,14 @@ export default async (req) => {
       // ----- Vue « Équipe » : qui travaille par rôle sur une semaine -----
       if (vue === "equipe") {
         const joursSemaine = semaineDe(semaineParam); // lundi → samedi
+        // Cache 10 min (pages planning employés épinglées sur WhatsApp : la
+        // lecture Dropbox + classification prend plusieurs secondes).
+        const cacheStore = getStore("majvac");
+        const cacheCle = `cache/equipe-${centreId}-${joursSemaine[0]}`;
+        try {
+          const hit = await cacheStore.get(cacheCle, { type: "json" });
+          if (hit && Date.now() - hit.ts < 10 * 60 * 1000) return reponse(hit.data);
+        } catch {}
         // Mois à charger = mois distincts couverts par la semaine (déborde parfois).
         const moisNeeded = [...new Set(joursSemaine.map((iso) => iso.slice(0, 7)))].map((ym) => {
           const [a, mm] = ym.split("-").map(Number);
@@ -638,7 +646,7 @@ export default async (req) => {
         }
         const ophtasSetE = grillesE.length ? await classifierOphtas(grillesE, centreId, centre.label) : new Set();
         const roles = construireEquipe(grillesE, joursSemaine, ophtasSetE);
-        return reponse({
+        const payload = {
           centre: centreId,
           label: centre.label,
           vue: "equipe",
@@ -647,7 +655,9 @@ export default async (req) => {
           ophtalmologues: [...ophtasSetE],
           fichiers: fichiersE,
           erreurs: erreursE,
-        });
+        };
+        if (grillesE.length) { try { await cacheStore.setJSON(cacheCle, { ts: Date.now(), data: payload }); } catch {} }
+        return reponse(payload);
       }
 
       // ----- Vue « CDD » : vacations des remplaçants sur les 14 prochains jours -----

@@ -12,3 +12,31 @@
   to = "https://astrologia-love.netlify.app/:splat"
   status = 301
   force = true
+
+# Pages planning employés (liens épinglés dans les groupes WhatsApp) :
+# /planning/<centre> sert la page statique correspondante.
+[[redirects]]
+  from = "/planning/tremblay"
+  to = "/planning/tremblay.html"
+  status = 200
+
+[[redirects]]
+  from = "/planning/argenteuil"
+  to = "/planning/argenteuil.html"
+  status = 200
+
+[[redirects]]
+  from = "/planning/sartrouville"
+  to = "/planning/sartrouville.html"
+  status = 200
+
+[[redirects]]
+  from = "/planning/antony"
+  to = "/planning/antony.html"
+  status = 200
+
+[[redirects]]
+  from = "/planning/annecy"
+  to = "/planning/annecy.html"
+  status = 200
+
