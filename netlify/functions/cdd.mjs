@@ -104,7 +104,7 @@ async function cleBrevo(store) {
 
 async function lireConfig(store) {
   const c = (await store.get("config.json", { type: "json" })) || {};
-  return { to: c.to || DEST_DEFAUT, fromByCentre: c.fromByCentre || {}, notif: c.notif || "", remplaceByCentre: c.remplaceByCentre || {}, remplaceByCentreJour: c.remplaceByCentreJour || {}, medecinsCdi: c.medecinsCdi || {}, medecinsEmails: c.medecinsEmails || {}, rappelsCopie: c.rappelsCopie || [] };
+  return { to: c.to || DEST_DEFAUT, fromByCentre: c.fromByCentre || {}, notif: c.notif || "", remplaceByCentre: c.remplaceByCentre || {}, remplaceByCentreJour: c.remplaceByCentreJour || {}, medecinsCdi: c.medecinsCdi || {}, medecinsEmails: c.medecinsEmails || {}, rappelsCopie: c.rappelsCopie || [], medecinsAlphika: c.medecinsAlphika || [] };
 }
 
 // Centres suspendus (CDI en pourparlers, etc.) : les dates libres de ces
@@ -781,6 +781,9 @@ export default async (req) => {
       if (champ(mail, 120).includes("@")) cfg.medecinsEmails[cle] = champ(mail, 120);
       else delete cfg.medecinsEmails[cle];
     }
+    // Médecins présentés par le cabinet ALPHIKA (noms) — liste complète à chaque fois.
+    if (Array.isArray(body.medecinsAlphika))
+      cfg.medecinsAlphika = body.medecinsAlphika.map((x) => champ(x, 60).toUpperCase().trim()).filter(Boolean).slice(0, 40);
     // Adresses en copie des rappels (cabinet de recrutement) — liste complète à chaque fois.
     if (Array.isArray(body.rappelsCopie))
       cfg.rappelsCopie = body.rappelsCopie.map((x) => champ(x, 120)).filter((x) => x.includes("@")).slice(0, 6);

@@ -687,6 +687,9 @@ export default async (req) => {
         const annuaireEmails = {};
         for (const [k, v] of Object.entries(cfgCdd.medecinsEmails || {}))
           if (v && String(v).includes("@")) annuaireEmails[norm(k)] = true;
+        const jetonsAlphika = new Set();
+        for (const n of (Array.isArray(cfgCdd.medecinsAlphika) ? cfgCdd.medecinsAlphika : []))
+          for (const t of tokensNom(n)) if (t.length >= 3) jetonsAlphika.add(t);
         const vacations = [];
         const vus = new Set();
         for (const g of grillesC) {
@@ -710,6 +713,7 @@ export default async (req) => {
                 // Jamais d'adresse email dans la réponse (page publique) :
                 // uniquement "connue ou non" + trace d'envoi.
                 emailConnu: tokensNom(pers.nom).some((t) => annuaireEmails[t]),
+                viaAlphika: tokensNom(pers.nom).some((t) => jetonsAlphika.has(t)),
                 envoye: envoi ? { quand: envoi.quand, mode: envoi.mode } : null,
                 envoyeSemaine: envoiJ7 ? { quand: envoiJ7.quand, mode: envoiJ7.mode } : null,
               });

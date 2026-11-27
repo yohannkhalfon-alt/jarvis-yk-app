@@ -70,8 +70,8 @@
 <main>
   <p class="intro">Vacations des médecins <b>vacataires</b> (CDD — les CDI de la structure ne sont pas listés) sur les 14 prochains jours.
   <b>Une semaine avant</b> puis <b>48 h avant</b>, un mail de confirmation (avec invitation agenda) part automatiquement
-  depuis la boîte direction du centre concerné, au médecin avec le cabinet Alphika en copie
-  (ou à Alphika seul si l'adresse du médecin est inconnue).</p>
+  depuis la boîte direction du centre concerné, directement au médecin — avec le cabinet Alphika en copie uniquement pour les médecins qu'il nous a présentés.
+  Sans adresse connue : via Alphika pour ses médecins, aucun envoi pour les autres (signalé ci-dessous).</p>
   <div id="liste"><span class="spin"></span> Lecture des plannings…</div>
 </main>
 <script>
@@ -112,18 +112,31 @@ function quandFr(iso) {
 }
 // Statut des deux mails de confirmation (J-7 puis 48 h avant) d'une vacation.
 function ligneEnvoi(v, e) {
-  const qui = (env) => env.mode === "copie-seule" ? "Alphika seul (adresse du Dr inconnue)" : "Dr + Alphika";
+  const qui = (env) => ({
+    "medecin": "au Dr en direct",
+    "medecin+alphika": "Dr + Alphika",
+    "medecin+copie": "Dr + Alphika",
+    "alphika-seul": "Alphika seul (adresse du Dr inconnue)",
+    "copie-seule": "Alphika seul (adresse du Dr inconnue)",
+  }[env.mode] || env.mode);
   const lignes = [];
   if (v.envoyeSemaine)
     lignes.push('<div class="envoi ok"><span class="pt"></span>✉️ Mail J-7 envoyé le ' + quandFr(v.envoyeSemaine.quand) + ' · ' + qui(v.envoyeSemaine) + '</div>');
   if (v.envoye)
     lignes.push('<div class="envoi ok"><span class="pt"></span>✉️ Mail 48 h envoyé le ' + quandFr(v.envoye.quand) + ' · ' + qui(v.envoye) + '</div>');
   if (!v.envoye) {
-    if (e <= 2) lignes.push('<div class="envoi pret"><span class="pt"></span>Envoi 48 h au prochain passage automatique (2×/jour)</div>');
-    else if (!v.envoyeSemaine && e <= 7) lignes.push('<div class="envoi pret"><span class="pt"></span>Envoi J-7 au prochain passage automatique (2×/jour)</div>');
-    else if (e > 7) lignes.push('<div class="envoi attente"><span class="pt"></span>Mails automatiques à J-7 puis 48 h avant' +
-      (v.emailConnu === false ? ' · <span class="alphika">adresse du Dr inconnue → Alphika seul</span>' : '') + '</div>');
-    else lignes.push('<div class="envoi attente"><span class="pt"></span>Prochain mail : 48 h avant</div>');
+    if (v.emailConnu === false && v.viaAlphika === false) {
+      lignes.push('<div class="envoi pret"><span class="pt"></span>⚠️ Adresse du Dr manquante — aucun envoi (médecin hors Alphika)</div>');
+    } else if (e <= 2) {
+      lignes.push('<div class="envoi pret"><span class="pt"></span>Envoi 48 h au prochain passage automatique (2×/jour)</div>');
+    } else if (!v.envoyeSemaine && e <= 7) {
+      lignes.push('<div class="envoi pret"><span class="pt"></span>Envoi J-7 au prochain passage automatique (2×/jour)</div>');
+    } else if (e > 7) {
+      lignes.push('<div class="envoi attente"><span class="pt"></span>Mails automatiques à J-7 puis 48 h avant' +
+        (v.emailConnu === false ? ' · <span class="alphika">adresse du Dr inconnue → via Alphika</span>' : '') + '</div>');
+    } else {
+      lignes.push('<div class="envoi attente"><span class="pt"></span>Prochain mail : 48 h avant</div>');
+    }
   }
   return lignes.join("");
 }

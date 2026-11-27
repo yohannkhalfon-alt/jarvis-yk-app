@@ -187,9 +187,17 @@ export async function envoyerRappels(site) {
   const annuaire = cfg.medecinsEmails || {};
   const copie = (Array.isArray(cfg.rappelsCopie) && cfg.rappelsCopie.length ? cfg.rappelsCopie : ALPHIKA_DEFAUT)
     .filter((x) => String(x).includes("@"));
+  // Le cabinet ALPHIKA ne s'occupe QUE des médecins qu'il nous a présentés
+  // (liste config.medecinsAlphika, appariement par jeton du nom). Les autres
+  // vacataires sont les contacts directs de Yohann : jamais de copie Alphika,
+  // et sans adresse connue on N'ENVOIE RIEN (signalé sur la page + bilan).
+  const jetonsAlphika = new Set();
+  for (const n of (Array.isArray(cfg.medecinsAlphika) ? cfg.medecinsAlphika : []))
+    for (const t of tokensNom(n)) if (t.length >= 3) jetonsAlphika.add(t);
+  const estAlphika = (nom) => tokensNom(nom).some((t) => jetonsAlphika.has(t));
   const journal = (await store.get("rappels/journal.json", { type: "json" })) || {};
   const auj = aujourdhuiParis();
-  const bilan = { envoyes: [], ignores: 0, erreurs: [] };
+  const bilan = { envoyes: [], ignores: 0, sansAdresse: [], erreurs: [] };
   if (!cle) { bilan.erreurs.push("Clé Brevo absente"); return bilan; }
 
   let changement = false;
@@ -218,6 +226,12 @@ export async function envoyerRappels(site) {
       if (!expediteur) { bilan.erreurs.push(`${centreId} : boîte direction non configurée`); continue; }
 
       const emailDr = emailDuMedecin(v.nom, annuaire);
+      const alphika = estAlphika(v.nom);
+      if (!emailDr && !alphika) {
+        // Médecin direct (hors Alphika) sans adresse : aucun envoi.
+        bilan.sansAdresse.push({ centre: centreId, date: v.date, nom: v.nom, phase });
+        continue;
+      }
       const nomJoli = joliNom(v.nom);
       const dateTxt = dateLongue(v.date);
       const heuresTxt = joliHeures(v.heures);
@@ -225,7 +239,7 @@ export async function envoyerRappels(site) {
       const to = emailDr
         ? [{ email: emailDr, name: `Dr ${nomJoli}` }]
         : copie.map((email) => ({ email }));
-      const cc = emailDr && copie.length ? copie.map((email) => ({ email })) : undefined;
+      const cc = emailDr && alphika && copie.length ? copie.map((email) => ({ email })) : undefined;
 
       try {
         const adresse = ADRESSES[centreId] || "";
@@ -247,7 +261,7 @@ export async function envoyerRappels(site) {
         if (!r.ok) throw new Error(`Brevo ${r.status} : ${(await r.text()).slice(0, 120)}`);
         journal[cleJ] = {
           quand: new Date().toISOString(),
-          mode: emailDr ? "medecin+copie" : "copie-seule",
+          mode: emailDr ? (alphika ? "medecin+alphika" : "medecin") : "alphika-seul",
           centre: centreId, date: v.date, nom: v.nom, heures: v.heures,
         };
         changement = true;
