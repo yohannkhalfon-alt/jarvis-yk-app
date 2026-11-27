@@ -430,7 +430,11 @@ function calculerJours(grille, ophtasSet) {
 }
 
 // ---------- Vue « Équipe » (qui travaille, par rôle) ----------
-const ROLE_LABEL = { ophta: "Ophtalmologue", ortho: "Orthoptistes", secretaire: "Secrétaires" };
+const ROLE_LABEL = { ophta: "Ophtalmologue", ortho: "Orthoptistes", secretaire: "Secrétaires", renfort: "Renfort" };
+// Responsables itinérants (ni ophta, ni ortho, ni secrétaire) : ligne à part
+// « Renfort » affichée dans le centre où ils sont posés au planning.
+const RENFORTS = new Set(["AROUS"]);
+const estRenfort = (nom) => norm(nom).replace(/^DR\.?\s+/, "").split(/[\s,'-]+/).some((t) => RENFORTS.has(t));
 
 // Médecins en CDI dans la structure (tous centres) : seuls les VACATAIRES
 // (CDD, non signataires d'un CDI) sont listés dans la vue "cdd" et reçoivent
@@ -451,6 +455,7 @@ const estCdi = (nom, extra) =>
 // Rôle d'une personne : ophta si classée comme telle, sinon d'après le bloc
 // (bloc 2 = orthoptistes, bloc 3+ = secrétaires ; bloc 1 par défaut = ophta).
 function roleDe(nom, bloc, ophtasSet) {
+  if (estRenfort(nom)) return "renfort";
   if (ophtasSet.has(norm(nom))) return "ophta";
   if (bloc === 2) return "ortho";
   if (bloc >= 3) return "secretaire";
@@ -492,7 +497,7 @@ function construireEquipe(grilles, joursSemaine, ophtasSet) {
       for (const [iso, v] of p.cellules) gg.cellules.set(iso, v);
     }
   }
-  const roles = { ophta: [], ortho: [], secretaire: [] };
+  const roles = { ophta: [], ortho: [], secretaire: [], renfort: [] };
   for (const p of gens.values()) {
     // On ignore les personnes qui n'apparaissent aucun jour de la semaine visée.
     if (![...p.cellules.keys()].some((k) => joursSemaine.includes(k))) continue;
@@ -508,6 +513,7 @@ function construireEquipe(grilles, joursSemaine, ophtasSet) {
     { role: "ophta", label: ROLE_LABEL.ophta, personnes: roles.ophta },
     { role: "ortho", label: ROLE_LABEL.ortho, personnes: roles.ortho },
     { role: "secretaire", label: ROLE_LABEL.secretaire, personnes: roles.secretaire },
+    { role: "renfort", label: ROLE_LABEL.renfort, personnes: roles.renfort },
   ];
 }
 
@@ -621,7 +627,7 @@ export default async (req) => {
         // Cache 10 min (pages planning employés épinglées sur WhatsApp : la
         // lecture Dropbox + classification prend plusieurs secondes).
         const cacheStore = getStore("majvac");
-        const cacheCle = `cache/equipe-${centreId}-${joursSemaine[0]}`;
+        const cacheCle = `cache/equipe2-${centreId}-${joursSemaine[0]}`;
         try {
           const hit = await cacheStore.get(cacheCle, { type: "json" });
           if (hit && Date.now() - hit.ts < 10 * 60 * 1000) return reponse(hit.data);

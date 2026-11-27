@@ -41,10 +41,11 @@ function rendre(d){
         const cls = [iso===today?"auj":"", h?(special(p.jours[iso])?"hspec":""):"off"].filter(Boolean).join(" ");
         return `<td${cls?` class="${cls}"`:""}>${h||"—"}</td>`;
       }).join("");
-      const nom = (r.role==="ophta"?"Dr ":"")+joliNom(p.nom);
-      return `<tr><td class="nom">${nom}</td>${cells}</tr>`;
+      let nom = (r.role==="ophta"?"Dr ":"")+joliNom(p.nom);
+      if(r.role==="renfort" && /arous/i.test(p.nom)) nom = "Raph";
+      return `<tr><td class="nom${r.role==="renfort"?" rouge":""}">${nom}</td>${cells}</tr>`;
     }).join("");
-    return `<div class="bloc"><div class="btitre">${r.label.toUpperCase()}</div><div class="scroll"><table><tr><th></th>${tetes}</tr>${lignes}</table></div></div>`;
+    return `<div class="bloc${r.role==="renfort"?" renfort":""}"><div class="btitre">${r.label.toUpperCase()}</div><div class="scroll"><table><tr><th></th>${tetes}</tr>${lignes}</table></div></div>`;
   }).join("");
   zone.innerHTML = blocs || '<div class="etat">Planning de cette semaine pas encore disponible.</div>';
 }
