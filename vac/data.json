@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-26T05:42:41Z",
+ "generated_at": "2026-11-27T05:39:29Z",
  "source": "Scan JARVIS via connecteur Dropbox",
  "periode": [
   {
@@ -254,6 +254,7 @@
    "label": "TREMBLAY",
    "days": [],
    "notes": [
+    "Scan 27/11 : nouveaux noms au bloc orthoptistes — VELUPILLAI et LE BRAS (à confirmer : orthoptistes ?) ; Oubalkas rangée à tort avec les secrétaires. Echi Maissa : congés patho jusqu'au 09/12 puis CONGÉ MATERNITÉ jusqu'au 31/03. Sebe ABS tout nov ET tout déc → 1 SEUL ophta par jour tout décembre (Adalla 18 j, Slimane 7 j, Charakidas le 05/12) : toute absence imprévue = jour sans ophta. Anomalies grille déc : Chemerzelin marquée 9H-19H le ven 25/12 FÉRIÉ-FERMÉ ; « +9H » suspects Chemerzelin 29/12 et Le Bras 30/12 ; Samak « REMPLA 04/09 » le 12/12.",
     "Scan 19/11 : sureffectif orthos le jeu 12/11 (4 orthos). Echi Maissa en congés patho dès le 25/11 (en attente) ; retour Oubalkas Basma le 24/11 ; Aeshliman Flavie a démissionné de Tremblay au 31/10 (reste Argenteuil uniquement).",
     "✅ SUREFFECTIF ORTHOS RÉSOLU (13/11) : le jeu 19/11 est repassé à 3 orthos — Echi Maissa posée en CP ce jour-là, le CDD Salima couvre donc un vrai besoin et ne fait plus doublon. Le jeu 12/11 (4 orthos, reliquat du CDD posé avant l'arrivée de Shirel au 95) est passé. Plus aucun sureffectif sur les 4 mois. Règle de surveillance active : Argenteuil > 2 orthos, Tremblay > 3.",
     "Sam 14/11 : Samak en ABS (détachée à Sartrouville), Chemerzelin la remplace au planning — 3 orthos ce jour-là (Echi, Le Bras, Chemerzelin), pas de sureffectif.",
@@ -268,7 +269,9 @@
     "⚠️ À ANTICIPER (note du fichier décembre) : « janvier Yakine abs le 02/01 » — le sam 02/01/27, actuellement couvert par Adalla sur le planning janvier, va se découvrir. Remplaçant à prévoir.",
     "Scan 24/11 : Echi Maissa — arrêt 25/11, congés patho jusqu'au 09/12 puis congé maternité jusqu'au 31/03. Sahin Sarah CP 07/12→06/01. Oubalkas reprend le 24/11. Vacataires samedis : Rosati 28/11, Charakidas 05/12. Aucun jour sans ophta, aucun sureffectif orthos à venir."
    ],
-   "alertes": []
+   "alertes": [
+    "🔴 SUREFFECTIF ORTHOPTISTES (scan 27/11) : 4 orthoptistes présentes le ven 27/11, le sam 28/11 et sur 19 jours de DÉCEMBRE (01, 03, 04, 05, 08, 09, 10, 11, 12, 14, 15, 17, 19, 22, 23, 24, 26, 29, 30/12) — seuil Tremblay : 3. Oubalkas Basma (orthoptiste, de retour depuis le 24/11) est rangée dans le bloc secrétaires de la grille et s'ajoute aux 3 du bloc orthoptistes (Decoste/Samak/Chemerzelin/Le Bras/Kamboua selon les jours). À vérifier : si Oubalkas fait bien de l'orthoptie, il y a 4 orthos payées ces jours-là."
+   ]
   },
   "sartrouville": {
    "label": "SARTROUVILLE",
@@ -373,6 +376,7 @@
     }
    ],
    "notes": [
+    "Scan 27/11 : fin novembre couverte (27 et 30/11 Papapostolou, 28/11 Slimane — mono-ophta chaque jour). Naji Leila : arrêt prolongé jusqu'au 30/11, planning « à revoir ». Aeshliman Flavie : ABS tous les samedis de novembre (son seul jour planifié). Aucun doublon Tremblay/Sartrouville sur 27-30/11 (Adalla, Slimane, Rosati : échanges cohérents).",
     "Scan 26/11 : ✅ POUSOULIDI reportée au planning janvier — elle couvre le lun 11/01 (9h-19h, cohérent avec ses 12-14/01 à Argenteuil, aucun doublon). Les 6 autres jours janvier (04, 08, 18, 22, 25, 29/01) restent sur la ligne « A REMPLACER » (poste vacant). Naji Leila « ARRET ? » tout janvier ; Hadraoui en congé maternité ; Aeshliman Flavie OFF tout le mois.",
     "Scan 20/11 : le mardi 29/12 reste NON couvert (Saade ABS, Papa/Slimane/Chahine/Addala OFF, centre ouvert). Naji « ARRET ? » tout décembre. Rappel note planning : « abs Slimane 02/01, rempla Diana Ionita, lui va au 93 ».",
     "NOUVEAU 18/11 : mardi 29/12 sans ophta (Saade ABS, personne en remplacement) — date à ouvrir dans JARVIS CDD si besoin. Diana Ionita (nouvelle) couvre le sam 02/01 ; ven 12/02 couvert par Slimane.",
