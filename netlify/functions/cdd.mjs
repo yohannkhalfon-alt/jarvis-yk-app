@@ -901,6 +901,13 @@ export default async (req) => {
     return json(await envoyerExemple(dest));
   }
 
+  // Récap paie immédiat (le cron tourne le 25 du mois) — test / rattrapage.
+  if (action === "paie-recap-run") {
+    const { envoyerRecap } = await import("./paie-recap.mjs");
+    try { return json(await envoyerRecap()); }
+    catch (e) { return json({ error: String(e.message || e).slice(0, 200) }, 500); }
+  }
+
   if (action === "rappels-run") {
     // body.oublier = ["centre|date|NOM", …] : efface ces entrées du journal
     // pour forcer un nouvel envoi (ex. adresse du médecin ajoutée après coup).
