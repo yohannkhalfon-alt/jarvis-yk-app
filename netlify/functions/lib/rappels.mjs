@@ -19,7 +19,7 @@ const CENTRES_LABELS = {
   antony: "Antony",
 };
 // Adresses des sièges des 5 associations (mêmes que les contrats CDD).
-const ADRESSES = {
+export const ADRESSES = {
   argenteuil: "2 rue Antonin Georges Belin, 95100 Argenteuil",
   annecy: "6 avenue d'Aléry, 74000 Annecy",
   tremblay: "149 avenue Gilbert Berger, 93290 Tremblay-en-France",
