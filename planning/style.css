@@ -26,3 +26,8 @@ td.auj{background:rgba(79,216,235,.10);font-weight:700;color:#fff}
 @keyframes spin{to{transform:rotate(360deg)}}
 .etat{text-align:center;color:var(--dim);font-size:13px;padding:26px 16px;line-height:1.6}
 footer{text-align:center;color:var(--dim);font-size:11px;padding:4px 14px calc(18px + env(safe-area-inset-bottom));line-height:1.5}
+
+/* Bloc Renfort (responsables itinérants) : accent rouge */
+.bloc.renfort{border-color:rgba(255,93,108,.55);box-shadow:0 0 14px rgba(255,93,108,.10)}
+.bloc.renfort .btitre{color:var(--red);border-bottom-color:rgba(255,93,108,.3)}
+td.nom.rouge{color:var(--red)}
