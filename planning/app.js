@@ -8,7 +8,11 @@ const JOURS_LONG = ["dimanche","lundi","mardi","mercredi","jeudi","vendredi","sa
 const auj = () => new Date(new Date().toLocaleString("en-US",{timeZone:"Europe/Paris"})).toLocaleDateString("fr-CA");
 let ancre = auj();
 
-const joliNom = b => b.replace(/^dr\.?\s+/i,"").trim().toLowerCase().replace(/(^|[\s-])([a-zà-ÿ])/g,(m,s,c)=>s+c.toUpperCase());
+// Orthographes à corriger à l'affichage (les grilles Excel ont parfois des
+// coquilles qu'on ne peut pas éditer d'ici) : ABDELATIF → ABDELLATIF (Antony).
+const CORRECTIONS = [[/\bABDELATIF\b/i, "ABDELLATIF"], [/\bCHERMERZELIN\b/i, "CHEMERZELIN"]];
+const corrige = b => CORRECTIONS.reduce((x,[re,ok]) => x.replace(re, ok), b);
+const joliNom = b => corrige(b).replace(/^dr\.?\s+/i,"").trim().toLowerCase().replace(/(^|[\s-])([a-zà-ÿ])/g,(m,s,c)=>s+c.toUpperCase());
 function joliH(h){
   if(!h) return null;
   const m = h.match(/^(\d{1,2})H?(\d{2})?-(\d{1,2})H?(\d{2})?$/i);
