@@ -403,7 +403,7 @@ function appliquerAuto(data) {
   resultats = {};
   for (const c of centres) {
     const d = data.centres && data.centres[c.id];
-    resultats[c.id] = d ? { days: d.days || [], erreurs: d.notes || [], alertes: d.alertes || [] } : { error: 'absent du dernier scan' };
+    resultats[c.id] = d ? { days: d.days || [], erreurs: d.notes_jour || [], alertes: d.alertes || [] } : { error: 'absent du dernier scan' };
     majChipDepuisResultat(c.id);
   }
   afficherResultat(data.periode, data.generated_at ? new Date(data.generated_at).getTime() : Date.now());
