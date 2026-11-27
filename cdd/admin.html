@@ -209,7 +209,7 @@ function afficher(){
         </div>
         <div class="docs" style="margin-top:8px">${docs || '<span class="cle" style="font-size:12px">Aucun document importé</span>'}</div>
         <div class="actions">
-          <button class="vert" onclick="decider('${r.id}','confirm')">✅ Valider → mail CDD</button>
+          <button class="vert" onclick="decider('${r.id}','confirm')">✅ Valider → mail ${r.type === "CDI" ? "CDI" : "CDD"}</button>
           <button class="rouge" onclick="decider('${r.id}','reject')">Refuser (libère la date)</button>
           <button class="ghost" onclick="voirMail('${r.id}')">✉️ Mail (brouillon)</button>
           ${r.date ? `<button class="ghost" onclick="voirContrat('${r.id}')">📄 Contrat (brouillon)</button>` : ""}
@@ -323,7 +323,7 @@ async function retirer(slotId){
 }
 
 async function decider(resaId, action){
-  if(action === "confirm" && !confirm("Valider : le mail « Merci de créer le CDD… » part immédiatement au gestionnaire. Continuer ?")) return;
+  if(action === "confirm" && !confirm("Valider : le mail « Merci de créer le contrat (CDD ou CDI selon la réservation)… » part immédiatement au gestionnaire. Continuer ?")) return;
   if(action === "reject" && !confirm("Refuser cette réservation ? La date redevient réservable.")) return;
   const el = document.getElementById("dec-"+resaId);
   el.className = "msg"; el.textContent = "…";
