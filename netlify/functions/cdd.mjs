@@ -692,6 +692,98 @@ export default async (req) => {
     return json({ ok: true, annulee: resa.id, dateRetiree: Boolean(slot && !body.liberer), mails });
   }
 
+  // Déplacement (admin) d'une réservation — demande de Yohann du 27/11 :
+  // changer JUSTE le lieu et/ou la date d'une vacation déjà réservée, sans
+  // annuler-recréer (cas Alphika : Dr Charakidas préfère faire sa journée
+  // dans un autre centre). Mécanique :
+  // - slot cible : un slot LIBRE existant à (centre,date) est pris, sinon créé
+  // - l'ancien slot redevient LIBRE (body.retirer=true pour le sortir de l'offre)
+  // - resa.date / resa.centre mis à jour
+  // - mails : praticien (nouveau lieu/date + invitation agenda, copie Alphika
+  //   si médecin Alphika) et gestionnaire si la résa était confirmée (contrat
+  //   à refaire sur la bonne association). Jamais bloquant.
+  if (action === "deplacer") {
+    const resaId = champ(body.resaId, 40);
+    const nCentre = champ(body.centre, 20).toLowerCase();
+    const nDate = champ(body.date, 10);
+    const resa = await store.get(`resa/${resaId}.json`, { type: "json" });
+    if (!resa) return json({ error: "réservation introuvable" }, 404);
+    if (resa.type === "CDI" || !resa.date) return json({ error: "déplacement CDD à la date uniquement" }, 400);
+    if (!CENTRES[nCentre]) return json({ error: "centre cible inconnu" }, 400);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(nDate)) return json({ error: "date cible invalide (AAAA-MM-JJ)" }, 400);
+    if (nCentre === resa.centre && nDate === resa.date) return json({ error: "déjà à cet endroit / cette date" }, 400);
+    const slots = await lireSlots(store);
+    const ancien = slots.find((x) => x.resaId === resaId);
+    const cible = slots.find((x) => x.date === nDate && x.centre === nCentre);
+    if (cible && cible.resaId) return json({ error: `la date cible est déjà prise (${cible.status})` }, 409);
+    const avant = { centre: resa.centre, date: resa.date };
+    let slotsOut = slots;
+    if (cible) { cible.status = ancien ? ancien.status : "confirme"; cible.resaId = resaId; }
+    else slotsOut = [...slots, { id: randomBytes(6).toString("hex"), date: nDate, centre: nCentre, type: "CDD", status: (ancien && ancien.status) || "confirme", resaId }];
+    if (ancien) {
+      if (body.retirer) slotsOut = slotsOut.filter((x) => x.id !== ancien.id);
+      else { ancien.status = "libre"; ancien.resaId = null; }
+    }
+    resa.centre = nCentre; resa.date = nDate;
+    resa.deplacements = [...(resa.deplacements || []), { de: avant, vers: { centre: nCentre, date: nDate }, quand: new Date().toISOString() }];
+    slotsOut.sort((a, b) => a.date.localeCompare(b.date));
+    await store.setJSON(`resa/${resa.id}.json`, resa);
+    await store.setJSON("slots.json", slotsOut);
+
+    const mails = { praticien: false, gestionnaire: false };
+    try {
+      const key = await cleBrevo(store);
+      const cfg = await lireConfig(store);
+      const centreLabel = CENTRES[nCentre] || nCentre;
+      const expediteur = cfg.fromByCentre[nCentre] || process.env.BREVO_FROM;
+      const jetons = new Set(String(`${resa.nom} ${resa.prenom}`).toUpperCase().split(/[\s,'-]+/).filter(Boolean));
+      const alphika = (cfg.medecinsAlphika || []).some((n) => String(n).toUpperCase().split(/[\s,'-]+/).some((t) => jetons.has(t)));
+      const copie = (cfg.rappelsCopie || []).filter((x) => String(x).includes("@"));
+      if (key && expediteur && resa.email) {
+        const { fabriquerIcs, ADRESSES } = await import("./lib/rappels.mjs");
+        const nomJoli = `${resa.prenom} ${resa.nom}`;
+        const ics = fabriquerIcs({ centreId: nCentre, centreLabel: centreLabel[0] + centreLabel.slice(1).toLowerCase(), adresse: ADRESSES[nCentre] || "", dateIso: nDate, heures: "09H-19H", nomJoli, emailDr: resa.email, expediteur });
+        const r1 = await fetch("https://api.brevo.com/v3/smtp/email", {
+          method: "POST",
+          headers: { "api-key": key, "content-type": "application/json" },
+          body: JSON.stringify({
+            sender: { name: "Groupe Ophtalmologie Medical", email: expediteur },
+            replyTo: { email: expediteur },
+            to: [{ email: resa.email, name: `Dr ${resa.prenom} ${resa.nom}` }],
+            ...(alphika && copie.length ? { cc: copie.map((email) => ({ email })) } : {}),
+            subject: `Votre vacation est déplacée : ${dateFr(nDate)} à ${centreLabel}`,
+            htmlContent:
+              `<p>Bonjour Docteur ${echapHtml(resa.nom)},</p>` +
+              `<p>Comme convenu, votre vacation du <b>${echapHtml(dateFr(avant.date))}</b> à ${echapHtml(CENTRES[avant.centre] || avant.centre)} est déplacée : vous exercerez le <b>${echapHtml(dateFr(nDate))}</b> au centre de <b>${echapHtml(centreLabel)}</b> (9h-19h).</p>` +
+              `<p>L'invitation agenda mise à jour est jointe à ce mail.</p>` +
+              `<p>À très bientôt,<br>La direction — ${echapHtml(centreLabel)}</p>`,
+            attachment: [{ name: "vacation.ics", content: Buffer.from(ics, "utf8").toString("base64") }],
+          }),
+        });
+        mails.praticien = r1.ok;
+      }
+      if (key && expediteur && resa.status === "confirmee" && cfg.to) {
+        const r2 = await fetch("https://api.brevo.com/v3/smtp/email", {
+          method: "POST",
+          headers: { "api-key": key, "content-type": "application/json" },
+          body: JSON.stringify({
+            sender: { name: "JARVIS CDD", email: expediteur },
+            to: [{ email: cfg.to }],
+            subject: `🔁 DÉPLACEMENT : Dr ${resa.prenom} ${resa.nom} — ${dateFr(nDate)} à ${CENTRES[nCentre]} (au lieu du ${dateFr(avant.date)} à ${CENTRES[avant.centre] || avant.centre})`,
+            htmlContent:
+              `<p>La vacation du Dr <b>${echapHtml(resa.prenom)} ${echapHtml(resa.nom)}</b> est déplacée : <b>${echapHtml(dateFr(nDate))} à ${echapHtml(CENTRES[nCentre])}</b> (au lieu du ${echapHtml(dateFr(avant.date))} à ${echapHtml(CENTRES[avant.centre] || avant.centre)}).</p>` +
+              `<p><b>Si un CDD a déjà été établi</b> pour l'ancienne date : merci de le refaire sur la bonne association/date.</p>` +
+              `<p style="color:#888;font-size:12px;">JARVIS CDD — déplacement par l'admin</p>`,
+          }),
+        });
+        mails.gestionnaire = r2.ok;
+      }
+    } catch {}
+    resa.notif = Object.assign({}, resa.notif, { deplacement: mails });
+    await store.setJSON(`resa/${resa.id}.json`, resa);
+    return json({ ok: true, deplacee: resa.id, de: avant, vers: { centre: nCentre, date: nDate }, mails });
+  }
+
   // Relais de lecture (admin) : rapatrie un fichier Dropbox (lien temporaire)
   // et le renvoie tel quel. Restreint aux hôtes de téléchargement Dropbox.
   if (action === "fetch-doc") {

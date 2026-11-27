@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-27T06:52:02Z",
+ "generated_at": "2026-11-27T08:40:39Z",
  "source": "Scan JARVIS via connecteur Dropbox",
  "periode": [
   {
@@ -211,6 +211,7 @@
     }
    ],
    "notes": [
+    "27/11 (mail Alphika) : le sam 06/02 sera couvert par CHARAKIDAS — il bascule d'Antony vers Argenteuil ce jour-là (sa préférence, actée). Le slot 06/02 Argenteuil a été retiré de l'offre JARVIS CDD (bloqué pour lui). Le jour reste affiché « sans ophta » tant que la grille février n'est pas corrigée par Laura. Dispos Charakidas 2027 côté Alphika : janv 9, 15, 16, 22, 23 ; fév 12, 13, 19, 20 (+5-6 réaffectés), puis mars→déc (2 ven-sam/mois).",
     "Scan 26/11 : ✅ POUSOULIDI reportée au planning janvier — elle couvre les mar 12, mer 13 et jeu 14/01 (9h-19h). Restent 11 jours sans ophta en janvier (02, 05-08, 19-21, 26-28/01) — succession Papapostolou toujours à staffer sur les mar/mer/jeu. Février inchangé (13 jours). Nota : « HAJAR BACHAR » (lun 11 et 25/01) hors liste ophtas connue — à vérifier. Orthos janv : max 2/jour, pas de sureffectif.",
     "Scan 20/11 : décembre inchangé (30-31/12 seuls jours sans ophta ; 21-26/12 couverts par Lahmar Rahma, 28-29/12 par Slimane). Sahin Sarah en CP du 07 au 31/12. Renforts déc : Ouamri (04/12), Kokkinos (05/12).",
     "19/11 : le vendredi 05/02 est pris par Charakidas (validation via son cabinet de recrutement). Déjà en CDI dans la structure → PAS de CDD, simple note. Reste 29 jours sans ophta.",
@@ -401,6 +402,7 @@
    "label": "ANTONY",
    "days": [],
    "notes": [
+    "27/11 (mail Alphika) : ⚠️ CHARAKIDAS ne fera PAS le sam 06/02 à Antony — il préfère Argenteuil ce jour-là (acté). La grille février Antony doit être corrigée (retirer Charakidas du 06/02) et le samedi 06/02 est À RE-STAFFER à Antony. Dire si tu veux que j'ouvre la date dans JARVIS CDD.",
     "Scan 26/11 : ✅ jeu 31/12 couvert par IONITA DIANA — mais la grille indique « 09H 19H ? A CONF » : à CONFIRMER (si elle se désiste, le 31/12 redevient sans ophta). Antony n'a plus aucun jour sans ophta affiché. Toujours à corriger : lignes ERROR:#NAME? (sem 18-23/01 et 22-27/02, vraisemblablement Meskini — les 18, 19, 22/01 et 22, 23, 26/02 ne tiennent que sur cette ligne), Bedez Margaux en double sem 25-30/01, « AMAD RAYAN » 02/01 (bloc ophtas, nom à vérifier), « DIRECTRICE A TROUVER » janv-fév, Fabre sam 20/02 « 09H 19H? » à confirmer, Fey/Agouni « ARRET ? » (prolongations en attente).",
     "Scan 19/11 : anomalie planning novembre — la ligne « DIEYE BINTOU » apparaît en DOUBLE sem. 16-21/11 avec deux horaires différents (l'une des deux est probablement « Clara » ?) — à corriger. Fins de contrat : Dieye Bintou 26/11, Fenelon Shouselie 27/11. Arrêts : Agouni prolongé au 10/12, Fey Delphine → 22/11 puis en attente.",
     "MAJ 18/11 : les samedis 16/01, 13/02 et 20/02 sont désormais couverts par Kokkinos Zafeiris (réservations JARVIS CDD du 17/11 reportées au planning). Restent le jeu 31/12 (Sconamiglio ABS) et le sam 30/01.",

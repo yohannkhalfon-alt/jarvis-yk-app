@@ -240,7 +240,8 @@ function afficher(){
       const btnStyle = 'style="padding:6px 10px;font-size:12px"';
       const boutons = resa
         ? `<button class="ghost" ${btnStyle} onclick="voirMail('${resa.id}')">✉️ Mail</button>` +
-          (resa.date ? `<button class="ghost" ${btnStyle} onclick="voirContrat('${resa.id}')">📄 Contrat</button>` : "")
+          (resa.date ? `<button class="ghost" ${btnStyle} onclick="voirContrat('${resa.id}')">📄 Contrat</button>` : "") +
+          (resa.date ? `<button class="ghost" ${btnStyle} onclick="deplacerResa('${resa.id}','${s.centre}','${s.date}')">📍 Déplacer</button>` : "")
         : "";
       return `<div class="item"><div class="tete">
         <span><b>${dateFr(s.date)}</b> <span class="centre-tag">${echap(DATA.centres[s.centre]||s.centre)}</span> · ${echap(s.type||"CDD")}${qui}${notif}</span>
@@ -301,6 +302,20 @@ async function retirerCdi(cdiId){
   recharger();
 }
 
+// Déplace une réservation (lieu et/ou date) : mail auto au médecin (+ Alphika
+// si médecin Alphika) et à la gestionnaire si la résa était confirmée.
+async function deplacerResa(resaId, centreActuel, dateActuelle){
+  const centres = Object.keys(DATA.centres).join(" / ");
+  const nCentre = (prompt("Nouveau centre (" + centres + ") :", centreActuel) || "").trim().toLowerCase();
+  if(!nCentre) return;
+  const nDate = (prompt("Nouvelle date (AAAA-MM-JJ) :", dateActuelle) || "").trim();
+  if(!nDate) return;
+  if(!confirm("Déplacer cette vacation vers le " + nDate + " à " + (DATA.centres[nCentre]||nCentre) + " ?\nUn mail de confirmation part au médecin (l'ancienne date redevient libre).")) return;
+  const r = await fetch(API, { method:"POST", headers: entetes(), body: JSON.stringify({ action:"deplacer", resaId, centre:nCentre, date:nDate }) });
+  const d = await r.json();
+  if(d.error) alert("Erreur : " + d.error); else alert("✅ Déplacée. Mail praticien : " + (d.mails?.praticien ? "envoyé" : "non envoyé") + (d.mails?.gestionnaire ? " · gestionnaire prévenue" : ""));
+  charger();
+}
 async function retirer(slotId){
   if(!confirm("Retirer cette date ?")) return;
   await fetch(API, { method:"POST", headers: entetes(), body: JSON.stringify({ action:"remove-slot", slotId }) });
