@@ -92,21 +92,44 @@
   #btnJarvis span { font-family:'Rajdhani'; font-size:8.5px; letter-spacing:1.2px; color:var(--dim); text-transform:uppercase; }
   #btnJarvis:active img { animation-duration:1.2s; }
 
-  /* Sélecteur de période */
-  .seg { display:flex; gap:8px; justify-content:center; }
-  .seg button {
-    flex:1; max-width:120px; padding:9px 0; border-radius:20px; cursor:pointer;
-    background:transparent; border:1px solid var(--line); color:var(--dim);
-    font-family:'Rajdhani'; font-size:13px; font-weight:700; letter-spacing:1px; transition:.15s;
+  /* Pastilles centres — les 5 sur une ligne */
+  .past { display:flex; justify-content:space-between; gap:4px; }
+  .pa { display:flex; flex-direction:column; align-items:center; gap:5px; flex:1; min-width:0; }
+  .pa .r {
+    width:48px; height:48px; border-radius:50%; border:2.5px solid rgba(107,124,147,.55);
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px;
+    font-family:'Rajdhani'; color:var(--dim); transition:.3s; background:rgba(10,16,28,.5);
   }
-  .seg button.on { background:rgba(79,216,235,.14); border-color:rgba(79,216,235,.55); color:var(--cyan); }
+  .pa.ok .r { border-color:rgba(51,209,122,.7); color:var(--green); }
+  .pa.mid .r { border-color:var(--orange); color:var(--orange); box-shadow:0 0 10px rgba(255,180,84,.25); }
+  .pa.ko .r { border-color:var(--red); color:var(--red); box-shadow:0 0 12px rgba(255,93,108,.35); }
+  .pa .l { font-size:8.5px; letter-spacing:.8px; color:var(--dim); text-transform:uppercase; white-space:nowrap; }
 
-  /* Chips centres */
-  .chips { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
-  .chip { border:1px solid var(--line); background:var(--panel); border-radius:11px; padding:10px 12px; min-height:60px; }
-  .chip .c { font-size:10px; letter-spacing:1.4px; color:var(--dim); text-transform:uppercase; }
-  .chip .n { font-size:17px; font-weight:700; color:#EAF4FF; margin-top:2px; font-family:'Rajdhani'; }
-  .chip .n small { font-size:11px; font-weight:600; letter-spacing:.4px; margin-left:4px; }
+  /* Actions à faire */
+  #actionsBox { display:none; border:1.5px solid rgba(255,180,84,.5); background:rgba(255,180,84,.06); border-radius:12px; overflow:hidden; animation:fadeUp .3s ease; }
+  #actionsBox .t { padding:9px 13px 5px; font-size:10px; letter-spacing:2px; font-weight:700; color:var(--orange); }
+  .act { display:flex; align-items:center; gap:9px; padding:10px 13px; border-top:1px solid rgba(255,180,84,.16); font-size:13.5px; color:var(--txt); text-decoration:none; }
+  .act b { color:#fff; }
+  .act .bt { margin-left:auto; background:var(--blue); color:#fff; border-radius:8px; padding:6px 12px; font-weight:700; font-size:11.5px; white-space:nowrap; letter-spacing:.5px; }
+  .puls { width:9px; height:9px; border-radius:50%; background:var(--orange); box-shadow:0 0 0 3px rgba(255,180,84,.16); flex:none; animation:pulse 1.6s infinite; }
+  .puls.r { background:var(--red); box-shadow:0 0 0 3px rgba(255,93,108,.16); }
+
+  /* Équipe du jour — bandeaux par centre, noms en pastilles */
+  #eqZone { display:none; flex-direction:column; gap:8px; animation:fadeUp .3s ease; }
+  .eqC { background:var(--panel); border:1px solid var(--line); border-radius:11px; padding:9px 12px; }
+  .eqC.ko { border-color:rgba(255,93,108,.4); }
+  .eqC.mid { border-color:rgba(255,180,84,.35); }
+  .eqC.ok { border-color:rgba(51,209,122,.3); }
+  .eqH { display:flex; align-items:center; gap:7px; margin-bottom:6px; }
+  .eqH b { color:#fff; font-size:13px; letter-spacing:1px; }
+  .eqH .nb { margin-left:auto; font-size:12px; font-weight:700; }
+  .eqP { display:flex; gap:5px; flex-wrap:wrap; }
+  .pill { border-radius:999px; padding:4px 10px; font-size:11.5px; font-weight:600; font-family:'Rajdhani'; }
+  .pill.oph { background:var(--blue); color:#fff; font-weight:700; }
+  .pill.ort { background:rgba(79,216,235,.15); color:var(--cyan); }
+  .pill.sec { background:rgba(107,124,147,.18); color:var(--txt); }
+  .pill.ren { background:rgba(255,93,108,.2); color:var(--red); font-weight:700; }
+  .eqVide { font-size:12px; color:var(--dim); }
   .ok { color:var(--green); } .ko { color:var(--red); } .mid { color:var(--orange); } .wait { color:var(--dim); }
   .spin { display:inline-block; width:13px; height:13px; border-radius:50%; border:2px solid rgba(79,216,235,.25); border-top-color:var(--cyan); animation:spin .9s linear infinite; vertical-align:-2px; }
 
@@ -159,19 +182,18 @@
       <button id="btnJarvis" onclick="jarvisOuvrir()" title="Ouvrir JARVIS"><img src="/cdd/jarvis-robot.svg" alt=""><b>JARVIS</b><span>Assistant IA</span></button>
     </div>
     <div id="lastScan"></div>
-    <a href="/vac/equipe.html" style="display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:9px 16px;border:1px solid var(--line);border-radius:999px;color:var(--cyan);text-decoration:none;font-size:13px;letter-spacing:.5px">👥 Équipe du jour &amp; de la semaine ›</a>
-    <a href="/vac/cdd.html" style="display:inline-flex;align-items:center;gap:8px;margin-top:8px;padding:9px 16px;border:1px solid var(--line);border-radius:999px;color:var(--cyan);text-decoration:none;font-size:13px;letter-spacing:.5px">⏰ Rappels CDD (remplaçants) ›</a>
   </div>
 
   <div id="setupBox"></div>
 
-  <div class="seg" id="seg">
-    <button data-r="7" onclick="setRange(7)">7 JOURS</button>
-    <button data-r="30" onclick="setRange(30)">30 JOURS</button>
-    <button data-r="0" class="on" onclick="setRange(0)">TOUT</button>
-  </div>
+  <div class="past" id="chips"></div>
 
-  <div class="chips" id="chips"></div>
+  <div id="actionsBox"><div class="t">⚡ ACTIONS À FAIRE</div><div id="actionsList"></div></div>
+
+  <div id="eqZone">
+    <div class="rt" id="eqTitre">👥 Équipe du jour</div>
+    <div id="eqCards" style="display:flex;flex-direction:column;gap:8px"></div>
+  </div>
 
   <div id="resultZone">
     <div id="alerteBox" style="display:none;"></div>
@@ -200,7 +222,7 @@ let alertesAuto = {}; // alertes sureffectif du dernier scan auto (data.json), c
 let resultats = {};   // id -> réponse API ou données du scan auto
 let dernierMsg = "";
 let mode = "live";    // "live" = scan Dropbox à la demande · "auto" = données publiées par JARVIS
-let rangeJours = parseInt(localStorage.getItem('majvac_range') || '0', 10) || 0;  // 0 = 3 mois
+let rangeJours = 0;  // filtres 7/30 jours supprimés : toujours toute la période
 let lastPeriode = null, lastTs = null;
 let periodeInfo = [];   // mois analysés, fournis par /api/majvac à l'ouverture
 
@@ -223,22 +245,15 @@ const joursFuturs = (r) => {
   return (r.days || []).filter(d => !d.date || (d.date >= AUJOURDHUI && (!lim || d.date <= lim)));
 };
 
-function setRange(n) {
-  rangeJours = n;
-  try { localStorage.setItem('majvac_range', String(n)); } catch (e) {}
-  document.querySelectorAll('#seg button').forEach(b => b.classList.toggle('on', parseInt(b.dataset.r, 10) === n));
-  if (Object.keys(resultats).length) {
-    centres.forEach(c => majChipDepuisResultat(c.id));
-    afficherResultat(lastPeriode, lastTs);
-  }
-}
-
+const LABELS_COURTS = { argenteuil:'Argenteuil', sartrouville:'Sartrou.', tremblay:'Tremblay', antony:'Antony', annecy:'Annecy' };
 function chipHtml(c, contenu) {
-  return '<div class="chip" id="chip-' + c.id + '"><div class="c">' + c.label + '</div><div class="n">' + contenu + '</div></div>';
+  return '<div class="pa" id="chip-' + c.id + '"><div class="r">' + contenu + '</div><div class="l">' + (LABELS_COURTS[c.id] || c.label) + '</div></div>';
 }
-function setChip(id, contenu) {
-  const el = document.querySelector('#chip-' + id + ' .n');
-  if (el) el.innerHTML = contenu;
+function setChip(id, contenu, cls) {
+  const pa = document.getElementById('chip-' + id);
+  if (!pa) return;
+  pa.className = 'pa' + (cls ? ' ' + cls : '');
+  pa.querySelector('.r').innerHTML = contenu;
 }
 function setStatus(txt, err) {
   document.getElementById('statusTxt').textContent = txt;
@@ -360,6 +375,7 @@ function afficherResultat(periode, ts) {
   dernierMsg = construireMessage(periode);
   document.getElementById('msgBox').textContent = dernierMsg;
   afficherDoublons();
+  majActions();
   document.getElementById('resultZone').style.display = 'flex';
   const d = ts ? new Date(ts) : new Date();
   document.getElementById('lastScan').textContent = "Dernier scan : " +
@@ -367,26 +383,93 @@ function afficherResultat(periode, ts) {
     d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
 }
 
+const classeNb = (n) => n === 0 ? 'ok' : (n >= 20 ? 'ko' : 'mid');
 function majChipDepuisResultat(id) {
   const r = resultats[id];
   if (!r) return;
-  if (r.error) { setChip(id, '<span class="ko">⚠️ erreur</span>'); return; }
-  const days = joursFuturs(r);
-  const totalFutur = (r.days || []).filter(d => !d.date || d.date >= AUJOURDHUI).length;
-  const complets = days.filter(d => d.status === 'none').length;
-  const partiels = days.filter(d => d.status === 'partial').length;
-  if (!days.length) {
-    if (rangeJours && totalFutur > 0)
-      setChip(id, '<span class="ok">0</span> <small class="mid">· ' + totalFutur + ' sur la période</small>');
-    else
-      setChip(id, '<span class="ok">0 <small>tout couvert</small></span>');
+  if (r.error) { setChip(id, '⚠️', 'ko'); majCarteEquipe(id, null, 'ko'); return; }
+  const n = (r.days || []).filter(d => !d.date || d.date >= AUJOURDHUI).length;
+  const cls = classeNb(n);
+  setChip(id, String(n), cls);
+  majCarteEquipe(id, n, cls);
+}
+// Colore le bandeau équipe du centre et affiche son nombre de jours sans ophta.
+function majCarteEquipe(id, n, cls) {
+  const card = document.getElementById('eq-' + id);
+  if (!card) return;
+  card.className = 'eqC ' + cls;
+  const nb = card.querySelector('.nb');
+  if (!nb) return;
+  if (n === null) nb.innerHTML = '';
+  else if (n === 0) nb.innerHTML = '<span class="ok">✓</span>';
+  else nb.innerHTML = '<span class="' + (cls === 'ko' ? 'ko' : 'mid') + '">' + n + ' j</span>';
+}
+
+// ---------- Bandeau « actions à faire » ----------
+let actionsCdd = { attente: 0 };
+function majActions() {
+  const items = [];
+  if (actionsCdd.attente > 0)
+    items.push('<a class="act" href="/cdd/admin.html"><span class="puls r"></span><span><b>' + actionsCdd.attente + ' réservation' + (actionsCdd.attente > 1 ? 's' : '') + '</b> à valider</span><span class="bt">Valider ›</span></a>');
+  const lim = (() => { const d = new Date(); d.setDate(d.getDate() + 10); return d.toLocaleDateString('fr-CA'); })();
+  const proches = [];
+  for (const c of centres) {
+    const r = resultats[c.id];
+    if (!r || r.error) continue;
+    for (const d of r.days || []) if (d.date && d.date >= AUJOURDHUI && d.date <= lim) proches.push({ c: c.label, date: d.date });
   }
-  else {
-    let html = '';
-    if (complets) html += '<span class="ko">' + complets + '<small>sans ophta</small></span>';
-    if (partiels) html += (complets ? ' ' : '') + '<span class="mid">' + partiels + '<small>partiel' + (partiels>1?'s':'') + '</small></span>';
-    setChip(id, html);
+  proches.sort((a, b) => a.date.localeCompare(b.date));
+  for (const p of proches.slice(0, 3)) {
+    const dt = new Date(p.date + 'T12:00:00');
+    items.push('<a class="act" href="/cdd/admin.html"><span class="puls"></span><span><b>' +
+      JOURS_ABR[dt.getDay()] + ' ' + String(dt.getDate()).padStart(2, '0') + '/' + String(dt.getMonth() + 1).padStart(2, '0') +
+      ' · ' + p.c + '</b> sans ophta — ouvert dans JARVIS CDD</span><span class="bt">Voir ›</span></a>');
   }
+  const box = document.getElementById('actionsBox');
+  document.getElementById('actionsList').innerHTML = items.join('');
+  box.style.display = items.length ? 'block' : 'none';
+}
+
+// ---------- Équipe du jour : un bandeau par centre, noms en pastilles ----------
+// (ophtalmo en bleu, orthoptistes en cyan, secrétaires en gris, renfort en rouge)
+const CORRECTIONS = [[/\bABDELATIF\b/i, 'ABDELLATIF'], [/\bCHERMERZELIN\b/i, 'CHEMERZELIN']];
+const joliNom = (b) => CORRECTIONS.reduce((x, c) => x.replace(c[0], c[1]), b)
+  .replace(/^dr\.?\s+/i, '').trim().toLowerCase()
+  .replace(/(^|[\s-])([a-zà-ÿ])/g, (m, sp, l) => sp + l.toUpperCase());
+async function chargerEquipe() {
+  const zone = document.getElementById('eqZone');
+  try {
+    const paris = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Paris' }));
+    let titre = '👥 Équipe du jour';
+    if (paris.getDay() === 0) { paris.setDate(paris.getDate() + 1); titre = '👥 Équipe de demain'; }
+    const iso = paris.toLocaleDateString('fr-CA');
+    document.getElementById('eqTitre').textContent = titre + ' — ' +
+      paris.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+    document.getElementById('eqCards').innerHTML = centres.map(c =>
+      '<div class="eqC" id="eq-' + c.id + '"><div class="eqH"><b>' + c.label + '</b><span class="nb"></span></div>' +
+      '<div class="eqP"><span class="eqVide"><span class="spin"></span></span></div></div>').join('');
+    zone.style.display = 'flex';
+    await Promise.all(centres.map(async (c) => {
+      const d = await fetchJsonSafe('../api/majvac?centre=' + c.id + '&vue=equipe&semaine=' + iso);
+      const card = document.getElementById('eq-' + c.id);
+      if (!card) return;
+      const zp = card.querySelector('.eqP');
+      if (d.error || !d.roles) { zp.innerHTML = '<span class="eqVide">planning indisponible</span>'; return; }
+      const pills = [];
+      for (const r of d.roles || []) for (const p of r.personnes || []) {
+        const h = p.jours && p.jours[iso];
+        if (!h) continue;
+        let nom = joliNom(p.nom);
+        let cls = r.role === 'ophta' ? 'oph' : r.role === 'ortho' ? 'ort' : r.role === 'renfort' ? 'ren' : 'sec';
+        if (r.role === 'ophta') nom = '🩺 Dr ' + nom;
+        if (r.role === 'renfort' && /arous/i.test(p.nom)) nom = 'Raph';
+        pills.push('<span class="pill ' + cls + '" title="' + h + '">' + nom + '</span>');
+      }
+      zp.innerHTML = pills.length ? pills.join('') : '<span class="eqVide">Fermé — personne au planning ce jour</span>';
+    }));
+    // Récupérer les couleurs/compteurs si les résultats sont déjà chargés
+    for (const c of centres) if (resultats[c.id]) majChipDepuisResultat(c.id);
+  } catch (e) { zone.style.display = 'none'; }
 }
 
 async function chargerAuto(bust) {
@@ -420,7 +503,7 @@ async function lancerScan() {
   if (mode === 'auto') {
     const data = await chargerAuto(true);
     if (data) appliquerAuto(data);
-    else { setStatus('HORS LIGNE', true); centres.forEach(c => setChip(c.id, '<span class="ko">⚠️</span>')); }
+    else { setStatus('HORS LIGNE', true); centres.forEach(c => setChip(c.id, '⚠️', 'ko')); }
     btn.disabled = false; btn.classList.remove('scanning');
     if (data) setStatus('PRÊT');
     return;
@@ -476,6 +559,7 @@ async function init() {
     centres = info.centres || [];
     periodeInfo = info.periode || [];
     document.getElementById('chips').innerHTML = centres.map(c => chipHtml(c, '<span class="wait">—</span>')).join('');
+    if (info.ok) chargerEquipe();
     if (info.periode && info.periode.length) {
       const p1 = MOIS_FR[info.periode[0].nom] || info.periode[0].nom;
       const pl = info.periode[info.periode.length-1];
@@ -535,7 +619,6 @@ async function init() {
     setStatus('HORS LIGNE', true);
   }
 }
-document.querySelectorAll('#seg button').forEach(b => b.classList.toggle('on', parseInt(b.dataset.r, 10) === rangeJours));
 init();
 </script>
 
@@ -587,6 +670,8 @@ async function cddMaj(){
     const attente = CDD.enAttente||0;
     document.getElementById("cddNLibres").textContent = libres.length;
     document.getElementById("cddNAttente").textContent = attente;
+    actionsCdd.attente = attente;
+    try { majActions(); } catch (e) {}
     document.getElementById("cddWa").disabled = false;
     for(const b of [document.getElementById("cddBadge"), document.getElementById("cddBadgeH")].filter(Boolean)){
       if(attente){ b.textContent = attente; b.style.background = "#FF5D6C"; b.style.color = "#fff"; b.style.display = "flex"; }
