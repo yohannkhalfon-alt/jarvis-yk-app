@@ -123,7 +123,11 @@
   .eqH { display:flex; align-items:center; gap:7px; margin-bottom:6px; }
   .eqH b { color:#fff; font-size:13px; letter-spacing:1px; }
   .eqH .nb { margin-left:auto; font-size:12px; font-weight:700; }
-  .eqP { display:flex; gap:5px; flex-wrap:wrap; }
+  .eqH .chev { color:var(--dim); font-size:16px; line-height:1; }
+  a.eqC, a.pa { text-decoration:none; color:inherit; }
+  .eqP { display:flex; flex-direction:column; gap:4px; }
+  .eqL { display:flex; gap:5px; flex-wrap:wrap; align-items:center; }
+  .rl { flex:none; width:46px; font-size:9px; letter-spacing:.8px; color:var(--dim); text-transform:uppercase; }
   .pill { border-radius:999px; padding:4px 10px; font-size:11.5px; font-weight:600; font-family:'Rajdhani'; }
   .pill.oph { background:var(--blue); color:#fff; font-weight:700; }
   .pill.ort { background:rgba(79,216,235,.15); color:var(--cyan); }
@@ -247,7 +251,7 @@ const joursFuturs = (r) => {
 
 const LABELS_COURTS = { argenteuil:'Argenteuil', sartrouville:'Sartrou.', tremblay:'Tremblay', antony:'Antony', annecy:'Annecy' };
 function chipHtml(c, contenu) {
-  return '<div class="pa" id="chip-' + c.id + '"><div class="r">' + contenu + '</div><div class="l">' + (LABELS_COURTS[c.id] || c.label) + '</div></div>';
+  return '<a class="pa" id="chip-' + c.id + '" href="/planning/' + c.id + '"><div class="r">' + contenu + '</div><div class="l">' + (LABELS_COURTS[c.id] || c.label) + '</div></a>';
 }
 function setChip(id, contenu, cls) {
   const pa = document.getElementById('chip-' + id);
@@ -446,8 +450,8 @@ async function chargerEquipe() {
     document.getElementById('eqTitre').textContent = titre + ' — ' +
       paris.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
     document.getElementById('eqCards').innerHTML = centres.map(c =>
-      '<div class="eqC" id="eq-' + c.id + '"><div class="eqH"><b>' + c.label + '</b><span class="nb"></span></div>' +
-      '<div class="eqP"><span class="eqVide"><span class="spin"></span></span></div></div>').join('');
+      '<a class="eqC" id="eq-' + c.id + '" href="/planning/' + c.id + '"><div class="eqH"><b>' + c.label + '</b><span class="nb"></span><span class="chev">›</span></div>' +
+      '<div class="eqP"><span class="eqVide"><span class="spin"></span></span></div></a>').join('');
     zone.style.display = 'flex';
     await Promise.all(centres.map(async (c) => {
       const d = await fetchJsonSafe('../api/majvac?centre=' + c.id + '&vue=equipe&semaine=' + iso);
@@ -455,17 +459,24 @@ async function chargerEquipe() {
       if (!card) return;
       const zp = card.querySelector('.eqP');
       if (d.error || !d.roles) { zp.innerHTML = '<span class="eqVide">planning indisponible</span>'; return; }
-      const pills = [];
+      const parRole = { ophta: [], ortho: [], secretaire: [], renfort: [] };
       for (const r of d.roles || []) for (const p of r.personnes || []) {
         const h = p.jours && p.jours[iso];
         if (!h) continue;
         let nom = joliNom(p.nom);
-        let cls = r.role === 'ophta' ? 'oph' : r.role === 'ortho' ? 'ort' : r.role === 'renfort' ? 'ren' : 'sec';
-        if (r.role === 'ophta') nom = '🩺 Dr ' + nom;
         if (r.role === 'renfort' && /arous/i.test(p.nom)) nom = 'Raph';
-        pills.push('<span class="pill ' + cls + '" title="' + h + '">' + nom + '</span>');
+        (parRole[r.role] || parRole.secretaire).push({ nom, h });
       }
-      zp.innerHTML = pills.length ? pills.join('') : '<span class="eqVide">Fermé — personne au planning ce jour</span>';
+      const ligne = (lbl, gens, cls, pre) => gens.length
+        ? '<div class="eqL">' + (lbl ? '<span class="rl">' + lbl + '</span>' : '') +
+          gens.map(p => '<span class="pill ' + cls + '" title="' + p.h + '">' + (pre || '') + p.nom + '</span>').join('') + '</div>'
+        : '';
+      const lignes =
+        ligne('', parRole.ophta, 'oph', '🩺 Dr ') +
+        ligne('Orthos', parRole.ortho, 'ort') +
+        ligne('Secrét.', parRole.secretaire, 'sec') +
+        ligne('Renfort', parRole.renfort, 'ren');
+      zp.innerHTML = lignes || '<span class="eqVide">Fermé — personne au planning ce jour</span>';
     }));
     // Récupérer les couleurs/compteurs si les résultats sont déjà chargés
     for (const c of centres) if (resultats[c.id]) majChipDepuisResultat(c.id);
